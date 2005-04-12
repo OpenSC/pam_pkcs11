@@ -1,0 +1,64 @@
+.\" .
+.TH "pam_pkcs11" "8" "15-Feb-2005" "Mario Strasser" "System Administration tools"
+.SH "NAME"
+pam_pkcs11 \- PAM Authentication Module for PKCS#11 token libraries
+.SH "SYNOPSIS"
+pam_pkcs11.so [debug] [configfile=<config file>]
+.SH "DESCRIPTION"
+This Linux\-PAM login module allows a X.509 certificate based user
+login. The certificate and its dedicated private key are thereby
+accessed by means of an appropriate PKCS #11 module. For the
+verification of the users' certificates, locally stored CA
+certificates as well as either online or locally accessible CRLs are
+used
+.
+.SH "CONFIGURATION"
+.
+The program that needs a PAM service should be configured in 
+.B /etc/pam.conf
+or
+.B /etc/pam.d/<servicename>
+.P
+PAM\-pkcs11 can be ussed in the <auth> chain.
+.br 
+For details on how to configure PAM services, see the PAM
+documentation for your system. This manual does not cover PAM
+configuration details. The existing PAM service definitions for
+other applications on your system is also a good source for examples
+on how to configure a PAM service.
+.
+.SH "NOTES"
+.
+Some pkcs11 auth services may require to be run as root. So special considerations on security must be taken
+.RS
+.P
+.B chown root pam_pkcs11
+.br 
+.B chmod u+s pam_pkcs11
+.RE
+.P
+Please note that in such configurations it is also strongly recommended
+that the configuration files to be moved into a directory where normal users cannot
+access it, as this mode of operation will allow any local user to
+brute\-force other users passwords. Also note the program has not been
+fully audited and the author cannot be held responsible for any security
+issues due to such installations.
+.
+.SH "FILES"
+.LP
+\fI/etc/pam_pkcs11/pam_pkcs11.conf\fP
+.br 
+\fI/usr/lib/pam_pkcs11/*_mapper.so\fP
+.SH "AUTHOR"
+Original PAM\-pkcs11 was written by Mario Strasser <mast@gmx.net>
+.br 
+Newer versions are from Juan Antonio Martinez
+<jonsito@teleline.es>
+.SH "REPORTING BUGS"
+Report bugs ideas, comments, bug\-fixes and so to:
+.I Juan Antonio Martinez <jonsito@teleline.es>
+.
+.SH "SEE ALSO"
+.BR pam (8), pam_pkcs11.conf (5), " PAM Systems Administrator Guide"
+.BR README.mappers file
+.BR PAM\-PKCS#11 User Manual

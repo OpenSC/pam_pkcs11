@@ -1,0 +1,173 @@
+What is a cert mapper?
+--------------------------
+
+When a X509 Certificate is providen, there are no direct way to map
+a cert to a login. With a certificate we can check validity and
+revocation, but user mapping depends entirely on certificate content
+
+So we need a configurable, stackable, and definable way to specify
+cert-to-user mapping.
+
+pam-pkcs11 cert mappers provides two functions:
+
+1- Deduce a login from certificate
+2- Test if a login and a certificate matches
+
+Normal pam-pkcs11 login process involves following procedures
+	- Enter	login
+	- Ask for PIN
+	- Open and validate certificate
+	- Map certificate into an user (*)
+	- Check if login and user matches (**)
+
+An alternate way of working is by mean of not providing user name:
+	- Detect if a card is inserted
+	- Ask for PIN
+	- Open and validate certificate
+	- Map certificate into an user (*)
+	- open session for deduced login
+
+Last way needs an aditional pam-mkhomedir.so PAM module, that can
+dinamically create an account
+
+Operations (*) and (**) are the reason for cert-mappers to exist
+
+Implementation of cert mappers in pam-pkcs11
+-----------------------------------------------------
+
+pam-pkcs11 implements cert mapper in form of dinamyc loaded modules.
+You can add as many modules as desired, and the system will try all
+of them in turn, until match is done, or end of list get reached
+
+the mapper list is defined in the configuration file:
+
+pam-pkcs11 {
+	....
+	mapper_list = mapper1 [ [[,] mapper2 ] ... ] ;
+
+	mapper mapper1 {
+		module = /path/to/module.so;
+		[ additional mapper dependent options ]
+	}
+}
+
+"module" entry is mandatory: says pam_pkcs11 where to find dynamic library
+additional entries can be defined but are module dependent
+
+
+Provided Mappers
+-------------------------
+
+
+Actually pam_opensc provides following mapper modules:
+
+cn     - Assumes CN field on certificate to be the login name
+
+	* When used as finder, module returns the first CN field found or NULL
+ 	* When used as matcher, it parses certificate and compare all CN fields
+	found against provided login name, returning OK if match found
+
+file   - Parse a file to get a list of CN -> login pairs
+	* When used as finder, retrieve first CN field on certificate, and
+	use it to read provided file to get a CN to login mapping
+	* When used as matcher, maps every CN entry on the certificate to
+	a login, and compare this login with provided by PAM
+
+pw     - Compare CN against getpwent() "login" or "gecos" fields to match
+	user login
+	* When used as finder use getpwent() system call to retrieve every
+	users on the system. if pw_name or pw_gecos fields match with CN
+	pw_name is returned as login name
+	* When used as matcher, maps CN to an user with via the finder
+	and matches result with loginname provided by PAM, returning the
+	result (match or no)
+
+	Note: newer implementations of getpwent() libraries, use an
+	additional Name Service Swicth (NSS) infraestructure, that
+	allows admins to specify how to obtain requested data.
+	This means you can setup /etc/nsswitch.conf password entries
+	to lookup in to /etc/passwd, or ldap/kerberos/NIS+/YP services
+
+ldap   - Uses an ldap server to retrieve user name. An aditional file tells
+	module the mapping between Cert fields and LDAP entries
+
+	This mapper is still under development
+
+opensc - Search certificate public key in ${HOME}/.ssh/autorized_keys
+	in a similar way as OpenSC does. When used as login finder,
+	returns "nobody"
+
+	this mapper is still under development
+
+mail   - Try to extract an e-mail from certificate. If found, analyze it
+	against an "aliases" ( email to login ) list
+
+	if "use_alias" is set an aliases file is provided, the module 
+	tries to map email field from the certificate to an user 
+	( or alternate email ).
+
+	if use_alias is not set, just use email addres from certificate
+	to perform find/match
+
+	* When used as finder, just return email or mapped email/user
+	( see above )
+	* When used as matcher, compare found email/user against provided
+	by pam. Additionaly you can set "ignorecase" or "ignoredomain"
+	flags
+
+	domain check (if set) is done by testing if provided email domain
+	part ( @ie.this.domain ) matches host domain. 
+	Eg "user@my.company.com" email in host "ahost.in.my.company.com" 
+	host matches domain
+
+       ( NOTE: at version 0.4.1 use_alias is still under development )
+
+ms     - Try to find and use Microsoft Universal Principal Name extension 
+	as login name
+	* When used as finder, returns UPN as login name
+	* when used as matcher compares UPN against PAM provided login
+
+krb    - Try to find and use Kerberos Principal Name as login name
+
+	This mapper needs to be written
+
+uid    - Use Unique ID field (if found) as login name
+
+	Similar to CN mapper, but using UID as field to find/match
+
+null   - blind access/deny mapper. 
+
+	If "allways_match" is set to true:
+	* When used as finder allways returns "nobody"
+	* When used as matcher allways returns OK
+
+	If "allways_match" is set to false:
+	* When used as finder allways returns NULL
+	* When used as matcher allways returns FAIL
+
+See the provided pam_pkcs11.conf.example file to see module flags
+
+Adding new mappers
+-----------------------
+
+Creating new mappers is easy: just read mapper.h file, provide
+a file that exports required functions, and modify file
+src/mappers/Makefile.am
+
+Mapper.h provides default implementation for required exports. They 
+should be overriden by user code, but can be used for testing purposes
+
+Wish list
+-----------------
+
+- Implement ldap and kerberos mappers
+- Implement PKINIT draft protocol for talking to a kerberos server
+- Use ms Universal Principal Name to autenticate against an MS Active
+  directory server
+- Implement mail_aliases parsing for mail mapper module
+
+Further information
+-------------------------
+Please, send mail with patches, comments and suggestions to
+Juan Antonio Martinez <jonsito@teleline.es>
+

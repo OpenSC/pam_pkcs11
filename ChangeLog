@@ -1,0 +1,142 @@
+11- Apr 2005
+	- Change package name to pam-pkcs11
+	- Change directory names according with package name
+	- Rewrite pwent mapper to use cert_info library
+
+08- Apr 2005
+	- Some typos in some messages
+	- Make sources more "gcc -pedantic" friendly.
+	- Changes in DBG(X) macros, to be C99 compliant
+
+07- Apr 2005
+	- pkcs11_login-0.5.1 is out
+	- Fix configure.in AM_MAINTAINER_MODE
+	- Makefile fixes
+	- Fix some typos and sample files
+
+02- Apr 2005
+	- pkcs11_login-0.5 is out
+	- Mail mapper rewritten to use cert_info lib
+	- First works on mapper api:
+		. create structs and macros in mapper.h
+		. rewrite mappers to initialize mapper_module_st entries
+	- Published roadmap to 1.0 version. See TODO file
+	- Fix: Dont free key/value map entries, as they come from buffer entry
+
+31- Mar 2005
+	- Added CA & CRL mgmnt doc to manual
+	- Chaged  ocurrences of "if (!x) free(x)" to "free(x)" as glibc 
+	  already does propper null check
+	- Finished krb_mapper ( no pkinit, just kpn -> login map ).
+	  NOTE: I assume that KPN is stored as ASN1_STRING, but cannot
+	  deduce it from RFC's
+	- MS mapper rewriten to use cert_info lib
+
+29- Mar 2005
+	- Manual rewritten in xml format
+	- Check for manual in html format. Re-generate if not present
+	- pkcs11_eventmgr: reset time_counter on expire() event fixed
+	- Update .spec file to release 0.5-0
+
+28- Mar 2005
+	- pkcs11_login-0.5beta1 is out
+	- Manual and web page updated
+
+22- Mar 2005
+	- recoded cn and krb mappers to use cert_info library
+	- buxfix in conf file
+
+20- Mar 2005
+	- New tool: pkcs11_inspect, to see contents of certificate
+	- Man pages: several typos and bugfixes
+	- Recoded uid mapper to use cert_info library
+
+18- Mar 2005
+	- No more warns in compile: fix "-no-strict-alias" cflag when
+	linking with /usr/lib/libpam.so
+	- Several bugfixes and configuration files typos. 
+	- Updated .spec file
+	- New files cert_info.[ch] to get and show cert contents.
+	This will allow coding of some tools to inspect certificates 
+	without loading mapper modules
+	- Re-coded digest and subject mapper to use cert_info library. 
+	The idea is:
+		1- Get all mappers use cert_info library
+		2- join all mappers in one big dynload module to 
+		store all pre-defined mappers
+
+17- Mar 2005
+	- Add mapper module function: mapper_find_entries(), in module 
+	API to get textual (ie: without mapping) entries on certificate
+	- Reorganize sources: add src/common directory for shared code
+	and move most of common functions there to create a library
+	- Fixed tons of warnings related to "const char *" typecast
+	- Rename cert.[ch] to cert_vfy.[ch]
+
+15- Mar 2005
+	- Add Certificate Digest mapper ( updated doc and sample files )
+
+4- Mar 2005
+	- Added mapfiles to UID mapper
+	- ms_mapper now works properly ( sorry, no ADS conection yet :-( )
+	- Updated doc and sample files
+
+3- Mar 2005
+	- Implemented routines API for file mapping: 
+	  {set,get,end}_mapfile()
+	  mapfile_{find,match}()
+	- Implemented mapfiles in mail_mapper
+	- Added mapfiles to cn_mapper
+	- file_mapper changed to subject_mapper
+
+1- Mar 2005
+	- Pkcs#11-Login 0.4.4 is out.
+	- New web pages
+
+28- Feb 2005
+	- New pkcs11_eventmgr tool. card_eventmgr is now deprecated,
+	  but still supported
+	- Updated manual
+
+24- Feb 2005
+	- Proper detect [no]debug commandline option
+	- Updated manual
+	- Fixed pcsc-lite version control in card_eventmgr.c
+	- Several configure.in compatibility issues
+
+16- Feb 2005
+	- Move scconf to be statically linked
+	- New tool: pklogin_finder
+	- Some manual pages
+	- Redhat .spec file
+	- Bugfixes
+
+11- Feb 2005
+	- Works on Card Event manager finished
+	- Update documentation
+
+10- Feb 2005
+	- Preliminary version of card_eventmgr tool to detect 
+	insert/extract card events and launch proper actions
+
+9- Feb 2005
+	- Allow empty strings as user name, and deduce login from certificate
+	- Bugfix: call close_pkcs11_session() on all error conditions
+	- Updated manuals and README's
+
+8- Feb 2005
+	- New pw_mapper CN-to-getpwent() mapper
+	- Ignoredomain support for mail_mapper
+	- Minor bugs in cn and uid mappers 
+
+7- Feb 2005
+	pkcs11_login-0.4 released:
+	- Now pam_pkcs11 can take arguments from command line 
+	or via configuration file
+	- Certificate to User mappin has been modularized
+	- Preliminary works on entering session without userlogin prompt:
+	just insert certificate and enter PIN
+
+2- Feb 2005
+	Thanks Mario Strasser for allow me re-work in their pam_pkcs11
+	module and re-release it under LGPL

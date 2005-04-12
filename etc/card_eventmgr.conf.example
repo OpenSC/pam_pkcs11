@@ -1,0 +1,39 @@
+card_eventmgr {
+
+	# Run in background. Implies debug=false
+	daemon = true;
+
+	# show debug messages
+	debug = false;
+	
+	# polling time in mili-seconds
+	timeout = 1000;
+	
+	#
+	# list of events and actions
+
+	# Card inserted
+	event card_insert {
+		# what to do if an action fail?
+		# ignore  : continue to next action
+		# return  : end action sequence
+		# quit    : end program
+		on_error = ignore ;
+
+		# You can enter several, comma-separated action entries
+		# they will be executed in turn
+		action = "/usr/bin/play /usr/share/sounds/warning.wav",
+			"/usr/X11R6/bin/xscreensaver-command -deactivate";
+	}
+
+	# Card has been removed
+	event card_remove { 
+		on_error = ignore;
+		action = "/usr/bin/play /usr/share/sounds/error.wav",
+			"/usr/X11R6/bin/xscreensaver-command -lock";
+	}
+
+	# Too much time locked session
+	event timeout { 
+	}
+}

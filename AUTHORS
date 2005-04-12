@@ -1,0 +1,10 @@
+Mario Strasser <mast@gmx.net> 
+	Original pam-pkcs11 code
+
+Juan Antonio Martinez <jonsito@teleline.es>
+	Configuration file mgmt
+	Dynamic cert-to-login module mappers
+
+Antti Tapaninen <aet@cc.hut.fi> 
+Timo Sirainen <tss@iki.fi>
+	scconf configuration file library
