@@ -1,0 +1,67 @@
+.TH "pkcs11_eventmgr" "1" "0.4.4" "Juan Antonio Martinez" "PAM-pkcs11 tools"
+.SH "NAME"
+.LP 
+SmartCard PKCS#11 Event Manager
+.SH "SYNTAX"
+.LP 
+pkcs11_eventmgr [\fI[no]debug\fP] [\fI[no]daemon\fP] [\fIpolling_time=<secs>\fP ] [\fIexpire_time=<secs>\fP] [\fIpkcs11_module=<module>\fP ] [\fIconfig_file=<filename>\fP ]
+.SH "DESCRIPTION"
+.LP 
+card_eventmgr is a SmartCard Monitoring that listen to the status of the card reader and dispatch actions on several events. card_eventmgr can be used to several actions, like lock screen on card removal
+.br 
+Three events are supported: card insert, card removal and timeout on removed card. Actions to take are specified in the configuration file
+.SH "OPTIONS"
+.LP 
+.TP 
+\fB[no]debug\fR 
+Enable debugging output. Default is no debug
+.TP 
+\fB[no]daemon\fR
+Runs in background. If debug is unset, dettach also from tty. Default: no daemon
+.TP 
+\fBpolling_time=<secs>\fR
+Set polling timeout in secs. Defaults to 1 sec
+.TP 
+\fBexpire_time=<secs>\fR
+Set timeout on card removed. Defaults to 0 (never)
+.TP 
+\fBconfig_file=<configuration file>\fR
+Sets de configuration file. Defaults to /etc/pam_pkcs11/card_eventmgr.conf
+.TP 
+\fBpkcs11_module=<pkcs11.so library>\fR
+Sets the pkcs#11 library module to use. Defaults to /usr/lib/pkcs11/opensc\-pkcs11.so
+.SH "FILES"
+.LP 
+\fI/etc/pam_pkcs11/card_eventmgr.conf\fP 
+.LP 
+\fI/usr/lib/pkcs11/opensc\-pkcs11.so\fP 
+.SH "EXAMPLES"
+.LP 
+To run this program the standard way type:
+.LP 
+pkcs11_eventmgr
+.LP 
+Alternativly you can specify options:
+.LP 
+pkcs11_eventmgr nodebug nodaemon polling_time=5 config_file=${HOME}/.pkcs11_eventmgr.conf
+.SH "BUGS"
+.br 
+Some PKCS#11 Libraries fails on card removal and re\-insert.
+to avoid this, pkcs11_eventmgr try to re\-initialize stuff
+by calling C_Finalize() and C_Initialize() on card removal
+.br 
+Some apps like [\fIxscreensaver\-command\fP] may fail due
+to external events ( eg: try to unlock an unlocked session ).
+In this case, command incorrectly returns error code.
+.br 
+User shoult take care on this circumstance
+.SH "AUTHORS"
+.LP 
+Juan Antonio Martinez <jonsito@teleline.es>
+.SH "SEE ALSO"
+.LP 
+pam_pkcs11(8), card_eventmgr(5)
+.br 
+README.eventmgr
+.br 
+PAM\-PKCS11 User Manual

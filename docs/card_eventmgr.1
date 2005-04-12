@@ -1,0 +1,56 @@
+.TH "card_eventmgr" "1" "0.4.4" "Juan Antonio Martinez" "PAM-pkcs11 tools"
+.SH "NAME"
+.LP 
+SmartCard PCSC\-Lite Event Manager
+.SH "SYNTAX"
+.LP 
+card_eventmgr [\fI[no]debug\fP] [\fI[no]daemon\fP] [\fItimeout=<\fImsecs\fP> ] [ config_file=<\fIfilename\fP> ]
+.SH "DESCRIPTION"
+.LP 
+card_eventmgr is a SmartCard Monitoring that listen to the status of the card reader and dispatch actions on several events. card_eventmgr can be used to several actions, like lock screen on card removal
+.br 
+Three events are supported: card insert, card removal and timeout on removed card. Actions to take are specified in the configuration file
+.SH "OPTIONS"
+.LP 
+.TP 
+\fB[no]debug\fR 
+Enable debugging output. Default is no debug
+.TP 
+\fB[no]daemon\fR
+Runs in background. If debug is unset, dettach also from tty. Default: no daemon
+.TP 
+\fBtimeout=<msecs>\fR
+Set polling timeout in milisecs. Defaults to 1000 (1sec)
+.TP 
+\fBconfig_file=<configuration file>\fR
+Sets de configuration file. defaults to /etc/pam_pkcs11/card_eventmgr.conf
+.SH "FILES"
+.LP 
+\fI/etc/pam_pkcs11/card_eventmgr.conf\fP 
+
+.SH "EXAMPLES"
+.LP 
+To run this program the standard way type:
+.LP 
+card_eventmgr 
+.LP 
+Alternativly you can specify options:
+.LP 
+card_eventmgr nodebug nodaemon timeout=500 config_file=${HOME}/.card_eventmgr.conf
+.SH "BUGS"
+.br 
+Some apps like [\fIxscreensaver\-command\fP] may fail due
+to external events ( eg: try to unlock an unlocked session ).
+In this case, command incorrectly returns error code.
+.br 
+User shoult take care on this circumstance
+.SH "AUTHORS"
+.LP 
+Juan Antonio Martinez <jonsito@teleline.es>
+.SH "SEE ALSO"
+.LP 
+pam_pkcs11(8), pkcs11_eventmgr(5)
+.br 
+README.eventmgr
+.br 
+PAM\-PKCS11 User Manual

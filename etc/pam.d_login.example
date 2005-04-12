@@ -1,0 +1,11 @@
+#%PAM-1.0
+auth       sufficient    pam_pkcs11.so nullok try_first_pass \
+  pkcs11_module=/usr/lib/pkcs11/opensc-pkcs11.so \
+  ca_dir=/etc/pam_pkcs11 crl_dir=/etc/pam_pkcs11 crl_policy=none
+auth       required	pam_securetty.so
+auth       required	pam_stack.so service=system-auth
+auth       required	pam_nologin.so
+account    required	pam_stack.so service=system-auth
+password   required	pam_stack.so service=system-auth
+session    required	pam_stack.so service=system-auth
+session    optional	pam_console.so

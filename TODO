@@ -1,0 +1,47 @@
+0.6 will be a finish-code release. Fix source tree estructure, 
+define devel api and code all to-be-written mappers are task to do
+
+Expected things to be done in 0.6 release:
+
+- Create and Define a pam-pkcs11 mapper API & library
+  * source code changes to create a "devel" package
+  * Mapper api changes to allow multi-mapper modules
+  * API manual :-)
+- Finish mapper coding 
+  * openssh, opensc, ldap mappers
+  * Generic mapper
+  * group simple mappers into "generic" one
+- Debian packaging
+
+0.7 is a try to real-life implementation: MS Active directory
+configuration, NSS aware configurations, LDAP settings,
+many samples and docs, general cleanups, etc. 
+It's time to create mail lists and subversion server
+
+Things to be done in 0.7 release:
+
+- remove card_eventmgr tool to no longer call pcsc-lite libs
+- Allow pam-pkcs11 login against MS Active Directory
+  * Changes to MS_mapper to real use of UPN Domain
+  * Documentation and samples
+- Manuals on LDAP, NSS and so installations
+- Create subversion, mail list, complete docs and so
+- ncurses (gtk?) tool to create/edit mapfiles
+
+0.8 will be a major cleanup: bugfixes, optimizations, pam-session
+handling. Most important: pkinit aware pam module is to be scheduled
+here
+
+Things to be done in 0.8 release
+
+- Call for pin only when needed
+- Use certificate only if available for authentication
+- Implement of Kerberos PKINIT specification. Rewrite of kpn mapper
+- Check content-type of cert fields instead assume utf-8
+- proper handle of free() calls when needed
+
+0.9 will be a preview version. No more items are expected to add, 
+just bugfixes and feedbacks from users. 
+Perhaps it's time for i18n issues
+
+1.0 That's all folks!

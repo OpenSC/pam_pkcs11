@@ -1,0 +1,4 @@
+# Mapping file for Certificate Subject
+# format: Certificate Subject -> login
+#
+/C=ES/O=FNMT/OU=FNMT Clase 2 CA/OU=500051483/CN=NOMBRE MARTINEZ CASTA\xF1O JUAN ANTONIO - NIF 50431138G -> jantonio
