@@ -40,10 +40,12 @@
 */
 
 static const char *mapfile = "none";
+static int usepwent = 0;
 static int ignorecase = 0;
+static int id_type = CERT_CN;
 
 static char **generic_mapper_find_entries(X509 *x509) {
-	return NULL;
+	return cert_info(x509, id_type, NULL); 
 }
 
 static char *generic_mapper_find_user(X509 *x509) {
@@ -53,7 +55,7 @@ static char *generic_mapper_find_user(X509 *x509) {
                 DBG("NULL certificate provided");
                 return 0;
         }
-	entries= mapper_find_entries(x509);
+	entries= generic_mapper_find_entries(x509);
 	if (!entries) {
 		DBG("Cannot find any entries in certificate");
 		return 0;
@@ -89,7 +91,7 @@ static int generic_mapper_match_user(X509 *x509, const char *login) {
 		DBG("NULL login provided");
 		return 0;
 	}
-	entries= mapper_find_entries(x509);
+	entries= generic_mapper_find_entries(x509);
 	if (!entries) {
 		DBG("Cannot find any entries in certificate");
 		return 0;
@@ -137,13 +139,25 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
 */
 int mapper_module_init(scconf_block *blk,const char *name) {
 	int debug;
+	const char *item;
 	if (!blk) return 0; /* should not occurs, but... */
 	debug = scconf_get_bool( blk,"debug",0);
 	set_debug_level(debug);
 	ignorecase = scconf_get_bool( blk,"ignorecase",0);
+	usepwent = scconf_get_bool( blk,"usepwent",0);
 	mapfile= scconf_get_str(blk,"mapfile",mapfile);
+	item= scconf_get_str(blk,"certItem","cn");
+	if (!strcasecmp(item,"cn"))           id_type=CERT_CN;
+	else if (!strcasecmp(item,"subject")) id_type=CERT_SUBJECT;
+	else if (!strcasecmp(item,"kpn") )    id_type=CERT_KPN;
+	else if (!strcasecmp(item,"email") )  id_type=CERT_EMAIL;
+	else if (!strcasecmp(item,"upn") )    id_type=CERT_UPN;
+	else if (!strcasecmp(item,"uid") )    id_type=CERT_UID;
+	else {
+	    DBG1("Invalid certificate item to search '%s'; using 'cn'",item);
+	}
 	init_mapper_st(blk,name);
-	DBG3("Generic mapper started. debug: %d, mapfile: %s, ignorecase: %s",debug,mapfile,ignorecase);
+	DBG5("Generic mapper started. debug: %d, mapfile: '%s', ignorecase: %d usepwent: %d idType: '%s'",debug,mapfile,ignorecase,usepwent,id_type);
 	return 1;
 }
 
