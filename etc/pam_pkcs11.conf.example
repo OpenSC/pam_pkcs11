@@ -79,6 +79,7 @@ pam_pkcs11 {
   # cn      - Compare Common Name (CN)
   # uid     - Compare Unique Identifier
   # digest  - Certificate digest to login (mapfile based) mapper
+  # generic - User defined certificate contents mapped
   # null    - blind access/deny mapper
   #
   # You can select a comma-separated mapper list.
@@ -92,6 +93,18 @@ pam_pkcs11 {
   # TODO:
   # This is not still functional: use absolute pathnames or LD_LIBRARY_PATH 
   mapper_search_path = /usr/lib/pam_pkcs11;
+
+  # 
+  # Generic certificate contents mapper
+  mapper generic {
+	debug = false;
+	module = /usr/lib/pam_pkcs11/generic_mapper.so;
+	# use one of cn,subject,kpn,upn,email,uid
+	cert_item = cn;
+	ignorecase = false;
+	mapfile = file:///etc/pam_pkcs11/generic_mapping;
+	use_getpwent = true;
+  }
 
   # Certificate Subject to login based mapper
   # provided file stores one or more "Subject -> login" lines
@@ -194,4 +207,5 @@ pam_pkcs11 {
 	mapfile = file:///etc/pam_pkcs11/digest_mapping;
 	# mapfile = "none";
   }
+
 }

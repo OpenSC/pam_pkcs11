@@ -1,3 +1,8 @@
+12- Apr 2005
+	- Changed name to pam_pkcs11
+	- pam_pkcs11-0.5.2 released
+	- Now pam_pkcs11 is part of OpenSC project web.  
+
 04- Apr 2005
 	- Pkcs11_login-0.5 released:
 	  * Grouped all functions in a common library

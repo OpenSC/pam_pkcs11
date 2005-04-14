@@ -27,8 +27,10 @@
 #include <config.h>
 #endif
 
+#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pwd.h>
 #include <openssl/x509.h>
 #include "../scconf/scconf.h"
 
@@ -118,6 +120,9 @@ M_EXTERN void   end_mapent(struct mapfile *mfile);
 M_EXTERN char *mapfile_find(const char *file,char *key,int ignorecase);
 M_EXTERN int mapfile_match(const char *file,char *key,const char *value,int ignorecase);
 
+/* pwent related functions */
+M_EXTERN char *search_pw_entry(const char *item, int ignorecase);
+M_EXTERN int compare_pw_entry(const char *item, struct passwd *pw,int ignorecase);
 #undef M_EXTERN
 
 /* ------------------------------------------------------- */

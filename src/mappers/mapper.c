@@ -27,8 +27,10 @@
 #include <config.h>
 #endif
 
+#include <sys/types.h>
 #include <ctype.h>
 #include <string.h>
+#include <pwd.h>
 #include "../common/debug.h"
 #include "../common/error.h"
 #include "../common/uri.h"
@@ -183,6 +185,44 @@ int mapfile_match(const char *file, char *key, const char *value, int icase) {
 	if (icase) res= (!strcasecmp(str,value))? 1:0;
 	else       res= (!strcmp(str,value))? 1:0;
 	return res;
+}
+
+/* pwent related functions */
+
+/**
+* Compare item to gecos or login pw_entry
+* returns 1 on match, else 0
+*/
+int compare_pw_entry(const char *str,struct passwd *pw, int ignorecase) {
+   if (ignorecase) {
+      if ( !strcasecmp(pw->pw_name,str) || !strcasecmp(pw->pw_gecos,str) ) {
+            return 1;
+      }
+   } else {
+      if ( !strcmp(pw->pw_name,str) || !strcmp(pw->pw_gecos,str) ) {
+            return 1;
+      }
+   }
+   return 0;
+}
+
+/**
+* look in pw entries for an item that matches gecos or login to provided string
+* on success return login
+* on fail return null
+*/
+char *search_pw_entry(const char *str,int ignorecase) {
+        struct passwd *pw;
+        setpwent(); /* reset pwent parser */
+        while ( (pw=getpwent()) != NULL) {
+            if( compare_pw_entry(str,pw,ignorecase) ) {
+               DBG1("getpwent() match found: '%s'",pw->pw_name);
+               return clone_str(pw->pw_name);
+            }
+        }
+        endpwent();
+        DBG1("No pwent found matching string '%s'",str);
+        return NULL;
 }
 
 #endif

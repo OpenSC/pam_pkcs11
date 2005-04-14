@@ -1,3 +1,8 @@
+14- Apr 2005
+	- finish coding of generic_maper
+	- Move common code of pwent_mapper to mapper.c and mapper.h
+	- Fix MAINTAINERCLEAN entries in some Makefile.am files
+
 11- Apr 2005
 	- Change package name to pam-pkcs11
 	- Change directory names according with package name

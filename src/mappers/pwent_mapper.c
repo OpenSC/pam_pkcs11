@@ -49,39 +49,6 @@
 static int ignorecase = 0;
 
 /*
-* returns 1 or 0 on compare result
-*/
-static int pw_compare(const char *cn, struct passwd *pw) {
-   if (ignorecase) {
-      if ( !strcasecmp(pw->pw_name,cn) || !strcasecmp(pw->pw_gecos,cn) ) {
-	    return 1;
-      }
-   } else {
-      if ( !strcmp(pw->pw_name,cn) || !strcmp(pw->pw_gecos,cn) ) {
-	    return 1;
-      }
-   }
-   return 0;
-}
-
-/*
-* iterative call to getpwnam until cn matches to login or gecos
-*/
-static char *search_pw_entry(const char *cn) {
-	struct passwd *pw;
-	setpwent(); /* reset pwent parser */
-	while ( (pw=getpwent()) != NULL) {
-	    if( pw_compare(cn,pw) ) {
-	       DBG1("getpwent() match found: '%s'",pw->pw_name);
-	       return clone_str(pw->pw_name);
-	    }
-        }
-	endpwent();
-	DBG1("No pwent found matching CN '%s'",cn);
-	return NULL;
-}
-
-/*
 * Returns the common name of certificate as an array list
 */
 static char ** pwent_mapper_find_entries(X509 *x509) {
@@ -107,7 +74,7 @@ static char * pwent_mapper_find_user(X509 *x509) {
         /* parse list of uids until match */
         for (str=*entries; str ; str=*++entries) {
             DBG1("trying to find pw_entry for cn '%s'",str);
-	    found_user= search_pw_entry((const char *)str);
+	    found_user= search_pw_entry((const char *)str,ignorecase);
             if (!found_user) {
                 DBG1("CN entry '%s' not found in pw database. Trying next",str);
                 continue;
@@ -143,7 +110,7 @@ static int pwent_mapper_match_user(X509 *x509, const char *login) {
         /* parse list of uids until match */
         for (str=*entries; str ; str=*++entries) {
             DBG1("Trying to match pw_entry for cn '%s'",str);
-	    if (pw_compare(str,pw)) {
+	    if (compare_pw_entry(str,pw,ignorecase)) {
 		DBG2("CN '%s' Match login '%s'",str,login);
 		return 1;
 	    } else {
