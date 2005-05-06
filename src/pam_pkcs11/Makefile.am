@@ -13,8 +13,8 @@ pam_pkcs11_la_LDFLAGS = -module -avoid-version
 pam_pkcs11_la_LIBADD = @LIBSCCONF@ @LIBCOMMON@
 
 install:       
-	$(mkinstalldirs) $(DESTDIR)/lib/security
-	$(libLTLIBRARIES_INSTALL) $(top_builddir)/src/pam_pkcs11/.libs/pam_pkcs11.so $(DESTDIR)/lib/security
+	$(mkinstalldirs) $(DESTDIR)/$(libdir)/security
+	$(libLTLIBRARIES_INSTALL) $(top_builddir)/src/pam_pkcs11/.libs/pam_pkcs11.so $(DESTDIR)/$(libdir)/security
 
 format:
 	indent *.c *.h
