@@ -1,52 +1,48 @@
 .TH "pklogin_finder" "1" "0.4.4" "Juan Antonio Martinez" "PAM-pkcs11 tools"
 .SH "NAME"
-.LP 
-PkLogin Finder: maps certificates into an user
+pklogin_finder \- maps certificates into a user
 .SH "SYNTAX"
-.LP 
-pklogin_finder [\fI[no]debug\fP]  [ config_file=<\fIfilename\fP> ]
+\fBpklogin_finder\fP [\fI[no]debug\fP]  [ config_file=<\fIfilename\fP> ]
 .SH "DESCRIPTION"
-.LP 
-pklogin_finder uses the pam\-pkcs11 library infraestructure to interactively map a pkcs#11 provided certificate into an user.
-.br 
-pklogin_finder uses same configuration file and arguments than \fIpam_pkcs11(8)\fP pam module. Load defined mapper modules, and, in turn, try to find a map between found certificates and a user login
+pklogin_finder uses the pam\-pkcs11 library infrastructure to
+interactively map a PKCS#11 provided certificate into a user.
+.P
+pklogin_finder uses the same configuration file and arguments than
+\fIpam_pkcs11\fP(8) pam module. Load defined mapper modules, and try to
+find a map between found certificates and a user login.
 .SH "OPTIONS"
 .LP 
 .TP 
 \fB[no]debug\fR 
-Enable debugging output. Default is no debug
+Enable debugging output. Default is no debug.
 .TP 
 \fBconfig_file=<configuration file>\fR
-Sets the configuration file. defaults to /etc/pam_pkcs11/pam_pkcs11.conf
-.TP 
-As use same configuration file than pam_pkcs11, all pam_pkcs11
-options are also available. Note that some of them has no
-sense in a non\-PAM environment, so they will be ignored
+Sets the configuration file. defaults to
+\fI/etc/pam_pkcs11/pam_pkcs11.conf\fP.
+.P 
+As it uses the same configuration file than pam_pkcs11, all pam_pkcs11
+options are also available. Note that some of them has no sense in a
+non\-PAM environment, so they will be ignored.
 .SH "RETURN VALUE"
-.br 
-On success pklogin_finder prints via stdout login name and exit with 0 status
-.br 
-On user mapping error exit returns 1
-.br 
-On no user match prints nothing and exit returns 2
+On success pklogin_finder prints on stdout the login name and exits
+returns 0.
+.P
+On user mapping error it returns 1.
+.P
+On no user match it prints nothing and returns 2.
 .SH "FILES"
-.LP 
 \fI/etc/pam_pkcs11/pam_pkcs11.conf\fP 
-
 .SH "EXAMPLES"
-.LP 
-To run this program the standard way, insert SmartCard into reader and type:
-.LP 
-pklogin_finder 
-.LP 
+To run this program the standard way, insert a smart card into the
+reader and type:
+ pklogin_finder 
+.P
 Alternatively you can specify options:
-.LP 
-pklogin_finder nodebug config_file=${HOME}/.pam_pkcs11.conf
+ pklogin_finder nodebug config_file=${HOME}/.pam_pkcs11.conf
 .SH "AUTHORS"
 .LP 
 Juan Antonio Martinez <jonsito@teleline.es>
 .SH "SEE ALSO"
-.LP 
-pam_pkcs11(8),pkcs11_inspect(1)
+\fBpam_pkcs11\fP(8), \fBpkcs11_inspect\fP(1)
 .br 
 PAM\-PKCS11 User Manual
