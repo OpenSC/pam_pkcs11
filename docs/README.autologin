@@ -1,47 +1,47 @@
 EXTRACTING LOGIN FROM CERTIFICATE HOWTO
-------------------------------------------------
+---------------------------------------
 
 Starting at pam_pkcs11-0.4.2 a new feature is provided: pam-pkcs11 can
-deduce user name from certificate, without login prompt
+deduce user name from certificate, without login prompt.
 
 This is done when pam_get_user() call returns null or empty string.
 In this case, pam-pcks11 use the module mapper "find" feature instead
 of normal "match".
 
 If the finder list returns ok, evaluated user is set to pam via
-pam_set_item(PAM_USER) call, and PAM_AUTH_OK is returned
+pam_set_item(PAM_USER) call, and PAM_AUTH_OK is returned.
 
 So there are no longer need to enter user name if a certificate is
-provided and can be mapped to an user
+provided and can be mapped to an user.
 
 
-There are to ways for using this feature:
+There are to ways to use this feature:
 
 a) Patch "gdm" and "login" programs to detect card presence and return
 null as user name, without prompt for an user login.
 This is a work to be done :-(
 
-b) Use unpattched versions, and do the following procedures:
+b) Use unpatched versions, and do the following procedures:
 
 b.1) When login from console, just enter " " (space) + Enter. 
 
 b.2) When login from gdm, just key Enter at login prompt. 
 
-In both cases the procedure follows as:
-- If a card is not present, login will ask for password, and gdm
-will prompt again for user login
+In both cases the procedure continues as:
+- If a card is not present, login will ask for password, and gdm will
+  prompt again for user login
 
-- If a card is present, pam-pkcs11 will ask for PIN, and then invoke
-finder in module mapper list. when a user is found, this user become
-the logged user
+- If a card is present, pam-pkcs11 will ask for the PIN, and then invoke
+  finder in module mapper list. When a user is found, this user becomes
+  the logged user
 
 This feature can be used with pam-mkhomedir.so PAM Session module.
 In this case, you can create on-the-fly accounts. This scenario is
-ideal for centralized auth services ( Winbind, ldap, kerberos, RDBMS auth... )
+ideal for centralized auth services (Winbind, ldap, kerberos, RDBMS auth...)
 
 As example, here comes my tested /etc/pam.d/gdm file:
 #%PAM-1.0
-auth       sufficient    pam_pkcs11.so debug config_file=/etc/pam_pkcs11/pam_pkcs11.conf
+auth       sufficient   pam_pkcs11.so debug config_file=/etc/pam_pkcs11/pam_pkcs11.conf
 auth       required     pam_env.so
 auth       required     pam_stack.so service=system-auth
 auth       required     pam_nologin.so
@@ -53,12 +53,14 @@ session    optional     pam_console.so
 
 IMPORTANT NOTES:
  
-For pam_set_item(PAM_USER) gets success, application
-using pam must be enought permissions. If this condition is not met, setting
-user process will fail and proper log message registered. So this feature is
-mainly provided for logging processes running as root
+For pam_set_item(PAM_USER) success, application using pam must have
+enought permissions. If this condition is not met, setting user process
+will fail and proper log message registered. So this feature is mainly
+provided for logging processes running as root.
 
-Improper mapper chain configurations with unauthorized certificates can lead in
-create fake accounts in the system if pam_mkhomedir.so module is used. So be really carefull when authenticate users directly from certificates
+Improper mapper chain configurations with unauthorized certificates can
+lead in the creation of fake accounts in the system if pam_mkhomedir.so
+module is used. So be really carefull when authenticating users directly
+from certificates.
 
 Enjoy!
