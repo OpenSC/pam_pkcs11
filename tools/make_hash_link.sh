@@ -45,6 +45,12 @@ if [ $1 ]; then
     exit -1
   fi 
 fi
+# test the presence of openssl
+if [ -z `$OPENSSL version 2> /dev/null` ]
+then
+	echo "$OPENSSL not found! install openssl first"
+	exit -1
+fi
 # process all files
 for file in `ls *`; do
   hash=`$OPENSSL x509 -inform pem -in $file -noout -hash 2> /dev/null`
