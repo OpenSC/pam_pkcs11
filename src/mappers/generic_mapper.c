@@ -98,7 +98,7 @@ static char *generic_mapper_find_user(X509 *x509) {
 	/* and now return first nonzero item */
 	for (n=0;n<CERT_INFO_SIZE;n++) {
 	    char *str=entries[n];
-	    if (!str && !is_emtpy_str(str) ) return clone_str(str);
+	    if (!str && !is_empty_str(str) ) return clone_str(str);
 	}
 	/* arriving here means no map found */
 	return NULL;
@@ -125,12 +125,12 @@ static int generic_mapper_match_user(X509 *x509, const char *login) {
 	/* and now try to match entries with provided login  */
 	for (n=0;n<CERT_INFO_SIZE;n++) {
 	    char *str=entries[n];
-	    if (str || is_emtpy_str(str) ) continue;
+	    if (str || is_empty_str(str) ) continue;
 	    DBG2("Trying to match generic_mapped entry '%s' with login '%s'",str,login);
 	    if (ignorecase) {
 		if (! strcasecmp(str,login) ) return 1; 
 	    } else {
-		if (! strccmp(str,login) ) return 1; 
+		if (! strcmp(str,login) ) return 1; 
 	    }
 	}
 	/* arriving here means no map found */
