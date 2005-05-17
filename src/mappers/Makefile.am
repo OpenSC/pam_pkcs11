@@ -20,10 +20,10 @@ subject_mapper_la_SOURCES = $(COMMON_SOURCES) subject_mapper.c
 subject_mapper_la_LIBADD = @LIBSCCONF@  @LIBCOMMON@
 
 ldap_mapper_la_SOURCES = $(COMMON_SOURCES) ldap_mapper.c
-ldap_mapper_la_LIBADD = @LIBSCCONF@
+ldap_mapper_la_LIBADD = @LIBSCCONF@ @LIBCOMMON@
 
 opensc_mapper_la_SOURCES = $(COMMON_SOURCES) opensc_mapper.c
-opensc_mapper_la_LIBADD = @LIBSCCONF@
+opensc_mapper_la_LIBADD = @LIBSCCONF@ @LIBCOMMON@
 
 mail_mapper_la_SOURCES = $(COMMON_SOURCES) mail_mapper.c
 mail_mapper_la_LIBADD = @LIBSCCONF@ @LIBCOMMON@
