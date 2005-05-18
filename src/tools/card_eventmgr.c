@@ -205,7 +205,7 @@ int parse_args(int argc, char *argv[]) {
         }
 	/* parse configuration file */
 	if ( parse_config_file()<0) {
-		fprintf(stderr,"Error parsing configuration file %s",cfgfile);
+		fprintf(stderr,"Error parsing configuration file %s\n",cfgfile);
 		exit(-1);
 	}
 
@@ -236,7 +236,7 @@ int parse_args(int argc, char *argv[]) {
             if (strstr(argv[i],"config_file=") ) {
 		continue; /* already parsed: skip */
 	    }
-	    fprintf(stderr,"unknown option %s",argv[i]);
+	    fprintf(stderr,"unknown option %s\n",argv[i]);
 	    /* arriving here means syntax error */
 	    fprintf(stderr,"Usage %s [[no]debug] [[no]daemon] [timeout=<timeout>] [timeout_limit=<limit>] [config_file=<file>]\n",argv[0]);
 	    fprintf(stderr,"Defaults: debug=0 daemon=0 timeout=%d (ms) timeout_limit=0 (none) config_file=%s\n",DEF_TIMEOUT,DEF_CONFIG_FILE );
