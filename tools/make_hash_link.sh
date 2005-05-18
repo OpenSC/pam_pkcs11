@@ -53,7 +53,7 @@ then
 fi
 # process all files
 for file in `ls *`; do
-  hash=`$OPENSSL x509 -inform pem -in $file -noout -hash 2> /dev/null`
+  hash=`$OPENSSL x509 -inform pem -in $file -noout -hash`
   if [ ! -z $hash ]; then
     is_ca=`$OPENSSL x509 -inform pem -in $file -noout -text | grep 'CA:TRUE'`
     if [ ! -z $is_ca ]; then
