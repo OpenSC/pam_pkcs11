@@ -46,7 +46,7 @@ if [ $1 ]; then
   fi 
 fi
 # test the presence of openssl
-if [ -z `$OPENSSL version 2> /dev/null` ]
+if [ -z "`$OPENSSL version 2> /dev/null`" ]
 then
 	echo "$OPENSSL not found! install openssl first"
 	exit -1
