@@ -34,8 +34,6 @@ function mk_link()
   fi
 }
 
-# save the current directory
-old_dir=$PWD
 # change to the target directory
 if [ $1 ]; then
   if [ -d $1 ]; then
@@ -87,7 +85,5 @@ for file in `ls *`; do
   # nothing can be done with the file
   echo "we got a problem with: $file"
 done
-# go back to the former directory
-cd $old_dir
 
 exit 0
