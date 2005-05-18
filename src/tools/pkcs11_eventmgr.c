@@ -198,7 +198,7 @@ int parse_args(int argc, char *argv[]) {
         }
 	/* parse configuration file */
 	if ( parse_config_file()<0) {
-		fprintf(stderr,"Error parsing configuration file %s",cfgfile);
+		fprintf(stderr,"Error parsing configuration file %s\n",cfgfile);
 		exit(-1);
 	}
 
@@ -234,7 +234,7 @@ int parse_args(int argc, char *argv[]) {
             if (strstr(argv[i],"config_file=") ) {
 		continue; /* already parsed: skip */
 	    }
-	    fprintf(stderr,"unknown option %s",argv[i]);
+	    fprintf(stderr,"unknown option %s\n",argv[i]);
 	    /* arriving here means syntax error */
 	    fprintf(stderr,"PKCS#11 Event Manager\n\n");
 	    fprintf(stderr,"Usage %s [[no]debug] [[no]daemon] [polling_time=<time>] [expire_time=<limit>] [config_file=<file>] [pkcs11_module=<module>]\n",argv[0]);
