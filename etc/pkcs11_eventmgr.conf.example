@@ -13,7 +13,7 @@ pkcs11_eventmgr {
 
 	# expire time in seconds
 	# default = 0 ( no expire )
-        expire_time = 0;
+	expire_time = 0;
 	
 	# pkcs11 module to use
 	pkcs11_module = /usr/lib/pkcs11/opensc-pkcs11.so;
