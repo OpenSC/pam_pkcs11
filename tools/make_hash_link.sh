@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Shell-Script which creates a symbolic hash-link for each CA certificate 
+# Shell-Script which creates a symbolic hash-link for each CA certificate
 # and each CRL in the given directory.
 # Copyright (C) 2003 Mario Strasser <mast@gmx.net>
 #
@@ -39,11 +39,11 @@ old_dir=$PWD
 # change to the target directory
 if [ $1 ]; then
   if [ -d $1 ]; then
-    cd $1 
+    cd $1
   else
     echo "Error: $1 is not a valid directory!"
     exit -1
-  fi 
+  fi
 fi
 # test the presence of openssl
 if [ -z "`$OPENSSL version 2> /dev/null`" ]
@@ -67,7 +67,7 @@ for file in `ls *`; do
     is_ca=`$OPENSSL x509 -inform der -in $file -noout -text | grep 'CA:TRUE'`
     if [ ! -z $is_ca ]; then
       hash=$hash.
-      mk_link 
+      mk_link
     fi
     continue
   fi
@@ -86,7 +86,7 @@ for file in `ls *`; do
 
   # nothing can be done with the file
   echo "we got a problem with: $file"
-done  
+done
 # go back to the former directory
 cd $old_dir
 
