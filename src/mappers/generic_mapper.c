@@ -81,7 +81,7 @@ static char **get_mapped_entries(char **entries) {
 }
 
 static char *generic_mapper_find_user(X509 *x509) {
-	char *entry,**entries;
+	char **entries;
 	int n;
         if (!x509) {
                 DBG("NULL certificate provided");
@@ -105,7 +105,7 @@ static char *generic_mapper_find_user(X509 *x509) {
 }
 
 static int generic_mapper_match_user(X509 *x509, const char *login) {
-	char *entry,**entries;
+	char **entries;
 	int n;
         if (!x509) {
                 DBG("NULL certificate provided");
