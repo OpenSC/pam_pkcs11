@@ -83,6 +83,9 @@ for file in `ls *`; do
     mk_link
     continue
   fi
+
+  # nothing can be done with the file
+  echo "we got a problem with: $file"
 done  
 # go back to the former directory
 cd $old_dir
