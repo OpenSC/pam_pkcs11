@@ -8,3 +8,7 @@ Juan Antonio Martinez <jonsito@teleline.es>
 Antti Tapaninen <aet@cc.hut.fi> 
 Timo Sirainen <tss@iki.fi>
 	scconf configuration file library
+
+Ludovic Rousseau <ludovic.rousseau@free.fr>
+	Many fixes and improvements
+	card_eventmgr mantainer
