@@ -97,13 +97,16 @@ pam_pkcs11 {
   # 
   # Generic certificate contents mapper
   mapper generic {
-	debug = false;
-	module = /usr/lib/pam_pkcs11/generic_mapper.so;
-	# use one of cn,subject,kpn,upn,email,uid
-	cert_item = cn;
-	ignorecase = false;
-	mapfile = file:///etc/pam_pkcs11/generic_mapping;
-	use_getpwent = true;
+        debug = true;
+        module = /usr/lib/pam_pkcs11/generic_mapper.so;
+        # ignore letter case on match/compare
+        ignorecase = false;
+        # Use one of "cn" , "subject" , "kpn" , "email" , "upn" or "uid"
+        cert_item  = cn;
+        # Define mapfile if needed, else select "none"
+        mapfile = file:///etc/pam_pkcs11/generic_mapping
+        # Decide if use getpwent() to map login
+        use_getpwent = false;
   }
 
   # Certificate Subject to login based mapper

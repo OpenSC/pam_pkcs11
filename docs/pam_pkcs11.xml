@@ -1185,6 +1185,7 @@ to get and store correct data from certificate
 	This means you can setup <filename>/etc/nsswitch.conf</filename> password entries
 	to lookup in to <filename>/etc/passwd</filename>, or ldap/kerberos/NIS+/YP services
 </para>
+<para>
 pw_mapper configuration file shows like:
 <screen>
   mapper pw {
@@ -1193,7 +1194,6 @@ pw_mapper configuration file shows like:
         module = /usr/lib/pam_pkcs11/pw_mapper.so;
   }
 </screen>
-<para>
 </para>
 </sect2>
 
@@ -1389,6 +1389,68 @@ Configuration entry:
 </sect2>
 
 <sect2>
+<title>Generic mapper</title>
+<para>
+This mapper groups several mappers in one. You can select wich certificate
+content should be used to deduce/match login, optionally perform a file mapping, and, if desired consult mapped string to NSS services to get final user login
+</para>
+<para>
+Three arguments are needed:
+<itemizedlist>
+    <listitem>The certificate field to be used. Allowed values are:
+    	<itemizedlist>
+    	<listitem>"<symbol>cn</symbol>" To use Certificate CommonName</listitem>
+    	<listitem>"<symbol>subject</symbol>" To use Certificate Subject</listitem>
+    	<listitem>"<symbol>kpn</symbol>" To use Kerberos PrincipalName</listitem>
+    	<listitem>"<symbol>email</symbol>" To use Certificate Email</listitem>
+    	<listitem>"<symbol>upn</symbol>" To use Microsoft Universal Principal Name</listitem>
+    	<listitem>"<symbol>uid</symbol>" To use Certificate UniqueID</listitem>
+    	</itemizedlist>
+    </listitem>
+    <listitem>
+    	A map file name or "none" if no mapping is desired
+    </listitem>
+    <listitem>
+    	A "use_getpwent" flag, to decide if NSS services are required
+    </listitem>
+</itemizedlist>
+</para>
+<para>
+	Note that fields are taken literally: ie no post-processing is done,
+just take string "as is", and pass it to next step. So if you need some data processing (ie, use ADS name field in upn ) this mapper is not for you
+</para>
+<para>
+The first step is extract string from certificate. If a mapping file is required, the string is mapped against mapfile, obtaining a new string. If use_pwent is also required, the mapper compare last one against <symbol>pw_login</symbol> or <symbol>pw_gecos</symbol>. If a match is done, the <symbol>pw_login</symbol> is returned as user login.
+</para>
+<para>
+When module is user as login finder, returns result of above operations. When user as login matcher, compares provided login with above result.
+</para>
+<para>
+generic_mapper configuration file shows like:
+<screen>
+  mapper generic {
+        debug = true;
+        module = /usr/lib/pam_pkcs11/generic_mapper.so;
+	# ignore letter case on match/compare
+        ignorecase = false;
+	# Use one of "cn" , "subject" , "kpn" , "email" , "upn" or "uid"
+	cert_item  = cn;
+	# Declare mapfile if needed, else select "none"
+	mapfile = file:///etc/pam_pkcs11/generic_mapfile
+	# Decide if use getpwent() to map login
+	use_getpwent = false;
+  }
+</screen>
+</para>
+<para>
+<lineannotation>Note:</lineannotation>
+</para>
+<para>
+As for every other mappers, <application>pklogin_finder</application> tool, doesn't perform the entire process, just returns certificate contents.
+</para>
+</sect2>
+
+<sect2>
 <title>Null mapper</title>
 
 <para>
@@ -1437,7 +1499,7 @@ Mapper.h provides default implementation for required exports. They
 should be overriden by user code, but can be used for testing purposes
 </para>
 <para>
-You can start by using provided <filename>src/mappers/generic_mapper.c</filename> skeleton file. Just rename, edit, set Makefile.am properly, and recompile
+You can start by using provided <filename>src/mappers/null_mapper.c</filename> skeleton file. Just rename, edit, set Makefile.am properly, and recompile
 </para>
 
 </sect1>
