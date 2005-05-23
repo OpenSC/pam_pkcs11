@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #include <pcsclite.h>
 #include <wintypes.h>
@@ -57,6 +58,8 @@ char *cfgfile;
 scconf_context *ctx;
 const scconf_block *root;
 SCARDCONTEXT hContext;
+char *pidfile = NULL;
+char AraKiri = FALSE;
 
 void thats_all_folks() {
     int rv;
@@ -70,17 +73,6 @@ void thats_all_folks() {
     /* free configuration context */
     scconf_free(ctx);
 }
-
-/*
-sighandler_t inthandler
-sighandler_t quithandler
-sighandler_t termhandler
-void sig_handler(int sig) {
-	thats_all_folks();
-	signal(sig, SIG_DFL);
-	kill(getpid(),sig);
-}
-*/
 
 int my_system(char *command) {
 	extern char **environ;
@@ -219,6 +211,10 @@ int parse_args(int argc, char *argv[]) {
 		daemonize=0;
 	  	continue;
 	    }
+            if (strcmp("kill", argv[i]) == 0) {
+		AraKiri=TRUE;
+	  	continue;
+	    }
             if (strstr(argv[i],"timeout=") ) {
                 sscanf(argv[i],"timeout=%u",&timeout);
                 continue;
@@ -227,6 +223,10 @@ int parse_args(int argc, char *argv[]) {
                 sscanf(argv[i],"timeout_limit=%u",&timeout_limit);
                 continue;
             }
+	    if (strstr(argv[i],"pidfile=") ) {
+		 pidfile = strchr(argv[i],'=') +1;
+		continue;
+	    }
             if (strstr(argv[i],"debug") ) {
 		continue;  /* already parsed: skip */
 	    }
@@ -238,12 +238,68 @@ int parse_args(int argc, char *argv[]) {
 	    }
 	    fprintf(stderr,"unknown option %s\n",argv[i]);
 	    /* arriving here means syntax error */
-	    fprintf(stderr,"Usage %s [[no]debug] [[no]daemon] [timeout=<timeout>] [timeout_limit=<limit>] [config_file=<file>]\n",argv[0]);
+	    fprintf(stderr,"Usage %s [[no]debug] [[no]daemon] [timeout=<timeout>] [timeout_limit=<limit>] [config_file=<file>] [kill] [pidfile=<file>]\n",argv[0]);
 	    fprintf(stderr,"Defaults: debug=0 daemon=0 timeout=%d (ms) timeout_limit=0 (none) config_file=%s\n",DEF_TIMEOUT,DEF_CONFIG_FILE );
 	    exit(1);
         } /* for */
 	/* end of config: return */
 	return 0;
+}
+
+pid_t read_pidfile(char *filename)
+{
+    FILE *fd;
+    pid_t pid;
+    long temp = 0;
+
+    fd = fopen(filename, "r");
+    if (NULL == fd)
+    {
+	DBG2("Can't read pidfile %s: %s", filename, strerror(errno));
+	return 0;
+    }
+
+    fscanf(fd, "%ld", &temp);
+    pid = temp;
+
+    fclose(fd);
+
+    return pid;
+}
+
+void remove_pidfile(char *filename)
+{
+    if (unlink(filename))
+	DBG2("Can't unlink pidfile %s: %s", filename, strerror(errno));
+}
+
+void create_pidfile(char *filename)
+{
+    int fd;
+    char tmp[20];
+
+    fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0644);
+    if (fd < 0)
+    {
+	DBG2("Can't create pidfile %s: %s", filename, strerror(errno));
+	return;
+    }
+
+    snprintf(tmp, sizeof(tmp)-1, "%d\n", getpid());
+    tmp[sizeof(tmp)-1] = '\0';
+
+    write(fd, tmp, strlen(tmp));
+
+    close(fd);
+}
+
+void signal_trap(int sig)
+{
+    if (FALSE == AraKiri)
+    {
+	DBG("Preparing to suicide");
+	AraKiri = TRUE;
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -260,6 +316,26 @@ int main(int argc, char *argv[]) {
     int nbReaders, i;
     int first_loop;
     parse_args(argc,argv);
+
+    /* AraKiri is set if kill argument is passed */
+    if (AraKiri)
+    {
+	/* we are asked to kill the previous pkcs11_eventmgr */
+	if (pidfile)
+	{
+	    pid_t pid = read_pidfile(pidfile);
+	    if (pid > 0)
+	    {
+		DBG1("Killing process: %ld", pid);
+	    	kill(pid, SIGQUIT);
+	    }
+	    else
+		DBG("Invalid pid");
+	}
+	else
+	    DBG("You need to specify a pidfile");
+	return 0;
+    }
 
     rv = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hContext);
     if (rv != SCARD_S_SUCCESS) {
@@ -278,12 +354,14 @@ int main(int argc, char *argv[]) {
 	}
     }
 
-    /* TODO: setup signals to cleanly exit */
-/*
-    signal(SIGINT,sig_handler);
-    signal(SIGQUIT,sig_handler);
-    signal(SIGTERM,sig_handler);
-*/
+    if (pidfile)
+    {
+	signal(SIGINT, signal_trap);
+	signal(SIGQUIT, signal_trap);
+	signal(SIGTERM, signal_trap);
+
+	create_pidfile(pidfile);
+    }
 
 get_readers:
     /* free memory possibly allocated in a previous loop */
@@ -380,6 +458,10 @@ get_readers:
             == SCARD_S_SUCCESS) && (dwReaders != dwReadersOld))
                 goto get_readers;
 
+	   /* we were asked to suicide */
+	   if (AraKiri)
+		break;
+
         /* Now we have an event, check all the readers to see what happened */
         for (current_reader=0; current_reader < nbReaders; current_reader++) {
             time_t t;
@@ -456,6 +538,9 @@ get_readers:
     /* free memory possibly allocated */
     free(readers);
     free(rgReaderStates_t);
+
+    if (pidfile)
+	remove_pidfile(pidfile);
 
     thats_all_folks();
     exit(0);
