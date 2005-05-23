@@ -2,8 +2,10 @@
 .SH "NAME"
 card_eventmgr \- PCSC\-Lite Event Manager
 .SH "SYNTAX"
-.B card_eventmgr [\fI[no]debug\fP] [\fI[no]daemon\fP]
-[\fItimeout=<\fImsecs\fP> ] [ config_file=<\fIfilename\fP> ]
+.B card_eventmgr
+[[\fBno\fP]\fBdebug\fP] [[\fBno\fP]\fBdaemon\fP]
+[\fBtimeout=<\fImsecs\fP>\fR] [\fBconfig_file=<\fIfilename\fP>\fR]
+[\fBkill\fP] [\fBpidfile=<\fIpidfile\fP>\fR]
 .SH "DESCRIPTION"
 card_eventmgr is a smart card monitoring tool that listen to the status of the
 card reader and dispatch actions on several events. card_eventmgr can be
@@ -23,19 +25,39 @@ no daemon.
 \fBtimeout=<msecs>\fR
 Set polling timeout in milliseconds. Defaults to 1000 (1 second).
 .TP 
-\fBconfig_file=<configuration file>\fR
+\fBconfig_file=<\fIconfiguration file\fP>\fR
 Sets de configuration file. defaults to
 \fI/etc/pam_pkcs11/card_eventmgr.conf\fP.
+.TP
+.BI pidfile=< pidfile >
+Store the card_eventmgr process id (pid) in the file \fIpidfile\fR.
+.TP
+.B kill
+Read a process id from \fIpidfile\fR and kill that process. You must use
+the argument
+.BI pidfile=< pidfile >
+to use \fBkill\fR.
 .SH "FILES"
 \fI/etc/pam_pkcs11/card_eventmgr.conf\fP 
 .SH "EXAMPLES"
 To run this program the standard way type:
 .P
-card_eventmgr 
+ card_eventmgr 
 .P 
-Alternativly you can specify options:
+Alternatively you can specify options:
 .P 
-card_eventmgr nodebug nodaemon timeout=500 config_file=${HOME}/.card_eventmgr.conf
+ card_eventmgr nodebug nodaemon timeout=500 config_file=$HOME/.card_eventmgr.conf
+.P
+If you want to start and stop card_eventmgr automatically in an X11
+session you can create a \fI~/.xsession\fR file containing:
+ # start the card autolock
+ card_eventmgr pidfile=$HOME/.card_eventmgr.pid
+
+ # start Gnome or something else
+ /usr/bin/x-session-manager
+
+ # kill the card autolock
+ card_eventmgr kill pidfile=$HOME/.card_eventmgr.pid
 .SH "BUGS"
 Some apps like [\fIxscreensaver\-command\fP] may fail due
 to external events (eg: try to unlock an unlocked session).
@@ -44,6 +66,8 @@ In this case, the command incorrectly returns error code.
 User shoult take care on this circumstance.
 .SH "AUTHORS"
 Juan Antonio Martinez <jonsito@teleline.es>
+.br
+Ludovic Rousseau <ludovic.rousseau@free.fr>
 .SH "SEE ALSO"
 \fBpam_pkcs11\fP(8), \fBpkcs11_eventmgr\fP(1)
 .br 
