@@ -406,8 +406,7 @@ get_readers:
 
     if (nbReaders == 0) {
     	/* exit if no reader is present at startup */
-	if (first_loop)
-	{
+	if (first_loop) {
 	    printf("%s: No reader present, exiting\n", argv[0]);
 	    goto end;
 	}
@@ -424,7 +423,7 @@ get_readers:
     readers = calloc(nbReaders, sizeof(char *));
     if (! readers) {
         DBG("Not enough memory for readers table");
-        return -1;
+        goto end;
     }
 
     /* fill the readers table */
