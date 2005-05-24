@@ -55,7 +55,7 @@ int timeout_limit;
 int daemonize;
 int debug;
 char *cfgfile;
-scconf_context *ctx;
+scconf_context *ctx = NULL;
 const scconf_block *root;
 SCARDCONTEXT hContext;
 char *pidfile = NULL;
@@ -71,7 +71,8 @@ void thats_all_folks() {
     }
 
     /* free configuration context */
-    scconf_free(ctx);
+    if (ctx)
+	scconf_free(ctx);
 }
 
 int my_system(char *command) {
@@ -350,8 +351,7 @@ int main(int argc, char *argv[]) {
 	DBG("Going to be daemon...");
 	if ( daemon(0,debug)<0 ) {
 		DBG1("Error in daemon() call: %s", strerror(errno));
-		if (ctx) scconf_free(ctx);
-		return 1;
+		goto end;
 	}
     }
 
@@ -387,7 +387,7 @@ get_readers:
     mszReaders = malloc(sizeof(char)*dwReaders);
     if (mszReaders == NULL) {
         DBG("malloc: not enough memory");
-        return 1;
+        goto end;
     }
 
     rv = SCardListReaders(hContext, NULL, mszReaders, &dwReaders);
@@ -441,7 +441,7 @@ get_readers:
     rgReaderStates_t = calloc(nbReaders, sizeof(* rgReaderStates_t));
     if (! rgReaderStates_t) {
         DBG("Not enough memory for readers states");
-        return -1;
+        goto end;
     }
 
     /* Set the initial states to something we do not know
