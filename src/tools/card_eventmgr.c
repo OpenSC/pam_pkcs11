@@ -314,7 +314,8 @@ int main(int argc, char *argv[]) {
 #endif
     char *ptr, **readers = NULL;
     int nbReaders, i;
-    int first_loop;
+    int first_loop = TRUE;
+
     parse_args(argc,argv);
 
     /* AraKiri is set if kill argument is passed */
@@ -404,6 +405,13 @@ get_readers:
     }
 
     if (nbReaders == 0) {
+    	/* exit if no reader is present at startup */
+	if (first_loop)
+	{
+	    printf("%s: No reader present, exiting\n", argv[0]);
+	    goto end;
+	}
+
         DBG("Waiting for the first reader...");
         while ((SCardListReaders(hContext, NULL, NULL, &dwReaders)
             == SCARD_S_SUCCESS) && (dwReaders == dwReadersOld))
@@ -444,7 +452,6 @@ get_readers:
         rgReaderStates_t[i].dwCurrentState = SCARD_STATE_UNAWARE;
     }
 
-    first_loop=0;
     /* Wait endlessly for all events in the list of readers
      * We only stop in case of an error
      */
@@ -478,6 +485,11 @@ get_readers:
              * above.
              */
 
+	    if (first_loop) {
+		first_loop = FALSE;
+		continue; /* skip first pass */
+	    }
+
             /* Specify the current reader's number and name */
             DBG2("Reader %d (%s)", current_reader,
                 rgReaderStates_t[current_reader].szReader);
@@ -492,13 +504,11 @@ get_readers:
             }
 
             if (new_state & SCARD_STATE_EMPTY) {
-		    if (!first_loop++) continue; /*skip first pass */
                     DBG("Card removed");
 		    execute_event("card_remove");
             }
 
             if (new_state & SCARD_STATE_PRESENT) {
-		    if (!first_loop++) continue; /*skip first pass */
                     DBG("Card inserted");
 		    execute_event("card_insert");
             }
@@ -510,6 +520,7 @@ get_readers:
     /* If we get out the loop, GetStatusChange() was unsuccessful */
     DBG1("SCardGetStatusChange: %lX", rv);
 
+end:
     /* free memory possibly allocated */
     free(readers);
     free(rgReaderStates_t);
