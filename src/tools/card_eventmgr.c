@@ -339,7 +339,7 @@ int main(int argc, char *argv[]) {
 
     rv = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hContext);
     if (rv != SCARD_S_SUCCESS) {
-        DBG1("SCardEstablishContext: Cannot Connect to Resource Manager %lX\n", rv);
+        DBG1("SCardEstablishContext: Cannot Connect to Resource Manager %lX", rv);
 	if (ctx) scconf_free(ctx);
         return 1;
     }
@@ -373,7 +373,7 @@ get_readers:
      * 2. malloc the necessary storage
      * 3. call with the real allocated buffer
      */
-    DBG("Scanning present readers\n");
+    DBG("Scanning present readers");
     rv = SCardListReaders(hContext, NULL, NULL, &dwReaders);
     if (rv != SCARD_S_SUCCESS) {
         DBG1("SCardListReader: %lX", rv);
@@ -423,7 +423,7 @@ get_readers:
     nbReaders = 0;
     ptr = mszReaders;
     while (*ptr != '\0') {
-        DBG2("%d: %s\n", nbReaders, ptr);
+        DBG2("%d: %s", nbReaders, ptr);
         readers[nbReaders] = ptr;
         ptr += strlen(ptr)+1;
         nbReaders++;
@@ -490,7 +490,7 @@ get_readers:
                 DBG("Ignore this reader, ");
 
             if (new_state & SCARD_STATE_UNKNOWN) {
-                DBG("Reader unknown\n");
+                DBG("Reader unknown");
                 goto get_readers;
             }
 
@@ -527,7 +527,7 @@ get_readers:
     } /* while */
 
     /* If we get out the loop, GetStatusChange() was unsuccessful */
-    DBG1("SCardGetStatusChange: %lX\n", rv);
+    DBG1("SCardGetStatusChange: %lX", rv);
 
     /* free memory possibly allocated */
     free(readers);
