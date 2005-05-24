@@ -484,10 +484,8 @@ get_readers:
              * above.
              */
 
-	    if (first_loop) {
-		first_loop = FALSE;
+	    if (first_loop)
 		continue; /* skip first pass */
-	    }
 
             /* Specify the current reader's number and name */
             DBG2("Reader %d (%s)", current_reader,
@@ -513,6 +511,7 @@ get_readers:
             }
         } /* for */
 
+	first_loop = FALSE;
         rv = SCardGetStatusChange(hContext, timeout, rgReaderStates_t, nbReaders);
     } /* while */
 
