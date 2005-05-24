@@ -407,7 +407,6 @@ get_readers:
 
     if (nbReaders == 0) {
         DBG("Waiting for the first reader...");
-        fflush(stdout);
         while ((SCardListReaders(hContext, NULL, NULL, &dwReaders)
             == SCARD_S_SUCCESS) && (dwReaders == dwReadersOld))
             sleep(1);
