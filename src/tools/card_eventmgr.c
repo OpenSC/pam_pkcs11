@@ -463,8 +463,8 @@ get_readers:
 
         /* Now we have an event, check all the readers to see what happened */
         for (current_reader=0; current_reader < nbReaders; current_reader++) {
-            time_t t;
 	    unsigned long new_state;
+
             if (rgReaderStates_t[current_reader].dwEventState &
                 SCARD_STATE_CHANGED) {
                 /* If something has changed the new state is now the current
@@ -480,11 +480,8 @@ get_readers:
              * above.
              */
 
-            /* Timestamp the event as we get notified */
-            t = time(NULL);
-
             /* Specify the current reader's number and name */
-            DBG3("\n%s Reader %d (%s)\n", ctime(&t), current_reader,
+            DBG2("Reader %d (%s)", current_reader,
                 rgReaderStates_t[current_reader].szReader);
 
             /* Dump the full current state */
