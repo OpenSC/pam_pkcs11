@@ -484,43 +484,24 @@ get_readers:
 
             /* Dump the full current state */
 	    new_state = rgReaderStates_t[current_reader].dwEventState;
-            DBG("\tCard state: ");
-
-            if (new_state & SCARD_STATE_IGNORE)
-                DBG("Ignore this reader, ");
+            DBG1("Card state: 0x%08ld", new_state);
 
             if (new_state & SCARD_STATE_UNKNOWN) {
                 DBG("Reader unknown");
                 goto get_readers;
             }
 
-            if (new_state & SCARD_STATE_UNAVAILABLE)
-                DBG("Status unavailable, ");
-
             if (new_state & SCARD_STATE_EMPTY) {
 		    if (!first_loop++) continue; /*skip first pass */
-                    DBG("Card removed, ");
+                    DBG("Card removed");
 		    execute_event("card_remove");
             }
 
             if (new_state & SCARD_STATE_PRESENT) {
 		    if (!first_loop++) continue; /*skip first pass */
-                    DBG("Card inserted, ");
+                    DBG("Card inserted");
 		    execute_event("card_insert");
             }
-
-            if (new_state & SCARD_STATE_ATRMATCH)
-                DBG("ATR matches card, ");
-
-            if (new_state & SCARD_STATE_EXCLUSIVE)
-                DBG("Exclusive Mode, ");
-
-            if (new_state & SCARD_STATE_INUSE)
-                DBG("Shared Mode, ");
-
-            if (new_state & SCARD_STATE_MUTE)
-                DBG("Unresponsive card, ");
-
         } /* for */
 
         rv = SCardGetStatusChange(hContext, timeout, rgReaderStates_t, nbReaders);
