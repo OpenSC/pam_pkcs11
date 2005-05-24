@@ -354,14 +354,12 @@ int main(int argc, char *argv[]) {
 	}
     }
 
-    if (pidfile)
-    {
-	signal(SIGINT, signal_trap);
-	signal(SIGQUIT, signal_trap);
-	signal(SIGTERM, signal_trap);
+    signal(SIGINT, signal_trap);
+    signal(SIGQUIT, signal_trap);
+    signal(SIGTERM, signal_trap);
 
+    if (pidfile)
 	create_pidfile(pidfile);
-    }
 
 get_readers:
     /* free memory possibly allocated in a previous loop */
