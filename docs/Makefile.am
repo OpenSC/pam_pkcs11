@@ -17,7 +17,7 @@ EXTRA_DIST = $(MANSRC) $(XMLFILES) $(HTMLFILES) doxygen.conf \
 
 STYLESHEET = pam_pkcs11.xsl
 
-%.html: %.xml 
+%.html: %.xml $(STYLESHEET)
 if HAVE_DOCBOOK
 	$(XSLTPROC) -o $@ $(STYLESHEET) $<
 	tidy -im -utf8 -xml $@ || true
