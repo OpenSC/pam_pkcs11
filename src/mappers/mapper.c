@@ -92,7 +92,7 @@ try_again:
 	}
 	/* store and parse line */
 	len= to-from;
-	res=malloc (len);
+	res=malloc (len+1);
 	if (!res) {
 		DBG("malloc error");
 		return 0; /* not enough space to malloc string */
