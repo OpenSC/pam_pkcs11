@@ -3,26 +3,31 @@
 <book id="pam-pkcs11">
         <bookinfo>
 		<title>PAM-PKCS11 User Manual</title>
-		<date>2005-Mar-29</date>
-		<releaseinfo>Release 0.5beta1. 30 Mar 2005</releaseinfo>
+        	<date>2005-Mar-29</date>
+        	<releaseinfo>Release 0.5beta1. 30 Mar 2005</releaseinfo>
                 <author>
-                        <name>Juan Antonio Martinez</name>
+                        <firstname>Juan Antonio</firstname>
+                        <surname>Martinez</surname>
                         <email>jonsito@teleline.es</email>
                 </author>
                 <author>
-                        <name>Mario Strasser</name>
+                        <firstname>Mario</firstname>
+                        <surname>Strasser</surname>
                         <email>mstt@gmx.net</email>
                 </author>
                 <author>
-                        <name>Antti Tapaninen</name>
+                        <firstname>Antti</firstname>
+                        <surname>apaninen</surname>
                         <email>aet@cc.hut.fi</email>
                 </author>
                 <author>
-                        <name>Timo Sirainen</name>
+                        <firstname>Timo</firstname>
+                        <surname>Sirainen</surname>
                         <email>tss@iki.fi</email>
                 </author>
                 <author>
-                        <name>Ludovic Rousseau</name>
+                        <firstname>Ludovic</firstname>
+                        <surname>Rousseau</surname>
                         <email>ludovic.rousseau@free.fr</email>
                 </author>
         </bookinfo>
