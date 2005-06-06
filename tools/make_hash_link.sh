@@ -50,7 +50,7 @@ then
 	exit -1
 fi
 # process all files
-for file in "*"; do
+for file in *; do
   hash=`$OPENSSL x509 -inform pem -in $file -noout -hash 2> /dev/null`
   if [ ! -z $hash ]; then
     is_ca=`$OPENSSL x509 -inform pem -in $file -noout -text | grep 'CA:TRUE'`
