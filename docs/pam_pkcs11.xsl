@@ -3,7 +3,6 @@
 	<xsl:import href="docbook.xsl"/>
 
 	<xsl:param name="html.stylesheet" select="'pam_pkcs11.css'"/>
-	<xsl:param name="shade.verbatim" select="1"/>
 	<xsl:param name="html.cleanup" select="1" />
 	<xsl:param name="generate.section.toc.level" select="0" />
 
