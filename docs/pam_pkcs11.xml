@@ -34,10 +34,14 @@
 
 <abstract>
 <para>
-<application>PAM-PKCS#11</application> is a PAM (Pluggable Authentication Module) libary and related tools to perform login into Linux/UNIX systems by mean of X509 Certificates throught any pkcs#11 compliant library
+<application>PAM-PKCS#11</application> is a PAM (Pluggable
+Authentication Module) libary and related tools to perform login into
+Linux/UNIX systems by mean of X509 Certificates throught any pkcs#11
+compliant library.
 </para>
 <para>
-This manual describes how to compile, install, configure and use <application>pam-pkcs11</application> PAM module and related tools
+This manual describes how to compile, install, configure and use
+<application>pam-pkcs11</application> PAM module and related tools.
 </para>
 </abstract>
 
@@ -88,8 +92,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	<title>Introduction</title>
 
 <para>
-<application>PKCS11_login</application> is a set of libraries and tools to control the process
-of user login by mean of use any system that support the PKCS11 API
+<application>PKCS11_login</application> is a set of libraries and tools
+to control the process of user login by mean of use any system that
+support the PKCS11 API.
 </para>
 
 <para>
@@ -110,17 +115,18 @@ pcsc-lite's <footnote>
 		<ulink url="http://pcsclite.alioth.debian.org/"></ulink>
 	</para> 
 </footnote>
-based version
+based version.
 </para>
 
 <para>
 The Pkcs11 Inspect tool allow you to look at the contents of a certificate,
-in order to help you in the procces of Certificate-to-User mapping configuration
+in order to help you in the procces of Certificate-to-User mapping
+configuration.
 </para>
 <para>
 The Pklogin Finder tool can be used to check the pam module without need to
 do the entire login process, just verifying that login names are properly
-found and matched 
+found and matched.
 </para>
 
 <para>
@@ -144,9 +150,9 @@ and
 The Linux-PAM Application Developers' Guide
     <ulink url="http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam_appl.html"></ulink>
 </para>
-</footnote>
+</footnote>.</para>
 
-The specification of the Cryptographic Token Interface 
+<para>The specification of the Cryptographic Token Interface 
 Standard (PKCS #11) is available at 
 <footnote>
 <para>
@@ -164,16 +170,16 @@ PKCS #11 - Cryptographic Token Interface Standard
 	<title>Fundamentals</title>
 
 <para>
-Pam-pcks11 is a PAM ( Pluggable Authentication Module ) pluggin to
+Pam-pcks11 is a PAM (Pluggable Authentication Module) pluggin to
 allow to login into a UNIX/Linux System that supports PAM by mean
-of use Digital Certificates stored in a SmartCard
+of use Digital Certificates stored in a SmartCard.
 </para>
 
 <para>
 To do this, a pkcs11 library is needed to access the Cards. Details
 on how certificates are stored/retrieved, etc are hidden to pam-pkcs11
 and handled by pkcs11 library. This allows independence of the module
-on an specific card
+on an specific card.
 </para>
 
 <sect1>
@@ -201,7 +207,7 @@ by RSA Laboratories.
 To approve the ownership of a certificate, that is, to allow the owner 
 of a certificate to login as a particular user, Pam-pkcs11 uses several 
 modules called <systemitem>mappers</systemitem> that perform cert-to-loggin mapping. 
-See <xref linkend="mappers">mappers</xref> section
+See <xref linkend="mappers">mappers</xref> section.
 </para>
 
 <para>
@@ -254,7 +260,7 @@ rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-tools-X.Y-Z.i386.rpm
     </listitem>
     <listitem> Configure package:
 	<orderedlist>
-	<listitem> Create base configuration directory ( eg. <filename>/etc/pam_pkcs11</filename> )</listitem>
+	<listitem> Create base configuration directory (eg. <filename>/etc/pam_pkcs11</filename>)</listitem>
 	<listitem> Copy <filename>${base}/etc/pam_pkcs11.conf.example</filename> to <filename>/etc/pam_pkcs11</filename> and personalize</listitem>
 	<listitem> Create crls and cacerts directories according with configuration file, 
 and fill them with proper data. The tools directory, provides a tool
@@ -287,13 +293,18 @@ makes CN mappings fail</listitem>
 <para>
 <lineannotation>NOTES</lineannotation>
     <itemizedlist>
-    <listitem>To avoid lock the computer, it's recommended try to configure only one
-non-critical service the first time (eg /etc/pam.d/xscreensaver), and allow
-normal login on the other services ( /etc/pam.d/gdm )</listitem>
-    <listitem>PAM modules used for remote authentication (ie: /etc/pam.d/sshd) cannot be used with pam-pkcs11:
-!There is no local SmartCard in the server!. To do remote logging, you
-should use a sort of SingleSignOn service ( kerberos, winbind, and so ) and
-authenticate against local (client) SmartCard. This is a job in progress</listitem>
+	<listitem>To avoid lock the computer, it's recommended try to
+	configure only one non-critical service the first time (eg
+	/etc/pam.d/xscreensaver), and allow normal login on the other
+	services (/etc/pam.d/gdm).</listitem>
+
+	<listitem>PAM modules used for remote authentication (ie:
+	/etc/pam.d/sshd) cannot be used with pam-pkcs11: !There is no local
+	SmartCard in the server!. To do remote logging, you should use a
+	sort of SingleSignOn service (kerberos, winbind, and so) and
+	authenticate against local (client) SmartCard. This is a job in
+	progress.</listitem>
+
     </itemizedlist>
 </para>
 
@@ -310,7 +321,9 @@ Configuration of <application>pam-pkcs11</application> involves two steps:
 </itemizedlist>
 </para>
 <para>
-This chapter explain pam-pkcs11 configuration-related issues. Next one relies on generic PAM options. You should read this manual and study provided configuration sample files before doing any change.
+This chapter explain pam-pkcs11 configuration-related issues. Next one
+relies on generic PAM options. You should read this manual and study
+provided configuration sample files before doing any change.
 </para>
 <para>
 You must know:
@@ -318,18 +331,19 @@ You must know:
 <listitem>Which pkcs11 module are you going to use, and its location path</listitem>
 <listitem>Which mapper(s) module(s) do you need, and if needed, how to create and edit related mapping files</listitem>
 <listitem>You'll also need the Certificate Authority files, and if required, the Certificate Revocation Lists ones</listitem>
-<listitem>Of course, the list of authorized users to login, and their corresponding certificates :-). When a remote cert authentication is performed ( eg, via ldap, ADS or NSS), this information must reside, or be accesible in the server</listitem>
+<listitem>Of course, the list of authorized users to login, and their corresponding certificates :-). When a remote cert authentication is performed (eg, via ldap, ADS or NSS), this information must reside, or be accesible in the server</listitem>
 </itemizedlist>
 </para>
 
 <sect1>
 	<title>Setting up Configuration file</title>
 <para>
-Configuration file is based on the <application>scconf</application> library
+Configuration file is based on the <application>scconf</application>
+library.
 </para>
 <para>
 Parameters and data are grouped into blocks. blocks can be nested in a sort
-of XML tree
+of XML tree.
 </para>
 <para>
 pam-pkcs11 config file looks like:
@@ -368,23 +382,27 @@ pam-pkcs11 {
 </screen>
 </para>
 <para>
-For detailed description see <filename>pam_pkcs11.conf.example</filename> file
+For detailed description see
+<filename>pam_pkcs11.conf.example</filename> file.
 </para>
 <para>
-Details on scconf syntax and API are provided in <filename>src/scconf/README.scconf</filename> file
+Details on scconf syntax and API are provided in
+<filename>src/scconf/README.scconf</filename> file.
 </para>
 </sect1>
 <sect1>
 	<title>Setting up CRL's and CA's lists</title>
 <para>
-	<application>PAM-pkcs11</application> needs a list of recognized Certificate authorities, to properly validate certificates. Same applies to Certificate Revocation Lists (if configured to use)
+	<application>PAM-pkcs11</application> needs a list of recognized
+	Certificate authorities, to properly validate certificates. Same
+	applies to Certificate Revocation Lists (if configured to use).
 </para>
 <para>
 So the process to setup ca and crl entries is:
 <orderedlist>
 	<listitem> Create ca_dir and crl_dir directorie entries, according to
 configuration file</listitem>
-	<listitem> Copy CA Certificates ( either DER or PEM format ) to ca_dir</listitem>
+	<listitem> Copy CA Certificates (either DER or PEM format) to ca_dir</listitem>
 	<listitem> Create hash links to CA certificates with provided <application>make_hash_link.sh</application>. Note that <application>OpenSSL</application> must be installed 
 <screen>
 <userinput>
@@ -393,7 +411,7 @@ cd /path/to/ca/dir
 </userinput>
 </screen>
         </listitem>
-        <listitem> If CRL are used ( "<option>crl_policy</option>" option in "<option>module</option>" is set to <emphasis>offline</emphasis> or <emphasis>auto</emphasis> ), repeat above process with CRL dir and entries</listitem>
+        <listitem> If CRL are used ("<option>crl_policy</option>" option in "<option>module</option>" is set to <emphasis>offline</emphasis> or <emphasis>auto</emphasis>), repeat above process with CRL dir and entries</listitem>
 </orderedlist>
 </para>
 <para>
@@ -415,12 +433,14 @@ Certificate1 entry data -> login1
 Certificate2 data -> login2
 Certificate2 data -> login3
 </screen>
-Remember that this file is parsed in order, returning on first match
+<para>Remember that this file is parsed in order, returning on first
+match.</para>
 </para>
 <para>
 As you can see bellow, mapfile specification doesn't need to be
 a regular file: you can retrieve data from any legal URL. Anyway, data 
-format must be preserved. See <xref linkend="mapfiles">mapfile</xref> for additional info
+format must be preserved. See <xref linkend="mapfiles">mapfile</xref>
+for additional info.
 </para>
 </sect1>
 </chapter>
@@ -444,7 +464,8 @@ in the pam.d/serviceXXX configuration files.
 <para>
 Some mappers doesn't map to an existing user. To allow correct login,
 you may need to install also pam-mkhomedir in session pam stack
-See  <ulink url="http://www.kernel.org/pub/linux/libs/pam"></ulink> for details
+See  <ulink url="http://www.kernel.org/pub/linux/libs/pam"></ulink> for
+details.
 </para>
 <para>
 The following options are recognised for pam-pkcs11.so:
@@ -457,7 +478,7 @@ The following options are recognised for pam-pkcs11.so:
 <varlistentry>
 <term><token>config_file</token></term>
 <listitem>
-To specify up configuration file ( default <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename> )
+To specify up configuration file (default <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename>)
 </listitem>
 </varlistentry>
 </para>
@@ -531,7 +552,9 @@ directory must contain an openssl hash-link to each certificate.
 The default value is /etc/pam_pkcs11/cacerts.
 </para>
 <para>
-Pam-pkcs11 provides an utility: <filename>make_hash_link.sh</filename> that can be used to create hash links to certificate files. Hashes are used to check certification validity and revocation
+Pam-pkcs11 provides an utility: <filename>make_hash_link.sh</filename>
+that can be used to create hash links to certificate files. Hashes are
+used to check certification validity and revocation.
 </para>
 </listitem>
 </varlistentry>
@@ -611,7 +634,7 @@ options and flags
 
 <para>
 Starting at pam_pkcs11-0.4.2 a new feature is provided: pam-pkcs11 can
-deduce user name from certificate, without login prompt
+deduce user name from certificate, without login prompt.
 </para>
 <para>
 This is done when <function>pam_get_user()</function> call returns null or empty string.
@@ -620,11 +643,12 @@ of normal "match".
 </para>
 <para>
 If the finder list returns ok, evaluated user is set to pam via
-<function>pam_set_item(PAM_USER)</function> call, and <emphasis>PAM_AUTH_OK</emphasis> is returned
+<function>pam_set_item(PAM_USER)</function> call, and
+<emphasis>PAM_AUTH_OK</emphasis> is returned.
 </para>
 <para>
 So there are no longer need to enter login name if a certificate is
-provided and can be mapped to an user
+provided and can be mapped to an user.
 </para>
 <para>
 There are to ways for using this feature:
@@ -654,7 +678,8 @@ the logged user</listitem>
 <para>
 This feature can be used with pam-mkhomedir.so PAM Session module.
 In this case, you can create on-the-fly accounts. This scenario is
-ideal for centralized auth services ( Winbind, ldap, kerberos, RDBMS auth... )
+ideal for centralized auth services (Winbind, ldap, kerberos, RDBMS
+auth...).
 </para>
 <para>
 As example, here comes my tested /etc/pam.d/gdm file:
@@ -676,12 +701,14 @@ session    optional     pam_console.so
 For <function>pam_set_item(PAM_USER)</function> gets success, 
 application using pam must be enought permissions. If this condition 
 is not met, setting user process will fail and proper log message registered. 
-So this feature is mainly provided for logging processes running as <keysym>root</keysym>
+So this feature is mainly provided for logging processes running as
+<keysym>root</keysym>.
 </para>
 <para>
 Improper mapper chain configurations with unauthorized certificates can lead in
 create fake accounts in the system if pam_mkhomedir.so module is used. 
-So be really carefull when authenticate users directly from certificates
+So be really carefull when authenticate users directly from
+certificates.
 </para>
 
 
@@ -690,18 +717,25 @@ So be really carefull when authenticate users directly from certificates
 	<title>Using the Event Manager Tools</title>
 
 <para>
-<application>PAM-PKCS11</application> includes several tools: <productname>card_eventmgr</productname> and <productname>pkcs11_eventmgr</productname> that can be used to monitorize the status of the card reader and dispatch actions on several events. These programs can be used to several actions, like lock screen on card removal
+<application>PAM-PKCS11</application> includes several tools:
+<productname>card_eventmgr</productname> and
+<productname>pkcs11_eventmgr</productname> that can be used to
+monitorize the status of the card reader and dispatch actions on several
+events. These programs can be used to several actions, like lock screen
+on card removal.
 </para>
 <para>
 Note that these programs has no direct interaction with pam-pkcs11 module: 
-they are just a card status monitor. It's up to the sysadmin to define and configure actions to take on events
+they are just a card status monitor. It's up to the sysadmin to define
+and configure actions to take on events.
 </para> 
 
 <sect1>
 <title>Using the Card Event Manager</title>
 
 <para>
-<application>card_eventmgr</application> is a card status monitor based on the PCSC-Lite library
+<application>card_eventmgr</application> is a card status monitor based
+on the PCSC-Lite library.
 </para>
 <para>
 To invoke the program, just type <userinput>card_eventmgr</userinput>.
@@ -710,7 +744,7 @@ Several command lines are recognized:
 
 <listitem><option> debug</option> to enable debugging. Defaults to unset</listitem>
 <listitem><option> daemon</option> to run as daemon. If debug is unset, also dettach from tty. Default to unset</listitem>
-<listitem><option> timeout=&lt;msecs&gt;</option> time in msec between two consecutive status poll. Defaults to 1000 ( 1 second )</listitem>
+<listitem><option> timeout=&lt;msecs&gt;</option> time in msec between two consecutive status poll. Defaults to 1000 (1 second)</listitem>
 <listitem><option> config_file=&lt;file&gt; </option>configuration file to use. Defaults to <filename>/etc/pam_pkcs11/card_eventmgr.conf</filename></listitem>
 </itemizedlist>
 </para>
@@ -771,7 +805,7 @@ It's very similar to card_eventmgr, with some improvements:
 	<listitem><option> [no]debug</option> to enable/disable debugging. Defaults to unset</listitem>
 	<listitem><option> [no]daemon</option> to run as daemon or foreground. If debug is unset, daemon mode also dettaches from tty. Default to "nodaemon"</listitem>
 	<listitem><option> polling_time=&lt;secs&gt;</option> time in secs between two consecutive status poll. Defaults to 1 second</listitem>
-	<listitem><option> expire_time=&lt;secs&gt;</option> time in secs on card removed to trigger "expire_time" event. Default to 0 ( no expire )</listitem>
+	<listitem><option> expire_time=&lt;secs&gt;</option> time in secs on card removed to trigger "expire_time" event. Default to 0 (no expire)</listitem>
 	<listitem><option> config_file=&lt;file&gt; </option>configuration file to use. Defaults to <filename>/etc/pam_pkcs11/card_eventmgr.conf</filename></listitem>
 	<listitem><option> pkcs11_module=&lt;file&gt; </option>pkcs#11 dll libraryo to use. Defaults to <filename>/usr/lib/pkcs11/opensc-pkcs11.so</filename></listitem>
 	</itemizedlist>
@@ -797,7 +831,7 @@ pkcs11_eventmgr {
 	polling_time = 1;
 
 	# expire time in seconds
-	# default = 0 ( no expire )
+	# default = 0 (no expire)
         expire_time = 0;
 	
 	# pkcs11 module to use
@@ -837,7 +871,7 @@ pkcs11_eventmgr {
 </para>
 <para>
 As you can see, on each event you can define a list of actions, and what to
-do if an action fails
+do if an action fails.
 </para>
 </sect1>
 
@@ -847,15 +881,18 @@ do if an action fails
 The best way to start card monitoring is at user login into system. 
 If so, note that all event commands will be executed with user privileges.
 So is up to the user take care that has permissions to execute desired
-actions
+actions.
 </para>
 <para>
 Special checks should be done when invoke setuid/segid programs: these
 commands usually ignore the user environment and set up their one. So
-these applications may not work as expected
+these applications may not work as expected.
 </para>
 <para>
-Command actions are executed via <function>execve("/bin/sh","-c","provided command",null,environ)</function> in order to avoid risk on system() library call
+Command actions are executed via
+<function>execve("/bin/sh","-c","provided
+command",null,environ)</function> in order to avoid risk on system()
+library call.
 </para>
 </sect1>
 
@@ -864,10 +901,12 @@ Command actions are executed via <function>execve("/bin/sh","-c","provided comma
 <para>
 You can use provided configuration sample file. 
 Just add to your <filename>.xsession</filename> or KDE/GNOME Autostart directory
-an invocation to <application>card_eventmgr</application> in daemon mode
+an invocation to <application>card_eventmgr</application> in daemon
+mode.
 </para>
 <para>
-Additionally you can add this entry to <filename>/etc/pam.d/xscreensaver</filename> configuration
+Additionally you can add this entry to
+<filename>/etc/pam.d/xscreensaver</filename> configuration:
 
 <screen>
 #%PAM-1.0
@@ -907,18 +946,19 @@ find Cert-to-login maps, outside the PAM environment.
 
 
 This tool can be used to create and test map files, or to check environment
-and configuration files, without need to use PAM related tools
+and configuration files, without need to use PAM related tools.
 </para>
 <para>
 <application>pklogin_finder</application> uses the same structure and configuration than pam-pkcs11
-module. It reads certificate, and try all specified mappers to find a user match. When found, login name is displayed on stdout
+module. It reads certificate, and try all specified mappers to find a
+user match. When found, login name is displayed on stdout.
 </para>
 <para>
 To invoke, just type from console:
 <screen>
 <userinput>pklogin_finder [[no]debug] [config_file=&lt;file&gt;]</userinput>
 </screen>
-By default, debug is set to <filename>false</filename>, and config_file to <filename>/etc/pam_pkcs11/pam-pkcs11.conf</filename>. All PAM related options (<option>nullok</option>, <option>try_first_pass</option>, and so ) in configuration file are ignored
+By default, debug is set to <filename>false</filename>, and config_file to <filename>/etc/pam_pkcs11/pam-pkcs11.conf</filename>. All PAM related options (<option>nullok</option>, <option>try_first_pass</option>, and so) in configuration file are ignored
 </para>
 <para>
 Return values are:
@@ -936,15 +976,20 @@ Return values are:
 	<title>Using the PKCS#11 CertInspect tool</title>
 
 <para>
-Starting at 0.5 version, a new tool <application>pkcs11_inspect</application> is provided
+Starting at 0.5 version, a new tool
+<application>pkcs11_inspect</application> is provided.
 </para>
 <para>
 <application>pkcs11_inspect</application> is a pkcs#11 based tool to explore certificate contents.
 It's similar to <application>pklogin_finder</application>, but no mapping is done at all: just
-load mappers chains, and in turn, try to get proper data from certificate (ie: cn_mapper looks for CN entries, and so )
+load mappers chains, and in turn, try to get proper data from
+certificate (ie: cn_mapper looks for CN entries, and so).
 </para>
 <para>
-When desired info is found, <application>pkcs11_inspect</application> print found data to stdout, <emphasis>without doing any mapping</emphasis>, that is, mapfile entries in configuration file are ignored
+When desired info is found, <application>pkcs11_inspect</application>
+print found data to stdout, <emphasis>without doing any
+mapping</emphasis>, that is, mapfile entries in configuration file are
+ignored.
 </para>
 <para>
 The reason to exist for this tool is to ease the making of mapping files:
@@ -956,7 +1001,11 @@ The reason to exist for this tool is to ease the making of mapping files:
 </itemizedlist>
 </para>
 <para>
-Same command line options and configuration file than <application>pklogin_finder</application> applies to <application>pkcs11_inspect</application> command, But note that <option>mapping</option> and <option>ignorecase</option> options will be ignored. See manpage for details
+Same command line options and configuration file than
+<application>pklogin_finder</application> applies to
+<application>pkcs11_inspect</application> command, But note that
+<option>mapping</option> and <option>ignorecase</option> options will be
+ignored. See manpage for details.
 </para>
 
 </chapter>
@@ -970,7 +1019,7 @@ Same command line options and configuration file than <application>pklogin_finde
 <para>
 When a X509 Certificate is providen, there are no direct way to map
 a cert to a login. With a certificate we can check validity and
-revocation, but user mapping depends entirely on certificate contents
+revocation, but user mapping depends entirely on certificate contents.
 </para>
 <para>
 So we need a configurable, stackable, and definable way to specify
@@ -1004,10 +1053,10 @@ An alternate way of working is by mean of not providing user name:
 <listitem> Open session for deduced login</listitem>
 </orderedlist>
 Last way needs an aditional pam-mkhomedir.so PAM module, that can
-dinamically create an account
+dinamically create an account.
 </para>
 <para>
-Operations (*) and (**) are the reason for cert-mappers to exist
+Operations (*) and (**) are the reason for cert-mappers to exist.
 </para>
 
 </sect1>
@@ -1018,7 +1067,7 @@ Operations (*) and (**) are the reason for cert-mappers to exist
 <para>
 <application>pam-pkcs11</application> implements cert mapper in form of dinamyc loaded modules.
 You can add as many modules as desired, and the system will try all
-of them in turn, until match is done, or end of list get reached
+of them in turn, until match is done, or end of list get reached.
 </para>
 
 <para>
@@ -1056,13 +1105,15 @@ The reason are simple:
 <listitem>Most certificate contents are no valid for use
 as login name, and need some way to manage it</listitem>
 <listitem>We can store and manage a list of authorized certificates in
-a centralized way</listitem>
+a centralized way</listitem>.
 </itemizedlist>
 </para>
 
 <para>
 The mapfile scheme used in pam-pkcs11 is powerfull: it's not only
-restricted to files, so we can specify HTTP,LDAP,FTP and so connections, to retrieve mapfile. So this scheme is ideal for centralized accounting systems
+restricted to files, so we can specify HTTP,LDAP,FTP and so connections,
+to retrieve mapfile. So this scheme is ideal for centralized accounting
+systems.
 </para>
 
 <para>
@@ -1079,7 +1130,7 @@ That is: a string, the sequence " -> " (space,dash,great,space) and a login
 It's sintactically correct to specify more than one word in the right-side
 of a map entry. But be aware that most mappers expect to be returned a single
 word that provides a user login. Otherwise extrange behaviour may occur.
-See specific notes on mappers
+See specific notes on mappers.
 </para>
 <para>
 When a mapper module uses mapfiles, has a structure like:
@@ -1153,7 +1204,8 @@ Extract Certificate Subject and assume it as login.
 	<listitem> When used as matcher, try to match provided login, with
 	result obtained by previous find operation</listitem>
 </itemizedlist>
-In either cases, if a mapfile is used, the mapper will try to map subject into a login and use it 
+In either cases, if a mapfile is used, the mapper will try to map
+subject into a login and use it .
 </para>
 <para>
 Configuration file is like:
@@ -1175,7 +1227,7 @@ The mapping file must follow this structure:
 Certificate Subject -> login
 ....
 </screen>
-Note that some certificates handle extrange char mappings ( non utf-8 )
+Note that some certificates handle extrange char mappings (non utf-8)
 so you must ensure correct byte-to-byte match. You can use provided
 <application>pkcs11_inspect</application> tool
 to get and store correct data from certificate
@@ -1220,10 +1272,10 @@ pw_mapper configuration file shows like:
 
 <para>
 Uses an ldap server to retrieve user name. An aditional file tells
-	module the mapping between Cert fields and LDAP entries
+	module the mapping between Cert fields and LDAP entries.
 </para>
 <para>
-	This mapper is still under development
+	This mapper is still under development.
 </para>
 </sect2>
 
@@ -1234,10 +1286,10 @@ Uses an ldap server to retrieve user name. An aditional file tells
 Search certificate in <filename>${HOME}/.eid/autorized_certificates</filename>
 	in a similar way as OpenSC does. When used as login finder,
 	returns the user that owns ${HOME} directory where certificate
-	is found
+	is found.
 </para>
 <para>
-	This mapper is still under development
+	This mapper is still under development.
 </para>
 </sect2>
 
@@ -1247,10 +1299,11 @@ Search certificate in <filename>${HOME}/.eid/autorized_certificates</filename>
 <para>
 Search certificate public key in <filename>${HOME}/.ssh/autorized_keys</filename>
 	in a similar way as OpenSSH does. When used as login finder,
-	returns the user that owns <filename>${HOME}</filename> directory where key is found
+	returns the user that owns <filename>${HOME}</filename> directory
+	where key is found.
 </para>
 <para>
-	This mapper is still under development
+	This mapper is still under development.
 </para>
 </sect2>
 
@@ -1261,7 +1314,7 @@ Search certificate public key in <filename>${HOME}/.ssh/autorized_keys</filename
 Email mapper tries to extract an e-mail from certificate. If found
 does following procedures:
 <itemizedlist>
-<listitem>	if <option>mapfile</option> option is set and file is provided, the module tries to map email field from the certificate to an user ( or an alternate email ).
+<listitem>	if <option>mapfile</option> option is set and file is provided, the module tries to map email field from the certificate to an user (or an alternate email).
 </listitem>
 <listitem>	if <option>mapfile</option> is not set, just use email addres from certificate to perform find/match
 </listitem>
@@ -1271,7 +1324,7 @@ does following procedures:
 Once we have a mapped user, module does:
 <itemizedlist>
 	<listitem> When used as finder, just return email or mapped email/user
-	( see above )</listitem>
+	(see above)</listitem>
 	<listitem> When used as matcher, compare found email/user against provided
 	by pam. </listitem>
 </itemizedlist>
@@ -1281,11 +1334,11 @@ Additionaly you can set <option>ignorecase</option> or <option>ignoredomain</opt
 </para>
 <para>
 	Domain check (if set) is done by testing if provided email domain
-	part ( @ie.this.domain ) matches host domain. 
+	part (@ie.this.domain) matches host domain. 
 </para>
 <para>
 	Eg <filename>user@my.company.com</filename> email in host <filename>host.in.my.company.com</filename>
-	host matches domain
+	host matches domain.
 </para>
 <para>
 Configuration file entry looks like:
@@ -1309,7 +1362,7 @@ Configuration file entry looks like:
 
 <para>
  Try to find and use Microsoft Universal Principal Name (UPN) extension 
- to evaluate login name
+ to evaluate login name.
 </para>
 <para>
 Microsoft Universal Principal Name is a ASN1-encoded UTF8 string with the syntax <filename>login@ADS_Domain</filename>. When an UPN is found, the mapper extract login part as login user. Then, if ignoredomain is unset, try to match domain. 
@@ -1336,14 +1389,14 @@ Configuration file entry looks like:
 <title>Kerberos mapper</title>
 
 <para> 
-Try to find and use Kerberos Principal Name as login name. if mapfile is specified, maps KPN into a login
+Try to find and use Kerberos Principal Name as login name. if mapfile is
+specified, maps KPN into a login.
 </para>
 <para>
 	<lineannotation>NOTES:</lineannotation>
 	<itemizedlist>
 	<listitem>Kerberos V5 Principal name syntax is assumed: <emphasis>component/component@realm</emphasis>. It's supposed to be stored in ASN1String format in the certificate</listitem>
-	<listitem><para>This mapper does not perform <application>PKINIT</application> kerberos authentication, just retrieve and use KPN to map login name. ( 
-	<application>PKINIT</application> auth is still a work in progress)</para></listitem>
+	<listitem><para>This mapper does not perform <application>PKINIT</application> kerberos authentication, just retrieve and use KPN to map login name. (<application>PKINIT</application> auth is still a work in progress)</para></listitem>
 	</itemizedlist>
 </para>
 <para>
@@ -1363,10 +1416,10 @@ Configuration entry:
 <title> Unique ID to login mapper</title>
 
 <para>
-     Use Unique ID (UID) field as login name
+     Use Unique ID (UID) field as login name.
 </para>
 <para>
-	Similar to CN mapper, but using UID as field to find/match
+	Similar to CN mapper, but using UID as field to find/match.
 </para>
 <para>
 Configuration entry:
@@ -1385,10 +1438,13 @@ Configuration entry:
 <title> Certificate Digest to login mapper</title>
 
 <para>
-     Evaluates a certificate digest, and try to map result into a login by using a mapfile
+     Evaluates a certificate digest, and try to map result into a login
+	 by using a mapfile.
 </para>
 <para>
-     Configuration file should provide the digest algorithm. Depending on <application>OpenSSL</application> configuration all of listed bellow may or not be present in your system
+     Configuration file should provide the digest algorithm. Depending
+	 on <application>OpenSSL</application> configuration all of listed
+	 bellow may or not be present in your system.
 </para>
 <para>
 Configuration entry:
@@ -1410,7 +1466,9 @@ Configuration entry:
 <title>Generic mapper</title>
 <para>
 This mapper groups several mappers in one. You can select wich certificate
-content should be used to deduce/match login, optionally perform a file mapping, and, if desired consult mapped string to NSS services to get final user login
+content should be used to deduce/match login, optionally perform a file
+mapping, and, if desired consult mapped string to NSS services to get
+final user login.
 </para>
 <para>
 Three arguments are needed:
@@ -1435,7 +1493,9 @@ Three arguments are needed:
 </para>
 <para>
 	Note that fields are taken literally: ie no post-processing is done,
-just take string "as is", and pass it to next step. So if you need some data processing (ie, use ADS name field in upn ) this mapper is not for you
+just take string "as is", and pass it to next step. So if you need some
+data processing (ie, use ADS name field in upn) this mapper is not for
+you.
 </para>
 <para>
 The first step is extract string from certificate. If a mapping file is required, the string is mapped against mapfile, obtaining a new string. If use_pwent is also required, the mapper compare last one against <symbol>pw_login</symbol> or <symbol>pw_gecos</symbol>. If a match is done, the <symbol>pw_login</symbol> is returned as user login.
@@ -1477,7 +1537,7 @@ Blind access/deny mapper.
 <para>
 	If <option>default_match</option> is set to true:
 <itemizedlist>
-	<listitem> When used as finder allways returns configuration provided <option>default_user</option> ( default: "nobody" )</listitem>
+	<listitem> When used as finder allways returns configuration provided <option>default_user</option> (default: "nobody")</listitem>
 	<listitem> When used as matcher allways returns <emphasis>OK</emphasis></listitem>
 </itemizedlist>
 </para>
@@ -1510,14 +1570,16 @@ Configuration entry:
 <para>
 Creating new mappers is easy: just study <filename>mapper.h</filename> file, provide
 a file that exports required functions, and modify file
-<filename>src/mappers/Makefile.am</filename>
+<filename>src/mappers/Makefile.am</filename>.
 </para>
 <para>
 Mapper.h provides default implementation for required exports. They 
-should be overriden by user code, but can be used for testing purposes
+should be overriden by user code, but can be used for testing purposes.
 </para>
 <para>
-You can start by using provided <filename>src/mappers/null_mapper.c</filename> skeleton file. Just rename, edit, set Makefile.am properly, and recompile
+You can start by using provided
+<filename>src/mappers/null_mapper.c</filename> skeleton file. Just
+rename, edit, set Makefile.am properly, and recompile.
 </para>
 
 </sect1>
@@ -1531,13 +1593,13 @@ You can start by using provided <filename>src/mappers/null_mapper.c</filename> s
 Make all mappers to use an unified library
 </listitem>
 <listitem>
-Only ask for PIN only when needed ( to extract private key forsignature verification or pkinit challenge process ) 
+Only ask for PIN only when needed (to extract private key forsignature verification or pkinit challenge process) 
 </listitem>
 <listitem>
 Check that certificate is valid for authentication instead of using first found cert
 </listitem>
 <listitem>
-Finish coding all mappers ( openssh, openssl, ldap to be done )
+Finish coding all mappers (openssh, openssl, ldap to be done)
 </listitem>
 <listitem>
 Implement pkinit to talk kerberos server
