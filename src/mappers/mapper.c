@@ -99,6 +99,12 @@ try_again:
 	}
 	strncpy(res,from,len);
 	*(res+len)='\0';
+	if ('#' == res[0]) {
+		DBG1("Line '%s' is a comment: skip",res);
+		free(res);
+		mfile->pt=to;
+		goto try_again; /* repeat loop */
+	}
 	sep = strstr(res," -> ");
 	if (!sep) {
 		DBG1("Line '%s' has no key -> value format: skip",res);
