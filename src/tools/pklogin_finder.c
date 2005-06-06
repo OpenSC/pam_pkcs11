@@ -165,7 +165,7 @@ int main(int argc, const char **argv) {
 	  break;
       } else {
           DBG1("Certificate is valid and maps to user %s",user);
-	  printf("%s",user);
+	  printf("%s\n",user);
           break;
       }
     }
