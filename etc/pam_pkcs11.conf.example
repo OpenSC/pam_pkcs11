@@ -135,7 +135,7 @@ pam_pkcs11 {
   mapper null {
 	debug = false;
 	module = /usr/lib/pam_pkcs11/null_mapper.so;
-	# select behaviour: allways match, or allways fail
+	# select behavior: always match, or always fail
 	default_match = false;
 	# on match, select returned user
         default_user = nobody ;

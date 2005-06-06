@@ -6,7 +6,7 @@ card_eventmgr {
 	# show debug messages
 	debug = false;
 	
-	# polling time in mili-seconds
+	# polling time in milliseconds
 	timeout = 1000;
 	
 	#
