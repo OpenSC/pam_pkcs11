@@ -19,7 +19,7 @@ STYLESHEET = pam_pkcs11.xsl
 
 %.html: %.xml $(STYLESHEET)
 if HAVE_DOCBOOK
-	$(XSLTPROC) -o $@ $(STYLESHEET) $<
+	$(XSLTPROC) --path /usr/share/sgml/docbook/xsl-stylesheets/xhtml:/usr/share/xml/docbook/stylesheet/nwalsh/xhtml -o $@ $(STYLESHEET) $<
 	tidy -im -utf8 -xml $@ || true
 else
 	@echo "Docbook support disabled, not building $@" >&2
