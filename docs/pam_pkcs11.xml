@@ -222,28 +222,34 @@ improvements or alternative matching algorithms are welcome.]
     </listitem>
     <listitem>Unpack source tarball:
 <screen>
-<prompt>bash#</prompt><userinput> tar -xvzf pam_pkcs11-X.Y.tar.gz</userinput>
-<prompt>bash#</prompt><userinput> cd pam_pkcs11-X.Y</userinput>
+<userinput>
+tar xvzf pam_pkcs11-X.Y.tar.gz
+cd pam_pkcs11-X.Y
+</userinput>
 </screen>
     </listitem>
     <listitem>If using SVN tree, re-create environment:
 <screen>
-<prompt>bash#</prompt><userinput> ./bootstrap</userinput>
+<userinput>./bootstrap</userinput>
 </screen>
     </listitem>
     <listitem>Execute the "standard" install sequence :-)
 <screen>
-<prompt>bash#</prompt><userinput> ./configure</userinput>
-<prompt>bash#</prompt><userinput> make</userinput>
-<prompt>bash#</prompt><userinput> make install</userinput>
+<userinput>
+./configure
+make
+make install
+</userinput>
 </screen>
     </listitem>
     <listitem> Alternatively, on RedHat Linux systems, you can use rpmbuild tools and
 provided .spec file to create and install RPM packages:
 <screen>
-<prompt>bash#</prompt><userinput> rpmbuild -ta /path/to/pam_pkcs11.X.Y.tar.gz</userinput>
-<prompt>bash#</prompt><userinput> rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-X.Y-Z.i386.rpm</userinput>
-<prompt>bash#</prompt><userinput> rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-tools-X.Y-Z.i386.rpm</userinput>
+<userinput>
+rpmbuild -ta /path/to/pam_pkcs11.X.Y.tar.gz
+rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-X.Y-Z.i386.rpm
+rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-tools-X.Y-Z.i386.rpm
+</userinput>
 </screen>
     </listitem>
     <listitem> Configure package:
@@ -381,8 +387,10 @@ configuration file</listitem>
 	<listitem> Copy CA Certificates ( either DER or PEM format ) to ca_dir</listitem>
 	<listitem> Create hash links to CA certificates with provided <application>make_hash_link.sh</application>. Note that <application>OpenSSL</application> must be installed 
 <screen>
-<prompt>bash#</prompt> <userinput>cd /path/to/ca/dir</userinput>
-<prompt>bash#</prompt> <userinput>/usr/bin/make_hash_link.sh</userinput>
+<userinput>
+cd /path/to/ca/dir
+/usr/bin/make_hash_link.sh
+</userinput>
 </screen>
         </listitem>
         <listitem> If CRL are used ( "<option>crl_policy</option>" option in "<option>module</option>" is set to <emphasis>offline</emphasis> or <emphasis>auto</emphasis> ), repeat above process with CRL dir and entries</listitem>
@@ -908,7 +916,7 @@ module. It reads certificate, and try all specified mappers to find a user match
 <para>
 To invoke, just type from console:
 <screen>
-<prompt>bash$</prompt><userinput> pklogin_finder [[no]debug] [config_file=&lt;file&gt;]</userinput>
+<userinput>pklogin_finder [[no]debug] [config_file=&lt;file&gt;]</userinput>
 </screen>
 By default, debug is set to <filename>false</filename>, and config_file to <filename>/etc/pam_pkcs11/pam-pkcs11.conf</filename>. All PAM related options (<option>nullok</option>, <option>try_first_pass</option>, and so ) in configuration file are ignored
 </para>
