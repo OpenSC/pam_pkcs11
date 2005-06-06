@@ -1,7 +1,5 @@
 # Process this file with automake to create Makefile.in
 
-MAINTAINERCLEANFILES = Makefile.in
-
 libdir = @libdir@/pam_pkcs11
 
 AM_LDFLAGS = -module -avoid-version

@@ -1,6 +1,5 @@
 # Process this file with automake to create Makefile.in
 
-MAINTAINERCLEANFILES = Makefile.in
 DISTCLEANFILES = lex-parse.c
 EXTRA_DIST = README.scconf lex-parse.l
 

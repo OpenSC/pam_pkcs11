@@ -1,7 +1,5 @@
 # $Id$
 
-MAINTAINERCLEANFILES = Makefile.in
-
 AM_CFLAGS = -Wall -fno-strict-aliasing
 
 lib_LTLIBRARIES = pam_pkcs11.la

@@ -1,7 +1,5 @@
 # Process this file with automake to create Makefile.in
 
-MAINTAINERCLEANFILES = Makefile.in
-
 FINDER_OBJS =  ../pam_pkcs11/mapper_mgr.o ../pam_pkcs11/pam_config.o
 
 INCLUDES = @PCSC_CFLAGS@

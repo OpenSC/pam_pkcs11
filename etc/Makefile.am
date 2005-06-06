@@ -1,7 +1,5 @@
 # Process this file with automake to create Makefile.in
 
-MAINTAINERCLEANFILES = Makefile.in
-
 EXTRA_DIST = pam_pkcs11.conf.example \
 	pam.d_login.example \
 	subject_mapping.example \

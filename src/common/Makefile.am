@@ -1,9 +1,5 @@
 # Process this file with automake to create Makefile.in
 
-MAINTAINERCLEANFILES = Makefile.in
-DISTCLEANFILES = 
-EXTRA_DIST = 
-
 noinst_HEADERS = debug.h error.h uri.h strings.h \
 	pkcs11.h pkcs11f.h pkcs11t.h \
 	cert_vfy.h cert_info.h
