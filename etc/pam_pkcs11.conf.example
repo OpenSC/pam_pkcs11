@@ -72,7 +72,8 @@ pam_pkcs11 {
   # subject - Cert Subject to login file based mapper
   # pwent   - CN to getpwent() login or gecos fields mapper
   # ldap    - LDAP mapper
-  # opensc  - Search certificate public key in ${HOME}/.ssh/autorized_keys
+  # opensc  - Search certificate in ${HOME}/.eid/authorized_certificates
+  # openssh - Search certificate public key in ${HOME}/.ssh/authorized_keys
   # mail    - Compare email fields from certificate
   # ms      - Use Microsoft Universal Principal Name extension
   # krb     - Compare againts Kerberos Principal Name
@@ -119,6 +120,12 @@ pam_pkcs11 {
   }
 
   # Search public keys from $HOME/.ssh/authorized_keys to match users
+  mapper openssh {
+	debug = false;
+	module = /usr/lib/pam_pkcs11/openssh_mapper.so;
+  }
+
+  # Search certificates from $HOME/.eid/authorized_certificates to match users
   mapper opensc {
 	debug = false;
 	module = /usr/lib/pam_pkcs11/opensc_mapper.so;

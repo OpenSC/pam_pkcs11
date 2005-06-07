@@ -274,6 +274,19 @@ static char **cert_info_puk(X509 *x509) {
 	return NULL;
 }
 
+/*
+* Extract Certificate's Public Key in OpenSSH format
+*/
+static char **cert_info_sshpuk(X509 *x509) {
+	EVP_PKEY *pubk = X509_get_pubkey(x509);
+	if(!pubk) {
+	    DBG("Cannot extract public key");
+	    return NULL;
+	}
+	/* TODO: translate into printable form and return */
+	return NULL;
+}
+
 static char* get_fingerprint(X509 *cert,const EVP_MD *type) {
     unsigned char    md[EVP_MAX_MD_SIZE];
     unsigned int     len;
@@ -325,6 +338,8 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 	    case CERT_UID     : /* Certificate Unique Identifier */
 		return cert_info_uid(x509);
 	    case CERT_PUK     : /* Certificate Public Key */
+		return cert_info_puk(x509);
+	    case CERT_SSHPUK  : /* Certificate Public Key in OpenSSH format */
 		return cert_info_puk(x509);
 	    case CERT_DIGEST  : /* Certificate Signature Digest */
 		if ( !algorithm ) {

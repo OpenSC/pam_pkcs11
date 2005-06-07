@@ -9,7 +9,10 @@ COMMON_SOURCES = mapper.c mapper.h
 lib_LTLIBRARIES = subject_mapper.la ldap_mapper.la opensc_mapper.la \
 	mail_mapper.la ms_mapper.la krb_mapper.la digest_mapper.la \
 	cn_mapper.la uid_mapper.la pwent_mapper.la null_mapper.la \
-	generic_mapper.la
+	generic_mapper.la openssh_mapper.la
+
+openssh_mapper_la_SOURCES = $(COMMON_SOURCES) openssh_mapper.c
+openssh_mapper_la_LIBADD = @LIBSCCONF@  @LIBCOMMON@
 
 generic_mapper_la_SOURCES = $(COMMON_SOURCES) generic_mapper.c
 generic_mapper_la_LIBADD = @LIBSCCONF@  @LIBCOMMON@

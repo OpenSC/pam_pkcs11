@@ -218,12 +218,15 @@ int compare_pw_entry(const char *str,struct passwd *pw, int ignorecase) {
 * on fail return null
 */
 char *search_pw_entry(const char *str,int ignorecase) {
+	char *res;
         struct passwd *pw;
         setpwent(); /* reset pwent parser */
         while ( (pw=getpwent()) != NULL) {
             if( compare_pw_entry(str,pw,ignorecase) ) {
                DBG1("getpwent() match found: '%s'",pw->pw_name);
-               return clone_str(pw->pw_name);
+               res= clone_str(pw->pw_name);
+	       endpwent();
+	       return res;
             }
         }
         endpwent();
