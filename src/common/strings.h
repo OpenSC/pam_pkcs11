@@ -41,6 +41,11 @@ M_EXTERN char *clone_str(const char *str);
 M_EXTERN char *toupper_str(const char *str);
 M_EXTERN char *tolower_str(const char *str);
 M_EXTERN char *bin2hex(const unsigned char *binstr,const int len);
+M_EXTERN unsigned char *hex2bin(const char *hexstr);
+M_EXTERN unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size);
+M_EXTERN char **split(const char *str,char sep, int nelems);
+M_EXTERN char **split_static(const char *str,char sep, int nelems,char *dst);
+M_EXTERN char *trim(const char *str);
 
 #undef M_EXTERN
 

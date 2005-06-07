@@ -77,6 +77,7 @@ char *tolower_str(const char *str) {
 	return dst;
 }
 
+/* print a binary array in xx:xx:.... format */
 char *bin2hex(const unsigned char *binstr,const int len) {
 	int i;
 	char *pt;
@@ -87,6 +88,94 @@ char *bin2hex(const unsigned char *binstr,const int len) {
 	}
 	*(--pt)='\0'; /* replace last ':' with '\0' */
 	return res;
+}
+
+/* convert xx:xx:xx to binary array */
+unsigned char *hex2bin(const char *hexstr) {
+        char *to;
+        char *from      =    (char* )hexstr;
+        int nelems      =    (1+strlen(hexstr))/3;
+        unsigned char *res = calloc(nelems,sizeof(unsigned char));
+        if (!res) return NULL;
+        if (*from==':') from++; /* strip first char if equals to ':' */
+        for (to=(char *)res; *from;from+=3,to++) {
+                int c;
+                if ( sscanf(from,"%02x",&c) == 1)
+                        *to=(unsigned char)c;
+        }
+        return res;
+}
+
+/* same as above, but no malloc needed if res is not null */
+unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size) {
+        char *to;
+        char *from      =    (char* )hexstr;
+        *size   =    (1+strlen(hexstr))/3;
+        if(!*res) *res = calloc(*size,sizeof(unsigned char));
+        if (!*res) return NULL;
+        if (*from==':') from++; /* strip first char if equals to ':' */
+        for (to=(char *)*res; *from;from+=3,to++) {
+                int c;
+                if ( sscanf(from,"%02x",&c) == 1)
+                        *to=(unsigned char)c;
+        }
+        return *res;
+}
+
+/*
+* splits a string into a nelems string array by using sep as char separator
+*/
+char **split(const char *str,char sep, int nelems){
+        int n;
+        char *pt;
+        char *copy= clone_str(str);
+        char **res= calloc(nelems,sizeof(char*));
+        if ( (!res) || (!copy) ) return NULL;
+        for (pt=copy,n=0;n<nelems-1;n++) {
+                res[n]=pt;
+                pt=strchr(pt,sep);
+                if(!pt) return res;
+                *pt++='\0';
+        }
+        res[n]=pt; /* last item stores rest of string */
+        return res;
+}
+
+/*
+* splits a string into a nelems string array by using sep as char separator,
+* but using static structures
+* Note that result must be still free()'d
+*/
+char **split_static(const char *str,char sep, int nelems,char *dst){
+        int n;
+        char *pt;
+        char **res= calloc(nelems,sizeof(char*));
+        if ( (!res) || (!dst) ) return NULL;
+        strncpy(dst,str,1+strlen(str));
+        for (pt=dst,n=0;n<nelems-1;n++) {
+                res[n]=pt;
+                pt=strchr(pt,sep);
+                if(!pt) return res;
+                *pt++='\0';
+        }
+        res[n]=pt; /* last item stores rest of string */
+        return res;
+}
+
+/* remove redundant spaces from string */
+char *trim(const char *str){
+        char *from,*to;
+        int space=1;
+        char *res=malloc(strlen(str));
+        if (!res) return NULL;
+        for(from=(char *)str,to=res;*from;from++) {
+                if (!isspace(*from)) { space=0;*to++=*from; }
+                else if(!space) { space=1; *to++=' '; }
+        }
+        /* remove (if any) spaces at end of string*/
+        if(space) *--to='\0';
+        else        *to='\0';
+        return res;
 }
 
 #endif /* __STRINGS_C_ */
