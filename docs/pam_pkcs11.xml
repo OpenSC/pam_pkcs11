@@ -1302,14 +1302,14 @@ Search certificate in <filename>${HOME}/.eid/autorized_certificates</filename>
 <title>OpenSSH library mapper</title>
  
 <para>
-Search certificate public key in <filename>${HOME}/.ssh/autorized_keys</filename> in a similar way as OpenSSH does. The openssh mapper uses Naming Service Switch  (<symbol>NSS</symbol>) via <function>getpwent()</function> to get the list of users and home directories
+Search certificate public key in <filename>${HOME}/.ssh/authorized_keys</filename> in a similar way as OpenSSH does. The openssh mapper uses Naming Service Switch  (<symbol>NSS</symbol>) via <function>getpwent()</function> to get the list of users and home directories
 </para>
 <para>  
 When used as login finder, returns the user that owns the 
-<filename>authorized_keys</filename> file where the publickey is found. If several users share the same public key, returns first found login
+<filename>authorized_keys</filename> file where the publickey is found. If several users share the same public key, returns first found login. On no public key match returns <symbol>NULL</symbol>
 </para>
 <para>
-When used as matcher, the module uses <function>getpwnam()</function> to evaluate user home directory, then tries to open <filename>${HOME}/.ssh/authorized_keys</filename> file and finally try to find a public key that matches with public keys found in certificate. Returns <symbol>ok</symbol> if match found, or <symbol>fail</symbol> on no match ( or process error )
+When used as matcher, the module uses <function>getpwnam()</function> to evaluate user home directory, then tries to open <filename>${HOME}/.ssh/authorized_keys</filename> file and finally tries to find a public key that matches with public keys found in certificate. Returns <symbol>ok</symbol> if match found, or <symbol>fail</symbol> on no match ( or process error )
 </para>
 <para>
 Configuration file entry looks like:
