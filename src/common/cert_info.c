@@ -19,6 +19,10 @@
 #ifndef _CERT_INFO_C
 #define _CERT_INFO_C
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/err.h>
@@ -261,30 +265,73 @@ static char **cert_info_uid(X509 *x509) {
 	return results;
 }
 
+/* convert publickey into PEM format */
+static char *key2pem(EVP_PKEY *key) {
+	int len;
+	char *pt,*res;
+	BIO *buf= BIO_new(BIO_s_mem());
+	if (!buf) {
+	    DBG("BIO_new() failed");
+	    return NULL;
+	}
+	if ( ! PEM_write_bio_PUBKEY(buf,key) ) {
+	    DBG("Cannot print public key");
+	    return NULL;
+	}
+	/* extract data */
+	len= BIO_get_mem_ptr(buf,&pt);
+	DBG1("key data has '%d' bytes",len);
+	res= malloc(len+1);
+	memcpy(res,pt,len);
+	*(res+len)='\0';
+	/*BIO_set_close(buf,BIO_NOCLOSE); */
+	BIO_free(buf);
+	return res;
+}
+
 /*
 * Extract Certificate's Public Key
 */
 static char **cert_info_puk(X509 *x509) {
+	int res;
+	char *pt;
+	static char *entries[2] = { NULL,NULL };
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
 	    DBG("Cannot extract public key");
 	    return NULL;
 	}
-	/* TODO: translate into printable form and return */
+	pt=key2pem(pubk);
+	if (!pt) { 
+	    DBG("key2pem() failed");
 	return NULL;
+	}
+	DBG1("Public key is '%s'\n",pt);
+	entries[0]=pt;
+	return entries;
 }
 
 /*
 * Extract Certificate's Public Key in OpenSSH format
 */
 static char **cert_info_sshpuk(X509 *x509) {
+	int res;
+	char *pt;
+	static char *entries[2] = { NULL,NULL };
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
 	    DBG("Cannot extract public key");
 	    return NULL;
 	}
-	/* TODO: translate into printable form and return */
+	pt=key2pem(pubk);
+	if (!pt) { 
+	    DBG("key2pem() failed");
 	return NULL;
+	}
+	DBG1("Public key is '%s'\n",pt);
+	/* TODO: convert pk to openssh format */
+	entries[0]=pt;
+	return entries;
 }
 
 static char* get_fingerprint(X509 *cert,const EVP_MD *type) {
@@ -340,7 +387,7 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 	    case CERT_PUK     : /* Certificate Public Key */
 		return cert_info_puk(x509);
 	    case CERT_SSHPUK  : /* Certificate Public Key in OpenSSH format */
-		return cert_info_puk(x509);
+		return cert_info_sshpuk(x509);
 	    case CERT_DIGEST  : /* Certificate Signature Digest */
 		if ( !algorithm ) {
 		    DBG("Must specify digest algorithm");
