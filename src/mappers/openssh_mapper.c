@@ -53,7 +53,7 @@ static const char *keyfile="/etc/pam_pkcs11/authorized_keys";
 */
 
 static int match_key(char *certkey, char *filekey) {
-	/* TODO */
+	if ( strstr(filekey,certkey) ) return 1;
 	return 0;
 }
 
@@ -61,10 +61,20 @@ static int match_keyfile(char *certkey,FILE *file) {
 	char line[2048];
 	int res;
 	while(fgets(line,2048,file)!= NULL ) {
+		char *pt;
 		/* Ensure end of string and strip EOL */
-		line[2048]='\0'; 
-		if (line[strlen(line)-1]=='\n') line[strlen(line-1)] ='\0'; 
-		res= match_key(certkey,line);
+		line[2048]='\0';
+		if (line[0]=='#') continue; /* skip comments */
+		if (line[strlen(line)-1]=='\n') line[strlen(line)-1] ='\0'; 
+		if (is_empty_str(line)) continue; /* skip blank lines */
+		pt = strstr(line,"ssh-dss ");
+		if (!pt) pt = strstr(line,"ssh-rsa ");
+		if (!pt) {
+			/* TODO: parse old style (ssh-v1) keys */
+			DBG1("Unknown line format found: '%s'",line);
+			continue;
+		}
+		res= match_key(certkey,pt);
 		if (res<=0) continue; /* not a key or key doesn't match*/
 		return res; /* match found */
 	}
@@ -103,15 +113,14 @@ static char * openssh_mapper_find_user(X509 *x509) {
 	setpwent();
 	while((pw=getpwent()) != NULL) {
 	    int res;
-            for (str=*entries; str ; str=*++entries) {
-                /* parse list of authorized keys until match */
-	        sprintf(filename,"%s/.ssh/authorized_keys",pw->pw_dir);
-		fd=fopen(filename,"rt");
-		if (!fd) {
-		    DBG2("fopen('%s') : '%s'",filename,strerror(errno));
-		    continue;
-		}
-                for (n=0,str=entries[n]; str ; str=entries[n++]) {
+            /* parse list of authorized keys until match */
+	    sprintf(filename,"%s/.ssh/authorized_keys",pw->pw_dir);
+	    fd=fopen(filename,"rt");
+	    if (!fd) {
+	        /* DBG2("fopen('%s') : '%s'",filename,strerror(errno)); */
+	        continue;
+	    }
+            for (n=0,str=entries[n]; str ; str=entries[n++]) {
 		    int res = match_keyfile(str,fd);
 		    if( res<0) return NULL;
 		    if( res==0) continue; /* no match, try next public key */
@@ -120,10 +129,9 @@ static char * openssh_mapper_find_user(X509 *x509) {
 		    fclose(fd);
 		    endpwent();
 		    return str;
-                }
-                DBG1("No cert pubkey match found for user '%s'",pw->pw_name);
-		fclose(fd);
             }
+            DBG1("No cert pubkey match found for user '%s'",pw->pw_name);
+	    fclose(fd);
         } /* next login */
 	/* no user found that contains key in their authorized_key file */
 	endpwent();
