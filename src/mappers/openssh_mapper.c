@@ -151,7 +151,7 @@ static int openssh_mapper_match_user(X509 *x509, const char *login) {
         struct passwd *pw = getpwnam(login);
         char **entries  = cert_info(x509,CERT_SSHPUK,NULL);
         if (!entries) {
-            DBG("get_common_name() failed");
+            DBG("get_public_key() failed");
             return -1;
         }
         if (!pw) {
