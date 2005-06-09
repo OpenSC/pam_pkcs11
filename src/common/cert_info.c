@@ -29,6 +29,10 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/opensslv.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "debug.h"
 #include "error.h"
 #include "strings.h"
@@ -279,9 +283,11 @@ static char *key2pem(EVP_PKEY *key) {
 	    return NULL;
 	}
 	/* extract data */
-	len= BIO_get_mem_ptr(buf,&pt);
-	DBG1("key data has '%d' bytes",len);
-	res= malloc(len+1);
+	len= BIO_get_mem_data(buf,&pt);
+	if( !(res=malloc(len+1)) ) {
+	    DBG("Cannot malloc() to copy public key");
+	    return NULL;
+	}
 	memcpy(res,pt,len);
 	*(res+len)='\0';
 	/*BIO_set_close(buf,BIO_NOCLOSE); */
@@ -304,8 +310,10 @@ static char **cert_info_puk(X509 *x509) {
 	pt=key2pem(pubk);
 	if (!pt) { 
 	    DBG("key2pem() failed");
-	return NULL;
+	    EVP_PKEY_free(pubk);
+	    return NULL;
 	}
+	EVP_PKEY_free(pubk);
 	DBG1("Public key is '%s'\n",pt);
 	entries[0]=pt;
 	return entries;
@@ -316,7 +324,8 @@ static char **cert_info_puk(X509 *x509) {
 */
 static char **cert_info_sshpuk(X509 *x509) {
 	int res;
-	char *pt;
+	char *pt,*buf;
+	char *from,*to,*end;
 	static char *entries[2] = { NULL,NULL };
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
@@ -324,13 +333,27 @@ static char **cert_info_sshpuk(X509 *x509) {
 	    return NULL;
 	}
 	pt=key2pem(pubk);
-	if (!pt) { 
+	/* malloc at least same length than received and test */
+	if (!pt || !(buf=malloc(strlen(pt)) ) ) { 
 	    DBG("key2pem() failed");
-	return NULL;
+	    EVP_PKEY_free(pubk);
+	    return NULL;
 	}
-	DBG1("Public key is '%s'\n",pt);
+	/* now compose data in openssh style */
+	switch (pubk->type) {
+		case EVP_PKEY_RSA: sprintf(buf,"ssh-rsa "); break;
+		case EVP_PKEY_DSA: sprintf(buf,"ssh-dss "); break;
+		default: DBG("Unknown public key type"); return NULL;
+	}
+	EVP_PKEY_free(pubk);
 	/* TODO: convert pk to openssh format */
-	entries[0]=pt;
+	to=buf+strlen(buf);
+	from=1+strchr(pt,'\n'); /* skip BEGIN PUBLIC KEY block */
+	end=strstr(pt,"-----END")-1;
+	for(;from<end;from++) if (! isspace(*from) ) *to++=*from;
+	*to='\0';
+	DBG1("Public key is '%s'\n",buf);
+	entries[0]=buf;
 	return entries;
 }
 
@@ -356,6 +379,36 @@ static char **cert_info_digest(X509 *x509, const char *algorithm) {
                 DBG1("Invalid digest algorithm %s, using 'sha1'",algorithm);
         }
 	entries[0]= get_fingerprint(x509,digest);
+	return entries;
+}
+
+/*
+* Return certificate in PEM format
+*/
+static char **cert_info_pem(X509 *x509) {
+	int len;
+	char *pt,*res;
+	static char *entries[2] = { NULL,NULL };
+	BIO *buf= BIO_new(BIO_s_mem());
+	if (!buf) {
+	    DBG("BIO_new() failed");
+	    return NULL;
+	}
+	if ( ! PEM_write_bio_X509(buf,x509) ) {
+	    DBG("Cannot print certificate");
+	    return NULL;
+	}
+	/* extract data */
+	len= BIO_get_mem_data(buf,&pt);
+	if ( ! (res= malloc(len+1) ) ) {
+	    DBG("Cannot malloc() to copy certificate");
+	    return NULL;
+	}
+	memcpy(res,pt,len);
+	*(res+len)='\0';
+	/*BIO_set_close(buf,BIO_NOCLOSE); */
+	BIO_free(buf);
+	entries[0]=res;
 	return entries;
 }
 
@@ -388,6 +441,8 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 		return cert_info_puk(x509);
 	    case CERT_SSHPUK  : /* Certificate Public Key in OpenSSH format */
 		return cert_info_sshpuk(x509);
+	    case CERT_PEM  : /* Certificate in PEM format */
+		return cert_info_pem(x509);
 	    case CERT_DIGEST  : /* Certificate Signature Digest */
 		if ( !algorithm ) {
 		    DBG("Must specify digest algorithm");

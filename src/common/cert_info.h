@@ -27,9 +27,10 @@
 #define CERT_EMAIL	4	/* Certificate e-mail */
 #define CERT_UPN	5	/* Microsoft's Universal Principal Name */
 #define CERT_UID	6	/* Certificate Unique Identifier */
-#define CERT_PUK	7	/* Certificate Public Key */
+#define CERT_PUK	7	/* Certificate Public Key (PEM Format)*/
 #define CERT_DIGEST	8	/* Certificate Digest */
 #define CERT_SSHPUK	9	/* Certificate Public key in OpenSSH format */
+#define CERT_PEM	10	/* Certificate in PEM format */
 
 /* max number of entries to find from certificate */
 #define CERT_INFO_SIZE 16
