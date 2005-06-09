@@ -158,7 +158,7 @@ int main(int argc, const char **argv) {
         continue;
       }
 
-      DBG1("Inspecting certificate for key #%d",+1);
+      DBG1("Inspecting certificate for key #%d",i+1);
       inspect_certificate(x509);
     }
   }
