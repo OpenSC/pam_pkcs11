@@ -46,6 +46,9 @@ AM_CONDITIONAL(HAVE_DOCBOOK, test "x$with_docbook" != "xno")
 
 AM_CONDITIONAL([AMDEP], [test "x$enable_dependency_tracking" != xno])
 
+# Check and set OpenSSL paths
+AM_PATH_OPENSSL
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
@@ -55,7 +58,7 @@ AC_PROG_LN_S
 
 # Checks for libraries.
 AC_CHECK_LIB(pam, pam_get_item, , AC_MSG_ERROR(could not locate pam libraries))
-AC_CHECK_LIB(crypto, X509_verify_cert, , AC_MSG_ERROR(could not locate OpenSSL crypto library))
+# AC_CHECK_LIB(crypto, X509_verify_cert, , AC_MSG_ERROR(could not locate OpenSSL crypto library))
 if test "$USE_CURL" != "1"; then
 AC_CHECK_LIB(ldap, ldap_init, , AC_MSG_ERROR(could not locate ldap library))
 else
@@ -187,11 +190,9 @@ SCardControl(NULL, NULL, 0, NULL, NULL);
 	LIBS="$saved_LIBS"
 fi
 
-AC_DEFINE(DEBUG, 1, [Define to 1 if you want to include debugging code.])
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([string.h syslog.h fcntl.h unistd.h])
-AC_CHECK_HEADERS([openssl/x509.h])
 if test "$USE_CURL" != "1"; then
 AC_CHECK_HEADERS([ldap.h])
 else
