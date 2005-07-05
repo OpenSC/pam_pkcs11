@@ -1,6 +1,6 @@
 # $Id$
 
-AM_CFLAGS = -Wall -fno-strict-aliasing
+AM_CFLAGS = -Wall -fno-strict-aliasing @OPENSSL_CFLAGS@
 
 lib_LTLIBRARIES = pam_pkcs11.la
 
@@ -8,7 +8,7 @@ pam_pkcs11_la_SOURCES =  pam_pkcs11.c  \
 			mapper_mgr.c mapper_mgr.h \
 			pam_config.c pam_config.h
 pam_pkcs11_la_LDFLAGS = -module -avoid-version
-pam_pkcs11_la_LIBADD = @LIBSCCONF@ @LIBCOMMON@
+pam_pkcs11_la_LIBADD = @LIBSCCONF@ @LIBCOMMON@ @OPENSSL_LIBS@
 
 install:       
 	$(mkinstalldirs) $(DESTDIR)/$(libdir)/security
