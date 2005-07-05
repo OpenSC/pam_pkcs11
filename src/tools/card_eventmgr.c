@@ -308,11 +308,7 @@ int main(int argc, char *argv[]) {
     LONG rv;
     SCARD_READERSTATE_A *rgReaderStates_t = NULL;
     DWORD dwReaders, dwReadersOld;
-#ifndef HAVE_PCSC_OLD
     LPTSTR mszReaders = NULL;
-#else
-    LPSTR mszReaders = NULL;
-#endif
     char *ptr, **readers = NULL;
     int nbReaders, i;
     int first_loop = TRUE;
