@@ -139,6 +139,16 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   /* open log */
   openlog(LOGNAME, LOG_CONS | LOG_PID, LOG_AUTHPRIV);
 
+  /* fail if we are using a remote server
+   * local login: DISPLAY=:0
+   * XDMCP login: DISPLAY=host:0 */
+  if (getenv("DISPLAY")[0] != ':')
+  {
+    syslog(LOG_ERR, "Remote login (from %s) is not (yet) supported",
+		getenv("DISPLAY"));
+    return PAM_AUTHINFO_UNAVAIL;
+  }
+  
   /* init openssl */
   OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
