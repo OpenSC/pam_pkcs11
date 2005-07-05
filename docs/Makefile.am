@@ -4,8 +4,6 @@ XSLTPROC = @XSLTPROC@
 HTMLFILES = pam_pkcs11.html pam_pkcs11.css
 XMLFILES = pam_pkcs11.xml pam_pkcs11.xsl
 
-MAINTAINERCLEANFILES = pam_pkcs11.html
-
 MANSRC = \
 	pam_pkcs11.8 card_eventmgr.1 pklogin_finder.1 \
 	pkcs11_eventmgr.1 pkcs11_inspect.1
