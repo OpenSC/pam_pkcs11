@@ -200,10 +200,8 @@ improvements or alternative matching algorithms are welcome.]
     </listitem>
     <listitem>Unpack source tarball:
 <screen>
-<userinput>
-tar xvzf pam_pkcs11-X.Y.tar.gz
-cd pam_pkcs11-X.Y
-</userinput>
+<userinput>tar xvzf pam_pkcs11-X.Y.tar.gz
+cd pam_pkcs11-X.Y</userinput>
 </screen>
     </listitem>
     <listitem>If using SVN tree, re-create environment:
@@ -213,21 +211,17 @@ cd pam_pkcs11-X.Y
     </listitem>
     <listitem>Execute the "standard" install sequence :-)
 <screen>
-<userinput>
-./configure
+<userinput>./configure
 make
-make install
-</userinput>
+make install</userinput>
 </screen>
     </listitem>
     <listitem> Alternatively, on RedHat Linux systems, you can use rpmbuild tools and
 provided <filename>.spec</filename> file to create and install RPM packages:
 <screen>
-<userinput>
-rpmbuild -ta /path/to/pam_pkcs11.X.Y.tar.gz
+<userinput>rpmbuild -ta /path/to/pam_pkcs11.X.Y.tar.gz
 rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-X.Y-Z.i386.rpm
-rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-tools-X.Y-Z.i386.rpm
-</userinput>
+rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-tools-X.Y-Z.i386.rpm</userinput>
 </screen>
     </listitem>
     <listitem> Configure package:
@@ -380,10 +374,8 @@ configuration file</listitem>
 	<listitem> Copy CA Certificates (either DER or PEM format) to ca_dir</listitem>
 	<listitem> Create hash links to CA certificates with provided <application>make_hash_link.sh</application>. Note that <application>OpenSSL</application> must be installed 
 <screen>
-<userinput>
-cd /path/to/ca/dir
-/usr/bin/make_hash_link.sh
-</userinput>
+<userinput>cd /path/to/ca/dir
+/usr/bin/make_hash_link.sh</userinput>
 </screen>
         </listitem>
         <listitem> If CRL are used ("<option>crl_policy</option>" option in "<option>module</option>" is set to <emphasis>offline</emphasis> or <emphasis>auto</emphasis>), repeat above process with CRL dir and entries</listitem>
