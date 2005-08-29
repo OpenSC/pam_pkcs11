@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _SUBJECT_MAPPER_C_
+#define __SUBJECT_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -35,6 +35,7 @@
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
+#include "subject_mapper.h"
 
 static const char *filename = "none";
 static int ignorecase = 0;
@@ -78,6 +79,7 @@ static int subject_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
+#ifndef SUBJECT_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -89,10 +91,27 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
 
+#else
+struct mapper_module_st subject_mapper_module_data;
+
+static void init_mapper_st(scconf_block *blk, const char *name) {
+        subject_mapper_module_data.name=name;
+        subject_mapper_module_data.block =blk;
+        subject_mapper_module_data.entries = subject_mapper_find_entries;
+        subject_mapper_module_data.finder = subject_mapper_find_user;
+        subject_mapper_module_data.matcher = subject_mapper_match_user;
+        subject_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+#endif
+
 /**
 * Initialization routine
 */
+#ifndef SUBJECT_MAPPER_STATIC
 int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#else
+int subject_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#endif
 	int debug;
 	if (!blk) return 0; /* should not occurs, but... */
 	debug      = scconf_get_bool(blk,"debug",0);

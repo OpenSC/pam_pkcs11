@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _PW_MAPPER_C_
+#define __PWENT_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -37,6 +37,7 @@
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
+#include "pwent_mapper.h"
 
 /*
 * This mapper search the common name (CN) of the certificate in
@@ -124,6 +125,7 @@ static int pwent_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
+#ifndef PWENT_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -135,7 +137,24 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
 
+#else
+struct mapper_module_st pwent_mapper_module_data;
+
+static void init_mapper_st(scconf_block *blk, const char *name) {
+        pwent_mapper_module_data.name = name;
+        pwent_mapper_module_data.block =blk;
+        pwent_mapper_module_data.entries = pwent_mapper_find_entries;
+        pwent_mapper_module_data.finder = pwent_mapper_find_user;
+        pwent_mapper_module_data.matcher = pwent_mapper_match_user;
+        pwent_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+#endif
+
+#ifndef PWENT_MAPPER_STATIC
 int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#else
+int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#endif
 	int debug= scconf_get_bool(blk,"debug",0);
 	ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
 	set_debug_level(debug);

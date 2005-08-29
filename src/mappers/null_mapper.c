@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _NULL_MAPPER_C_
+#define __NULL_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -32,6 +32,8 @@
 #include "../common/error.h"
 #include "../common/strings.h"
 #include "mapper.h"
+#include "null_mapper.h"
+
 /*
 * A blind mapper: just read from config default value
 * and return it withouth further checking
@@ -51,6 +53,7 @@ _DEFAULT_MAPPER_MATCH_USER
 
 _DEFAULT_MAPPER_END
 
+#ifndef NULL_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -62,11 +65,28 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
 
+#else
+struct mapper_module_st null_mapper_module_data;
+
+static void init_mapper_st(scconf_block *blk, const char *name) {
+        null_mapper_module_data.name = name;
+        null_mapper_module_data.block =blk;
+        null_mapper_module_data.entries = mapper_find_entries;
+        null_mapper_module_data.finder = null_mapper_find_user;
+        null_mapper_module_data.matcher = mapper_match_user;
+        null_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+#endif
+
 /**
 * Initialize module
 * returns 1 on success, 0 on error
 */
+#ifndef NULL_MAPPER_STATIC
 int mapper_module_init(scconf_block *ctx,const char *mapper_name) {
+#else
+int null_mapper_module_init(scconf_block *ctx,const char *mapper_name) {
+#endif
 	if (!ctx) return 0; /* should not occurs, but... */
 	default_user = scconf_get_str( ctx,"default_user",default_user);
 	match = scconf_get_bool( ctx,"default_match",0);

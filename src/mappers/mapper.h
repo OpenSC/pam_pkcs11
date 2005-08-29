@@ -164,21 +164,28 @@ static int mapper_match_user(X509 *x509, const char *login) {		\
 	return 0; /* no match */					\
 }
 
-/**
-* Macro for default init function
-* returns 1 on success, 0 on error
-*/
-#define _DEFAULT_MAPPER_INIT 						\
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {	\
-	return 1;							\
-}									\
-
 /** 
 * Macro for de-initialization routine
 */
 #define _DEFAULT_MAPPER_END 						\
 static void mapper_module_end(void) {					\
 	return;								\
+}									\
+
+/**
+* Macro for default init function
+* returns 1 on success, 0 on error
+* NOTE: mapper module data MUST BE defined in module
+*/
+#define _DEFAULT_MAPPER_INIT 						\
+int mapper_module_init(scconf_block *blk,const char *name) {		\
+	mapper_module_data.name = name;					\
+	mapper_module_data.block = blk;					\
+	mapper_module_data.entries = mapper_find_entries;		\
+	mapper_module_data.finder = mapper_find_user;			\
+	mapper_module_data.matcher = mapper_match_user;			\
+	mapper_module_data.mapper_module_end= mapper_module_end;	\
+	return 1;							\
 }									\
 
 /* end of mapper.h file */

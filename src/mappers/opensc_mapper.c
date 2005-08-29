@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _OPENSSH_MAPPER_C_
+#define __OPENSC_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -39,11 +39,12 @@
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
+#include "opensc_mapper.h"
 
 /* TODO 
 Not sure on usage of authorized keys map file...
 So the first version, will use getpwent() to navigate across all users 
-and parsing ${userhome}/.ssh/authorized_keys
+and parsing ${userhome}/.eid/authorized_certificates
 */
 static const char *keyfile="/etc/pam_pkcs11/authorized_keys";
 
@@ -180,6 +181,7 @@ static int openssh_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
+#ifndef OPENSC_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
                                                                                 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -191,10 +193,27 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
 
+#else
+struct mapper_module_st opensc_mapper_module_data;
+                                                                                
+static void init_mapper_st(scconf_block *blk, const char *name) {
+        opensc_mapper_module_data.name = name;
+        opensc_mapper_module_data.block =blk;
+        opensc_mapper_module_data.entries = openssh_mapper_find_entries;
+        opensc_mapper_module_data.finder = openssh_mapper_find_user;
+        opensc_mapper_module_data.matcher = openssh_mapper_match_user;
+        opensc_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+#endif
+
 /**
 * Initialization routine
 */
+#ifndef OPENSC_MAPPER_STATIC
 int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#else
+int opensc_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#endif
         int debug;
         if (!blk) return 0; /* should not occurs, but... */
         debug      = scconf_get_bool(blk,"debug",0);

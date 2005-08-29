@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _KRB_MAPPER_C_
+#define __KRB_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -33,6 +33,7 @@
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
+#include "krb_mapper.h"
 
 /*
 * This mapper uses (if available) the optional Kerberos Principal Name 
@@ -105,6 +106,7 @@ static int krb_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
+#ifndef KRB_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -116,11 +118,28 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
 
+#else
+struct mapper_module_st krb_mapper_module_data;
+
+static void init_mapper_st(scconf_block *blk, const char *name) {
+        krb_mapper_module_data.name = name;
+        krb_mapper_module_data.block =blk;
+        krb_mapper_module_data.entries = krb_mapper_find_entries;
+        krb_mapper_module_data.finder = krb_mapper_find_user;
+        krb_mapper_module_data.matcher = krb_mapper_match_user;
+        krb_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+#endif
+
 /**
 * init routine
 * parse configuration block entry
 */
+#ifndef KRB_MAPPER_STATIC
 int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#else
+int krb_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#endif
 	int debug = scconf_get_bool(blk,"debug",0);
 	set_debug_level(debug);
 	init_mapper_st(blk,mapper_name);

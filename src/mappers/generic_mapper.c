@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _GENERIC_MAPPER_C_
+#define __GENERIC_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -34,6 +34,7 @@
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
+#include "generic_mapper.h"
 
 /*
 * Skeleton for mapper modules
@@ -140,6 +141,7 @@ static int generic_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
+#ifndef GENERIC_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -150,12 +152,28 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.matcher = generic_mapper_match_user;
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
+#else
+struct mapper_module_st generic_mapper_module_data;
+
+static void init_mapper_st(scconf_block *blk, const char *name) {
+        generic_mapper_module_data.name = name;
+        generic_mapper_module_data.block =blk;
+        generic_mapper_module_data.entries = generic_mapper_find_entries;
+        generic_mapper_module_data.finder = generic_mapper_find_user;
+        generic_mapper_module_data.matcher = generic_mapper_match_user;
+        generic_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+#endif
 
 /**
 * Initialize module
 * returns 1 on success, 0 on error
 */
+#ifndef GENERIC_MAPPER_STATIC
 int mapper_module_init(scconf_block *blk,const char *name) {
+#else
+int generic_mapper_module_init(scconf_block *blk,const char *name) {
+#endif
 	int debug;
 	const char *item;
 	if (!blk) return 0; /* should not occurs, but... */

@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _MAIL_MAPPER_C_
+#define __MAIL_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -34,6 +34,7 @@
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
+#include "mail_mapper.h"
 
 /*
 * This mapper uses (if available) the optional email entry on the certificate 
@@ -145,6 +146,7 @@ static int mail_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
+#ifndef MAIL_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -156,11 +158,29 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
 
+#else
+struct mapper_module_st mail_mapper_module_data;
+
+static void init_mapper_st(scconf_block *blk, const char *name) {
+        mail_mapper_module_data.name = name;
+        mail_mapper_module_data.block =blk;
+        mail_mapper_module_data.entries = mail_mapper_find_entries;
+        mail_mapper_module_data.finder = mail_mapper_find_user;
+        mail_mapper_module_data.matcher = mail_mapper_match_user;
+        mail_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+
+#endif
+
 /**
 * init routine
 * parse configuration block entry
 */
+#ifndef MAIL_MAPPER_STATIC
 int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#else
+int mail_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#endif
 	int debug = scconf_get_bool(blk,"debug",0);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	ignoredomain = scconf_get_bool(blk,"ignoredomain",ignoredomain);

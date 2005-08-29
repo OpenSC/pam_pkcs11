@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _UID_MAPPER_C_
+#define __UID_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -33,6 +33,7 @@
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
+#include "uid_mapper.h"
 
 /*
 * This mapper uses the Unique ID (UID) entry on the certificate to
@@ -103,6 +104,7 @@ static int uid_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
+#ifndef UID_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -114,7 +116,24 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
 
+#else
+struct mapper_module_st uid_mapper_module_data;
+
+static void init_mapper_st(scconf_block *blk, const char *name) {
+        uid_mapper_module_data.name = name;
+        uid_mapper_module_data.block =blk;
+        uid_mapper_module_data.entries = uid_mapper_find_entries;
+        uid_mapper_module_data.finder = uid_mapper_find_user;
+        uid_mapper_module_data.matcher = uid_mapper_match_user;
+        uid_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+#endif
+
+#ifndef UID_MAPPER_STATIC
 int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#else
+int uid_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#endif
         int debug= scconf_get_bool(blk,"debug",0);
 	mapfile = scconf_get_str(blk,"mapfile",mapfile);
         ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);

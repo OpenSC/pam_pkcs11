@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _CN_MAPPER_C_
+#define __CN_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -33,6 +33,7 @@
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
+#include "cn_mapper.h"
 
 static const char *mapfile="none";
 static int ignorecase=0;
@@ -102,6 +103,7 @@ static int cn_mapper_match_user(X509 *x509,const char *login) {
 
 _DEFAULT_MAPPER_END
 
+#ifndef CN_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -113,10 +115,28 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
 	mapper_module_data.mapper_module_end = mapper_module_end;
 }
 
+#else
+struct mapper_module_st cn_mapper_module_data;
+
+static void init_mapper_st(scconf_block *blk, const char *name) {
+	cn_mapper_module_data.name = name;
+	cn_mapper_module_data.block =blk;
+	cn_mapper_module_data.entries = cn_mapper_find_entries;
+	cn_mapper_module_data.finder = cn_mapper_find_user;
+	cn_mapper_module_data.matcher = cn_mapper_match_user;
+	cn_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+
+#endif
+
 /**
 * Initialization routine
 */
+#ifndef CN_MAPPER_STATIC
 int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#else
+int cn_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#endif
 	int debug= scconf_get_bool(blk,"debug",0);
 	mapfile= scconf_get_str(blk,"mapfile",mapfile);
 	ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);

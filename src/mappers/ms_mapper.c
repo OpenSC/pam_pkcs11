@@ -20,7 +20,7 @@
  * $Id$
  */
 
-#define _MS_MAPPER_C_
+#define __MS_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -33,6 +33,7 @@
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
+#include "ms_mapper.h"
 
 /*
 * This mapper uses (if available) the optional MS's Universal Principal Name 
@@ -148,6 +149,7 @@ static int ms_mapper_match_user(X509 *x509, const char *user) {
 
 _DEFAULT_MAPPER_END
 
+#ifndef MS_MAPPER_STATIC
 struct mapper_module_st mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
@@ -159,11 +161,28 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
 
+#else
+struct mapper_module_st ms_mapper_module_data;
+
+static void init_mapper_st(scconf_block *blk, const char *name) {
+        ms_mapper_module_data.name = name;
+        ms_mapper_module_data.block =blk;
+        ms_mapper_module_data.entries = ms_mapper_find_entries;
+        ms_mapper_module_data.finder = ms_mapper_find_user;
+        ms_mapper_module_data.matcher = ms_mapper_match_user;
+        ms_mapper_module_data.mapper_module_end = mapper_module_end;
+}
+#endif
+
 /**
 * init routine
 * parse configuration block entry
 */
+#ifndef MS_MAPPER_STATIC
 int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#else
+int ms_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#endif
 	int debug = scconf_get_bool(blk,"debug",0);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	ignoredomain = scconf_get_bool(blk,"ignoredomain",ignoredomain);
