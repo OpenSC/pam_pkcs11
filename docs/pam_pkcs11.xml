@@ -48,7 +48,7 @@ This manual describes how to compile, install, configure and use
 <toc/>
 
 <chapter id="copyright">
-	<title>Copyright. License</title>
+	<title>Copyright License</title>
 
 <para>
 Copyright (C) 2005 Juan Antonio Martinez <email>jonsito@teleline.es</email>
@@ -1650,10 +1650,10 @@ Any comments, suggestions and bug reports are welcome. Please, mention
 the keywords 'pkcs' and 'pam' in the subject.
 </para>
 <para>
-Juan Antonio Martinez &lt;jonsito at teleline.es&gt;
+Juan Antonio Martinez <email>jonsito at teleline.es</email>
 </para>
 <para>
-Mario Strasser &lt;mast at gmx.net&gt;
+Mario Strasser <email>mast at gmx.net</email>
 </para>
 
 </chapter>
