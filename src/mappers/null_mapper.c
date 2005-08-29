@@ -42,7 +42,7 @@
 static const char *default_user = "nobody";
 static int match=0;
 
-static char * null_mapper_find_user(X509 *x509) {
+static char * mapper_find_user(X509 *x509) {
 	if ( !x509 ) return NULL;
 	return (match)?clone_str((char *)default_user):NULL;
 }
@@ -60,7 +60,7 @@ static void init_mapper_st(scconf_block *blk, const char *name) {
         mapper_module_data.name = name;
         mapper_module_data.block =blk;
         mapper_module_data.entries = mapper_find_entries;
-        mapper_module_data.finder = null_mapper_find_user;
+        mapper_module_data.finder = mapper_find_user;
         mapper_module_data.matcher = mapper_match_user;
         mapper_module_data.mapper_module_end = mapper_module_end;
 }
@@ -70,9 +70,9 @@ struct mapper_module_st null_mapper_module_data;
 
 static void init_mapper_st(scconf_block *blk, const char *name) {
         null_mapper_module_data.name = name;
-        null_mapper_module_data.block =blk;
+        null_mapper_module_data.block = blk;
         null_mapper_module_data.entries = mapper_find_entries;
-        null_mapper_module_data.finder = null_mapper_find_user;
+        null_mapper_module_data.finder = mapper_find_user;
         null_mapper_module_data.matcher = mapper_match_user;
         null_mapper_module_data.mapper_module_end = mapper_module_end;
 }

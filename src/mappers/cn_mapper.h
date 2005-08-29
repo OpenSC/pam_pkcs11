@@ -38,7 +38,7 @@
 #define CN_EXTERN
 #endif
 CN_EXTERN struct mapper_module_st cn_mapper_module_data;
-CN_EXTERN int mapper_module_st cn_mapper_module_init(scconf_block *blk,const char *mapper_name);
+CN_EXTERN int cn_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef CN_EXTERN
 
 /* end of static (if any) declarations */

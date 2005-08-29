@@ -38,7 +38,7 @@
 #define SUBJECT_EXTERN
 #endif
 SUBJECT_EXTERN struct mapper_module_st subject_mapper_module_data;
-SUBJECT_EXTERN int mapper_module_st subject_mapper_module_init(scconf_block *blk,const char *mapper_name);
+SUBJECT_EXTERN int subject_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef SUBJECT_EXTERN
 
 /* end of static (if any) declarations */

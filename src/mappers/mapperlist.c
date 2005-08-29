@@ -44,43 +44,43 @@
 
 mapper_list static_mapper_list[] = {
 #ifdef SUBJECT_MAPPER_STATIC
-	{ "subject",subject_mapper_module_init,subject_mapper_module_data },
+	{ "subject",subject_mapper_module_init,&subject_mapper_module_data },
 #endif
 #ifdef LDAP_MAPPER_STATIC
-	{ "ldap",ldap_mapper_module_init,ldap_mapper_module_data },
+	{ "ldap",ldap_mapper_module_init,&ldap_mapper_module_data },
 #endif
 #ifdef OPENSC_MAPPER_STATIC
-	{ "opensc",opensc_mapper_module_init,opensc_mapper_module_data },
+	{ "opensc",opensc_mapper_module_init,&opensc_mapper_module_data },
 #endif
 #ifdef MAIL_MAPPER_STATIC
-	{ "mail",mail_mapper_module_init,mail_mapper_module_data },
+	{ "mail",mail_mapper_module_init,&mail_mapper_module_data },
 #endif
 #ifdef MS_MAPPER_STATIC
-	{ "ms",ms_mapper_module_init,ms_mapper_module_data },
+	{ "ms",ms_mapper_module_init,&ms_mapper_module_data },
 #endif
 #ifdef KRB_MAPPER_STATIC
-	{ "krb",krb_mapper_module_init,krb_mapper_module_data },
+	{ "krb",krb_mapper_module_init,&krb_mapper_module_data },
 #endif
 #ifdef DIGEST_MAPPER_STATIC
-	{ "digest",digest_mapper_module_init,digest_mapper_module_data },
+	{ "digest",digest_mapper_module_init,&digest_mapper_module_data },
 #endif
 #ifdef CN_MAPPER_STATIC
-	{ "cn",cn_mapper_module_init,cn_mapper_module_data },
+	{ "cn",cn_mapper_module_init,&cn_mapper_module_data },
 #endif
 #ifdef UID_MAPPER_STATIC
-	{ "uid",uid_mapper_module_init,uid_mapper_module_data },
+	{ "uid",uid_mapper_module_init,&uid_mapper_module_data },
 #endif
 #ifdef PWENT_MAPPER_STATIC
-	{ "pwent",pwent_mapper_module_init,pwent_mapper_module_data },
+	{ "pwent",pwent_mapper_module_init,&pwent_mapper_module_data },
 #endif
 #ifdef GENERIC_MAPPER_STATIC
-	{ "generic",generic_mapper_module_init,generic_mapper_module_data },
+	{ "generic",generic_mapper_module_init,&generic_mapper_module_data },
 #endif
 #ifdef OPENSSH_MAPPER_STATIC
-	{ "openssh",openssh_mapper_module_init,openssh_mapper_module_data },
+	{ "openssh",openssh_mapper_module_init,&openssh_mapper_module_data },
 #endif
 #ifdef NULL_MAPPER_STATIC
-	{ "null",null_mapper_module_init,null_mapper_module_data },
+	{ "null", null_mapper_module_init, &null_mapper_module_data },
 #endif
 	{ NULL, NULL, NULL }
 };

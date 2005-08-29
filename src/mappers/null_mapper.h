@@ -38,7 +38,7 @@
 #define NULL_EXTERN
 #endif
 NULL_EXTERN struct mapper_module_st null_mapper_module_data;
-NULL_EXTERN int mapper_module_st null_mapper_module_init(scconf_block *blk,const char *mapper_name);
+NULL_EXTERN int null_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef NULL_EXTERN
 
 /* end of static (if any) declarations */
