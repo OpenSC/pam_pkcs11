@@ -92,9 +92,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	<title>Introduction</title>
 
 <para>
-<application>PKCS11_login</application> is a set of libraries and tools
-to control the process of user login by mean of use any system that
-supports the PKCS11 API.
+<application>pam_pkcs11</application> is a set of libraries and tools
+to controls the login process using a PKCS#11 token.
 </para>
 
 <para>
@@ -107,60 +106,40 @@ used.
 </para>
 
 <para>
-The Pkcs11 Event Manager is a tool to execute commands at insert or
-removal of SmartCard from reader. Alternatively, you can use the
-pcsc-lite's <footnote>
-	<para>
-	PCSC-Lite: an Open implementation of PCSC API
-		<ulink url="http://pcsclite.alioth.debian.org/"></ulink>
-	</para> 
-</footnote>
-based version.
+<application>pkcs11_eventmgr</application> is a tool to execute commands
+at insert or removal of SmartCard from reader. Alternatively, you can
+use the <ulink url="http://pcsclite.alioth.debian.org/">pcsc-lite</ulink>'s
+based version: <application>card_eventmgr</application>.
 </para>
 
 <para>
-The Pkcs11 Inspect tool allows you to look at the contents of a certificate,
-in order to help you in the process of Certificate-to-User mapping
-configuration.
-</para>
-<para>
-The Pklogin Finder tool can be used to check the pam module without need to
-do the entire login process, just verifying that login names are properly
-found and matched.
+<application>pkcs11_inspect</application> tool allows you to look at the
+content of a certificate, in order to help you in the process of
+Certificate-to-User mapping configuration.
 </para>
 
 <para>
-Detailed information about the Linux-PAM system can be found in 
-<footnote>
-<para>
-The Linux-PAM System Administrators' Guide
-    <ulink url="http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam.html"></ulink>
-</para>
-</footnote>,
-<footnote>
-<para>
-The Linux-PAM Module Writers' Guide
-    <ulink url="http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam_modules.html"></ulink>
-</para>
-</footnote>
-and 
-<footnote>
-<para>
-The Linux-PAM Application Developers' Guide
-    <ulink url="http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam_appl.html"></ulink>
-</para>
-</footnote>.</para>
-
-<para>The specification of the Cryptographic Token Interface 
-Standard (PKCS #11) is available at 
-<footnote>
-<para>
-PKCS #11 - Cryptographic Token Interface Standard 
-    <ulink url="http://www.rsasecurity.com/rsalabs/pkcs/pkcs-11/"></ulink>
-</para>
-</footnote>
+<application>pklogin_finder</application> tool can be used to check the
+pam module without need to do the entire login process, just verifying
+that login names are properly found and matched.
 </para>
 
+<para>
+Detailed information about the Linux-PAM system can be found in <ulink
+url="http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam.html">The
+Linux-PAM System Administrators' Guide</ulink>, <ulink
+url="http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam_modules.html">The
+Linux-PAM Module Writers' Guide</ulink> and <ulink
+url="http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam_appl.html">The
+Linux-PAM Application Developers' Guide</ulink>.
+</para>
+
+<para>
+The specification of the Cryptographic Token Interface Standard (PKCS
+#11) is available at <ulink
+url="http://www.rsasecurity.com/rsalabs/pkcs/pkcs-11/">PKCS #11 -
+Cryptographic Token Interface Standard</ulink>.
+</para>
 
 
 </chapter>
