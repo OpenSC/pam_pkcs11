@@ -35,6 +35,7 @@
 #include "../common/debug.h"
 #include "../common/error.h"
 #include "../mappers/mapper.h"
+#include "../mappers/mapperlist.h"
 #include "mapper_mgr.h"
 
 struct mapper_listitem *root_mapper_list;
@@ -66,31 +67,51 @@ struct mapper_module *load_module(scconf_context *ctx, const char * name) {
 		return NULL;
 	}
 	/* compose module path */
-	libname = scconf_get_str(blk, "module", name);
-	if (!libname) {
-		DBG1("No module path specified for mapper '%s'",name);
-		return NULL; /* library path not found */
-	}
-	/* now load and verify module */
-	handler= dlopen(libname,RTLD_NOW);
-	if (!handler) {
+	libname = scconf_get_str(blk, "module", NULL);
+	if ( (!libname) || (!strcmp(libname,"internal")) ) {
+	    int n;
+	    DBG1("Loading static module for mapper '%s'",name);
+	    libname = NULL;
+	    handler = NULL;
+	    mapper_init = NULL;
+	    mapper_data = NULL;
+	    for(n=0;static_mapper_list[n].name;n++) {
+		if (strcmp(static_mapper_list[n].name,name)) continue;
+		/* match found: get data */
+		mapper_init = static_mapper_list[n].init;
+		mapper_data = static_mapper_list[n].data;
+	        res= mapper_init(blk,name);
+	        if (res <=0 ) { /* init failed */
+		    DBG1("Static mapper %s init failed",name);
+		    return NULL;
+	        }
+	    } 
+	    if ( (!mapper_init) || (!mapper_data) ) {
+		DBG1("Static mapper '%s' not found",name);
+		return NULL;
+	    }
+	} else { /* assume dynamic module */
+	    DBG1("Loading dynamic module for mapper '%s'",name);
+	    handler= dlopen(libname,RTLD_NOW);
+	    if (!handler) {
 		DBG3("dlopen failed for module:  %s path: %s Error: %s",name,libname,dlerror());
 		return NULL;
-	}
-	mapper_init = ( int (*)(scconf_block *blk, const char *mapper_name) ) 
+	    }
+	    mapper_init = ( int (*)(scconf_block *blk, const char *mapper_name) ) 
 		dlsym(handler,"mapper_module_init");
-	mapper_data = ( struct mapper_module_st *) 
+	    mapper_data = ( struct mapper_module_st *) 
 		dlsym(handler,"mapper_module_data");
-	if ( (!mapper_init) || (!mapper_data) ) {
+	    if ( (!mapper_init) || (!mapper_data) ) {
 		dlclose(handler);
 		DBG1("Module %s is not a mapper",name);
 		return NULL;
-	}
-	res= mapper_init(blk,name);
-	if (res <=0 ) { /* init failed */
+	    }
+	    res= mapper_init(blk,name);
+	    if (res <=0 ) { /* init failed */
 		DBG1("Module %s init failed",name);
 		dlclose(handler);
 		return NULL;
+	    }
 	}
 	/* allocate data */
 	mymodule = malloc (sizeof(struct mapper_module));
@@ -117,8 +138,8 @@ void unload_module( struct mapper_module *module ) {
 	DBG1("unloading module %s",module->module_name);
 	if (module->module_handler) { 
 		dlclose(module->module_handler);
-	} else {/* should not occur, but... */
-		DBG1("Module %s has no handler!",module->module_name);
+	} else {/* static mapper module */
+		DBG1("Module %s is static: don't remove",module->module_name);
 	}
 	module->module_data=NULL;
 	/* don't free name and libname: they are elements of

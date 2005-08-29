@@ -68,7 +68,7 @@ struct mapfile {
 */
 int mapper_module_init(scconf_block *ctx,const char *mapper_name);
 
-#if 1
+#if 0
 /* 
 pkcs11-login version 0.5 or lower mapper API requires 
 all these functions to be defined
