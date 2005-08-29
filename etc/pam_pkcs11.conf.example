@@ -27,7 +27,7 @@ pam_pkcs11 {
   use_pkcs11_module = opensc;
 
   pkcs11_module opensc {
-    module = /usr/lib/pkcs11/opensc-pkcs11.so;
+    module = /usr/lib/opensc-pkcs11.so;
     description = "OpenSC PKCS#11 module";
     # Slot-number to use. One for the first, two for the second and so
     # on. The default value is zero which means to use the first slot
