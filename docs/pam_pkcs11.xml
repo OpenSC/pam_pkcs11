@@ -196,12 +196,14 @@ improvements or alternative matching algorithms are welcome.]
 
 <para>
 <orderedlist>
-    <listitem>Download source code from official site:<ulink>/http://www.dit.upm.es/~jantonio/pam-pkcs11/downloads</ulink>
+    <listitem>Download source code from the <ulink
+	url="http://www.opensc.org/pam_pkcs11/">official
+	site</ulink>.
     </listitem>
     <listitem>Unpack source tarball:
 <screen>
-<userinput>tar xvzf pam_pkcs11-X.Y.tar.gz
-cd pam_pkcs11-X.Y</userinput>
+<userinput>tar xvzf pam_pkcs11-X.Y.Z.tar.gz
+cd pam_pkcs11-X.Y.Z</userinput>
 </screen>
     </listitem>
     <listitem>If using SVN tree, re-create environment:
