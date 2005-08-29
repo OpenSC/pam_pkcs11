@@ -1,52 +1,58 @@
-.TH "pkcs11_inspect" "1" "0.5" "Juan Antonio Martinez" "PAM-pkcs11 tools"
-.SH "NAME"
+.TH pkcs11_inspect 1 "Aug 2005" "Juan Antonio Martinez" "PAM PKCS#11"
+.SH NAME
 pkcs11_inspect \- print certificate contents
-.SH "SYNOPSIS"
+.SH SYNOPSIS
 .B pkcs11_inspect
-[\fI[no]debug\fP]  [config_file=<\fIfilename\fP>]
-.SH "DESCRIPTION"
-pkcs11_inspect uses the pam\-pkcs11 library infrastructure to get
-contents from certificate and print it.
-.PP
-pkcs11_inspect uses the same configuration file and arguments than
-\fIpam_pkcs11\fP(8) pam module. Load defined mapper modules, and use
+.RB [ debug ]
+.RB [ config_file=\fI<filename>\fP ]
+.SH DESCRIPTION
+.B pkcs11_inspect
+uses the pam_pkcs11 library infrastructure to get
+the content of a certificate and display it.
+.P
+.B pkcs11_inspect
+uses the same configuration file and arguments than
+.BR pam_pkcs11 (8)
+PAM module. It loads defined mapper modules, and use
 them to look into the certificate for required entries (ie: ms_mapper
 looks for ms UPN entries, and so on).
-.PP
-When a mapper module finds a proper entry in the certificate, convert it
+.P
+When a mapper module finds a proper entry in the certificate, it converts
 to UTF\-8 and print it to stdout.
-.SH "OPTIONS"
+.SH OPTIONS
 .TP 
-\fB[no]debug\fR 
-Enable debugging output. Default is no debug.
+.B debug
+Enable debugging output.
 .TP 
-\fBconfig_file=<configuration file>\fR
-Sets the configuration file. defaults to
-\fI/etc/pam_pkcs11/pam_pkcs11.conf\fP.
-.PP
+.B config_file=\fI<filename>\fP
+Sets the configuration file to use. Default value is
+.IR /etc/pam_pkcs11/pam_pkcs11.conf .
+.P
 As it uses the same configuration file as pam_pkcs11, all pam_pkcs11
 options are also available. Note that some of them have no sense in a
 non\-PAM environment, so they will be ignored. Some mapper options
 (mapfile, ignorecase) have no effect on certificate contents, so they
 will be ignored too.
 .SH "RETURN VALUE"
-On success pklogin_finder prints on stdout all certificate contents
+On success
+.B pkcs11_inspect
+prints on stdout all certificate contents
 that are found for mappers and returns 0.
-.PP
+.P
 On error it returns 1.
-.SH "FILES"
+.SH FILES
 .LP 
 \fI/etc/pam_pkcs11/pam_pkcs11.conf\fP 
-.SH "EXAMPLES"
+.SH EXAMPLES
 To run this program the standard way, insert a smart card in the reader
 and type:
-.PP
-pkcs11_inspect
-.PP 
+.P
+ pkcs11_inspect
+.P 
 Alternatively you can specify options:
-.PP 
-pkcs11_inspect nodebug config_file=${HOME}/.pam_pkcs11.conf
-.SH "AUTHORS"
+.P 
+ pkcs11_inspect debug config_file=${HOME}/.pam_pkcs11.conf
+.SH AUTHORS
 .LP 
 Juan Antonio Martinez <jonsito@teleline.es>
 .SH "SEE ALSO"
