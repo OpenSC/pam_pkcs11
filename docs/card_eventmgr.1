@@ -1,52 +1,63 @@
-.TH "card_eventmgr" "1" "0.4.4" "Juan Antonio Martinez" "PAM-pkcs11 tools"
-.SH "NAME"
+.TH card_eventmgr 1 "Aug 2005" "Juan Antonio Martinez" PAM-PKCS#11
+.SH NAME
 card_eventmgr \- PCSC\-Lite Event Manager
-.SH "SYNTAX"
+.SH SYNTAX
 .B card_eventmgr
-[[\fBno\fP]\fBdebug\fP] [[\fBno\fP]\fBdaemon\fP]
-[\fBtimeout=<\fImsecs\fP>\fR] [\fBconfig_file=<\fIfilename\fP>\fR]
-[\fBkill\fP] [\fBpidfile=<\fIpidfile\fP>\fR]
-.SH "DESCRIPTION"
-card_eventmgr is a smart card monitoring tool that listen to the status of the
-card reader and dispatch actions on several events. card_eventmgr can be
-used for several actions: like screen lock on card removal.
+.RB [ debug ]
+.RB [[ no ] daemon ]
+.RB [ timeout=\fI<msecs>\fP ]
+.RB [ config_file=\fI<filename>\fP ]
+.RB [ kill ]
+.RB [ pidfile=\fI<pidfile>\fP ]
+.SH DESCRIPTION
+.B card_eventmgr
+is a smart card monitoring tool that listen to the status of the
+card reader and dispatch actions on several events.
+.B card_eventmgr
+can be used for several actions: like screen lock on card removal.
 .P
 Three events are supported: card insertion, card removal and timeout on
-removed card. Actions are specified in the configuration file.
-.SH "OPTIONS"
+removed card. Actions are specified in a configuration file.
+.SH OPTIONS
 .TP 
-\fB[no]debug\fR 
-Enable debugging output. Default is no debug.
+.B debug
+Enable debugging output.
 .TP 
-\fB[no]daemon\fR
-Runs in background. If debug is unset, dettach also from tty. Default:
-no daemon.
+.RB [ no ] daemon
+Runs in background if daemon or in foreground if nodaemon (default). If
+debug is unset, the program dettaches itself from the tty.
 .TP 
-\fBtimeout=<msecs>\fR
+.BI timeout= <msecs>
 Set polling timeout in milliseconds. Defaults to 1000 (1 second).
 .TP 
-\fBconfig_file=<\fIconfiguration file\fP>\fR
-Sets de configuration file. defaults to
-\fI/etc/pam_pkcs11/card_eventmgr.conf\fP.
+.BI config_file= "<configuration file>"
+Sets de configuration file. Default value is
+.IR /etc/pam_pkcs11/card_eventmgr.conf .
 .TP
-.BI pidfile=< pidfile >
-Store the card_eventmgr process id (pid) in the file \fIpidfile\fR.
+.BI pidfile= <pidfile>
+Store the
+.B card_eventmgr
+process ID (pid) in the file
+.IR pidfile .
 .TP
 .B kill
-Read a process id from \fIpidfile\fR and kill that process. You must use
+Read a process id from
+.I pidfile
+and kill that process. You must use
 the argument
-.BI pidfile=< pidfile >
-to use \fBkill\fR.
-.SH "FILES"
+.BI pidfile= <pidfile>
+to use
+.BR kill .
+.SH FILES
 \fI/etc/pam_pkcs11/card_eventmgr.conf\fP 
-.SH "EXAMPLES"
+.SH EXAMPLES
 To run this program the standard way type:
 .P
  card_eventmgr 
 .P 
 Alternatively you can specify options:
 .P 
- card_eventmgr nodebug nodaemon timeout=500 config_file=$HOME/.card_eventmgr.conf
+ card_eventmgr debug nodaemon timeout=500 config_file=$HOME/.card_eventmgr.conf
 .P
 If you want to start and stop card_eventmgr automatically in an X11
 session you can create a \fI~/.xsession\fR file containing:
@@ -58,19 +69,17 @@ session you can create a \fI~/.xsession\fR file containing:
 
  # kill the card autolock
  card_eventmgr kill pidfile=$HOME/.card_eventmgr.pid
-.SH "BUGS"
-Some apps like [\fIxscreensaver\-command\fP] may fail due
+.SH BUGS
+Some applications like 
+.B xscreensaver\-command
+may fail due
 to external events (eg: try to unlock an unlocked session).
 In this case, the command incorrectly returns error code.
-.P
-User shoult take care on this circumstance.
-.SH "AUTHORS"
+.SH AUTHORS
 Juan Antonio Martinez <jonsito@teleline.es>
 .br
 Ludovic Rousseau <ludovic.rousseau@free.fr>
 .SH "SEE ALSO"
-\fBpam_pkcs11\fP(8), \fBpkcs11_eventmgr\fP(1)
-.br 
-README.eventmgr
-.br 
-PAM\-PKCS11 User Manual
+.BR pam_pkcs11 (8),
+.BR pkcs11_eventmgr (1),
+README.eventmgr, PAM\-PKCS11 User Manual
