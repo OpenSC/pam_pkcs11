@@ -164,16 +164,10 @@ from a specific card.
 <title>PKCS #11 Module Requirements</title>
 
 <para>
-The PKCS #11 modules must full-fit the requirements given by the RSA 
-Asymmetric Client Signing Profile, which has been specified in the 
-PKCS #11 Conformance Profile Specification
-<footnote>
-<para>
-PKCS #11: Conformance Profile Specification
-    <ulink url="http://www.rsasecurity.com/rsalabs/pkcs/pkcs-11/"></ulink>
-</para>
-</footnote>
-by RSA Laboratories.
+The PKCS #11 modules must full-fit the requirements given by the RSA
+Asymmetric Client Signing Profile, which has been specified in the
+<ulink url="http://www.rsasecurity.com/rsalabs/pkcs/pkcs-11/">PKCS #11:
+Conformance Profile Specification</ulink> by RSA Laboratories.
 </para>
 
 </sect1>
