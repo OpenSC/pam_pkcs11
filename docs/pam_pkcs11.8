@@ -27,18 +27,6 @@ documentation for your system. This manual does not cover PAM
 configuration details. The existing PAM service definitions for
 other applications on your system is also a good source for examples
 on how to configure a PAM service.
-.SH "NOTES"
-Some pkcs11 auth services may require to be run as root. So special
-considerations on security must be taken like:
- chown root pam_pkcs11
- chmod u+s pam_pkcs11
-.P
-Please note that in such configurations it is also strongly recommended
-that the configuration files be moved into a directory where normal
-users cannot access it, as this mode of operation will allow any local
-user to brute\-force other users passwords. Also note the program has
-not been fully audited and the author cannot be held responsible for any
-security issues due to such installations.
 .SH "FILES"
 \fI/etc/pam_pkcs11/pam_pkcs11.conf\fP
 .br 
