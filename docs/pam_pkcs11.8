@@ -3,21 +3,24 @@
 .SH "NAME"
 pam_pkcs11 \- PAM Authentication Module for PKCS#11 token libraries
 .SH "SYNOPSIS"
-pam_pkcs11.so [debug] [configfile=<config file>]
+.B pam_pkcs11.so
+.RB [ debug ]
+.RB [ configfile= \fI<configfile> "" ]
 .SH "DESCRIPTION"
 This Linux\-PAM login module allows a X.509 certificate based user
 login. The certificate and its dedicated private key are thereby
 accessed by means of an appropriate PKCS #11 module. For the
 verification of the users' certificates, locally stored CA
 certificates as well as either online or locally accessible CRLs are
-used
+used.
 .SH "CONFIGURATION"
 The program that needs a PAM service should be configured in 
-.B /etc/pam.conf
+.I /etc/pam.conf
 or
-.B /etc/pam.d/<servicename>
+.IR /etc/pam.d/<servicename> .
 .P
-pam\-pkcs11 can be ussed in the <auth> chain.
+.B pam_pkcs11
+can be used in the <auth> PAM chain.
 .P
 For details on how to configure PAM services, see the PAM
 documentation for your system. This manual does not cover PAM
@@ -48,7 +51,8 @@ Newer versions are from Juan Antonio Martinez
 Report bugs ideas, comments, bug\-fixes and so to:
 .I Juan Antonio Martinez <jonsito@teleline.es>
 .SH "SEE ALSO"
-.BR pam (8), pam_pkcs11.conf (5),
+.BR pam (8),
+.BR pam_pkcs11.conf (5),
 PAM Systems Administrator Guide,
-.B README.mappers
-file, PAM\-PKCS#11 User Manual
+.I README.mappers
+file, PAM\-PKCS#11 User Manual.
