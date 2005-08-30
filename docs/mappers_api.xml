@@ -255,6 +255,13 @@ files to define a mapper, no need of more data to be included
 #include "../scconf/scconf.h"
 #include "mapper.h"
 
+/* include here container declaration if you intend to 
+declare and use several instances of this mapper */
+
+typedef struct myContext_st {
+	/* local declarations here */
+} myContext;
+
 #ifdef FOO_MAPPER_STATIC
 
 #ifndef __FOO_MAPPER_C_
@@ -281,18 +288,16 @@ FOO_EXTERN mapper_module * foo_mapper_module_init(scconf_block *blk,const char *
 This is a sample skeleton file for single field mappers. It provides all the methods and data required by the API. Is up to you to include aditional functions as required.
 </para>
 <para>
-They only need to export two symbols:
-<itemizedlist>
-<listitem>The entry point to the init routine</listitem>
-<listitem>A pointer to the mapper functions table</listitem>
-</itemizedlist>
-If the mapper is to be dynamically loaded, these symbols has fixed names:
-<function>mapper_module_init</function> for the entry point, and <function>mapper_module_data</function> for the mapper function table.
+They only need to export one symbol: the entry point of the init routine
+</para>
+<para>
+If the mapper is to be dynamically loaded, this symbol has a fixed name:
+<function>mapper_module_init</function> 
 </para>
 <para>
 If the mapper is to be statically linked, is up to you to decide the exported
 symbol name, but it's suggested for comodity, just prepend the mapper name
-as prefix, to avoid collisions. Note that these names should be added into the static mapper table list
+as prefix, to avoid collisions. Remember that these names will be added into the static mapper table list
 </para>
 
 <para>
@@ -347,9 +352,15 @@ Note that this skeleton file provides support for either static or dynamic linki
 * user name
 */
 
+/* local variables */
+/* 
+NOTE:
+When multiple instances of an static module are declared, it's a
+bad idea to use local variables. 
+Declare and use a context container instead
+*/
 static const char *mapfile="none";
 static int ignorecase=0;
-
 
 /**
 * Return array of found FOO's
@@ -530,21 +541,114 @@ root# make install
 <sect1>
 <title>The mapper chain</title>
 
+<para>
+Take a look at <filename>src/pam_pkcs11/mapper_mgr.h</filename>. This file contains the data structures used to load a mapper and create a mapper chain
+</para>
+<para>
+Mapper instance entry declaration:
+<screen>
+struct mapper_instance {
+    void *module_handler; 	/* dynamic module descriptor */
+    const char *module_name;	/* mapper module name */
+    const char *module_path;	/* dynamic module path */
+    mapper_module *module_data;	/* mapper module entries table */
+};
+</screen>
+On statically compiled mappers, <option>module_handler</option> and <option>module_path</option> equals to <option>NULL</option>
+</para>
+<para>
+Mapper chain entry declaration:
+<screen>
+struct mapper_listitem {
+        struct mapper_instance *module; /* pointer to module instance */
+        struct mapper_listitem *next;   /* pointer to next item in chain */
+};
+</screen>
+</para>
+<para>
+The list of mappers to be loaded are declared by mean of <option>use_mappers</option> entry in <filename>/etc/pam_pkcs11/pam_pksc11.conf</filename> configuration file. Each declared mapper is loaded in turn. The first in the list will be the first one in the mapper chain
+</para>
+<para>
+On each mapper entry, <application>pam_pkcs11</application> search for the <option>module</option> keyword. If not found, or equals to "<option>internal</option>", the code assumes that reffers to an statically linked mapper, and search it in the list of mappers declared at <filename>src/mappers/mapperlist.c</filename>. Otherwise assume that we provide the full pathname to a dynamic library, and try to load by mean of <function>dlopen()</function> function
+</para>
+<para>
+When module is found or loaded, the <function>module_load()</function> calls to the <function>mapper_module_init()</function> function, and if the result is not null assumes to be returned a pointer to the internal mapper entries table. These entries will be used to call finder, matcher, and deinit functions on the mapper
+</para>
+<para>
+If, for any reason, the mapper loading process, a warn is sent, and the mapper entry module is skipped
+</para>
 </sect1>
 
 <sect1>
 <title>Exported data and structures</title>
 
+<para>
+The <function>mapper_module_init()</function> should return a pointer to the following structure (declared in <filename>src/mappers/mapper.h</filename>
+<screen>
+/**
+* Structure to be filled on mapper module initialization
+*/
+typedef struct mapper_module_st {
+    const char *name; 
+    scconf_block *block;
+    void *context;
+    char **(*entries)(X509 *x509, void *context);
+    char *(*finder)(X509 *x509, void *context);
+    int (*matcher)(X509 *x509, const char *login, void *context);
+    void (*deinit)( void *context);
+} mapper_module;
+</screen>
+</para>
+<para>
+Here comes the meaning of each entry:
+<itemizedlist>
+<listitem> <option>name</option> is the name of the mapper module, as provided in the init() call</listitem>
+<listitem><option>block</option> is a pointer to the mapper configuration entry as defined in <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename>, as provided int the init() call</listitem>
+<listitem><option>context</option> is a pointer to a user-defined local declarations internals to the mapper. If not used it's safe to set to NULL. See below about how to use this entry in multiple instances of same static compiled mapper</listitem>
+<listitem><function>entries()</function> is the entry point to the mapper listing method</listitem>
+<listitem><function>finder()</function> is the entry point to the mapper login finder method</listitem>
+<listitem><function>matcher()</function> is the entry point to the mapper login matcher method </listitem>
+<listitem><function>entries()</function> is called when the mapper module is to be removed from mapper chain</listitem>
+</itemizedlist>
+Note that <option>context</option> pointer is passed as <function>void *</function> as there are no way to know how the programmer will use it
+</para>
 </sect1>
 
 <sect1>
 <title>Comodity macros</title>
-
+<para>
+Many of the mapper functions are repetitive. Many others are nonsense in some mappers. So the API provide several comodity macros, defined in <filename>src/mappers/mapper.h</filename>
+<itemizedlist>
+<listitem><option>_DEFAULT_MAPPER_FIND_ENTRIES</option> to serve as a replacement for <function>entries()</function> listing method</listitem>
+<listitem><option>_DEFAULT_MAPPER_FIND_USER</option> to serve as a replacement for <function>finder()</function> login mapper method</listitem>
+<listitem><option>_DEFAULT_MAPPER_MATCH_USER</option> to serve as a replacement for <function>matcher()</function> login matching method</listitem>
+<listitem><option>_DEFAULT_MAPPER_END</option> to serve as a replacement for <function>deinit()</function> de-initialization method</listitem>
+<listitem><option>_DEFAULT_MAPPER_INIT</option> to serve as a replacement for <function>init()</function> initialization method</listitem>
+</itemizedlist>
+</para>
+<para>
+The only usefull one is _DEFAULT_MAPPER_END, but the other ones are provided for compile work-in-progress mappers
+</para>
+<para>
+See the code, to provide you an idea of how to code real functions
+</para>
 </sect1>
 
 <sect1>
-<title>Multiple items mappers</title>
-
+<title>Multifield mappers</title>
+<para>
+The sample code provided in first section can be used directly to create single field mappers. When writting multiple fields mappers ( a mapper, that can resolve two or more different certificate contents, ie CN and KPN ), a different approach is needed:
+</para>
+<para>
+<itemizedlist>
+<listitem>You should provided one mapper entry for each mapper personality in the configuration file</listitem>
+<listitem>If the mapper is to be statically linked, you should also declare one entry for each personality in the <filename>src/mappers/mapperlist.c</filename> mapper list declaration file</listitem>
+<listitem> The mapper loader will make as many calls to <function>mapper_module_init()</function> as declared in mapper chain definition. On each call a different name and configuration context will be provided, and a different mapper_module structure should be returned</listitem>
+<listitem> There are an additional problem when use statically linked mappers:
+They cannot contain any global variable, as consecutive init call will overwrite previous value. This is not the case of dynloaded mappers, as each instance has its own address space</listitem>
+<listitem> If the above case is yours one, then you must define and create by mean of <function>malloc()</function> an internal environment structure, and store it in the <option>context</option> field of the returned <function>mapper_module</function> structure. <application>pam_pkcs11</application> will include this data in every calls to your entry points, to get sure you can retrieve correct internal data</listitem>
+</itemizedlist>
+</para>
 </sect1>
 
 <sect1>
