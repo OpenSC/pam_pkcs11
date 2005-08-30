@@ -29,7 +29,9 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/opensslv.h>
+#include <openssl/pem.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -299,7 +301,6 @@ static char *key2pem(EVP_PKEY *key) {
 * Extract Certificate's Public Key
 */
 static char **cert_info_puk(X509 *x509) {
-	int res;
 	char *pt;
 	static char *entries[2] = { NULL,NULL };
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
@@ -323,7 +324,6 @@ static char **cert_info_puk(X509 *x509) {
 * Extract Certificate's Public Key in OpenSSH format
 */
 static char **cert_info_sshpuk(X509 *x509) {
-	int res;
 	char *pt,*buf;
 	char *from,*to,*end;
 	static char *entries[2] = { NULL,NULL };

@@ -213,11 +213,11 @@ int parse_args(int argc, char *argv[]) {
 	  	continue;
 	    }
             if (strstr(argv[i],"polling_time=") ) {
-                sscanf(argv[i],"polling_time=%u",&polling_time);
+                sscanf(argv[i],"polling_time=%d",&polling_time);
                 continue;
             }
             if (strstr(argv[i],"expire_time=") ) {
-                sscanf(argv[i],"expire_time=%u",&expire_time);
+                sscanf(argv[i],"expire_time=%d",&expire_time);
                 continue;
             }
             if (strstr(argv[i],"pkcs11_module=") ) {

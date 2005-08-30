@@ -7,7 +7,7 @@ AM_CFLAGS = @OPENSSL_CFLAGS@
 
 # Statically linked mapperis list
 # Uncomment to get refered mapper statically linked
-# DON'T FORGET update libmappers_la_SOURCES and lib_LTLIBRARIES Entries below
+# DON'T FORGET update libmappers_la_SOURCES and lib_LTLIBRARIES entries below
 #
 AM_CFLAGS += -DSUBJECT_MAPPER_STATIC
 #AM_CFLAGS += -DLDAP_MAPPER_STATIC

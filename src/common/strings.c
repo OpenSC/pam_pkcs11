@@ -99,7 +99,7 @@ unsigned char *hex2bin(const char *hexstr) {
         if (!res) return NULL;
         if (*from==':') from++; /* strip first char if equals to ':' */
         for (to=(char *)res; *from;from+=3,to++) {
-                int c;
+                unsigned int c;
                 if ( sscanf(from,"%02x",&c) == 1)
                         *to=(unsigned char)c;
         }
@@ -115,7 +115,7 @@ unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size) 
         if (!*res) return NULL;
         if (*from==':') from++; /* strip first char if equals to ':' */
         for (to=(char *)*res; *from;from+=3,to++) {
-                int c;
+                unsigned int c;
                 if ( sscanf(from,"%02x",&c) == 1)
                         *to=(unsigned char)c;
         }

@@ -217,11 +217,11 @@ int parse_args(int argc, char *argv[]) {
 	  	continue;
 	    }
             if (strstr(argv[i],"timeout=") ) {
-                sscanf(argv[i],"timeout=%u",&timeout);
+                sscanf(argv[i],"timeout=%d",&timeout);
                 continue;
             }
             if (strstr(argv[i],"timeout_limit=") ) {
-                sscanf(argv[i],"timeout_limit=%u",&timeout_limit);
+                sscanf(argv[i],"timeout_limit=%d",&timeout_limit);
                 continue;
             }
 	    if (strstr(argv[i],"pidfile=") ) {

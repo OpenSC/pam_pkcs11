@@ -104,7 +104,6 @@ static char * openssh_mapper_find_user(X509 *x509) {
 	struct passwd *pw;
 	FILE *fd;
 	char filename[512];
-        char *found_user = NULL;
         char **entries  = cert_info(x509,CERT_SSHPUK,NULL);
         if (!entries) {
             DBG("get_public_key() failed");
@@ -113,7 +112,6 @@ static char * openssh_mapper_find_user(X509 *x509) {
         /* parse list of users until match */
 	setpwent();
 	while((pw=getpwent()) != NULL) {
-	    int res;
             /* parse list of authorized keys until match */
 	    sprintf(filename,"%s/.ssh/authorized_keys",pw->pw_dir);
 	    fd=fopen(filename,"rt");
