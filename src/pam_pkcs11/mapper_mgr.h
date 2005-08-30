@@ -36,18 +36,18 @@
 /*
 * mapper module descriptor
 */
-struct mapper_module {
+struct mapper_instance {
     void *module_handler;
     const char *module_name;
     const char *module_path;
-    struct mapper_module_st *module_data;
+    mapper_module *module_data;
 };
 
 /*
 * mapper module list
 */
 struct mapper_listitem {
-	struct mapper_module *module;
+	struct mapper_instance *module;
 	struct mapper_listitem *next;
 };
 
@@ -55,12 +55,12 @@ struct mapper_listitem {
 * load and initialize a module
 * returns descriptor on success, null on fail
 */
-struct mapper_module *load_module(scconf_context *ctx, const char * name);
+struct mapper_instance *load_module(scconf_context *ctx, const char * name);
 
 /**
 * Unload a module
 */
-void unload_module( struct mapper_module *module );
+void unload_module( struct mapper_instance *module );
 
 /**
 * compose mapper module chain

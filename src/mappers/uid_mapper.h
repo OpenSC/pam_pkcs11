@@ -37,8 +37,7 @@
 #else
 #define UID_EXTERN
 #endif
-UID_EXTERN struct mapper_module_st uid_mapper_module_data;
-UID_EXTERN int uid_mapper_module_init(scconf_block *blk,const char *mapper_name);
+UID_EXTERN mapper_module * uid_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef UID_EXTERN
 
 /* end of static (if any) declarations */

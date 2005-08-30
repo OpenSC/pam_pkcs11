@@ -46,7 +46,7 @@ static int ignorecase = 0;
 /**
 * Return the list of UID's on this certificate
 */ 
-static char ** uid_mapper_find_entries(X509 *x509) {
+static char ** uid_mapper_find_entries(X509 *x509, void *context) {
 	char **entries= cert_info(x509,CERT_UID,NULL);
         if (!entries) {
                 DBG("get_unique_id() failed");
@@ -60,7 +60,7 @@ static char ** uid_mapper_find_entries(X509 *x509) {
 parses the certificate and return the map of the first UID entry found
 If no UID found or map error, return NULL
 */
-static char * uid_mapper_find_user(X509 *x509) {
+static char * uid_mapper_find_user(X509 *x509, void *context) {
 	char *res;
 	char **entries= cert_info(x509,CERT_UID,NULL);
         if (!entries) {
@@ -80,7 +80,7 @@ static char * uid_mapper_find_user(X509 *x509) {
 * parses the certificate and try to macht any UID in the certificate
 * with provided user
 */
-static int uid_mapper_match_user(X509 *x509, const char *login) {
+static int uid_mapper_match_user(X509 *x509, const char *login, void *context) {
 	char *str;
 	int match_found = 0;
 	char **entries  = cert_info(x509,CERT_UID,NULL);
@@ -104,42 +104,34 @@ static int uid_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
-#ifndef UID_MAPPER_STATIC
-struct mapper_module_st mapper_module_data;
 
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        mapper_module_data.name = name;
-        mapper_module_data.block =blk;
-        mapper_module_data.entries = uid_mapper_find_entries;
-        mapper_module_data.finder = uid_mapper_find_user;
-        mapper_module_data.matcher = uid_mapper_match_user;
-        mapper_module_data.mapper_module_end = mapper_module_end;
+static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
+	mapper_module *pt= malloc(sizeof(mapper_module));
+	if (!pt) return NULL;
+	pt->name = name;
+	pt->block = blk;
+	pt->context = NULL;
+	pt->entries = uid_mapper_find_entries;
+	pt->finder = uid_mapper_find_user;
+	pt->matcher = uid_mapper_match_user;
+	pt->deinit = mapper_module_end;
+	return pt;
 }
 
-#else
-struct mapper_module_st uid_mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        uid_mapper_module_data.name = name;
-        uid_mapper_module_data.block =blk;
-        uid_mapper_module_data.entries = uid_mapper_find_entries;
-        uid_mapper_module_data.finder = uid_mapper_find_user;
-        uid_mapper_module_data.matcher = uid_mapper_match_user;
-        uid_mapper_module_data.mapper_module_end = mapper_module_end;
-}
-#endif
 
 #ifndef UID_MAPPER_STATIC
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
-int uid_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * uid_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
+	mapper_module *pt;
         int debug= scconf_get_bool(blk,"debug",0);
 	mapfile = scconf_get_str(blk,"mapfile",mapfile);
         ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
         set_debug_level(debug);
-	init_mapper_st(blk,mapper_name);
-        DBG3("UniqueID mapper started. debug: %d, mapfile: %s, icase: %d",debug,mapfile,ignorecase);
-        return 1;
+	pt= init_mapper_st(blk,mapper_name);
+        if(pt) DBG3("UniqueID mapper started. debug: %d, mapfile: %s, icase: %d",debug,mapfile,ignorecase);
+	else DBG("UniqueID mapper initialization failed");
+        return pt;
 }
 

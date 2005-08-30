@@ -52,7 +52,7 @@ static int ignorecase = 0;
 /*
 * Returns the common name of certificate as an array list
 */
-static char ** pwent_mapper_find_entries(X509 *x509) {
+static char ** pwent_mapper_find_entries(X509 *x509, void *context) {
         char **entries= cert_info(x509,CERT_CN,NULL);
         if (!entries) {
                 DBG("get_common_name() failed");
@@ -64,7 +64,7 @@ static char ** pwent_mapper_find_entries(X509 *x509) {
 /*
 parses the certificate and return the _first_ CN entry found, or NULL
 */
-static char * pwent_mapper_find_user(X509 *x509) {
+static char * pwent_mapper_find_user(X509 *x509,void *context) {
         char *str;
 	char *found_user = NULL;
         char **entries  = cert_info(x509,CERT_CN,NULL);
@@ -96,7 +96,7 @@ static char * pwent_mapper_find_user(X509 *x509) {
 * approach: obtain pw_entry for provided login, and compare against
 * provided CN's. i'ts easier and faster
 */
-static int pwent_mapper_match_user(X509 *x509, const char *login) {
+static int pwent_mapper_match_user(X509 *x509, const char *login, void *context) {
         char *str;
 	struct passwd *pw = getpwnam(login); 
         char **entries  = cert_info(x509,CERT_CN,NULL);
@@ -125,40 +125,32 @@ static int pwent_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
-#ifndef PWENT_MAPPER_STATIC
-struct mapper_module_st mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        mapper_module_data.name = name;
-        mapper_module_data.block =blk;
-        mapper_module_data.entries = pwent_mapper_find_entries;
-        mapper_module_data.finder = pwent_mapper_find_user;
-        mapper_module_data.matcher = pwent_mapper_match_user;
-        mapper_module_data.mapper_module_end = mapper_module_end;
+static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
+	mapper_module *pt= malloc(sizeof(mapper_module));
+	if (!pt) return NULL;
+	pt->name = name;
+	pt->block = blk;
+	pt->context = NULL;
+	pt->entries = pwent_mapper_find_entries;
+	pt->finder = pwent_mapper_find_user;
+	pt->matcher = pwent_mapper_match_user;
+	pt->deinit = mapper_module_end;
+	return pt;
 }
 
-#else
-struct mapper_module_st pwent_mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        pwent_mapper_module_data.name = name;
-        pwent_mapper_module_data.block =blk;
-        pwent_mapper_module_data.entries = pwent_mapper_find_entries;
-        pwent_mapper_module_data.finder = pwent_mapper_find_user;
-        pwent_mapper_module_data.matcher = pwent_mapper_match_user;
-        pwent_mapper_module_data.mapper_module_end = mapper_module_end;
-}
-#endif
 
 #ifndef PWENT_MAPPER_STATIC
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
+	mapper_module *pt;
 	int debug= scconf_get_bool(blk,"debug",0);
 	ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
 	set_debug_level(debug);
-	init_mapper_st(blk,mapper_name);
-        return 1;
+	pt = init_mapper_st(blk,mapper_name);
+	if (pt) DBG("pwent mapper started");
+	else DBG("pwent mapper initialization failed");
+        return pt;
 }
 

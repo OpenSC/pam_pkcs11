@@ -37,8 +37,7 @@
 #else
 #define PWENT_EXTERN
 #endif
-PWENT_EXTERN struct mapper_module_st pwent_mapper_module_data;
-PWENT_EXTERN int pwent_mapper_module_init(scconf_block *blk,const char *mapper_name);
+PWENT_EXTERN mapper_module * pwent_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef PWENT_EXTERN
 
 /* end of static (if any) declarations */

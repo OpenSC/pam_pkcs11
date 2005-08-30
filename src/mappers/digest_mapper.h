@@ -37,8 +37,7 @@
 #else
 #define DIGEST_EXTERN
 #endif
-DIGEST_EXTERN struct mapper_module_st digest_mapper_module_data;
-DIGEST_EXTERN int digest_mapper_module_init(scconf_block *blk,const char *mapper_name);
+DIGEST_EXTERN mapper_module * digest_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef DIGEST_EXTERN
 
 /* end of static (if any) declarations */

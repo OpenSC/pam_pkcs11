@@ -34,8 +34,7 @@
 */
 typedef struct mapper_list_st {
 	const char *name;
-	int (*init)(scconf_block *blk, const char *mapper_name);
-	struct mapper_module_st *data;
+	mapper_module * (*init)(scconf_block *blk, const char *mapper_name);
 } mapper_list;
 
 #ifndef __MAPPERLIST_C_

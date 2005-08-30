@@ -45,7 +45,7 @@ static const char *algorithm= "sha1";
 /*
 * return fingerprint of certificate
 */
-static char ** digest_mapper_find_entries(X509 *x509) {
+static char ** digest_mapper_find_entries(X509 *x509, void *context) {
 	char **entries;
 	if ( !x509 ) {
                 DBG("NULL certificate provided");
@@ -56,7 +56,7 @@ static char ** digest_mapper_find_entries(X509 *x509) {
 	return entries;
 }
 
-static char * digest_mapper_find_user(X509 *x509) {
+static char * digest_mapper_find_user(X509 *x509, void *context) {
 	char **entries;
 	if ( !x509 ) {
                 DBG("NULL certificate provided");
@@ -71,7 +71,7 @@ static char * digest_mapper_find_user(X509 *x509) {
 * parses the certificate and try to macth certificate digest
 * with provided user
 */
-static int digest_mapper_match_user(X509 *x509,const char *login) {
+static int digest_mapper_match_user(X509 *x509,const char *login, void *context) {
         char **entries;
         if (!x509) {
                 DBG("NULL certificate provided");
@@ -84,41 +84,30 @@ static int digest_mapper_match_user(X509 *x509,const char *login) {
 
 _DEFAULT_MAPPER_END
 
-#ifndef DIGEST_MAPPER_STATIC
-struct mapper_module_st mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        mapper_module_data.name = name;
-        mapper_module_data.block =blk;
-        mapper_module_data.entries = digest_mapper_find_entries;
-        mapper_module_data.finder = digest_mapper_find_user;
-        mapper_module_data.matcher = digest_mapper_match_user;
-        mapper_module_data.mapper_module_end = mapper_module_end;
+static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
+	mapper_module *pt= malloc(sizeof(mapper_module));
+	if (!pt) return NULL;
+	pt->name = name;
+	pt->block = blk;
+	pt->context = NULL;
+	pt->entries = digest_mapper_find_entries;
+	pt->finder = digest_mapper_find_user;
+	pt->matcher = digest_mapper_match_user;
+	pt->deinit = mapper_module_end;
+	return pt;
 }
-
-#else
-struct mapper_module_st digest_mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        digest_mapper_module_data.name = name;
-        digest_mapper_module_data.block =blk;
-        digest_mapper_module_data.entries = digest_mapper_find_entries;
-        digest_mapper_module_data.finder = digest_mapper_find_user;
-        digest_mapper_module_data.matcher = digest_mapper_match_user;
-        digest_mapper_module_data.mapper_module_end = mapper_module_end;
-}
-#endif
 
 /**
 * Initialize module
 * returns 1 on success, 0 on error
 */
 #ifndef DIGEST_MAPPER_STATIC
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
-int digest_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * digest_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
 	int debug;
+	mapper_module *pt;
 	const EVP_MD *digest;
 	if (!blk) return 0; /* should not occurs, but... */
 	debug = scconf_get_bool( blk,"debug",0);
@@ -130,7 +119,8 @@ int digest_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 		algorithm="sha1";
 	}
 	mapfile= scconf_get_str(blk,"mapfile",mapfile);
-	init_mapper_st(blk,mapper_name);
-	DBG3("Digest mapper started. debug: %d, mapfile: %s, algorithm: %s",debug,mapfile,algorithm);
-	return 1;
+	pt = init_mapper_st(blk,mapper_name);
+	if (pt) DBG3("Digest mapper started. debug: %d, mapfile: %s, algorithm: %s",debug,mapfile,algorithm);
+	else DBG("Digest mapper initialization failed");
+	return pt;
 }

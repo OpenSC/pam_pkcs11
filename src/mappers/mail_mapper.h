@@ -37,8 +37,7 @@
 #else
 #define MAIL_EXTERN
 #endif
-MAIL_EXTERN struct mapper_module_st mail_mapper_module_data;
-MAIL_EXTERN int mail_mapper_module_init(scconf_block *blk,const char *mapper_name);
+MAIL_EXTERN mapper_module * mail_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef MAIL_EXTERN
 
 /* end of static (if any) declarations */

@@ -37,8 +37,7 @@
 #else
 #define OPENSC_EXTERN
 #endif
-OPENSC_EXTERN struct mapper_module_st opensc_mapper_module_data;
-OPENSC_EXTERN int opensc_mapper_module_init(scconf_block *blk,const char *mapper_name);
+OPENSC_EXTERN mapper_module * opensc_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef OPENSC_EXTERN
 
 /* end of static (if any) declarations */

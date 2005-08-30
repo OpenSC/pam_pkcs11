@@ -37,8 +37,7 @@
 #else
 #define OPENSSH_EXTERN
 #endif
-OPENSSH_EXTERN struct mapper_module_st openssh_mapper_module_data;
-OPENSSH_EXTERN int openssh_mapper_module_init(scconf_block *blk,const char *mapper_name);
+OPENSSH_EXTERN mapper_module * openssh_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef OPENSSH_EXTERN
 
 /* end of static (if any) declarations */

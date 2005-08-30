@@ -37,8 +37,7 @@
 #else
 #define KRB_EXTERN
 #endif
-KRB_EXTERN struct mapper_module_st krb_mapper_module_data;
-KRB_EXTERN int krb_mapper_module_init(scconf_block *blk,const char *mapper_name);
+KRB_EXTERN mapper_module * krb_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef KRB_EXTERN
 
 /* end of static (if any) declarations */

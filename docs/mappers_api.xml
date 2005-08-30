@@ -262,12 +262,7 @@ files to define a mapper, no need of more data to be included
 #else
 #define FOO_EXTERN
 #endif
-FOO_EXTERN struct mapper_module_st foo_mapper_module_data;
-/* if mapper supports several mapping methods add entry points here */
-FOO_EXTERN struct mapper_module_st foo2_mapper_module_data;
-FOO_EXTERN struct mapper_module_st foo3_mapper_module_data;
-
-FOO_EXTERN int foo_mapper_module_init(scconf_block *blk,const char *mapper_name);
+FOO_EXTERN mapper_module * foo_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef FOO_EXTERN
 
 /* end of static (if any) declarations */
@@ -352,7 +347,6 @@ Note that this skeleton file provides support for either static or dynamic linki
 * user name
 */
 
-/* Internal variables */
 static const char *mapfile="none";
 static int ignorecase=0;
 
@@ -360,14 +354,14 @@ static int ignorecase=0;
 /**
 * Return array of found FOO's
 */
-static char ** mapper_find_entries(X509 *x509) {
+static char ** mapper_find_entries(X509 *x509, void *context) {
 	/* your code here* */
 }
 
 /*
 * Parses the certificate and return the first FOO entry found, or NULL
 */
-static char * mapper_find_user(X509 *x509) {
+static char * mapper_find_user(X509 *x509, void *context) {
 	/* your code here */
 }
 
@@ -378,33 +372,28 @@ static char * mapper_find_user(X509 *x509) {
 *          0 on no match
 *         -1 on fail
 */
-static int mapper_match_user(X509 *x509,const char *login) {
+static int mapper_match_user(X509 *x509,const char *login, void *context) {
 	/* your code here */
 }
 
 /*
 * Closes and frees all resources for this mapper
 */
-static void mapper_module_end(void) {
+static void mapper_module_end(void, void *context) {
        /* your code here */
 }
-
-#ifndef FOO_MAPPER_STATIC
-struct mapper_module_st mapper_module_data;
-#else
-struct mapper_module_st foo_mapper_module_data;
-#endif
 
 /*
 * initialize entry points
 */
 static void init_mapper_st(
-	struct mapper_module_st *pt, /* pointer to exported entry points */
+	mapper_module *pt, /* pointer to exported entry points */
 	scconf_block *blk, /* pointer to configuration block */
 	const char *name   /* mapper name */
 	) {
 	pt->name = name;
 	pt->block = blk;
+	pt->context = NULL;
 	pt->entries = mapper_find_entries;
 	pt->finder = mapper_find_user;
 	pt->matcher = mapper_match_user;
@@ -421,6 +410,9 @@ int mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
 int foo_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
+	
+	mapper_module *pt= malloc( sizeof(mapper_module) );
+	if (!pt) return NULL;
 	/* Read configuration */
 
 	int debug= scconf_get_bool(blk,"debug",0);
@@ -432,12 +424,8 @@ int foo_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 	set_debug_level(debug);
 
 	/* initialize function entry points */
-#ifndef FOO_MAPPER_STATIC
-	init_mapper_st(&amp;mapper_module_data,blk,mapper_name);
-#else
-	init_mapper_st(&amp;oo_mapper_module_data,blk,mapper_name);
-#fi
-        return 1;
+	pt = init_mapper_st(pt,blk,mapper_name);
+        return pt;
 }
 
 /* end of foo_mapper.c */
@@ -468,20 +456,20 @@ Next task is insert mapper into mappers list, by adding it to mapperlist.c
 mapper_list static_mapper_list [] = {
 ....
 #ifdef FOO_MAPPER_STATIC
-        { "foo", foo_mapper_module_init, &amp;foo_mapper_module_data },
+        { "foo", foo_mapper_module_init },
 	/* if your mapper manages more than one mapping scheme, add it */
-        { "foo2", foo_mapper_module_init, &amp;foo2_mapper_module_data },
-        { "foo3", foo_mapper_module_init, &amp;foo3_mapper_module_data },
+        { "foo2", foo_mapper_module_init },
+        { "foo3", foo_mapper_module_init },
 #endif
 ....
-    { NULL, NULL, NULL }
+    { NULL, NULL }
 };
 </screen>
 </para>
 <para>
 As you can see, if your module support several mapping schemes, you should
 insert one entry for each one. All the entries will share the same entry
-point, but differs in module name and module function data table
+point, but differs in module name 
 </para>
 </sect1>
 

@@ -41,16 +41,9 @@
 #include "mapper.h"
 #include "opensc_mapper.h"
 
-/* TODO 
-Not sure on usage of authorized keys map file...
-So the first version, will use getpwent() to navigate across all users 
-and parsing ${userhome}/.eid/authorized_certificates
-*/
-static const char *keyfile="/etc/pam_pkcs11/authorized_keys";
-
 /**
 * This mapper try to locate user by comparing authorized public keys
-* from each $HOME/.ssh user entry, as done in openssh package
+* from each $HOME/.ssh user entry, as done in opensc package
 */
 
 static int match_key(char *certkey, char *filekey) {
@@ -84,9 +77,9 @@ static int match_keyfile(char *certkey,FILE *file) {
 }
 
 /*
-* Returns the public key of certificate as an array list
+* Returns the list of certificates as an array list
 */
-static char ** openssh_mapper_find_entries(X509 *x509) {
+static char ** opensc_mapper_find_entries(X509 *x509, void *context) {
         char **entries= cert_info(x509,CERT_SSHPUK,NULL);
         if (!entries) {
                 DBG("get_public_key() failed");
@@ -98,7 +91,7 @@ static char ** openssh_mapper_find_entries(X509 *x509) {
 /*
 parses the certificate and return the _first_ user that matches public key 
 */
-static char * openssh_mapper_find_user(X509 *x509) {
+static char * opensc_mapper_find_user(X509 *x509, void *context) {
         char *str;
 	int n;
 	struct passwd *pw;
@@ -113,7 +106,7 @@ static char * openssh_mapper_find_user(X509 *x509) {
 	setpwent();
 	while((pw=getpwent()) != NULL) {
             /* parse list of authorized keys until match */
-	    sprintf(filename,"%s/.ssh/authorized_keys",pw->pw_dir);
+	    sprintf(filename,"%s/.eid/authorized_certificates",pw->pw_dir);
 	    fd=fopen(filename,"rt");
 	    if (!fd) {
 	        /* DBG2("fopen('%s') : '%s'",filename,strerror(errno)); */
@@ -129,12 +122,12 @@ static char * openssh_mapper_find_user(X509 *x509) {
 		    endpwent();
 		    return str;
             }
-            DBG1("No cert pubkey match found for user '%s'",pw->pw_name);
+            DBG1("No certificate match found for user '%s'",pw->pw_name);
 	    fclose(fd);
         } /* next login */
 	/* no user found that contains key in their authorized_key file */
 	endpwent();
-        DBG("No ${login}/.ssh/authorized_keys maps to any provided public key");
+        DBG("No entry at ${login}/.eid/authorized_certificates maps to any provided certificate");
         return NULL;
 }
 
@@ -143,7 +136,7 @@ static char * openssh_mapper_find_user(X509 *x509) {
 * with contents of ${login}/.ssh/authorized_keys file
 * returns -1, 0 or 1 ( error, no match, or match)
 */
-static int openssh_mapper_match_user(X509 *x509, const char *login) {
+static int opensc_mapper_match_user(X509 *x509, const char *login, void *context) {
 	char filename[512];
 	FILE *fd;
         char *str;
@@ -158,66 +151,55 @@ static int openssh_mapper_match_user(X509 *x509, const char *login) {
             return -1;
         }
         /* parse list of authorized keys until match */
-	sprintf(filename,"%s/.ssh/authorized_keys",pw->pw_dir);
+	sprintf(filename,"%s/.eid/authorized_certificates",pw->pw_dir);
 	fd=fopen(filename,"rt");
 	if (!fd) {
 	    DBG2("fopen('%s') : '%s'",filename,strerror(errno));
-	    return -1; /* no authorized_keys file -> no match :-) */
+	    return -1; /* no authorized_certificates file -> no match :-) */
 	}
         for (str=*entries; str ; str=*++entries) {
 		int res = match_keyfile(str,fd);
 		if( res<0) return -1;
-		if( res==0) continue; /* no match, try next public key */
-		/* arriving here means cert public key match */
+		if( res==0) continue; /* no match, try next certificate */
+		/* arriving here means certificate match */
 		fclose(fd);
 		return res;
         }
 	fclose(fd);
-        DBG("User authorized_keys file doesn't match cert public key(s)");
+        DBG("User authorized_certificates file doesn't match provided one");
         return 0;
 }
 
 _DEFAULT_MAPPER_END
 
-#ifndef OPENSC_MAPPER_STATIC
-struct mapper_module_st mapper_module_data;
-                                                                                
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        mapper_module_data.name = name;
-        mapper_module_data.block =blk;
-        mapper_module_data.entries = openssh_mapper_find_entries;
-        mapper_module_data.finder = openssh_mapper_find_user;
-        mapper_module_data.matcher = openssh_mapper_match_user;
-        mapper_module_data.mapper_module_end = mapper_module_end;
+static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
+	mapper_module *pt= malloc(sizeof(mapper_module));
+	if (!pt) return NULL;
+	pt->name = name;
+	pt->block = blk;
+	pt->context = NULL;
+	pt->entries = opensc_mapper_find_entries;
+	pt->finder = opensc_mapper_find_user;
+	pt->matcher = opensc_mapper_match_user;
+	pt->deinit = mapper_module_end;
+	return pt;
 }
-
-#else
-struct mapper_module_st opensc_mapper_module_data;
-                                                                                
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        opensc_mapper_module_data.name = name;
-        opensc_mapper_module_data.block =blk;
-        opensc_mapper_module_data.entries = openssh_mapper_find_entries;
-        opensc_mapper_module_data.finder = openssh_mapper_find_user;
-        opensc_mapper_module_data.matcher = openssh_mapper_match_user;
-        opensc_mapper_module_data.mapper_module_end = mapper_module_end;
-}
-#endif
 
 /**
 * Initialization routine
 */
 #ifndef OPENSC_MAPPER_STATIC
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
-int opensc_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * opensc_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
         int debug;
+	mapper_module *pt;
         if (!blk) return 0; /* should not occurs, but... */
         debug      = scconf_get_bool(blk,"debug",0);
-        keyfile    = scconf_get_str(blk,"keyfile",keyfile);
         set_debug_level(debug);
-        DBG2("OpenSSH mapper started. debug: %d, mapfile: %s",debug,keyfile);
-	init_mapper_st(blk,mapper_name);
-        return 1;
+	pt = init_mapper_st(blk,mapper_name);
+        if(pt) DBG1("OpenSC mapper started. debug: %d",debug);
+	else DBG("OpenSC mapper initialization failed");
+        return pt;
 }

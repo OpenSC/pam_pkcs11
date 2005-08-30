@@ -37,14 +37,15 @@
 /**
 * Structure to be filled on mapper module initialization 
 */
-struct mapper_module_st {
+typedef struct mapper_module_st {
 	const char *name; /* mapper name */
 	scconf_block *block; /* mapper configuration block */
-        char **(*entries)(X509 *x509); /* certificate entries enumerator */
-        char *(*finder)(X509 *x509); /* certificate login finder */
-        int (*matcher)(X509 *x509, const char *login); /*cert-to-login matcher*/
-        void (*mapper_module_end)(void); /* module de-initialization */
-};
+    void *context; 		/* pointer to mapper local data */
+    char **(*entries)(X509 *x509, void *context); /* cert. entries enumerator */
+    char *(*finder)(X509 *x509, void *context); /* cert. login finder */
+    int (*matcher)(X509 *x509, const char *login, void *context); /*cert-to-login matcher*/
+    void (*deinit)( void *context); 	/* module de-initialization */
+} mapper_module;
 
 /*
 * This struct is used in processing map files
@@ -66,41 +67,7 @@ struct mapfile {
 * EVERY mapper module MUST provide and export this function
 * returns 1 on success, 0 on error
 */
-int mapper_module_init(scconf_block *ctx,const char *mapper_name);
-
-#if 0
-/* 
-pkcs11-login version 0.5 or lower mapper API requires 
-all these functions to be defined
-*/
-
-/**
-* Get Certificate entry value whitout doing any mapping
-* returns array list of found entries (null terminated)
-*/
-char **mapper_find_entries(X509 *x509);
-
-/**
-* User finder function.
-* Can be assumed as find_entry+map_user
-* returns matched user name
-*         NULL on error
-*/
-char *mapper_find_user(X509 *x509);
-
-/*
-* user matcher function
-* Can be assumed to be as find_entry() + map_user + compare_user
-*
-* @param x509 X509 Certificate
-* @param login user to match, or null to find user that matches certificate
-* @return 1 on success; login points to matched user
-*	0 on no match
-* 	-1 on error
-*/
-int mapper_match_user(X509 *x509, const char *login);
-
-#endif
+mapper_module * mapper_module_init(scconf_block *ctx,const char *mapper_name);
 
 /* ------------------------------------------------------- */
 
@@ -132,7 +99,7 @@ M_EXTERN int compare_pw_entry(const char *item, struct passwd *pw,int ignorecase
 * provided as sample for debugging, not for real user
 */
 #define _DEFAULT_MAPPER_FIND_ENTRIES					\
-static char ** mapper_find_entries(X509 *x509) {			\
+static char ** mapper_find_entries(X509 *x509, void *context) {		\
 	return NULL;							\
 }
 
@@ -141,7 +108,7 @@ static char ** mapper_find_entries(X509 *x509) {			\
 * Should not be used except for debugging, as allways returns "nobody"
 */
 #define _DEFAULT_MAPPER_FIND_USER					\
-static char * mapper_find_user(X509 *x509) {				\
+static char * mapper_find_user(X509 *x509,void *context) {		\
         if ( !x509 ) return NULL;					\
         return "nobody";						\
 }
@@ -155,8 +122,8 @@ static char * mapper_find_user(X509 *x509) {				\
 * 	-1 on error
 */
 #define _DEFAULT_MAPPER_MATCH_USER 					\
-static int mapper_match_user(X509 *x509, const char *login) {		\
-	char *username= mapper_find_user(x509); 			\
+static int mapper_match_user(X509 *x509, const char *login, void *context) { \
+	char *username= mapper_find_user(x509,context); 			\
 	if (!x509) return -1;						\
 	if (!login) return -1;						\
 	if (!username) return 0; /*user not found*/			\
@@ -168,24 +135,28 @@ static int mapper_match_user(X509 *x509, const char *login) {		\
 * Macro for de-initialization routine
 */
 #define _DEFAULT_MAPPER_END 						\
-static void mapper_module_end(void) {					\
+static void mapper_module_end(void *context) {				\
+	free(context);							\
 	return;								\
 }									\
 
 /**
 * Macro for default init function
-* returns 1 on success, 0 on error
+* returns pointer to mapper_module data, else NULL
 * NOTE: mapper module data MUST BE defined in module
 */
 #define _DEFAULT_MAPPER_INIT 						\
-int mapper_module_init(scconf_block *blk,const char *name) {		\
-	mapper_module_data.name = name;					\
-	mapper_module_data.block = blk;					\
-	mapper_module_data.entries = mapper_find_entries;		\
-	mapper_module_data.finder = mapper_find_user;			\
-	mapper_module_data.matcher = mapper_match_user;			\
-	mapper_module_data.mapper_module_end= mapper_module_end;	\
-	return 1;							\
+mapper_module* mapper_module_init(scconf_block *blk,const char *name) {	\
+	mapper_module *pt= malloc(sizeof (mapper_module));		\
+	if (!pt) return NULL;						\
+	pt->name    = name;						\
+	pt->context = NULL;						\
+	pt->block   = blk;						\
+	pt->entries = mapper_find_entries;				\
+	pt->finder  = mapper_find_user;					\
+	pt->matcher = mapper_match_user;				\
+	pt->deinit  = mapper_module_end;			\
+	return pt;							\
 }									\
 
 /* end of mapper.h file */

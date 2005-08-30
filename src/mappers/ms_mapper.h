@@ -37,8 +37,7 @@
 #else
 #define MS_EXTERN
 #endif
-MS_EXTERN struct mapper_module_st ms_mapper_module_data;
-MS_EXTERN int ms_mapper_module_init(scconf_block *blk,const char *mapper_name);
+MS_EXTERN mapper_module * ms_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef MS_EXTERN
 
 /* end of static (if any) declarations */

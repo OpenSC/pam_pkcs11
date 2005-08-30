@@ -45,7 +45,7 @@ static int usepwent = 0;
 static int ignorecase = 0;
 static int id_type = CERT_CN;
 
-static char **generic_mapper_find_entries(X509 *x509) {
+static char **generic_mapper_find_entries(X509 *x509, void *context) {
         if (!x509) {
                 DBG("NULL certificate provided");
                 return NULL;
@@ -81,7 +81,7 @@ static char **get_mapped_entries(char **entries) {
 	return entries;
 }
 
-static char *generic_mapper_find_user(X509 *x509) {
+static char *generic_mapper_find_user(X509 *x509, void *context) {
 	char **entries;
 	int n;
         if (!x509) {
@@ -89,7 +89,7 @@ static char *generic_mapper_find_user(X509 *x509) {
                 return NULL;
         }
 	/* get entries from certificate */
-	entries= generic_mapper_find_entries(x509);
+	entries= generic_mapper_find_entries(x509,context);
 	if (!entries) {
 		DBG("Cannot find any entries in certificate");
 		return 0;
@@ -105,7 +105,7 @@ static char *generic_mapper_find_user(X509 *x509) {
 	return NULL;
 }
 
-static int generic_mapper_match_user(X509 *x509, const char *login) {
+static int generic_mapper_match_user(X509 *x509, const char *login, void *context) {
 	char **entries;
 	int n;
         if (!x509) {
@@ -116,7 +116,7 @@ static int generic_mapper_match_user(X509 *x509, const char *login) {
 		DBG("NULL login provided");
 		return 0;
 	}
-	entries= generic_mapper_find_entries(x509);
+	entries= generic_mapper_find_entries(x509,context);
 	if (!entries) {
 		DBG("Cannot find any entries in certificate");
 		return 0;
@@ -141,40 +141,30 @@ static int generic_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
-#ifndef GENERIC_MAPPER_STATIC
-struct mapper_module_st mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        mapper_module_data.name = name;
-        mapper_module_data.block =blk;
-        mapper_module_data.entries = generic_mapper_find_entries;
-        mapper_module_data.finder = generic_mapper_find_user;
-        mapper_module_data.matcher = generic_mapper_match_user;
-        mapper_module_data.mapper_module_end = mapper_module_end;
+static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
+	mapper_module *pt= malloc(sizeof(mapper_module));
+	if (!pt) return NULL;
+	pt->name = name;
+	pt->block = blk;
+	pt->context = NULL;
+	pt->entries = generic_mapper_find_entries;
+	pt->finder = generic_mapper_find_user;
+	pt->matcher = generic_mapper_match_user;
+	pt->deinit = mapper_module_end;
+	return pt;
 }
-#else
-struct mapper_module_st generic_mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        generic_mapper_module_data.name = name;
-        generic_mapper_module_data.block =blk;
-        generic_mapper_module_data.entries = generic_mapper_find_entries;
-        generic_mapper_module_data.finder = generic_mapper_find_user;
-        generic_mapper_module_data.matcher = generic_mapper_match_user;
-        generic_mapper_module_data.mapper_module_end = mapper_module_end;
-}
-#endif
 
 /**
 * Initialize module
 * returns 1 on success, 0 on error
 */
 #ifndef GENERIC_MAPPER_STATIC
-int mapper_module_init(scconf_block *blk,const char *name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *name) {
 #else
-int generic_mapper_module_init(scconf_block *blk,const char *name) {
+mapper_module * generic_mapper_module_init(scconf_block *blk,const char *name) {
 #endif
 	int debug;
+	mapper_module *pt;
 	const char *item;
 	if (!blk) return 0; /* should not occurs, but... */
 	debug = scconf_get_bool( blk,"debug",0);
@@ -192,8 +182,9 @@ int generic_mapper_module_init(scconf_block *blk,const char *name) {
 	else {
 	    DBG1("Invalid certificate item to search '%s'; using 'cn'",item);
 	}
-	init_mapper_st(blk,name);
-	DBG5("Generic mapper started. debug: %d, mapfile: '%s', ignorecase: %d usepwent: %d idType: '%s'",debug,mapfile,ignorecase,usepwent,id_type);
-	return 1;
+	pt = init_mapper_st(blk,name);
+	if (pt) DBG5("Generic mapper started. debug: %d, mapfile: '%s', ignorecase: %d usepwent: %d idType: '%s'",debug,mapfile,ignorecase,usepwent,id_type);
+	else DBG("Generic mapper initialization failed");
+	return pt;
 }
 

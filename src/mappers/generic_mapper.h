@@ -37,8 +37,7 @@
 #else
 #define GENERIC_EXTERN
 #endif
-GENERIC_EXTERN struct mapper_module_st generic_mapper_module_data;
-GENERIC_EXTERN int generic_mapper_module_init(scconf_block *blk,const char *mapper_name);
+GENERIC_EXTERN mapper_module * generic_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef GENERIC_EXTERN
 
 /* end of static (if any) declarations */

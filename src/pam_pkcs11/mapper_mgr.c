@@ -44,16 +44,15 @@ struct mapper_listitem *root_mapper_list;
 * load and initialize a module
 * returns descriptor on success, null on fail
 */
-struct mapper_module *load_module(scconf_context *ctx, const char * name) {
+struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 
 	const scconf_block *root;
 	scconf_block **blocks, *blk;
-	struct mapper_module *mymodule;
+	struct mapper_instance *mymodule;
 	const char *libname = NULL;
 	void *handler;
-	struct mapper_module_st *mapper_data;
-	int (*mapper_init)(scconf_block *blk, const char *mapper_name);
-	int res;
+	mapper_module * (*mapper_init)(scconf_block *blk, const char *mapper_name);
+	mapper_module * res;
 
 	/* get module info */
 	root = scconf_find_block(ctx,NULL,"pam_pkcs11");
@@ -74,19 +73,17 @@ struct mapper_module *load_module(scconf_context *ctx, const char * name) {
 	    libname = NULL;
 	    handler = NULL;
 	    mapper_init = NULL;
-	    mapper_data = NULL;
 	    for(n=0;static_mapper_list[n].name;n++) {
 		if (strcmp(static_mapper_list[n].name,name)) continue;
 		/* match found: get data */
 		mapper_init = static_mapper_list[n].init;
-		mapper_data = static_mapper_list[n].data;
 	        res= mapper_init(blk,name);
-	        if (res <=0 ) { /* init failed */
+	        if (!res ) { /* init failed */
 		    DBG1("Static mapper %s init failed",name);
 		    return NULL;
 	        }
 	    } 
-	    if ( (!mapper_init) || (!mapper_data) ) {
+	    if ( !mapper_init ) {
 		DBG1("Static mapper '%s' not found",name);
 		return NULL;
 	    }
@@ -97,24 +94,22 @@ struct mapper_module *load_module(scconf_context *ctx, const char * name) {
 		DBG3("dlopen failed for module:  %s path: %s Error: %s",name,libname,dlerror());
 		return NULL;
 	    }
-	    mapper_init = ( int (*)(scconf_block *blk, const char *mapper_name) ) 
+	    mapper_init = ( mapper_module * (*)(scconf_block *blk, const char *mapper_name) ) 
 		dlsym(handler,"mapper_module_init");
-	    mapper_data = ( struct mapper_module_st *) 
-		dlsym(handler,"mapper_module_data");
-	    if ( (!mapper_init) || (!mapper_data) ) {
+	    if ( !mapper_init) {
 		dlclose(handler);
 		DBG1("Module %s is not a mapper",name);
 		return NULL;
 	    }
 	    res= mapper_init(blk,name);
-	    if (res <=0 ) { /* init failed */
+	    if (!res ) { /* init failed */
 		DBG1("Module %s init failed",name);
 		dlclose(handler);
 		return NULL;
 	    }
 	}
 	/* allocate data */
-	mymodule = malloc (sizeof(struct mapper_module));
+	mymodule = malloc (sizeof(struct mapper_instance));
 	if (!mymodule) {
 		DBG1("No space to alloc module entry: '%s'",name);
 		return NULL;
@@ -122,19 +117,19 @@ struct mapper_module *load_module(scconf_context *ctx, const char * name) {
 	mymodule->module_handler=handler;
 	mymodule->module_name=name;
 	mymodule->module_path=libname;
-	mymodule->module_data=mapper_data;
+	mymodule->module_data=res;
 	/* that's all folks */
 	return mymodule;
 }
 
-void unload_module( struct mapper_module *module ) {
+void unload_module( struct mapper_instance *module ) {
 	if (!module) { 
 		DBG("Trying to unmap empty module");
 		return;
 	}
 	DBG1("calling mapper_module_end() %s",module->module_name);
-	if ( module->module_data->mapper_module_end )
-		(*module->module_data->mapper_module_end)();
+	if ( module->module_data->deinit )
+		(*module->module_data->deinit)(module->module_data->context);
 	DBG1("unloading module %s",module->module_name);
 	if (module->module_handler) { 
 		dlclose(module->module_handler);
@@ -177,7 +172,7 @@ struct mapper_listitem *load_mappers( scconf_context *ctx ) {
 	}
 	while (module_list) {
 	    char *name = module_list->data;
-	    struct mapper_module *module = load_module(ctx,name);
+	    struct mapper_instance *module = load_module(ctx,name);
 	    if (module) {
 	    	struct mapper_listitem *item= 
 	    	    (struct mapper_listitem *) malloc(sizeof(struct mapper_listitem));
@@ -229,7 +224,7 @@ void inspect_certificate(X509 *x509) {
 	        item=item->next;
 		continue;
 	    }
-	    data = (*item->module->module_data->entries)(x509);
+	    data = (*item->module->module_data->entries)(x509,item->module->module_data->context);
 	    if (!data) {
 	    	DBG1("Cannot find cert data for mapper %s",item->module->module_name);
 	        item=item->next;
@@ -257,7 +252,7 @@ char * find_user(X509 *x509) {
 	    if(! item->module->module_data->finder) {
 	    	DBG1("Mapper '%s' has no find() function",item->module->module_name);
 	    } else {
-	        login = (*item->module->module_data->finder)(x509);
+	        login = (*item->module->module_data->finder)(x509,item->module->module_data->context);
 	        if (login) return login;
 	    }
 	    item=item->next;
@@ -283,7 +278,7 @@ int match_user(X509 *x509, const char *login) {
 	    if (!item->module->module_data->matcher) {
 	    	DBG1("Mapper '%s' has no match() function",item->module->module_name);
 	    } else {
-	        res = (*item->module->module_data->matcher)(x509,login);
+	        res = (*item->module->module_data->matcher)(x509,login,item->module->module_data->context);
 	        DBG2("Mapper module %s match() returns %d",item->module->module_name,res);
 	    }
 	    if (res>0) return res;

@@ -54,7 +54,7 @@ static char *hostname = NULL;
 /*
 * Extract list of email entries on certificate
 */
-static char ** mail_mapper_find_entries(X509 *x509) {
+static char ** mail_mapper_find_entries(X509 *x509, void *context) {
         char **entries= cert_info(x509,CERT_EMAIL,NULL);
         if (!entries) {
                 DBG("get_email() failed");
@@ -104,7 +104,7 @@ static int compare_email(char *email, const char *user) {
 /*
 parses the certificate and return the email entry found, or NULL
 */
-static char * mail_mapper_find_user(X509 *x509) {
+static char * mail_mapper_find_user(X509 *x509, void *context) {
         char **entries= cert_info(x509,CERT_EMAIL,NULL);
         if (!entries) {
                 DBG("get_email() failed");
@@ -118,7 +118,7 @@ static char * mail_mapper_find_user(X509 *x509) {
 * parses the certificate and try to macht any Email in the certificate
 * with provided user
 */
-static int mail_mapper_match_user(X509 *x509, const char *login) {
+static int mail_mapper_match_user(X509 *x509, const char *login, void *context) {
 	char *item;
 	char *str;
         char **entries= cert_info(x509,CERT_EMAIL,NULL);
@@ -146,41 +146,30 @@ static int mail_mapper_match_user(X509 *x509, const char *login) {
 
 _DEFAULT_MAPPER_END
 
-#ifndef MAIL_MAPPER_STATIC
-struct mapper_module_st mapper_module_data;
 
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        mapper_module_data.name = name;
-        mapper_module_data.block =blk;
-        mapper_module_data.entries = mail_mapper_find_entries;
-        mapper_module_data.finder = mail_mapper_find_user;
-        mapper_module_data.matcher = mail_mapper_match_user;
-        mapper_module_data.mapper_module_end = mapper_module_end;
+static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
+	mapper_module *pt= malloc(sizeof(mapper_module));
+	if (!pt) return NULL;
+	pt->name = name;
+	pt->block = blk;
+	pt->context = NULL;
+	pt->entries = mail_mapper_find_entries;
+	pt->finder = mail_mapper_find_user;
+	pt->matcher = mail_mapper_match_user;
+	pt->deinit = mapper_module_end;
+	return pt;
 }
-
-#else
-struct mapper_module_st mail_mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        mail_mapper_module_data.name = name;
-        mail_mapper_module_data.block =blk;
-        mail_mapper_module_data.entries = mail_mapper_find_entries;
-        mail_mapper_module_data.finder = mail_mapper_find_user;
-        mail_mapper_module_data.matcher = mail_mapper_match_user;
-        mail_mapper_module_data.mapper_module_end = mapper_module_end;
-}
-
-#endif
 
 /**
 * init routine
 * parse configuration block entry
 */
 #ifndef MAIL_MAPPER_STATIC
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
-int mail_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mail_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
+	mapper_module *pt;
 	int debug = scconf_get_bool(blk,"debug",0);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	ignoredomain = scconf_get_bool(blk,"ignoredomain",ignoredomain);
@@ -200,8 +189,9 @@ int mail_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 		    DBG1("Retrieved hostname: %s",hostname);
 		}
 	}
-	init_mapper_st(blk,mapper_name);
-	DBG3("Mail Mapper: ignorecase %d, ignoredomain %d, mapfile %s",ignorecase,ignoredomain, mapfile);
-	return 1;
+	pt = init_mapper_st(blk,mapper_name);
+	if(pt) DBG3("Mail Mapper: ignorecase %d, ignoredomain %d, mapfile %s",ignorecase,ignoredomain, mapfile);
+	else DBG("Mail mapper initialization error");
+	return pt;
 }
 

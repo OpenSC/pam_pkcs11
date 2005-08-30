@@ -84,7 +84,7 @@ static int compare_name(char *name, const char *user) {
 /*
 * Extract the MS Universal Principal Name array list
 */
-static char ** ms_mapper_find_entries(X509 *x509) {
+static char ** ms_mapper_find_entries(X509 *x509, void *context) {
         char **entries= cert_info(x509,CERT_UPN,NULL);
         if (!entries) {
                 DBG("get_ms_upn() failed");
@@ -96,7 +96,7 @@ static char ** ms_mapper_find_entries(X509 *x509) {
 /*
 parses the certificate and return the first valid UPN entry found, or NULL
 */
-static char * ms_mapper_find_user(X509 *x509) {
+static char * ms_mapper_find_user(X509 *x509, void *context) {
 	char *str;
         char **entries  = cert_info(x509,CERT_UPN,NULL);
         if (!entries) {
@@ -123,7 +123,7 @@ static char * ms_mapper_find_user(X509 *x509) {
 * parses the certificate and try to macht any UPN in the certificate
 * with provided user
 */
-static int ms_mapper_match_user(X509 *x509, const char *user) {
+static int ms_mapper_match_user(X509 *x509, const char *user, void *context) {
         char *str;
         int match_found = 0;
         char **entries  = cert_info(x509,CERT_UPN,NULL);
@@ -149,47 +149,38 @@ static int ms_mapper_match_user(X509 *x509, const char *user) {
 
 _DEFAULT_MAPPER_END
 
-#ifndef MS_MAPPER_STATIC
-struct mapper_module_st mapper_module_data;
 
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        mapper_module_data.name = name;
-        mapper_module_data.block =blk;
-        mapper_module_data.entries = ms_mapper_find_entries;
-        mapper_module_data.finder = ms_mapper_find_user;
-        mapper_module_data.matcher = ms_mapper_match_user;
-        mapper_module_data.mapper_module_end = mapper_module_end;
+static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
+	mapper_module *pt= malloc(sizeof(mapper_module));
+	if (!pt) return NULL;
+	pt->name = name;
+	pt->block = blk;
+	pt->context = NULL;
+	pt->entries = ms_mapper_find_entries;
+	pt->finder = ms_mapper_find_user;
+	pt->matcher = ms_mapper_match_user;
+	pt->deinit = mapper_module_end;
+	return pt;
 }
-
-#else
-struct mapper_module_st ms_mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-        ms_mapper_module_data.name = name;
-        ms_mapper_module_data.block =blk;
-        ms_mapper_module_data.entries = ms_mapper_find_entries;
-        ms_mapper_module_data.finder = ms_mapper_find_user;
-        ms_mapper_module_data.matcher = ms_mapper_match_user;
-        ms_mapper_module_data.mapper_module_end = mapper_module_end;
-}
-#endif
 
 /**
 * init routine
 * parse configuration block entry
 */
 #ifndef MS_MAPPER_STATIC
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
-int ms_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * ms_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
+	mapper_module *pt;
 	int debug = scconf_get_bool(blk,"debug",0);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	ignoredomain = scconf_get_bool(blk,"ignoredomain",ignoredomain);
 	domainname = scconf_get_str(blk,"domainname",domainname);
 	set_debug_level(debug);
-	init_mapper_st(blk,mapper_name);
-	DBG4("MS PrincipalName mapper started. debug: %d, idomain: %d, icase: %d, domainname: '%s'",debug,ignoredomain,ignorecase,domainname);
-	return 1;
+	pt = init_mapper_st(blk,mapper_name);
+	if (pt) DBG4("MS PrincipalName mapper started. debug: %d, idomain: %d, icase: %d, domainname: '%s'",debug,ignoredomain,ignorecase,domainname);
+	else DBG("MS PrincipalName mapper initialization failed");
+	return pt;
 }
 

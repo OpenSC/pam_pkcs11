@@ -47,7 +47,7 @@ static int ignorecase=0;
 /**
 * Return array of found CN's
 */
-static char ** cn_mapper_find_entries(X509 *x509) {
+static char ** cn_mapper_find_entries(X509 *x509, void *context) {
         char **entries= cert_info(x509,CERT_CN,NULL);
         if (!entries) {
                 DBG("get_common_name() failed");
@@ -59,7 +59,7 @@ static char ** cn_mapper_find_entries(X509 *x509) {
 /*
 parses the certificate and return the first CN entry found, or NULL
 */
-static char * cn_mapper_find_user(X509 *x509) {
+static char * cn_mapper_find_user(X509 *x509, void *context) {
         char *res;
         char **entries= cert_info(x509,CERT_CN,NULL);
         if (!entries) {
@@ -79,7 +79,7 @@ static char * cn_mapper_find_user(X509 *x509) {
 * parses the certificate and try to macht any CN in the certificate
 * with provided user
 */
-static int cn_mapper_match_user(X509 *x509,const char *login) {
+static int cn_mapper_match_user(X509 *x509,const char *login, void *context) {
         char *str;
         int match_found = 0;
         char **entries  = cert_info(x509,CERT_CN,NULL);
@@ -103,46 +103,35 @@ static int cn_mapper_match_user(X509 *x509,const char *login) {
 
 _DEFAULT_MAPPER_END
 
-#ifndef CN_MAPPER_STATIC
-struct mapper_module_st mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-	mapper_module_data.name = name;
-	mapper_module_data.block =blk;
-	mapper_module_data.entries = cn_mapper_find_entries;
-	mapper_module_data.finder = cn_mapper_find_user;
-	mapper_module_data.matcher = cn_mapper_match_user;
-	mapper_module_data.mapper_module_end = mapper_module_end;
+static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
+	mapper_module *pt= malloc(sizeof(mapper_module));
+	if (!pt) return NULL;
+	pt->name = name;
+	pt->block = blk;
+	pt->context = NULL;
+	pt->entries = cn_mapper_find_entries;
+	pt->finder = cn_mapper_find_user;
+	pt->matcher = cn_mapper_match_user;
+	pt->deinit = mapper_module_end;
+	return pt;
 }
-
-#else
-struct mapper_module_st cn_mapper_module_data;
-
-static void init_mapper_st(scconf_block *blk, const char *name) {
-	cn_mapper_module_data.name = name;
-	cn_mapper_module_data.block =blk;
-	cn_mapper_module_data.entries = cn_mapper_find_entries;
-	cn_mapper_module_data.finder = cn_mapper_find_user;
-	cn_mapper_module_data.matcher = cn_mapper_match_user;
-	cn_mapper_module_data.mapper_module_end = mapper_module_end;
-}
-
-#endif
 
 /**
 * Initialization routine
 */
 #ifndef CN_MAPPER_STATIC
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
-int cn_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * cn_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
+	mapper_module *pt;
 	int debug= scconf_get_bool(blk,"debug",0);
 	mapfile= scconf_get_str(blk,"mapfile",mapfile);
 	ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
 	set_debug_level(debug);
-	init_mapper_st(blk,mapper_name);
-	DBG3("CN mapper started. debug: %d, mapfile: %s, icase: %d",debug,mapfile,ignorecase);
-        return 1;
+	pt = init_mapper_st(blk,mapper_name);
+	if (pt) DBG3("CN mapper started. debug: %d, mapfile: %s, icase: %d",debug,mapfile,ignorecase);
+	else DBG("CN mapper initialization error");
+        return pt;
 }
 

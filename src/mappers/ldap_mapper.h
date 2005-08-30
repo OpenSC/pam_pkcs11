@@ -37,8 +37,7 @@
 #else
 #define LDAP_EXTERN
 #endif
-LDAP_EXTERN struct mapper_module_st ldap_mapper_module_data;
-LDAP_EXTERN int ldap_mapper_module_init(scconf_block *blk,const char *mapper_name);
+LDAP_EXTERN mapper_module * ldap_mapper_module_init(scconf_block *blk,const char *mapper_name);
 #undef LDAP_EXTERN
 
 /* end of static (if any) declarations */
