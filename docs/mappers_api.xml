@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd">
+<book id="mapper-api">
+        <bookinfo>
+		<title>PAM-PKCS11 Mappers API</title>
+                <date>2005-Mar-29</date>
+                <releaseinfo>Release 0.5.3 30 Ago 2005</releaseinfo>
+                <author>
+                        <firstname>Juan Antonio</firstname>
+                        <surname>Martinez</surname>
+                        <email>jonsito@teleline.es</email>
+                </author>
+	</bookinfo>
+
+<abstract>
+<para>
+<application>PAM-PKCS#11</application> is a PAM (Pluggable
+Authentication Module) library and related tools to perform login into
+Linux/UNIX systems by mean of X509 Certificates through any pkcs#11
+compliant library.
+</para>
+<para>
+This manual describes how to create, compile and install
+<application>pam_pkcs11</application> mappers. It also describes their API and related functions,
+and provide sample code
+</para>
+</abstract>
+
+<toc/>
+
+<chapter id="copyright">
+        <title>Copyright. License</title>
+
+<para>
+Copyright (C) 2005 Juan Antonio Martinez <email>jonsito@teleline.es</email>
+</para>
+
+<para>
+Copyright (C) 2003-2004 of Mario Strasser <email>mstt@gmx.net</email>
+</para>
+
+<para>
+ScConf library Copyright (C) Antti Tapaninen  <email>aet@cc.hut.fi</email> and Timo Sirainen <email>tss@iki.fi</email>
+</para>
+
+<para>
+Release 0.5beta1. 30 Mar 2005
+</para>
+
+<para>
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+</para>
+
+<para>
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+</para>
+
+<para>
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+</para>
+
+</chapter>
+
+<chapter id="introduction">
+	<title>What is a <application>pam_pkcs11</application> mapper?</title>
+<sect1>
+<title>Definition</title>
+
+<para>
+When an X509 Certificate is provided, there are no direct way to map
+a cert to a login. With a certificate we can check validity and
+revocation, but user mapping depends entirely on the certificate content.
+</para>
+<para>
+So we need a configurable, stackable, and definable way to specify
+cert-to-user mapping.
+</para>
+<para>
+pam-pkcs11 cert mappers should provide these functions:
+<orderedlist>
+<listitem>Extract a item (cn, digest, or so) from provided certificate</listitem>
+<listitem>Deduce a login from the extracted item</listitem>
+<listitem>Test if a provided login matches with the previously deduced login</listitem>
+<listitem>(de)initialization routines</listitem>
+<listitem>A structure to access all internal methods</listitem>
+</orderedlist>
+</para>
+</sect1>
+
+<sect1>
+<title>Runtime options</title>
+<para>
+A mapper can be dinamycally or statically compiled against <application>pam_pkcs11</application>
+</para>
+<para>
+<itemizedlist>
+<listitem>An static mapper is one that is statically linked with <application>pam_pkcs11</application>.</listitem>
+<listitem>A dynamic mapper needs to be dynamically loaded, and the path to
+the dynamic module must be provided</listitem>
+</itemizedlist>
+</para>
+</sect1>
+
+<sect1>
+<title>Multiple mapping support</title>
+<para>
+A mapper can provide several ways to realize mapping functions. As 
+the mapper name is provided to initialization routines, the mapper
+cand adjust their internal pointers according name. In this case,
+the same mapper will be instantiated (or dynloaded) as many times
+as different mappings required
+</para>
+</sect1>
+
+<sect1>
+<title>Mapfile support</title>
+<para>
+Most of certificate fields are not valid for login names. We need
+a way to map field to login. This is done by mean of mapfiles.
+The mapper API provides several functions to manage mapfiles
+</para>
+</sect1>
+
+<sect1>
+<title>Mapper tools and libraries</title>
+<para>
+Pam_pkcs11 provides several utility functions to manage certificate
+contents. Instead of start from scratch these functions may be used
+to ease mapper coding. You'll find:
+<itemizedlist>
+<listitem>Mapfile functions</listitem>
+<listitem>String tools</listitem>
+<listitem>Debugging macros</listitem>
+<listitem>URL handling functions</listitem>
+<listitem>Configuration file tools</listitem>
+<listitem>Etc...</listitem>
+</itemizedlist>
+</para>
+</sect1>
+
+<sect1>
+<title>Configuration support</title>
+<para>
+Althought all mappers have default values, most of then have
+configuration options. The file <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename>
+stores them.
+</para>
+</sect1>
+
+</chapter>
+
+<chapter id="writting">
+	<title>Writting a mapper</title>
+
+<sect1>
+<title>Before starting</title>
+<para>
+<itemizedlist>
+<listitem>Decide if the mapper will be statically or dinamically compiled
+The first way is for simple, quick and easy mappers that doesn't need
+aditional/optional libraries, just inspect certificate contents
+The second way is for those mappers that need some optional libraries,
+such as ldap, kerberos, openssh or so</listitem>
+<listitem>Decide on single or multiple items mapper</listitem>
+<listitem>Choose a name and configuration options</listitem>
+<listitem>Study provided mappers and <application>libcommon</application> / <application>libmapper</application> code</listitem>
+</itemizedlist>
+</para>
+<para>
+The best way to start is by mean of these skeleton files:
+</para>
+</sect1>
+
+<sect1>
+<title>Sample mapper configuration entry</title>
+
+<para>
+All mappers should have a configuration entry in <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename>. These entry should at least define:
+<itemizedlist>
+<listitem> The name of the mapper</listitem>
+<listitem> The dynamic library to be runtime loaded, or the keyword <option>internal</option> if the mapper is statically linked </listitem>
+</itemizedlist>
+<screen>
+  # foo  - Maps FOO certificate field (if exist) to login
+  mapper foo {
+        debug = false;
+        # For dinamycally loaded mappers
+	# module = /usr/lib/pam_pkcs11/foo_mapper.so;
+	# For statically linked mappers
+	module = internal;
+        ignorecase = false;
+        mapfile = "none";
+  }
+</screen>
+</para>
+<para>
+Note the <option>module</option> option. It says <application>pam_pkcs11</application> if the mapper is static or must be dynloaded in runtime. If so, it must include the full path to the mapper dynamic library
+</para>
+<para>
+When the mapper is used to map more than one field, you should add one entry
+for each mapped field. Each entry must have an unique mapper name, and (if the mapper is to be dynamically loaded) the same library name path
+</para>
+<para>
+See bellow on how to set up code to include multiple fields mappers to be
+statically compiled
+</para>
+</sect1>
+
+<sect1>
+<title>Sample mapper include file</title>
+<para>
+Here comes a sample mapper include file. Note that their main use is to
+allow export internal data when statically compiled. Unless you need several
+files to define a mapper, no need of more data to be included
+
+<screen>
+/*
+ * PAM-PKCS11 mapping modules
+ * ------------- YOUR COPYRIGHT CREDITS HERE --------------------
+ * Copyright (C) 2005 Juan Antonio Martinez &lt;jonsito@teleline.es&gt;
+ * pam-pkcs11 is copyright (C) 2003-2004 of Mario Strasser &lt;mast@gmx.net&gt;
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ * $Id$
+ */
+
+#ifndef __FOO_MAPPER_H_
+#define __FOO_MAPPER_H_
+
+#ifdef HAVE_CONFIG_H
+#include &lt;config.h&gt;
+#endif
+
+#include "../scconf/scconf.h"
+#include "mapper.h"
+
+#ifdef FOO_MAPPER_STATIC
+
+#ifndef __FOO_MAPPER_C_
+#define FOO_EXTERN extern
+#else
+#define FOO_EXTERN
+#endif
+FOO_EXTERN struct mapper_module_st foo_mapper_module_data;
+/* if mapper supports several mapping methods add entry points here */
+FOO_EXTERN struct mapper_module_st foo2_mapper_module_data;
+FOO_EXTERN struct mapper_module_st foo3_mapper_module_data;
+
+FOO_EXTERN int foo_mapper_module_init(scconf_block *blk,const char *mapper_name);
+#undef FOO_EXTERN
+
+/* end of static (if any) declarations */
+#endif
+
+/* End of foo_mapper.h */
+#endif
+</screen>
+</para>
+
+</sect1>
+
+<sect1>
+<title> Skeleton code for mapper C file.</title>
+<para>
+This is a sample skeleton file for single field mappers. It provides all the methods and data required by the API. Is up to you to include aditional functions as required.
+</para>
+<para>
+They only need to export two symbols:
+<itemizedlist>
+<listitem>The entry point to the init routine</listitem>
+<listitem>A pointer to the mapper functions table</listitem>
+</itemizedlist>
+If the mapper is to be dynamically loaded, these symbols has fixed names:
+<function>mapper_module_init</function> for the entry point, and <function>mapper_module_data</function> for the mapper function table.
+</para>
+<para>
+If the mapper is to be statically linked, is up to you to decide the exported
+symbol name, but it's suggested for comodity, just prepend the mapper name
+as prefix, to avoid collisions. Note that these names should be added into the static mapper table list
+</para>
+
+<para>
+Note that this skeleton file provides support for either static or dynamic linking. Our suggestion is follow this convention, making your mapper as versatile as possible
+
+<screen>
+/*
+ * PAM-PKCS11 FOO mapper module
+ * -------------- YOUR COPYRIGHTS CREDITS HERE --------------------
+ * Copyright (C) 2005 Juan Antonio Martinez &lt;jonsito@teleline.es&gt;
+ * pam-pkcs11 is copyright (C) 2003-2004 of Mario Strasser &lt;mast@gmx.net&gt;
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ * $Id$
+ */
+
+#define __FOO_MAPPER_C_
+
+#ifdef HAVE_CONFIG_H
+#include &lt;config.h&gt;
+#endif
+
+/* required standard headers here */
+#include &lt;openssl/x509.h&gt;
+/* Pam_pkcs11 API headers here */
+#include "../scconf/scconf.h"
+#include "../common/debug.h"
+#include "../common/error.h"
+#include "../common/strings.h"
+#include "../common/cert_info.h"
+
+/* mandatory includes */
+#include "mapper.h"
+#include "foo_mapper.h"
+
+/*
+* Summary:
+* This mapper uses the FOO entry in the certificate to deduce 
+* user name
+*/
+
+/* Internal variables */
+static const char *mapfile="none";
+static int ignorecase=0;
+
+
+/**
+* Return array of found FOO's
+*/
+static char ** mapper_find_entries(X509 *x509) {
+	/* your code here* */
+}
+
+/*
+* Parses the certificate and return the first FOO entry found, or NULL
+*/
+static char * mapper_find_user(X509 *x509) {
+	/* your code here */
+}
+
+/*
+* parses the certificate and try to macht any FOO entry in the certificate
+* with provided user
+* returns: 1 on success
+*          0 on no match
+*         -1 on fail
+*/
+static int mapper_match_user(X509 *x509,const char *login) {
+	/* your code here */
+}
+
+/*
+* Closes and frees all resources for this mapper
+*/
+static void mapper_module_end(void) {
+       /* your code here */
+}
+
+#ifndef FOO_MAPPER_STATIC
+struct mapper_module_st mapper_module_data;
+#else
+struct mapper_module_st foo_mapper_module_data;
+#endif
+
+/*
+* initialize entry points
+*/
+static void init_mapper_st(
+	struct mapper_module_st *pt, /* pointer to exported entry points */
+	scconf_block *blk, /* pointer to configuration block */
+	const char *name   /* mapper name */
+	) {
+	pt->name = name;
+	pt->block = blk;
+	pt->entries = mapper_find_entries;
+	pt->finder = mapper_find_user;
+	pt->matcher = mapper_match_user;
+	pt->mapper_module_end = mapper_module_end;
+}
+
+/**
+* Initialization entry point
+* return 1 on success
+*        else on fail
+*/
+#ifndef FOO_MAPPER_STATIC
+int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#else
+int foo_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+#endif
+	/* Read configuration */
+
+	int debug= scconf_get_bool(blk,"debug",0);
+	mapfile= scconf_get_str(blk,"mapfile",mapfile);
+	ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
+
+	/* set up internal variables */
+
+	set_debug_level(debug);
+
+	/* initialize function entry points */
+#ifndef FOO_MAPPER_STATIC
+	init_mapper_st(&amp;mapper_module_data,blk,mapper_name);
+#else
+	init_mapper_st(&amp;oo_mapper_module_data,blk,mapper_name);
+#fi
+        return 1;
+}
+
+/* end of foo_mapper.c */
+#undef __FOO_MAPPER_C_
+</screen>
+</para>
+
+<para>
+See bellow on what's each function is intended to do, comodity macros, 
+and some examples on how to code them
+</para>
+</sect1>
+
+<sect1>
+<title>Insert mapper into tables</title>
+
+<para>
+Next task is insert mapper into mappers list, by adding it to mapperlist.c
+<itemizedlist>
+<listitem>Add "foo_mapper.h" to #include list</listitem>
+<listitem>Add exported entries to static mapper entries table:</listitem>
+</itemizedlist>
+</para>
+<para>
+<screen>
+#include "foo_mapper.h"
+......
+mapper_list static_mapper_list [] = {
+....
+#ifdef FOO_MAPPER_STATIC
+        { "foo", foo_mapper_module_init, &amp;foo_mapper_module_data },
+	/* if your mapper manages more than one mapping scheme, add it */
+        { "foo2", foo_mapper_module_init, &amp;foo2_mapper_module_data },
+        { "foo3", foo_mapper_module_init, &amp;foo3_mapper_module_data },
+#endif
+....
+    { NULL, NULL, NULL }
+};
+</screen>
+</para>
+<para>
+As you can see, if your module support several mapping schemes, you should
+insert one entry for each one. All the entries will share the same entry
+point, but differs in module name and module function data table
+</para>
+</sect1>
+
+<sect1>
+<title>Adding mapper to Makefile.am to be compiled</title>
+
+<para>
+Finally add entry to <filename>src/mappers/Makefile.am</filename> file and recompile. 
+Note that with the current <application>pam_pkcs11</application> version you cannot compile
+a dynamically loaded mapper in a separate way. This is a job in progress
+</para>
+<para>
+To compile as static mapper
+<itemizedlist>
+<listitem>Add <option>"-DFOO_MAPPER_STATIC"</option> to <option>AM_CFLAGS</option> options</listitem>
+<listitem>Add <filename>"foo_mapper.c"</filename> and <filename>"foo_mapper.h"</filename> to <option>libmappers_la_SOURCES</option> entry</listitem>
+</itemizedlist>
+</para>
+<para>
+To compile as dynamic mapper:
+<itemizedlist>
+<listitem>Add "foo_mapper.la" to lib_LTLIBRARIES entry</listitem>
+<listitem>Add compile options for "foo_mapper.la" , for instance:
+<screen>
+.....
+foo_mapper_la_SOURCES = foo_mapper.c foo_mapper.h
+foo_mapper_la_LDFLAGS = -module -avoid-version
+foo_mapper_la_LIBADD = libmappers.la
+.....
+</screen>
+</listitem>
+</itemizedlist>
+</para>
+
+</sect1>
+
+<sect1>
+<title>Compilation</title>
+<para>
+That's all: recompile and install
+<screen>
+root# cd /base/directory
+root# make maintainer-clean
+root# ./bootstrap
+root# ./configure --your-configure-options
+root# make
+root# make install
+</screen>
+</para>
+
+</sect1>
+
+</chapter>
+
+<chapter id="deeper">
+	<title>A Detailed look on mappers</title>
+
+<sect1>
+<title>The mapper chain</title>
+
+</sect1>
+
+<sect1>
+<title>Exported data and structures</title>
+
+</sect1>
+
+<sect1>
+<title>Comodity macros</title>
+
+</sect1>
+
+<sect1>
+<title>Multiple items mappers</title>
+
+</sect1>
+
+<sect1>
+<title>Configuration file issues</title>
+
+</sect1>
+
+
+</chapter>
+
+<chapter id="api">
+        <title>The Mapper API</title>
+
+<sect1>
+<title>Debugging macros and functions</title>
+
+</sect1>
+
+<sect1>
+<title>The mapfile API</title>
+
+</sect1>
+
+<sect1>
+<title> Configuration parsing API</title>
+
+</sect1>
+
+<sect1>
+<title> String tools API</title>
+
+</sect1>
+
+<sect1>
+<title> X509 Cert Tools API</title>
+
+</sect1>
+
+</chapter>
+
+<chapter id="more">
+        <title>Going further</title>
+
+</chapter>
+
+</book>
