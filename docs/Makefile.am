@@ -1,8 +1,8 @@
 # Process this file with automake to create Makefile.in
 
 XSLTPROC = @XSLTPROC@
-HTMLFILES = pam_pkcs11.html mappers_api.xml pam_pkcs11.css
-XMLFILES = pam_pkcs11.xml pam_pkcs11.xsl
+HTMLFILES = pam_pkcs11.html mappers_api.html pam_pkcs11.css
+XMLFILES = pam_pkcs11.xml mappers_api.xml pam_pkcs11.xsl
 
 MANSRC = \
 	pam_pkcs11.8 card_eventmgr.1 pklogin_finder.1 \
