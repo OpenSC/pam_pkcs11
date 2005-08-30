@@ -36,7 +36,7 @@
 <para>
 <application>PAM-PKCS#11</application> is a PAM (Pluggable
 Authentication Module) library and related tools to perform login into
-Linux/UNIX systems by mean of X509 Certificates through any pkcs#11
+Linux/UNIX systems by mean of X509 Certificates through any PKCS #11
 compliant library.
 </para>
 <para>
@@ -154,9 +154,9 @@ of use Digital Certificates stored in a SmartCard.
 </para>
 
 <para>
-To do this, a pkcs11 library is needed to access the Cards. Details
+To do this, a PKCS #11 library is needed to access the Cards. Details
 on how certificates are stored/retrieved, etc are hidden to pam-pkcs11
-and handled by pkcs11 library. This allows independence of the module
+and handled by PKCS #11 library. This allows independence of the module
 from a specific card.
 </para>
 
@@ -176,10 +176,11 @@ Conformance Profile Specification</ulink> by RSA Laboratories.
 <title>User Matching</title>
 
 <para>
-To approve the ownership of a certificate, that is, to allow the owner 
-of a certificate to login as a particular user, Pam-pkcs11 uses several 
-modules called <systemitem>mappers</systemitem> that perform cert-to-login mapping. 
-See <xref linkend="mappers">mappers</xref> section.
+To approve the ownership of a certificate, that is, to allow the owner
+of a certificate to login as a particular user, pam-pkcs11 uses several
+modules called <systemitem>mappers</systemitem> that perform
+cert-to-login mapping.  See <xref linkend="mappers">mappers</xref>
+section.
 </para>
 
 <para>
@@ -218,8 +219,9 @@ make
 make install</userinput>
 </screen>
     </listitem>
-    <listitem> Alternatively, on RedHat Linux systems, you can use rpmbuild tools and
-provided <filename>.spec</filename> file to create and install RPM packages:
+    <listitem> Alternatively, on RedHat Linux systems, you can use
+	rpmbuild tools and the provided <filename>.spec</filename> file to
+	create and install RPM packages:
 <screen>
 <userinput>rpmbuild -ta /path/to/pam_pkcs11.X.Y.tar.gz
 rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-X.Y-Z.i386.rpm
@@ -228,32 +230,57 @@ rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-tools-X.Y-Z.i386.rpm</userinput>
     </listitem>
     <listitem> Configure package:
 	<orderedlist>
-	<listitem> Create base configuration directory (eg. <filename>/etc/pam_pkcs11</filename>)</listitem>
-	<listitem> Copy <filename>${base}/etc/pam_pkcs11.conf.example</filename> to <filename>/etc/pam_pkcs11</filename> and personalize</listitem>
-	<listitem> Create crls and cacerts directories according with configuration file, 
-and fill them with proper data. The <filename>tools</filename> directory provides a tool
-"make_hash_link" that can be used to create hash files on every valid
-Cert and CRL file.</listitem>
-	<listitem> Choose one o more mappers to install, set up configuration file, and
-if needed configure mappers.
 
+	<listitem> Create the base configuration directory: <filename
+	class='directory'>/etc/pam_pkcs11/</filename></listitem>
 
+	<listitem> Copy
+	<filename>${base}/etc/pam_pkcs11.conf.example</filename> to
+	<filename class='directory'>/etc/pam_pkcs11/</filename>, rename it
+	to <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename> and
+	personalize it</listitem>
 
-File <filename>etc/pam_pkcs11.conf</filename> is fully auto-documented, to allow you easy
-editing
-	</listitem>
-	<listitem> Edit and configure <filename>/etc/pam.d/xxx</filename> entries. See instructions bellow</listitem>
-	<listitem>Use <application>pkcs11_inspect</application> and <application>pklogin_finder</application> provided tools to see if you can read certificate data and perform correct user mapping</listitem>
-	<listitem>Try to log in. For instance, switch to a tty console</listitem>
+	<listitem> Create <filename
+	class='directory'>/etc/pam_pkcs11/crls/</filename> and <filename
+	class='directory'>/etc/pam_pkcs11/cacerts/</filename> directories
+	corresponding to the configuration file, and fill them with proper
+	data.  The <filename class='directory'>tools/</filename> directory
+	provides a tool <application>make_hash_link</application> that can
+	be used to create hash files on every valid Cert and CRL
+	file.</listitem>
+
+	<listitem> Choose one or more mappers to install, set up
+	configuration file, and if needed configure mappers.  File
+	<filename>/etc/pam_pkcs11.conf</filename> is documented to
+	allow an easy editing </listitem>
+
+	<listitem> Edit and configure <filename>/etc/pam.d/xxx</filename>
+	entries. See instructions bellow</listitem>
+
+	<listitem>Use <application>pkcs11_inspect</application> and
+	<application>pklogin_finder</application> provided tools to see if
+	you can read certificate data and perform correct user
+	mapping</listitem>
+
+	<listitem>Try to log in. For instance, switch to a new tty
+	console</listitem>
+
 	</orderedlist>
     </listitem>
+
     <listitem>If things go wrong:
 	<itemizedlist>
-	<listitem> Ensure that pkcs11 library works properly. You can, for instance, try to use pkcs11 module as engine for <application>OpenSSL</application> or <application>Mozilla/Firefox</application></listitem>
-	<listitem> Re-check configuration</listitem>
-	<listitem> If mapping files are used, check it. There are some known problems
-on some certificates that uses obscure char encodings (non utf-8), that
-makes CN mappings fail</listitem>
+	<listitem> Ensure that the PKCS #11 library works properly. You can,
+	for instance, try to use the PKCS #11 module as an engine for
+	<application>OpenSSL</application> or
+	<application>Mozilla/Firefox</application></listitem>
+
+	<listitem> Re-check the configuration</listitem>
+
+	<listitem> If a mapping file is used, check it. There are some known
+	problems on some certificates that uses obscure character encodings
+	(non utf-8), that makes CN mappings fail</listitem>
+
 	</itemizedlist>
     </listitem>
 </orderedlist>
@@ -261,17 +288,18 @@ makes CN mappings fail</listitem>
 <para>
 <lineannotation>NOTES</lineannotation>
     <itemizedlist>
-	<listitem>To avoid locking the computer, it is recommended try to
+	<listitem>To avoid locking the computer, it is recommended to try to
 	configure only one non-critical service the first time (e.g.
-	/etc/pam.d/xscreensaver), and allow normal login on the other
-	services (/etc/pam.d/gdm).</listitem>
+	<filename>/etc/pam.d/xscreensaver</filename>), and allow normal
+	login on the other services
+	(<filename>/etc/pam.d/gdm</filename>).</listitem>
 
-	<listitem>PAM modules used for remote authentication (ie:
-	/etc/pam.d/sshd) cannot be used with pam-pkcs11: There is no local
-	SmartCard in the server!. To do remote logging, you should use a
-	sort of SingleSignOn service (kerberos, winbind, and so) and
-	authenticate against local (client) SmartCard. This is a job in
-	progress.</listitem>
+	<listitem>PAM modules used for remote authentication (e.g.
+	<filename>/etc/pam.d/sshd</filename>) cannot be used with
+	pam-pkcs11 since there is no local smart card on the server. To do
+	remote logging, you should use a kind of Single Sign On (SSO)
+	service (Kerberos, winbind, etc.) and authenticate against a local
+	(client) smart card.  This is a job in progress.</listitem>
 
     </itemizedlist>
 </para>
@@ -283,46 +311,57 @@ makes CN mappings fail</listitem>
 
 <para>
 Configuration of <application>pam-pkcs11</application> involves two steps:
-<itemizedlist>
+<orderedlist>
 <listitem>Configure pam-pkcs11</listitem>
 <listitem>Configure global PAM options</listitem>
-</itemizedlist>
+</orderedlist>
 </para>
+
 <para>
-This chapter explains pam-pkcs11 configuration-related issues. Next one
-relies on generic PAM options. You should read this manual and study
-provided configuration sample files before doing any change.
+This chapter explains pam-pkcs11 configuration-related issues. Next
+chapter deals with generic PAM options. You should read this manual and
+study the provided configuration sample files before doing any change.
 </para>
+
 <para>
 You must know:
 <itemizedlist>
-<listitem>Which pkcs11 module are you going to use, and its location path</listitem>
-<listitem>Which mapper(s) module(s) do you need, and if needed, how to create and edit related mapping files</listitem>
-<listitem>You'll also need the Certificate Authority files, and if required, the Certificate Revocation Lists ones</listitem>
+<listitem>Which PKCS #11 module you are going to use, and its
+filename</listitem>
+
+<listitem>Which mapper(s) module(s) you need, and if needed, how to
+create and edit related mapping files</listitem>
+
+<listitem>You'll also need the root Certificate Authority files, and if
+required, the Certificate Revocation Lists ones</listitem>
+
 <listitem>Of course, the list of authorized users to login, and their
-corresponding certificates :-). When a remote cert authentication is
-performed (e.g., via ldap, ADS or NSS), this information must reside, or
-be accessible in the server</listitem>
+corresponding certificates. When a remote certficate authentication is
+performed (e.g., via ldap, ADS or NSS), this information must reside on, or
+be accessible by the server</listitem>
+
 </itemizedlist>
 </para>
 
 <sect1>
 	<title>Setting up Configuration file</title>
+
 <para>
-Configuration file is based on the <application>scconf</application>
-library.
+The configuration file uses the <application>scconf</application> library.
 </para>
+
 <para>
-Parameters and data are grouped into blocks. Blocks can be nested in a sort
-of XML tree.
+Parameters and data are grouped into blocks. Blocks can be nested in a
+tree.
 </para>
+
 <para>
-pam-pkcs11 config file looks like:
+A pam-pkcs11 config file looks like:
 <screen>
 pam-pkcs11 {
 	global options
 	...
-	use_pkcs11_module= pkcs11 module to be used
+	use_pkcs11_module = pkcs11 module to be used
 
 	pkcs11_module module1 {
 		module1 specific options
@@ -334,7 +373,7 @@ pam-pkcs11 {
 
 	[...]
 
-	use_mappers= mapper1, mapper2,... ; 
+	use_mappers = mapper1, mapper2,... ; 
 
 	mapper mapper1 {
 		mapper1 specific options
@@ -348,63 +387,92 @@ pam-pkcs11 {
 	mapper mapperN {
 		mapperN specific options
 	}
-
 }
 </screen>
 </para>
+
 <para>
-For detailed description see
-<filename>pam_pkcs11.conf.example</filename> file.
+For detailed description see the
+<ulink
+url="http://www.opensc.org/pam_pkcs11/file/trunk/etc/pam_pkcs11.conf.example">pam_pkcs11.conf.example</ulink> file.
 </para>
+
 <para>
-Details on scconf syntax and API are provided in
-<filename>src/scconf/README.scconf</filename> file.
+Details on scconf syntax and API are provided in the
+<ulink
+url="http://www.opensc.org/pam_pkcs11/file/trunk/src/scconf/README.scconf">src/scconf/README.scconf</ulink>
+file.
 </para>
+
 </sect1>
 <sect1>
 	<title>Setting up CRL's and CA's lists</title>
 <para>
-	<application>PAM-pkcs11</application> needs a list of recognized
-	Certificate authorities, to properly validate certificates. Same
-	applies to Certificate Revocation Lists (if configured to use).
+
+<application>pam-pkcs11</application> needs a list of recognized
+Certificate Authorities, to properly validate user certificates. Same
+applies to Certificate Revocation Lists (if configured to be used).
 </para>
+
 <para>
 So the process to setup ca and crl entries is:
 <orderedlist>
 	<listitem> Create ca_dir and crl_dir directory entries, according to
-configuration file</listitem>
-	<listitem> Copy CA Certificates (either DER or PEM format) to ca_dir</listitem>
-	<listitem> Create hash links to CA certificates with provided <application>make_hash_link.sh</application>. Note that <application>OpenSSL</application> must be installed 
+	configuration file</listitem>
+
+	<listitem> Copy CA Certificates (either DER or PEM format) to
+	the ca_dir directory</listitem>
+
+	<listitem> Create hash links to CA certificates with provided
+	<application>make_hash_link.sh</application>. Note that
+	<application>OpenSSL</application> must be installed 
+
 <screen>
-<userinput>cd /path/to/ca/dir
+<userinput>cd /etc/pam_pkcs11/cacerts
 /usr/bin/make_hash_link.sh</userinput>
 </screen>
         </listitem>
-        <listitem> If CRL are used ("<option>crl_policy</option>" option in "<option>module</option>" is set to <emphasis>offline</emphasis> or <emphasis>auto</emphasis>), repeat above process with CRL dir and entries</listitem>
+
+		<listitem> If CRL are used ("<option>crl_policy</option>" option
+		in "<option>module</option>" is set to
+		<emphasis>offline</emphasis> or <emphasis>auto</emphasis>),
+		repeat the process described above using the CRL directory</listitem>
+
 </orderedlist>
 </para>
+
 <para>
 <lineannotation>NOTE:</lineannotation>
-Due to OpenSSL library limitations, CA entries must reside in the local file system, and cannot be accessed from a remote server. So although user auth can be done in a remote way, certificate validation must be done locally.
+Due to OpenSSL library limitations, CA entries must reside in the local
+file system, and cannot be accessed from a remote server. So although
+user auth can be done in a remote way, certificate validation must be
+done locally.
 </para>
+
 </sect1>
 
 <sect1>
 	<title>Create map files</title>
+
 <para>
-If your elected mapper module(s) uses login mapping, you'll need to create and setup mapping files. Some examples are provided in source code.
+If your selected mapper module(s) use(s) login mapping, you'll need to
+create and setup mapping files. Some examples are provided with the source
+code.
 </para>
+
 <para>
 As a general rule, a mapping file has a new line terminated list of 
 certificate contents -> login entries:
 <screen>
-Certificate1 entry data -> login1
+Certificate1 data -> login1
 Certificate2 data -> login2
 Certificate2 data -> login3
 </screen>
-<para>Remember that this file is parsed in order, returning on first
-match.</para>
 </para>
+
+<para>Remember that this file is parsed from the first line to the end,
+and returns on the first match.</para>
+
 <para>
 As you can see bellow, mapfile specification doesn't need to be
 a regular file: you can retrieve data from any legal URL. Anyway, data 
@@ -420,43 +488,45 @@ for additional info.
 <title>Configuring pam.d files</title>
 
 <para>
-To make use of the PKCS #11 login module replace the line
-<screen>
-auth	requisite	pam_unix2.so	...
-</screen>
-with
+To make use of the PKCS #11 login module add the line
 <screen>
 auth	sufficient	pam_pkcs11.so	...
 </screen>
-in the pam.d/serviceXXX configuration files.
+in the <filename>/etc/pam.d/serviceXXX</filename> configuration file.
 </para>
+
 <para>
 Some mappers doesn't map to an existing user. To allow correct login,
 you may need to install also pam-mkhomedir in session pam stack
 See  <ulink url="http://www.kernel.org/pub/linux/libs/pam"></ulink> for
 details.
 </para>
+
 <para>
-The following options are recognized for pam-pkcs11.so:
+The following options are recognized by
+<filename>pam-pkcs11.so</filename>:
 
 <varlistentry>
 <term><token>debug</token></term>
-<listitem>Enable debugging support. </listitem>
+<listitem>Enable debugging support.</listitem>
 </varlistentry>
 
 <varlistentry>
 <term><token>config_file</token></term>
-<listitem>
-To specify up configuration file (default <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename>)
+<listitem>To specify up configuration file (default
+<filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename>)
 </listitem>
 </varlistentry>
 </para>
+
 <para>
-Next options should be taken from configuration file, but is up to the
-user to specify them from command line. If so, it takes precedence over
-configuration file
+The next options should be taken from the configuration file (default
+<filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename>), but is up to the
+user to specify them in the command line. If so, it takes precedence
+over the configuration file.
+
 <varlistentry>
-<term><token> nullok</token></term>
+<term><token>nullok</token></term>
 <listitem>Allow empty passwords.</listitem>
 </varlistentry>
 
@@ -471,14 +541,14 @@ PAM_ items instead.
 
 <varlistentry>
 
-<term><token>try_first_pass  </token></term>
+<term><token>try_first_pass </token></term>
 <listitem>Do not prompt the user for the passwords unless PAM_(OLD)AUTHTOK 
 is unset.
 </listitem>
 </varlistentry>
 
 <varlistentry>
-<term><token> use_authtok</token></term>
+<term><token>use_authtok</token></term>
 <listitem>Like try_first_pass, but fail if the new PAM_AUTHTOK has not been 
 previously set (intended for stacking password modules only).
 </listitem>
@@ -486,13 +556,14 @@ previously set (intended for stacking password modules only).
 </para>
 
 <para>
-Next options are pkcs11 module specific:
+Next options are PKCS #11 module specific:
 </para>
 <varlistentry>
-<term><token>pkcs11_module=&lt;files&gt;</token></term>
+<term><token>pkcs11_module=&lt;file&gt;</token></term>
 <listitem>
 <para>
-Filename of the PKCS #11 module. The default value is <filename>/etc/pam_pkcs11/pkcs11_module.so</filename>
+Filename of the PKCS #11 module. The default value is
+<filename>/etc/pam_pkcs11/pkcs11_module.so</filename>
 </para>
 <para>
 Note that this option takes precedence over "module" entry
@@ -517,8 +588,9 @@ with an available token.
 <listitem>
 <para>
 Path to the directory where the CA certificates are stored. The 
-directory must contain an openssl hash-link to each certificate. 
-The default value is /etc/pam_pkcs11/cacerts.
+directory must contain an OpenSSL hash-link to each certificate. 
+The default value is <filename
+class='directory'>/etc/pam_pkcs11/cacerts/</filename>.
 </para>
 <para>
 Pam-pkcs11 provides a utility: <filename>make_hash_link.sh</filename>
@@ -531,41 +603,53 @@ used to check certification validity and revocation.
 <varlistentry>
 <term><token>crl_dir=&lt;path&gt;</token></term>
 <listitem>
+<para>
 Path to the directory where the CRLs are stored. The directory 
 must contain an openssl hash-link to each CRL. The default value 
-is <filename>/etc/pam_pkcs11/crls</filename>.
+is <filename class='directory'>/etc/pam_pkcs11/crls/</filename>.
+</para>
 </listitem>
 </varlistentry>
 
 <varlistentry>
 <term><token>crl_policy={none, online, offline, auto}</token></term>
 <listitem>
+<para>
 Sets the CRL verification policy:
     <itemizedlist> 
-    <listitem><token>none</token>: Performs no verification at all </listitem>
-    <listitem><token>online</token>: Downloads the CRL form the location given by the 
-CRL distribution point extension of the certificate</listitem>
-    <listitem><token>offline</token>: Uses the locally stored CRLs. </listitem>
-    <listitem><token>auto</token>: Is a combination of online and 
-offline: it first tries to download the CRL from a possibly
-given CRL distribution point and if this fails, uses the local
-CRLs. </listitem>
+	<listitem><token>none</token>: Performs no verification at all
+	</listitem>
+
+	<listitem><token>online</token>: Downloads the CRL from the location
+	given by the CRL distribution point extension of the
+	certificate</listitem>
+
+	<listitem><token>offline</token>: Uses the locally stored CRLs.
+	</listitem>
+
+	<listitem><token>auto</token>: Is a combination of online and
+	offline: it first tries to download the CRL from a possibly given
+	CRL distribution point and if this fails it uses the local CRLs.
+	</listitem>
+
     </itemizedlist>
 The default setting is <option>none</option>.
+</para>
 </listitem>
 </varlistentry>
 
 </sect1>
 
 <sect1>
-<title>Sample pam.d entries</title>
+<title>Sample pam.d/ entries</title>
 
 <para>
-Here comes preferred way to insert pam-pkcs11 into pam stack:
+Here is the normal way to use pam-pkcs11 into the pam stack. Only the
+first auth line is added. You configuration may be different depending
+on your Unix system.
 <screen>
-[jantonio@jonsy pam_pkcs11-0.4.1]$ cat /etc/pam.d/login
 #%PAM-1.0
-auth       sufficient    pam_pkcs11.so debug config_file=/etc/pam_pkcs11/pam_pkcs11.conf
+auth       sufficient   pam_pkcs11.so
 auth       required     pam_securetty.so
 auth       required     pam_stack.so service=system-auth
 auth       required     pam_nologin.so
@@ -575,15 +659,16 @@ session    required     pam_stack.so service=system-auth
 session    optional     pam_console.so
 </screen>
 </para>
+
 <para>
-An alternate way is to explicit options. This is not recommended, but still
-possible:
+An alternate way is to use explicit options. This is not recommended,
+but still possible:
 <screen>
 #%PAM-1.0
-auth	sufficient	pam_pkcs11.so	nullok debug try_first_pass \
-	config_file=/etc/pam_pkcs11/pam_pkcs11.conf \
-	pkcs11_module=/usr/lib/pkcs11/pkcs11_module.so \
-	ca_dir=/etc/cacerts/ crl_dir=/etc/cacerts/ crl_policy=auto
+auth       sufficient    pam_pkcs11.so	nullok debug try_first_pass \
+             config_file=/etc/pam_pkcs11/pam_pkcs11.conf \
+             pkcs11_module=/usr/lib/pkcs11/pkcs11_module.so \
+             ca_dir=/etc/cacerts/ crl_dir=/etc/cacerts/ crl_policy=auto
 auth       required     pam_securetty.so
 auth       required     pam_stack.so service=system-auth
 auth       required     pam_nologin.so
@@ -592,9 +677,10 @@ password   required     pam_stack.so service=system-auth
 session    required     pam_stack.so service=system-auth
 session    optional     pam_console.so
 </screen>
-In this second example, configuration file is still needed to get mapper module
-options and flags
+In this second example the configuration file is still needed to get
+the mapper module options and flags.
 </para>
+
 </sect1>
 </chapter>
 
@@ -603,58 +689,71 @@ options and flags
 
 <para>
 Starting at pam_pkcs11-0.4.2 a new feature is provided: pam-pkcs11 can
-deduce user name from certificate, without login prompt.
+deduce the username from the user certificate without using the login prompt.
 </para>
+
 <para>
-This is done when <function>pam_get_user()</function> call returns null or empty string.
-In this case, pam-pcks11 uses the module mapper "find" feature instead
-of normal "match".
+This is done when <function>pam_get_user()</function> call returns null
+or an empty string.  In this case, pam-pcks11 uses the module mapper "find"
+feature instead of normal "match".
 </para>
+
 <para>
-If the finder list returns ok, evaluated user is set to pam via
-<function>pam_set_item(PAM_USER)</function> call, and
+If the finder returns with success, the found username is set to PAM
+using <function>pam_set_item(PAM_USER)</function> call, and
 <emphasis>PAM_AUTH_OK</emphasis> is returned.
 </para>
+
 <para>
-So there are no longer need to enter login name if a certificate is
+So it is no longer needed to enter the login name if a certificate is
 provided and can be mapped to a user.
 </para>
+
 <para>
 There are to ways for using this feature:
     <orderedlist numeration="loweralpha">
-    <listitem> Patch "gdm" and "login" programs to detect card presence and return
-null as user name, without prompt for an user login.
-This is a work to be done :-(</listitem>
+	<listitem> Patch "gdm" and "login" programs to detect card presence
+	and return null as user name, without prompt for an user login.
+	This is a work to be done :-(</listitem>
 
     <listitem> Use unpatched versions, and do the following procedures:
         <orderedlist numeration="arabic">
-        <listitem>When login from console, just enter " " (space) + Enter. </listitem>
-        <listitem>When login from gdm, just key Enter at login prompt. </listitem>
+		<listitem>When login from console, just enter " " (space) +
+		Enter. </listitem>
+
+		<listitem>When login from gdm, just key Enter at login prompt.
+		</listitem>
+
         </orderedlist>
     </listitem>
     </orderedlist>
 </para>
+
 <para>
 In both cases the procedure follows as:
 <orderedlist>
-<listitem> If a card is not present, "login" will ask for password then fail; 
-"gdm" will prompt again for user login</listitem>
-<listitem> If a card is present, pam-pkcs11 will ask for PIN, and then invoke
-finder in module mapper list. When a user is found, this user become
-the logged user</listitem>
+<listitem>If a card is not present, "login" will ask for a password and
+then fail; "gdm" will prompt again for a user login</listitem>
+
+<listitem>If a card is present, pam-pkcs11 will ask for the PIN, and then
+invoke finder in module mapper list. When a user is found, this user
+become the logged user</listitem>
+
 </orderedlist>
 </para>
+
 <para>
-This feature can be used with pam-mkhomedir.so PAM Session module.
+This feature can be used with pam-mkhomedir.so PAM session module.
 In this case, you can create on-the-fly accounts. This scenario is
-ideal for centralized auth services (Winbind, ldap, kerberos, RDBMS
+ideal for centralized auth services (Winbind, ldap, Kerberos, RDBMS
 auth...).
 </para>
+
 <para>
-As example, here comes my tested /etc/pam.d/gdm file:
+As example, here comes my tested <filename>/etc/pam.d/gdm</filename> file:
 <screen>
 #%PAM-1.0
-auth       sufficient    pam_pkcs11.so debug config_file=/etc/pam_pkcs11/pam_pkcs11.conf
+auth       sufficient   pam_pkcs11.so debug config_file=/etc/pam_pkcs11/pam_pkcs11.conf
 auth       required     pam_env.so
 auth       required     pam_stack.so service=system-auth
 auth       required     pam_nologin.so
@@ -665,19 +764,21 @@ session    optional     pam_mkhomedir.so skel=/etc/skel umask=0022
 session    optional     pam_console.so
 </screen>
 </para>
+
 <para>
 <lineannotation>IMPORTANT NOTES:</lineannotation>
 For <function>pam_set_item(PAM_USER)</function> to succeed, 
-the application using pam must have enough permissions. If this condition 
+the application using PAM must have enough permissions. If this condition 
 is not met, setting user process will fail and proper log message registered. 
 So this feature is mainly provided for logging processes running as
 <keysym>root</keysym>.
 </para>
+
 <para>
-Improper mapper chain' configurations with unauthorized certificates can lead in
-create fake accounts in the system if pam_mkhomedir.so module is used. 
-So be really careful when authenticate users directly from
-certificates.
+Improper mapper chain' configurations with unauthorized certificates can
+lead to the creation of fake accounts in the system if pam_mkhomedir.so
+module is used.  So be really careful when authenticate users directly
+from certificates.
 </para>
 
 
@@ -687,16 +788,17 @@ certificates.
 
 <para>
 <application>PAM-PKCS11</application> includes several tools:
-<productname>card_eventmgr</productname> and
-<productname>pkcs11_eventmgr</productname> that can be used to
-monitor the status of the card reader and dispatch actions on several
-events. These programs can be used to several actions, like lock screen
-on card removal.
+<application>card_eventmgr</application> and
+<application>pkcs11_eventmgr</application> that can be used to monitor
+the status of the card reader and dispatch actions on several events.
+These programs can be used to several actions, like lock screen on card
+removal.
 </para>
+
 <para>
 Note that these programs have no direct interaction with pam-pkcs11 module: 
-they are just card status monitors. It's up to the sysadmin to define
-and configure actions to take on events.
+they are just card status monitors. It is the system administrator job
+to define and configure actions to take on events.
 </para> 
 
 <sect1>
@@ -706,15 +808,27 @@ and configure actions to take on events.
 <application>card_eventmgr</application> is a card status monitor based
 on the PCSC-Lite library.
 </para>
+
 <para>
 To invoke the program, just type <userinput>card_eventmgr</userinput>.
-Several command lines are recognized:
+Several command lines options are recognized:
 <itemizedlist>
 
-<listitem><option> debug</option> to enable debugging. Defaults to unset</listitem>
-<listitem><option> daemon</option> to run as daemon. If debug is unset, also detach from tty. Default to unset</listitem>
-<listitem><option> timeout=&lt;msecs&gt;</option> time in milliseconds between two consecutive status poll. Defaults to 1000 (1 second)</listitem>
-<listitem><option> config_file=&lt;file&gt; </option>configuration file to use. Defaults to <filename>/etc/pam_pkcs11/card_eventmgr.conf</filename></listitem>
+<listitem><option>debug</option> to enable debugging. Default is no
+debug</listitem>
+
+<listitem><option>daemon</option> to run as a daemon in the background.
+If debug is unset, also detach from tty. Default is to run in the
+foreground</listitem>
+
+<listitem><option>timeout=&lt;msecs&gt;</option> time in milliseconds
+between two consecutive status poll. Defaults is 1000 (1
+second)</listitem>
+
+<listitem><option>config_file=&lt;file&gt; </option>configuration file
+to use. Default is
+<filename>/etc/pam_pkcs11/card_eventmgr.conf</filename></listitem>
+
 </itemizedlist>
 </para>
 
@@ -777,7 +891,7 @@ milliseconds</listitem>
 	<listitem><option> polling_time=&lt;secs&gt;</option> time in seconds between two consecutive status poll. Defaults to 1 second</listitem>
 	<listitem><option> expire_time=&lt;secs&gt;</option> time in secondss on card removed to trigger "expire_time" event. Default to 0 (no expire)</listitem>
 	<listitem><option> config_file=&lt;file&gt; </option>configuration file to use. Defaults to <filename>/etc/pam_pkcs11/card_eventmgr.conf</filename></listitem>
-	<listitem><option> pkcs11_module=&lt;file&gt; </option>pkcs#11
+	<listitem><option> pkcs11_module=&lt;file&gt; </option>PKCS #11
 	dynamic library to use. Defaults to <filename>/usr/lib/pkcs11/opensc-pkcs11.so</filename></listitem>
 	</itemizedlist>
 </listitem>
@@ -900,7 +1014,8 @@ access granted the screen will unlock
 <orderedlist>
 <listitem>Starting pam_pkcs11-0.4.4, <application>card_eventmgr</application> tool is no longer supported by pam-pkcs11, and may be removed in newer versions on the package. Users are encouraged to upgrade to<application> pkcs11_eventmgr</application>. This is done to avoid dependencies on low level card management routines</listitem>
 <listitem>
-Some PKCS#11 implementations do not properly support <function> C_WaitForSlotEvent()</function> function as defined in pkcs11v2.1 API. So current <application>pkcs11_eventmgr</application> doesn't use it at all, just sleep+rescan tokens. This is a time-consuming behavior, and may change in future versions of the tool
+Some PKCS#11 implementations do not properly support <function>
+C_WaitForSlotEvent()</function> function as defined in PKCS #11 v2.1 API. So current <application>pkcs11_eventmgr</application> doesn't use it at all, just sleep+rescan tokens. This is a time-consuming behavior, and may change in future versions of the tool
 </listitem>
 </orderedlist>
 </para>
@@ -951,7 +1066,7 @@ Starting at version 0.5 a new tool
 <application>pkcs11_inspect</application> is provided.
 </para>
 <para>
-<application>pkcs11_inspect</application> is a pkcs#11 based tool to explore certificate contents.
+<application>pkcs11_inspect</application> is a PKCS #11 based tool to explore certificate contents.
 It's similar to <application>pklogin_finder</application>, but no mapping is done at all: just
 load mappers chains, and in turn, try to get proper data from
 certificate (ie: cn_mapper looks for CN entries, and so).
