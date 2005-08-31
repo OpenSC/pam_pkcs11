@@ -63,12 +63,12 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 	blk=blocks[0]; /* should only be one */
 	free(blocks);
 	if (!blk) {
-		DBG1("mapper entry '%s' not found",name);
-		return NULL;
+	    DBG1("Mapper entry '%s' not found. Assume static module with default values",name);
+	} else {
+	    /* compose module path */
+ 	    libname = scconf_get_str(blk, "module", NULL);
 	}
-	/* compose module path */
-	libname = scconf_get_str(blk, "module", NULL);
-	if ( (!libname) || (!strcmp(libname,"internal")) ) {
+	if ( (!blk) || (!libname) || (!strcmp(libname,"internal")) ) {
 	    int n;
 	    DBG1("Loading static module for mapper '%s'",name);
 	    libname = NULL;
@@ -91,7 +91,7 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 		DBG1("Static mapper '%s' not found",name);
 		return NULL;
 	    }
-	} else { /* assume dynamic module */
+	} else if (blk) { /* assume dynamic module */
 	    DBG1("Loading dynamic module for mapper '%s'",name);
 	    handler= dlopen(libname,RTLD_NOW);
 	    if (!handler) {
