@@ -40,6 +40,7 @@
 typedef struct mapper_module_st {
 	const char *name; /* mapper name */
 	scconf_block *block; /* mapper configuration block */
+    int  dbg_level; /* debug level to set before call entry points */
     void *context; 		/* pointer to mapper local data */
     char **(*entries)(X509 *x509, void *context); /* cert. entries enumerator */
     char *(*finder)(X509 *x509, void *context); /* cert. login finder */

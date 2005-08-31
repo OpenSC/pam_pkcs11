@@ -49,9 +49,10 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 	const scconf_block *root;
 	scconf_block **blocks, *blk;
 	struct mapper_instance *mymodule;
-	const char *libname = NULL;
 	void *handler;
 	mapper_module * (*mapper_init)(scconf_block *blk, const char *mapper_name);
+	int old_level=get_debug_level();
+	const char *libname = NULL;
 	mapper_module * res = NULL;
 
 	/* get module info */
@@ -82,6 +83,9 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 		    DBG1("Static mapper %s init failed",name);
 		    return NULL;
 	        }
+		/* save dbg level of mapper and restore previous one */
+		res->dbg_level=get_debug_level();
+		set_debug_level(old_level);
 	    } 
 	    if ( !mapper_init ) {
 		DBG1("Static mapper '%s' not found",name);
@@ -107,6 +111,9 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 		dlclose(handler);
 		return NULL;
 	    }
+	    /* save dbg level of mapper and restore previous one */
+	    res->dbg_level=get_debug_level();
+	    set_debug_level(old_level);
 	}
 	/* allocate data */
 	mymodule = malloc (sizeof(struct mapper_instance));
@@ -128,8 +135,12 @@ void unload_module( struct mapper_instance *module ) {
 		return;
 	}
 	DBG1("calling mapper_module_end() %s",module->module_name);
-	if ( module->module_data->deinit )
+	if ( module->module_data->deinit ) {
+		int old_level= get_debug_level();
+		set_debug_level(module->module_data->dbg_level);
 		(*module->module_data->deinit)(module->module_data->context);
+		set_debug_level(old_level);
+	}
 	if (module->module_handler) { 
 		DBG1("unloading module %s",module->module_name);
 		dlclose(module->module_handler);
@@ -214,6 +225,7 @@ void unload_mappers(void) {
 }
 
 void inspect_certificate(X509 *x509) {
+	int old_level=get_debug_level();
 	struct mapper_listitem *item = root_mapper_list;
 	if (!x509) return;
 	while (item) {
@@ -224,7 +236,9 @@ void inspect_certificate(X509 *x509) {
 	        item=item->next;
 		continue;
 	    }
+	    set_debug_level(item->module->module_data->dbg_level);
 	    data = (*item->module->module_data->entries)(x509,item->module->module_data->context);
+	    set_debug_level(old_level);
 	    if (!data) {
 	    	DBG1("Cannot find cert data for mapper %s",item->module->module_name);
 	        item=item->next;
@@ -243,6 +257,7 @@ void inspect_certificate(X509 *x509) {
 * provided certificate
 */
 char * find_user(X509 *x509) {
+	int old_level= get_debug_level();
 	struct mapper_listitem *item = root_mapper_list;
 	if (!x509) return NULL;
 	while (item) {
@@ -250,7 +265,9 @@ char * find_user(X509 *x509) {
 	    if(! item->module->module_data->finder) {
 	    	DBG1("Mapper '%s' has no find() function",item->module->module_name);
 	    } else {
+		set_debug_level(item->module->module_data->dbg_level);
 	        login = (*item->module->module_data->finder)(x509,item->module->module_data->context);
+		set_debug_level(old_level);
 	        if (login) return login;
 	    }
 	    item=item->next;
@@ -267,6 +284,7 @@ char * find_user(X509 *x509) {
 *         -1 on error
 */
 int match_user(X509 *x509, const char *login) {
+	int old_level= get_debug_level();
 	struct mapper_listitem *item = root_mapper_list;
 	if (!x509) return -1;
 	/* if no login provided, call  */
@@ -276,7 +294,9 @@ int match_user(X509 *x509, const char *login) {
 	    if (!item->module->module_data->matcher) {
 	    	DBG1("Mapper '%s' has no match() function",item->module->module_name);
 	    } else {
+		set_debug_level(item->module->module_data->dbg_level);
 	        res = (*item->module->module_data->matcher)(x509,login,item->module->module_data->context);
+		set_debug_level(old_level);
 	        DBG2("Mapper module %s match() returns %d",item->module->module_name,res);
 	    }
 	    if (res>0) return res;
