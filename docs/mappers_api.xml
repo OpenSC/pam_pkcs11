@@ -406,6 +406,7 @@ static void init_mapper_st(
 	pt->name = name;
 	pt->block = blk;
 	pt->context = NULL;
+	pt->dbg_level = get_debug_level();
 	pt->entries = mapper_find_entries;
 	pt->finder = mapper_find_user;
 	pt->matcher = mapper_match_user;
@@ -427,13 +428,17 @@ mapper_module * foo_mapper_module_init(scconf_block *blk,const char *mapper_name
 
 	/* Read configuration */
 	if(blk) {
-		debug= scconf_get_bool(blk,"debug",0);
-		mapfile= scconf_get_str(blk,"mapfile",mapfile);
-		ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
+	    debug= scconf_get_bool(blk,"debug",0);
+	    mapfile= scconf_get_str(blk,"mapfile",mapfile);
+	    ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
+	    set_debug_level(debug);
+	} else {
+	    set_debug_level(debug);
+	    DBG1("No configuration entry for mapper '%s'. Assume defaults",mapper_name);
 	}
+
 	/* set up internal variables */
 
-	set_debug_level(debug);
 
 	/* initialize function entry points */
 	pt = init_mapper_st(pt,blk,mapper_name);
@@ -593,6 +598,7 @@ typedef struct mapper_module_st {
     const char *name; 
     scconf_block *block;
     void *context;
+    int dbg_level;
     char **(*entries)(X509 *x509, void *context);
     char *(*finder)(X509 *x509, void *context);
     int (*matcher)(X509 *x509, const char *login, void *context);
@@ -610,6 +616,7 @@ Here comes the meaning of each entry:
 <listitem><function>finder()</function> is the entry point to the mapper login finder method</listitem>
 <listitem><function>matcher()</function> is the entry point to the mapper login matcher method </listitem>
 <listitem><function>entries()</function> is called when the mapper module is to be removed from mapper chain</listitem>
+<listitem><option>dbg_level</option> stores the debugging level to be used when calling any function inside the mapper. Note that the programmer doesn't need to take care on this field: when mapper_module_init() successfully returns, the module loader assumes that returning debug level is the one selected for the mapper, and store it in this field</listitem> 
 </itemizedlist>
 Note that <option>context</option> pointer is passed as <function>void *</function> as there are no way to know how the programmer will use it
 </para>
@@ -652,6 +659,31 @@ They cannot contain any global variable, as consecutive init call will overwrite
 </para>
 </sect1>
 
+<sect1>
+<title> Configuration entries on static mappers </title>
+
+<para>
+As stated above, to specify that a mapper is not to be dynamically linked, we should remove the keyword "<option>module</option>", or set it to "<option>module = internal ;</option>"
+</para>
+<para>
+Most of statically linked mappers share common configuration options:
+<itemizedlist>
+<listitem><option>module</option> Must be set to <option>internal</option></listitem>
+<listitem><option>debug</option> The debug level. Defaults to <option>false</option></listitem>
+<listitem><option>ignorecase</option> Ignore letter case on matching functions. Defaults to <option>false</option></listitem>
+<listitem><option>mapfile</option> Mapping file to be used. Defaults to <option>"none"</option></listitem>
+</itemizedlist>
+</para>
+<para>
+So if up to the system administrator, if agreed with default values, to ommit in the configuration file <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename> the mapper entry for this module. The module loader will look for proper mapper entry. If not found, assume that the module is static, and will try to load it and set up with default values. This behaviour is coded in the provided sample skeleton file for coding mappers
+</para>
+<para>
+Above note does not apply, of course, to dynamically loaded mappers, as they allways need at least the "<option>module</option>" entry to be specified
+</para>
+<para>
+See PAM-PKCS#11 Manual to see specific notes on provided mappers
+</para>
+</sect1>
 
 </chapter>
 
@@ -711,16 +743,65 @@ The API defines following functions:
 <listitem><function>int mapfile_match(const char *file,char *key,const char *value,int ignorecase);</function> To test if any entry on mapfile matches key/value pair</listitem>
 </itemizedlist>
 </para>
+
+<para>
+<lineannotation>NOTE:</lineannotation>
+The returned "<option>key</option>" and "<option>value</option>" entries should be used as <function>const char *</function>, that is, contents cannot be modified nor free()'d. If the programmer needs to modify these values, please make a copy with the <function>clone_str()</function> API provided function
+</para>
+
 </sect1>
 
 <sect1>
 <title> Configuration parsing API</title>
-
+<para>
+<application>PAM-PKCS#11</application> configuration files are based in the SCConf library of the <application>OpenSC</application> Project. See the file <filename>src/scconf/README.scconf</filename> for a detailed description of the <application>scconf</application>
+</para>
+<para>
+As a resume, bellow are shown the most relevants scconf API functions for the mapper programmer:
+<itemizedlist>
+<listitem><function>const char *scconf_get_str(const scconf_block * block, const char *option, const char *default); </function> To retrieve the string value assigned to keyword <option>option</option> or return <option>default</option> if keyword not found</listitem>
+<listitem><function>int scconf_get_int(const scconf_block * block, const char *option, int default); </function> To retrieve the integer value assigned to keyword <option>option</option> or return <option>default</option> if keyword not found</listitem>
+<listitem><function>int scconf_get_bool(const scconf_block * block, const char *option, int default); </function> To retrieve the boolean value assigned to keyword <option>option</option> or return <option>default</option> if keyword not found</listitem>
+</itemizedlist>
+</para>
+<para>
+With these functions, we can easily parse all "<option>key = value;</option>" entries on the mapper configuration block of the configuration file
+</para>
+<para>
+<lineannotation>NOTE:</lineannotation>
+The user should not modify nor free() values returned from <function>scconf_get_str()</function>. Instead, call <function>clone_str()</function> API method to get a working copy
+</para>
 </sect1>
 
 <sect1>
 <title> String tools API</title>
 
+<para>
+The <filename>string.h</filename> standard library is so powerfull. But lacks on some usefull routines. The file <filename>src/common/strings.c</filename> contains some of them, as declared at <filename>src/common/strings.h</filename>
+</para>
+<para>
+<itemizedlist>
+<listitem><function> int is_empty_str(const char *str);</function> Returns true if <option>str</option> is null, empty, or has only spaces</listitem>
+<listitem><function> char *clone_str(const char *str);</function> Returns a duplicate of provided string </listitem>
+<listitem><function> char *toupper_str(const char *str);</function> Same as above, but string is upper-case'd</listitem>
+<listitem><function> char *tolower_str(const char *str);</function> Same as above, but string is lower-case'd</listitem>
+<listitem><function> char *bin2hex(const unsigned char *binstr,const int len);</function> Return a string that contains the hexadecimal representation of the provided binary array of given length. Returned format is :XX:YY:ZZ:...:</listitem>
+<listitem><function> unsigned char *hex2bin(const char *hexstr);</function> Convert a colon-separated hexadecimal string into a binary array</listitem>
+<listitem><function> unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size);</function> Same as above, but programmer supplies pre-allocated memory space for conversion</listitem>
+<listitem><function> char **split(const char *str,char sep, int nelems);</function> Splits provided string in an string array of nelems elements, using sep as character separator</listitem>
+<listitem><function> char **split_static(const char *str,char sep, int nelems,char *dst);</function> Same as above, but user provides pre-allocated buffer for storeing result</listitem>
+<listitem><function> char *trim(const char *str);</function> Return an string that has all superfluous spaces trimmed. Also converts any space char ( newline, tabs, etc ) in normal " " space character</listitem>
+</itemizedlist>
+</para>
+<para>
+A note on <function>split(), and split_static()</function> functions. To free allocated resources, is enought to call <function>free()</function> on the first element of the array
+</para>
+<para>
+Note that <function>trim()</function> function behaviour is different from Java or PHP counterparts, as remove ALL extra spaces, not only at the begining and at the end of string
+</para>
+<para>
+See the code for further reference :-)
+</para>
 </sect1>
 
 <sect1>
