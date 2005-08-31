@@ -1,9 +1,9 @@
 card_eventmgr {
 
-	# Run in background. Implies debug=false
+	# Run in background? Implies debug=false if set to true
 	daemon = true;
 
-	# show debug messages
+	# show debug messages?
 	debug = false;
 	
 	# polling time in milliseconds
