@@ -143,7 +143,7 @@ static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
 #ifndef PWENT_MAPPER_STATIC
 mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
-mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * pwent_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
 	mapper_module *pt;
 	if (blk) {

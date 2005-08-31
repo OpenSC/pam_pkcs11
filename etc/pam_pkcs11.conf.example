@@ -136,7 +136,8 @@ pam_pkcs11 {
   mapper pwent {
 	debug = false;
 	ignorecase = false;
-	module = /usr/lib/pam_pkcs11/pwent_mapper.so;
+	module = internal;
+	# module = /usr/lib/pam_pkcs11/pwent_mapper.so;
   }
 
   # Null ( no map ) mapper. when user as finder matchs to NULL or "nobody"
@@ -161,7 +162,8 @@ pam_pkcs11 {
   # Assume common name (CN) to be the login
   mapper cn {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/cn_mapper.so;
+	module = internal;
+	# module = /usr/lib/pam_pkcs11/cn_mapper.so;
 	ignorecase = true;
 	# mapfile = file:///etc/pam_pkcs11/cn_map;
 	mapfile = "none";
@@ -170,7 +172,8 @@ pam_pkcs11 {
   # mail -  Compare email field from certificate
   mapper mail {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/mail_mapper.so;
+	module = internal;
+	# module = /usr/lib/pam_pkcs11/mail_mapper.so;
 	# Declare mapfile or
 	# leave empty "" or "none" to use no map 
 	mapfile = file:///etc/pam_pkcs11/mail_mapping;
@@ -186,7 +189,8 @@ pam_pkcs11 {
   # check domain name.
   mapper ms {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/ms_mapper.so;
+	module = internal;
+	# module = /usr/lib/pam_pkcs11/ms_mapper.so;
 	ignorecase = false;
 	ignoredomain = false;
 	domain = "domain.com";
@@ -195,7 +199,8 @@ pam_pkcs11 {
   # krb  - Compare againts Kerberos Principal Name
   mapper krb {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/krb_mapper.so;
+	module = internal;
+	# module = /usr/lib/pam_pkcs11/krb_mapper.so;
 	ignorecase = false;
 	mapfile = "none";
   }
@@ -203,7 +208,8 @@ pam_pkcs11 {
   # uid  - Maps Subject Unique Identifier field (if exist) to login
   mapper uid {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/uid_mapper.so;
+	module = internal;
+	# module = /usr/lib/pam_pkcs11/uid_mapper.so;
 	ignorecase = false;
 	mapfile = "none";
   }
@@ -211,7 +217,8 @@ pam_pkcs11 {
   # digest - elaborate certificate digest and map it into a file
   mapper digest {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/digest_mapper.so;
+	module = internal;
+	# module = /usr/lib/pam_pkcs11/digest_mapper.so;
 	# algorithm used to evaluate certificate digest
         # Select one of:
 	# "null","md2","md4","md5","sha","sha1","dss","dss1","ripemd160"

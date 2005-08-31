@@ -57,6 +57,7 @@ static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
 }
 
 #ifndef LDAP_MAPPER_STATIC
+/* TODO: write code */
 _DEFAULT_MAPPER_INIT
 #else
 int ldap_mapper_module_init(scconf_block *blk,const char *name) {
