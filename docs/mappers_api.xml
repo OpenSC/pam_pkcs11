@@ -398,11 +398,12 @@ static void mapper_module_end(void, void *context) {
 /*
 * initialize entry points
 */
-static void init_mapper_st(
-	mapper_module *pt, /* pointer to exported entry points */
+static mapper_module * init_mapper_st(
 	scconf_block *blk, /* pointer to configuration block */
 	const char *name   /* mapper name */
 	) {
+	mapper_module *pt=malloc(sizeof(mapper_module));
+	if (!pt) return NULL;
 	pt->name = name;
 	pt->block = blk;
 	pt->context = NULL;
@@ -411,6 +412,7 @@ static void init_mapper_st(
 	pt->finder = mapper_find_user;
 	pt->matcher = mapper_match_user;
 	pt->mapper_module_end = mapper_module_end;
+	return pt;
 }
 
 /**
@@ -423,8 +425,7 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
 mapper_module * foo_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
-	mapper_module *pt= malloc( sizeof(mapper_module) );
-	if (!pt) return NULL;
+	mapper_module *pt;
 
 	/* Read configuration */
 	if(blk) {
