@@ -10,3 +10,4 @@ noinst_LTLIBRARIES = libcommon.la
 libcommon_la_SOURCES = cert_vfy.c cert_info.c \
 		debug.c error.c uri.c strings.c \
 		pkcs11.c
+libcommon_la_LIBADD = @OPENSSL_LIBS@
