@@ -31,15 +31,15 @@ pkcs11_eventmgr {
 
 		# You can enter several, comma-separated action entries
 		# they will be executed in turn
-		action = "/usr/bin/play /usr/share/sounds/warning.wav",
-			"/usr/X11R6/bin/xscreensaver-command -deactivate";
+		action = "play /usr/share/sounds/warning.wav",
+			"xscreensaver-command -deactivate";
 	}
 
 	# Card has been removed
 	event card_remove { 
 		on_error = ignore;
-		action = "/usr/bin/play /usr/share/sounds/error.wav",
-			"/usr/X11R6/bin/xscreensaver-command -lock";
+		action = "play /usr/share/sounds/error.wav",
+			"xscreensaver-command -lock";
 	}
 
 	# Too much time card removed
