@@ -1425,7 +1425,7 @@ Operations (*) and (**) are the reason for cert-mappers to exist.
 <title>Implementation of cert mappers in pam-pkcs11</title>
 
 <para>
-<application>pam-pkcs11</application> implements cert mapper in form of dynamic loaded modules.
+<application>pam-pkcs11</application> implements cert mapper in form of dynamic loaded modules. Aditionally, most of simplest mappers doesn't need to be dynloaded, as they are already statically linked with <application>pam-pkcs11</application>
 You can add as many modules as desired, and the system will try all
 of them in turn, until match is done, or end of list get reached.
 </para>
@@ -1439,7 +1439,10 @@ pam-pkcs11 {
     ....
     mapper mapper1 {
 	debug = false;
+	# When the mapper module is to be dynamically loaded, specify path
 	module = /path/to/module.so;
+	# When the mapper module is statically linked set to "internal"
+	# module = internal;
 	[ additional mapper dependent options ]
     }
     ....
@@ -1545,12 +1548,16 @@ Configuration entry is as follow:
   # Common Name (CN) to login mapper
   mapper cn {
         debug = false;
-        module = /usr/lib/pam_pkcs11/cn_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/cn_mapper.so;
 	# mapfile = "file:///etc/pam_pkcs11/cn_mapfile;
 	ignorecase = false;
 	mapfile = "none"
   }
 </screen>
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 
@@ -1574,7 +1581,8 @@ Configuration file is like:
  # Certificate Subject to login mapper
   mapper file {
         debug = false;
-        module = /usr/lib/pam_pkcs11/subject_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/subject_mapper.so;
 	ignorecase = true;
 	# mapfile = file:///etc/pam_pkcs11/subject_map;
         mapfile = "none";
@@ -1592,6 +1600,9 @@ Note that some certificates handle strange char mappings (non utf-8)
 so you must ensure correct byte-to-byte match. You can use provided
 <application>pkcs11_inspect</application> tool
 to get and store correct data from certificate
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 
@@ -1622,9 +1633,13 @@ pw_mapper configuration file shows like:
   mapper pw {
         debug = true;
         ignorecase = false;
-        module = /usr/lib/pam_pkcs11/pw_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/pw_mapper.so;
   }
 </screen>
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 
@@ -1721,7 +1736,8 @@ Configuration file entry looks like:
 <screen>
   mapper mail {
         debug = false;
-        module = /usr/lib/pam_pkcs11/mail_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/mail_mapper.so;
         # MapFile to use
         mapfile = file:///etc/pam_pkcs11/mail_mapping;
         # Some certs store email in uppercase. Take care on this
@@ -1730,6 +1746,9 @@ Configuration file entry looks like:
         ignoredomain = false;
   }
 </screen>
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 
@@ -1754,12 +1773,16 @@ Configuration file entry looks like:
 <screen>
   mapper ms {
         debug = false;
-        module = /usr/lib/pam_pkcs11/ms_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/ms_mapper.so;
         ignorecase = false;
         ignoredomain = false;
 	domainname = "domain.com";
   }
 </screen>
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 
@@ -1782,11 +1805,15 @@ Configuration entry:
 <screen>
   mapper krb {
         debug = false;
-        module = /usr/lib/pam_pkcs11/krb_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/krb_mapper.so;
 	ignorecase = false;
 	mapfile = "none";
   }
 </screen>
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 
@@ -1804,11 +1831,15 @@ Configuration entry:
 <screen>
   mapper uid {
         debug = false;
-        module = /usr/lib/pam_pkcs11/uid_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/uid_mapper.so;
 	ignorecase = false;
 	mapfile = "none";
   }
 </screen>
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 
@@ -1829,7 +1860,8 @@ Configuration entry:
 <screen>
   mapper digest {
         debug = false;
-        module = /usr/lib/pam_pkcs11/digest_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/digest_mapper.so;
 	# Algorithm used to evaluate certificate digest
         # Select one of:
         # "null","md2","md4","md5","sha","sha1","dss","dss1","ripemd160"
@@ -1837,6 +1869,9 @@ Configuration entry:
         mapfile = file:///etc/pam_pkcs11/digest_map;
   }
 </screen>
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 
@@ -1886,7 +1921,8 @@ generic_mapper configuration file shows like:
 <screen>
   mapper generic {
         debug = true;
-        module = /usr/lib/pam_pkcs11/generic_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/generic_mapper.so;
 	# ignore letter case on match/compare
         ignorecase = false;
 	# Use one of "cn" , "subject" , "kpn" , "email" , "upn" or "uid"
@@ -1903,6 +1939,9 @@ generic_mapper configuration file shows like:
 </para>
 <para>
 As for every other mappers, <application>pklogin_finder</application> tool, doesn't perform the entire process, just returns certificate contents.
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 
@@ -1931,13 +1970,21 @@ Configuration entry:
 <screen>
   mapper null {
         debug = false;
-        module = /usr/lib/pam_pkcs11/null_mapper.so;
+	module = internal;
+        # module = /usr/lib/pam_pkcs11/null_mapper.so;
         # select behaviour: always match, or always fail
         default_match = false;
 	# on match, select returned user
 	default_user = nobody;
   }
 </screen>
+</para>
+<para>
+<lineannotation>NOTE:</lineannotation>
+This mapper should be the last one in the mapper chain, as it allways return valid -althought senseless- data
+</para>
+<para>
+Starting <application>pam-pkcs11-0.5.3</application> this module is now statically linked, so no need to provide library pathname
 </para>
 </sect2>
 </sect1>
@@ -1946,20 +1993,13 @@ Configuration entry:
 <title>Adding new mappers</title>
 
 <para>
-Creating new mappers is easy: just study <filename>mapper.h</filename> file, provide
-a file that exports required functions, and modify file
-<filename>src/mappers/Makefile.am</filename>.
+Creating new mappers is easy: just retrieve and study the 
+<ulink url="mappers_api.html">PAM-PKCS#11 Mapper API reference Manual</ulink>
 </para>
 <para>
-Mapper.h provides default implementation for required exports. They 
-should be overridden by user code, but can be used for testing purposes.
+You'll find there sample code, compiling instructions, and a complete list
+of provided library calls
 </para>
-<para>
-You can start by using provided
-<filename>src/mappers/null_mapper.c</filename> skeleton file. Just
-rename, edit, set Makefile.am properly, and recompile.
-</para>
-
 </sect1>
 </chapter>
 
