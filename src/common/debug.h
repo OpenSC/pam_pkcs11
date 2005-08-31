@@ -30,6 +30,7 @@
 #define DBG2
 #define DBG3
 #define DBG4
+#define DBG5
 #define set_debug_level(l, ...) {}
 #define debug(l, ...) {}
 
