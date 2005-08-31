@@ -230,11 +230,9 @@ void inspect_certificate(X509 *x509) {
 	        item=item->next;
 		continue;
 	    } 
-	    DBG1("Printing data for mapper %s",item->module->module_name);
-	    for (str=*data; str; str=*++data) {
-		    DBG1("Data: '%s'",str);
+	    printf("Printing data for mapper %s: ",item->module->module_name);
+	    for (str=*data; str; str=*++data)
 		    fprintf(stdout,"%s\n",str);
-            }
 	    item=item->next;
 	}
 }
