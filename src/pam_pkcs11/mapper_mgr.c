@@ -52,7 +52,7 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 	const char *libname = NULL;
 	void *handler;
 	mapper_module * (*mapper_init)(scconf_block *blk, const char *mapper_name);
-	mapper_module * res;
+	mapper_module * res = NULL;
 
 	/* get module info */
 	root = scconf_find_block(ctx,NULL,"pam_pkcs11");
