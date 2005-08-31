@@ -836,19 +836,22 @@ to use. Default is
 <title>Structure of configuration file</title>
 
 <para>
-Here comes an example of configuration file. It is auto-descriptive:
+Here is an example of configuration file. It is auto-descriptive:
 <screen>
 card_eventmgr {
 
-	# Run in background.
+	# Run in background? Implies debug=false if set to true
 	daemon = false;
-	# show debug messages
+
+	# show debug messages?
 	debug = false;
+
 	# polling time in milliseconds
 	timeout = 1000;
+
 	#
 	# list of events and actions
-	#
+
 	# Card inserted
 	event card_insert {
 		# what to do if an action fail?
@@ -878,38 +881,60 @@ card_eventmgr {
 <sect1>
 <title>Using the PKCS#11 Event Manager</title>
 <para>
-Starting pam-pkcs11-0.4.4 a new event manager tool is provided: pkcs11_eventmgr.
-It's very similar to card_eventmgr, with some improvements:
+pkcs11_eventmgr is very similar to card_eventmgr, with some improvements:
 <orderedlist>
-<listitem> It uses the PKCS#11 library, instead the low-level PCSC-Lite one</listitem>
-<listitem> Polling time, and expire time are provided in seconds, not
-milliseconds</listitem>
+<listitem> It uses the PKCS#11 library, instead the low-level PCSC-Lite
+API</listitem>
+
+<listitem> Polling time, and expire time unit is the second, not
+the millisecond</listitem>
+
 <listitem> New command line options:
 	<itemizedlist>
-	<listitem><option> [no]debug</option> to enable/disable debugging. Defaults to unset</listitem>
-	<listitem><option> [no]daemon</option> to run as daemon or foreground. If debug is unset, daemon mode also detaches from tty. Default to "nodaemon"</listitem>
-	<listitem><option> polling_time=&lt;secs&gt;</option> time in seconds between two consecutive status poll. Defaults to 1 second</listitem>
-	<listitem><option> expire_time=&lt;secs&gt;</option> time in secondss on card removed to trigger "expire_time" event. Default to 0 (no expire)</listitem>
-	<listitem><option> config_file=&lt;file&gt; </option>configuration file to use. Defaults to <filename>/etc/pam_pkcs11/card_eventmgr.conf</filename></listitem>
+	<listitem><option> [no]debug</option> to enable/disable debugging.
+	Defaults to "nodebug"</listitem>
+
+	<listitem><option> [no]daemon</option> to run as daemon or
+	foreground. If debug is unset, daemon mode also detaches from tty.
+	Default to "nodaemon"</listitem>
+
+	<listitem><option> polling_time=&lt;secs&gt;</option> time in
+	seconds between two consecutive status poll. Defaults to 1
+	second</listitem>
+
+	<listitem><option> expire_time=&lt;secs&gt;</option> time in
+	second on card removed to trigger "expire_time" event. Default to
+	0 (no expire)</listitem>
+
+	<listitem><option> config_file=&lt;file&gt; </option>configuration
+	file to use. Defaults to
+	<filename>/etc/pam_pkcs11/card_eventmgr.conf</filename></listitem>
+
 	<listitem><option> pkcs11_module=&lt;file&gt; </option>PKCS #11
-	dynamic library to use. Defaults to <filename>/usr/lib/pkcs11/opensc-pkcs11.so</filename></listitem>
+	dynamic library to use. Defaults to
+	<filename>/usr/lib/pkcs11/opensc-pkcs11.so</filename></listitem>
+
 	</itemizedlist>
 </listitem>
+
 <listitem> Expire time on card removal is now supported</listitem>
-<listitem> Configuration file is slightly different. See provided example</listitem>
+
+<listitem> Configuration file is slightly different. See provided
+example</listitem>
+
 </orderedlist>
 </para>
 <para>
-Here comes pkcs11_cardmgr sample file, with defaults
+Here is a pkcs11_cardmgr sample file, with defaults
 <screen>
 # Sample pkcs11_eventmgr configuration file
 #
 pkcs11_eventmgr {
 
-	# Run in background. Implies debug=false
+	# Run in background? Implies debug=false if true
 	daemon = true;
 
-	# show debug messages
+	# show debug messages?
 	debug = false;
 	
 	# polling time in seconds
@@ -917,10 +942,10 @@ pkcs11_eventmgr {
 
 	# expire time in seconds
 	# default = 0 (no expire)
-        expire_time = 0;
+	expire_time = 0;
 	
 	# pkcs11 module to use
-	pkcs11_module = /usr/lib/pkcs11/opensc-pkcs11.so;
+	pkcs11_module = /usr/lib/opensc-pkcs11.so;
 
 	#
 	# list of events and actions
@@ -962,53 +987,55 @@ do if an action fails.
 
 <sect1>
 <title> Security issues</title>
+
 <para>
-The best way to start card monitoring is at user login into system. 
+The best way to start card monitoring is at user login. 
 If so, note that all event commands will be executed with user privileges.
 So it is up to the user to take care that he has permissions to execute
 the desired actions.
 </para>
+
 <para>
 Special checks should be done when invoking setuid/segid programs: these
 commands usually ignore the user environment and set up their own. So
 these applications may not work as expected.
 </para>
+
 <para>
 Command actions are executed via
 <function>execve("/bin/sh","-c","provided
-command",null,environ)</function> in order to avoid risk on system()
-library call.
+command",null,environ)</function> in order to avoid security risks if
+using system() library call.
 </para>
+
 </sect1>
 
 <sect1>
-<title> EXAMPLE: use xscreensaver to lock screen at card removal</title>
+<title> Example: use xscreensaver to lock screen on card removal</title>
+
 <para>
-You can use provided configuration sample file. 
-Just add to your <filename>.xsession</filename> or KDE/GNOME Autostart directory
-an invocation to <application>card_eventmgr</application> in daemon
-mode.
+Just add to your <filename>~/.xsession</filename> or KDE/GNOME Autostart
+directory an invocation to <application>card_eventmgr</application> in
+daemon mode. Your <filename>~/.xsession</filename> should look like:
+
+FIXME
 </para>
+
 <para>
-Additionally you can add this entry to
-<filename>/etc/pam.d/xscreensaver</filename> configuration:
+Additionally you can add this line to
+<filename>/etc/pam.d/xscreensaver</filename> configuration file:
 
 <screen>
-#%PAM-1.0
-
-# Red Hat says this is right for them, as of 7.3:
-auth       sufficient    pam_pkcs11.so debug config_file=/etc/pam_pkcs11/pam_pkcs11.conf
-auth       required	pam_stack.so service=system-auth
-
-# This is what we were using before:
-# auth       required	pam_pwdb.so shadow nullok
+auth       sufficient   pam_pkcs11.so
 </screen>
 </para>
+
 <para>
 In this case, when card is removed the X screen will lock. When card
 is re-inserted, screen will prompt for the card PIN, check it and if
 access granted the screen will unlock
 </para>
+
 <para>
 <lineannotation>NOTES:</lineannotation> 
 <orderedlist>
@@ -1093,6 +1120,253 @@ Same command line options and configuration file than
 <option>mapping</option> and <option>ignorecase</option> options will be
 ignored. See the manpage for details.
 </para>
+
+</chapter>
+
+<chapter id="HOWTO">
+	<title>HOWTO install pam_pkcs11</title>
+
+<para>
+We will now describe a complete installation of pam_pkcs11 as an example
+case. This configuration will use a local root CA certificate and the
+subject mapper. Many other configurations are also possible.
+</para>
+
+<sect1> 
+	<title> Install the software </title>
+<para>
+You should install pre-compiled binaries since that is the easiest way
+to install a software. See the documentation of you distribution to
+know how to install RPM, DEB or whatever packages.
+</para>
+
+<para>
+If you want to recompile from source read <xref
+linkend="install">Installation</xref>.
+</para>
+
+</sect1>
+
+<sect1> 
+	<title> Configure pam_pkcs11 </title>
+
+<sect2>
+	<title> Create the needed directories </title>
+
+<para>
+<screen>
+<userinput>mkdir /etc/pam_pkcs11
+mkdir /etc/pam_pkcs11/cacerts
+mkdir /etc/pam_pkcs11/crls</userinput>
+</screen>
+</para>
+</sect2>
+
+<sect2>
+    <title> Copy and install the root CA certificate </title>
+
+<para>
+I used <ulink url="http://tinyca.sm-zone.net/">tinyCA</ulink> to
+generate the root CA and the user certificates. Your root CA certificate
+name may be different. Make sure that all the files in <filename
+class='directory'>/etc/pam_pkcs11/cacerts/</filename> can be read by
+any user.
+
+<screen>
+<userinput>cp testCA-cacert.der /etc/pam_pkcs11/cacerts/
+cd /etc/pam_pkcs11/cacerts
+chmod a+r *
+make_hash_link.sh</userinput>
+</screen>
+</para>
+</sect2>
+
+<sect2>
+    <title> Configure pam_pkcs11 </title>
+
+<para>
+Copy the sample file:
+<screen>
+<userinput>cp /usr/share/doc/pam-pkcs11/examples/pam_pkcs11.conf.example.gz /etc/pam_pkcs11/
+cd /etc/pam_pkcs11/
+gunzip pam_pkcs11.conf.example.gz
+mv pam_pkcs11.conf.example pam_pkcs11.conf</userinput>
+</screen>
+</para>
+
+<para>
+The sample file uses the OpenSC PKCS#11 library. You may need to edit
+<filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename> if you want to use
+another PKCS#11 library.
+</para>
+
+</sect2>
+
+<sect2>
+    <title> Configure the subject mapper </title>
+
+<para>
+Copy the sample file:
+<screen>
+<userinput>cp /usr/share/doc/pam-pkcs11/examples/subject_mapping.example /etc/pam_pkcs11/subject_mapping</userinput>
+</screen>
+Then use <application>pkcs11_inspect</application> to get the
+information you need for the mapper. In our case you are looking for
+something like:
+<screen>
+Printing data for mapper subject: /C=ES/O=FNMT/OU=FNMT Clase 2
+ CA/OU=500051483/CN=NOMBRE MARTINEZ CASTA\xF1O JUAN ANTONIO
+ - NIF 50431138G
+</screen>
+Note that this is one line but it is wrapped to be displayed here in the
+form of three lines.
+</para>
+
+<para>
+Then edit <filename>/etc/pam_pkcs11/subject_mapping</filename> to add
+the strings above followed by <userinput>-> loginname</userinput>. The
+file should then contain something like:
+<screen>
+# Mapping file for Certificate Subject
+# format: Certificate Subject -> login
+#
+/C=ES/O=FNMT/OU=FNMT Clase 2 CA/OU=500051483/CN=NOMBRE MARTINEZ
+CASTA\xF1O JUAN ANTONIO - NIF 50431138G -> jantonio
+</screen>
+Again note that the two last lines displayed should be only one.
+</para>
+
+</sect2>
+
+</sect1>
+
+<sect1> 
+	<title> Install and test your PAM configuration </title>
+
+<para>
+You will now configure your PAM system to use
+<application>pam_pkcs11</application>. We recommand to start with an
+easy to debug application like <application>login</application>. The
+advantages of <application>login</application> is that you can see the
+debug messages from <application>pam_pkcs11</application>.
+</para>
+
+<para>
+Edit <filename>/etc/pam.d/login</filename> and add, at the begining of
+the file, the lines:
+<screen>
+# pam_pkcs11: smart card login
+auth       sufficient pam_pkcs11.so
+</screen>
+
+Since <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename> has "debug =
+true" you should see lots of debug on the console you use to log in. You
+should also see any error that would occurs. If everything works
+correctly you can change the configuration file and use "debug =
+false".
+</para>
+
+<para>
+Once your PAM configuration is tested and working you can configure all
+the PAM application you want to use with a smart card. A possible list
+is:
+<itemizedlist>
+<listitem>gdm (Gnome Display Manager)</listitem>
+
+<listitem>kdm (KDE Display Manager)</listitem>
+
+<listitem>xdm (X11 display manager)</listitem>
+
+<listitem>login (text console login)</listitem>
+
+<listitem>xscreensave (X11 screen saver)</listitem>
+
+</itemizedlist>
+</para>
+
+</sect1>
+
+<sect1> 
+	<title> Secure your PAM configuration </title>
+
+<para>
+We used <token>sufficient</token> in the PAM configuration file. If the
+pam_pkcs11 module fails to authenticate the user the PAM system will go
+on with the next PAM module, the next PAM module should ask for a
+password. If you want to use the smart card only and not the password
+any more you replace <token>sufficient</token> by
+<token>required</token>. The authentication process will then fail if
+pam_pkcs11 fails.
+</para>
+
+<para>
+Using a smart card only login may be more secure but it may also be more
+dnagerous. If get a bug in any smart card related software you will not
+be able to log in even as root. It should be safer to keep the
+possibility to log in using a password but at the same time disable
+password login for normal users. So you will still be able to login as
+root with the root passwd.
+</para>
+</sect1>
+
+<sect1> 
+	<title> Using card_eventmgr </title>
+
+<para>
+<application>card_eventmgr</application> is a helper tool to
+automatically launch an application the screen when the card is removed
+or inserted. A natural application is to lock the X11 screen when the
+card is removed.
+</para>
+
+<sect2> 
+	<title> Configuring and testing card_eventmgr </title>
+
+</sect2>
+
+<para>
+Copy the sample file:
+<screen>
+<userinput>cp /usr/share/doc/pam-pkcs11/examples/card_eventmgr.conf.example /etc/pam_pkcs11/card_eventmgr.conf</userinput>
+</screen>
+
+Edit the configuration file to set the actions you want when the card is
+removed and inserted. You may have to change the command to play a sound.
+</para>
+
+<para>
+You can now test your card_eventmgr configuration file by executing
+<screen>
+<userinput>card_eventmgr debug nodaemon</userinput>
+</screen>
+
+You will see some debug messages and possibly why the commands you
+configured as action do not work properly.
+</para>
+
+<sect2> 
+	<title> Starting card_eventmgr </title>
+
+</sect2>
+
+<para>
+After debuging your card_eventmgr configuration file you can start it
+automatically. One solution is to create a
+<filename>~/.xsession</filename> file containing:
+
+<screen>
+# start the card autolock
+card_eventmgr pidfile=$HOME/.card_eventmgr.pid
+
+# start Gnome or something else
+/usr/bin/x-session-manager
+
+# kill the card autolock
+card_eventmgr kill pidfile=$HOME/.card_eventmgr.pid
+</screen>
+</para>
+
+</sect1>
 
 </chapter>
 
