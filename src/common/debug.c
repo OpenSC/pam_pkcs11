@@ -22,13 +22,15 @@
 /* current debug level */
 static int debug_level = 0;
 
-void set_debug_level(int level)
-{
+void set_debug_level(int level) {
   debug_level = level;
 }
 
-void debug_print(int level, char *file, int line, char *format, ...)
-{
+int get_debug_level() {
+	return debug_level;
+}
+
+void debug_print(int level, char *file, int line, char *format, ...) {
   va_list ap;
   if (debug_level >= level) {
     /* print preamble */

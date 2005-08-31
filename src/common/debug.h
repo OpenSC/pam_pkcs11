@@ -47,12 +47,17 @@
 #define DBG4(f,a,b,c,d) debug_print(1, __FILE__, __LINE__, f , a , b , c , d )
 #define DBG5(f,a,b,c,d,e) debug_print(1, __FILE__, __LINE__, f , a , b , c , d , e )
 
-/*
+/**
  * set_debug_level() sets the current debug level.
  */
 void set_debug_level(int level);
 
-/*
+/**
+ * get_debug_level() returns the current debug level.
+ */
+int get_debug_level(void);
+
+/**
  * debug_print() prints the given debug-message if the current debug-level 
  * is greater or equal to the defined level. The format string as well as all
  * further arguments are interpreted as by the printf() function. 

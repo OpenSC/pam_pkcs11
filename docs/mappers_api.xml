@@ -361,6 +361,7 @@ Declare and use a context container instead
 */
 static const char *mapfile="none";
 static int ignorecase=0;
+static int debug=0;
 
 /**
 * Return array of found FOO's
@@ -413,23 +414,23 @@ static void init_mapper_st(
 
 /**
 * Initialization entry point
-* return 1 on success
-*        else on fail
+* return mapper_module pointer on success
+*        NULL on fail
 */
 #ifndef FOO_MAPPER_STATIC
-int mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
-int foo_mapper_module_init(scconf_block *blk,const char *mapper_name) {
+mapper_module * foo_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
-	
 	mapper_module *pt= malloc( sizeof(mapper_module) );
 	if (!pt) return NULL;
+
 	/* Read configuration */
-
-	int debug= scconf_get_bool(blk,"debug",0);
-	mapfile= scconf_get_str(blk,"mapfile",mapfile);
-	ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
-
+	if(blk) {
+		debug= scconf_get_bool(blk,"debug",0);
+		mapfile= scconf_get_str(blk,"mapfile",mapfile);
+		ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
+	}
 	/* set up internal variables */
 
 	set_debug_level(debug);
@@ -651,11 +652,6 @@ They cannot contain any global variable, as consecutive init call will overwrite
 </para>
 </sect1>
 
-<sect1>
-<title>Configuration file issues</title>
-
-</sect1>
-
 
 </chapter>
 
@@ -665,11 +661,56 @@ They cannot contain any global variable, as consecutive init call will overwrite
 <sect1>
 <title>Debugging macros and functions</title>
 
+<para>
+Several functions and macros are provided to generate and display debug and error messages. See files <filename>src/common/debug.[ch]</filename> and <filename>src/common/error.[ch]</filename>
+</para>
+<para>
+<itemizedlist>
+<listitem><function>void set_debug_level(int level);</function> Sets the debug level</listitem>
+<listitem><function>int get_debug_level(void);</function> Gets the debug level</listitem>
+<listitem><function>void debug_print(int level, char *file, int line, char *format, ...);</function> Prints a message if <option>level</option> is greater than current debug level</listitem>
+<listitem><function>DBG(), DBG1(), ... DBG5()</function> Are shortcut macros to <function>debug_print()</function> function</listitem>
+<listitem><function>void set_error(char *format, ...);</function> Sets the "last error" message entry</listitem>
+<listitem><function>const char *get_error();</function> Gets the last error message</listitem>
+</itemizedlist>
+</para>
 </sect1>
 
 <sect1>
 <title>The mapfile API</title>
-
+<para>
+The mapper API provides several functions to manage mapfiles. They are declared in <filename>src/mappers/mapper.h</filename>
+</para>
+<para>
+To use a mapfile, we must create a mapfile entry, then make sucessive calls to retrieve data, and finally destroy the structure. It works in a similar way as <function>setpwent(), getpwent() and endpwent()</function> functions works in walking throught a password file
+</para>
+<para>
+The mapfile structure is defined as:
+<screen>
+/*
+* This struct is used in processing map files
+* a map file is a list of "key" " -> " "value" text lines
+*/
+struct mapfile {
+        const char *uri;/* URL of mapfile */
+        char *buffer;   /* buffer to content of mapfile */
+        size_t length;  /* lenght of buffer */
+        char *pt;       /* pointer to last readed entry in buffer */
+        char *key;      /* key entry in current buffer */
+        char *value;    /* value assigned to key */
+};
+</screen>
+</para>
+<para>
+The API defines following functions:
+<itemizedlist>
+<listitem><function>struct mapfile *set_mapent(const char *uri);</function> Initializes mapfile data structure</listitem>
+<listitem><function>int    get_mapent(struct mapfile *mfile);</function> Iterative calls returns next key/value pairs in mapfile</listitem>
+<listitem><function>void   end_mapent(struct mapfile *mfile);</function> Closes and releases mapfile</listitem>
+<listitem><function>char *mapfile_find(const char *file,char *key,int ignorecase);</function> To find a given key/value pair in a mapfile</listitem>
+<listitem><function>int mapfile_match(const char *file,char *key,const char *value,int ignorecase);</function> To test if any entry on mapfile matches key/value pair</listitem>
+</itemizedlist>
+</para>
 </sect1>
 
 <sect1>

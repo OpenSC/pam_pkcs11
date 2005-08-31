@@ -49,7 +49,7 @@ typedef struct mapper_module_st {
 
 /*
 * This struct is used in processing map files
-* a map file is a list of "key" "->" "value" text lines
+* a map file is a list of "key" " -> " "value" text lines
 */
 struct mapfile {
 	const char *uri;/* URL of mapfile */
