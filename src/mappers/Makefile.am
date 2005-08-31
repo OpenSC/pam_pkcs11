@@ -29,7 +29,7 @@ libmappers_la_SOURCES = mapper.c mapper.h \
 	null_mapper.c null_mapper.h \
 	subject_mapper.c subject_mapper.h \
 	mapperlist.c mapperlist.h
-# libmappers_la_LIBADD = @LIBSCCONF@  @LIBCOMMON@ @OPENSSL_LIBS@
+libmappers_la_LDFLAGS = @LIBSCCONF@ @LIBCOMMON@
 
 # list of dynamic linked mappers
 lib_LTLIBRARIES = ldap_mapper.la opensc_mapper.la \
