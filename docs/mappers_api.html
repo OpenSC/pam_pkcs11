@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PAM-PKCS11 Mappers API</title><link rel="stylesheet" href="pam_pkcs11.css" type="text/css" /><meta name="generator" content="DocBook XSL Stylesheets V1.68.1" /></head><body><div class="book" lang="en" xml:lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="mapper-api"></a>PAM-PKCS11 Mappers API</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Juan Antonio</span> <span class="surname">Martinez</span></h3><code class="email">&lt;<a href="mailto:jonsito@teleline.es">jonsito@teleline.es</a>&gt;</code></div></div><div><p class="releaseinfo">Release 0.5.3 30 Ago 2005</p></div></div><hr /></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="chapter"><a href="#copyright">1. Copyright. License</a></span></dt><dt><span class="chapter"><a href="#introduction">2. What is a <span class="application">pam_pkcs11</span> mapper?</a></span></dt><dd><dl><dt><span class="sect1"><a href="#id2653988">2.1. Definition</a></span></dt><dt><span class="sect1"><a href="#id2654039">2.2. Runtime options</a></span></dt><dt><span class="sect1"><a href="#id2654077">2.3. Multiple mapping support</a></span></dt><dt><span class="sect1"><a href="#id2654092">2.4. Mapfile support</a></span></dt><dt><span class="sect1"><a href="#id2654105">2.5. Mapper tools and libraries</a></span></dt><dt><span class="sect1"><a href="#id2654143">2.6. Configuration support</a></span></dt></dl></dd><dt><span class="chapter"><a href="#writting">3. Writting a mapper</a></span></dt><dd><dl><dt><span class="sect1"><a href="#id2654171">3.1. Before starting</a></span></dt><dt><span class="sect1"><a href="#id2654220">3.2. Sample mapper configuration entry</a></span></dt><dt><span class="sect1"><a href="#id2654291">3.3. Sample mapper include file</a></span></dt><dt><span class="sect1"><a href="#id2654374">3.4.  Skeleton code for mapper C file.</a></span></dt><dt><span class="sect1"><a href="#id2654560">3.5. Insert mapper into tables</a></span></dt><dt><span class="sect1"><a href="#id2654604">3.6. Adding mapper to Makefile.am to be compiled</a></span></dt><dt><span class="sect1"><a href="#id2654691">3.7. Compilation</a></span></dt></dl></dd><dt><span class="chapter"><a href="#deeper">4. A Detailed look on mappers</a></span></dt><dd><dl><dt><span class="sect1"><a href="#id2654721">4.1. The mapper chain</a></span></dt><dt><span class="sect1"><a href="#id2654852">4.2. Exported data and structures</a></span></dt><dt><span class="sect1"><a href="#id2654984">4.3. Comodity macros</a></span></dt><dt><span class="sect1"><a href="#id2659625">4.4. Multifield mappers</a></span></dt><dt><span class="sect1"><a href="#id2659712">4.5.  Configuration entries on static mappers </a></span></dt></dl></dd><dt><span class="chapter"><a href="#api">5. The Mapper API</a></span></dt><dd><dl><dt><span class="sect1"><a href="#id2659814">5.1. Debugging macros and functions</a></span></dt><dt><span class="sect1"><a href="#id2659908">5.2. The mapfile API</a></span></dt><dt><span class="sect1"><a href="#id2660041">5.3.  Configuration parsing API</a></span></dt><dt><span class="sect1"><a href="#id2660168">5.4.  String tools API</a></span></dt><dt><span class="sect1"><a href="#id2660340">5.5.  X509 Cert Tools API</a></span></dt></dl></dd><dt><span class="chapter"><a href="#more">6. Going further</a></span></dt></dl></div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>PAM-PKCS11 Mappers API</title><link rel="stylesheet" href="pam_pkcs11.css" type="text/css" /><meta name="generator" content="DocBook XSL Stylesheets V1.68.1" /></head><body><div class="book" lang="en" xml:lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="mapper-api"></a>PAM-PKCS11 Mappers API</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Juan Antonio</span> <span class="surname">Martinez</span></h3><code class="email">&lt;<a href="mailto:jonsito@teleline.es">jonsito@teleline.es</a>&gt;</code></div></div><div><p class="releaseinfo">Release 0.5.3 30 Ago 2005</p></div></div><hr /></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="chapter"><a href="#copyright">1. Copyright. License</a></span></dt><dt><span class="chapter"><a href="#introduction">2. What is a <span class="application">pam_pkcs11</span> mapper?</a></span></dt><dd><dl><dt><span class="sect1"><a href="#id2687780">2.1. Definition</a></span></dt><dt><span class="sect1"><a href="#id2687831">2.2. Runtime options</a></span></dt><dt><span class="sect1"><a href="#id2687869">2.3. Multiple mapping support</a></span></dt><dt><span class="sect1"><a href="#id2687884">2.4. Mapfile support</a></span></dt><dt><span class="sect1"><a href="#id2687897">2.5. Mapper tools and libraries</a></span></dt><dt><span class="sect1"><a href="#id2687935">2.6. Configuration support</a></span></dt></dl></dd><dt><span class="chapter"><a href="#writting">3. Writting a mapper</a></span></dt><dd><dl><dt><span class="sect1"><a href="#id2687963">3.1. Before starting</a></span></dt><dt><span class="sect1"><a href="#id2688012">3.2. Sample mapper configuration entry</a></span></dt><dt><span class="sect1"><a href="#id2688083">3.3. Sample mapper include file</a></span></dt><dt><span class="sect1"><a href="#id2688165">3.4.  Skeleton code for mapper C file.</a></span></dt><dt><span class="sect1"><a href="#id2688352">3.5. Insert mapper into tables</a></span></dt><dt><span class="sect1"><a href="#id2688396">3.6. Adding mapper to Makefile.am to be compiled</a></span></dt><dt><span class="sect1"><a href="#id2688483">3.7. Compilation</a></span></dt></dl></dd><dt><span class="chapter"><a href="#deeper">4. A Detailed look on mappers</a></span></dt><dd><dl><dt><span class="sect1"><a href="#id2688513">4.1. The mapper chain</a></span></dt><dt><span class="sect1"><a href="#id2688643">4.2. Exported data and structures</a></span></dt><dt><span class="sect1"><a href="#id2688775">4.3. Comodity macros</a></span></dt><dt><span class="sect1"><a href="#id2693417">4.4. Multifield mappers</a></span></dt><dt><span class="sect1"><a href="#id2693504">4.5.  Configuration entries on static mappers </a></span></dt></dl></dd><dt><span class="chapter"><a href="#api">5. The Mapper API</a></span></dt><dd><dl><dt><span class="sect1"><a href="#id2693606">5.1. Debugging macros and functions</a></span></dt><dt><span class="sect1"><a href="#id2693700">5.2. The mapfile API</a></span></dt><dt><span class="sect1"><a href="#id2693853">5.3.  Configuration parsing API</a></span></dt><dt><span class="sect1"><a href="#id2693980">5.4.  String tools API</a></span></dt><dt><span class="sect1"><a href="#id2694152">5.5.  X509 Cert Tools API</a></span></dt></dl></dd><dt><span class="chapter"><a href="#more">6. Going further</a></span></dt><dd><dl><dt><span class="sect1"><a href="#id2694334">6.1. Hints</a></span></dt><dt><span class="sect1"><a href="#id2694379">6.2. Getting help</a></span></dt></dl></dd></dl></div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
 <span class="application">PAM-PKCS#11</span> is a PAM (Pluggable
 Authentication Module) library and related tools to perform login into
 Linux/UNIX systems by mean of X509 Certificates through any pkcs#11
@@ -31,7 +31,7 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-</p></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="introduction"></a>Chapter 2. What is a <span class="application">pam_pkcs11</span> mapper?</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#id2653988">2.1. Definition</a></span></dt><dt><span class="sect1"><a href="#id2654039">2.2. Runtime options</a></span></dt><dt><span class="sect1"><a href="#id2654077">2.3. Multiple mapping support</a></span></dt><dt><span class="sect1"><a href="#id2654092">2.4. Mapfile support</a></span></dt><dt><span class="sect1"><a href="#id2654105">2.5. Mapper tools and libraries</a></span></dt><dt><span class="sect1"><a href="#id2654143">2.6. Configuration support</a></span></dt></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2653988"></a>2.1. Definition</h2></div></div></div><p>
+</p></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="introduction"></a>Chapter 2. What is a <span class="application">pam_pkcs11</span> mapper?</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#id2687780">2.1. Definition</a></span></dt><dt><span class="sect1"><a href="#id2687831">2.2. Runtime options</a></span></dt><dt><span class="sect1"><a href="#id2687869">2.3. Multiple mapping support</a></span></dt><dt><span class="sect1"><a href="#id2687884">2.4. Mapfile support</a></span></dt><dt><span class="sect1"><a href="#id2687897">2.5. Mapper tools and libraries</a></span></dt><dt><span class="sect1"><a href="#id2687935">2.6. Configuration support</a></span></dt></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2687780"></a>2.1. Definition</h2></div></div></div><p>
 When an X509 Certificate is provided, there are no direct way to map
 a cert to a login. With a certificate we can check validity and
 revocation, but user mapping depends entirely on the certificate content.
@@ -41,39 +41,40 @@ cert-to-user mapping.
 </p><p>
 pam-pkcs11 cert mappers should provide these functions:
 </p><div class="orderedlist"><ol type="1"><li>Extract a item (cn, digest, or so) from provided certificate</li><li>Deduce a login from the extracted item</li><li>Test if a provided login matches with the previously deduced login</li><li>(de)initialization routines</li><li>A structure to access all internal methods</li></ol></div><p>
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654039"></a>2.2. Runtime options</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2687831"></a>2.2. Runtime options</h2></div></div></div><p>
 A mapper can be dinamycally or statically compiled against <span class="application">pam_pkcs11</span>
 </p><p>
-</p><div class="itemizedlist"><ul type="disc"><li>An static mapper is one that is statically linked with <span class="application">pam_pkcs11</span>.</li><li>A dynamic mapper needs to be dynamically loaded, and the path to
+</p><div class="itemizedlist"><ul type="disc"><li>An static mapper is one that is statically linked with <span class="application">pam_pkcs11</span>.</li><li>A dynamic mapper needs to be loaded at runtime, and the path to
 the dynamic module must be provided</li></ul></div><p>
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654077"></a>2.3. Multiple mapping support</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2687869"></a>2.3. Multiple mapping support</h2></div></div></div><p>
 A mapper can provide several ways to realize mapping functions. As 
 the mapper name is provided to initialization routines, the mapper
 cand adjust their internal pointers according name. In this case,
 the same mapper will be instantiated (or dynloaded) as many times
 as different mappings required
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654092"></a>2.4. Mapfile support</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2687884"></a>2.4. Mapfile support</h2></div></div></div><p>
 Most of certificate fields are not valid for login names. We need
 a way to map field to login. This is done by mean of mapfiles.
 The mapper API provides several functions to manage mapfiles
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654105"></a>2.5. Mapper tools and libraries</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2687897"></a>2.5. Mapper tools and libraries</h2></div></div></div><p>
 Pam_pkcs11 provides several utility functions to manage certificate
 contents. Instead of start from scratch these functions may be used
 to ease mapper coding. You'll find:
 </p><div class="itemizedlist"><ul type="disc"><li>Mapfile functions</li><li>String tools</li><li>Debugging macros</li><li>URL handling functions</li><li>Configuration file tools</li><li>Etc...</li></ul></div><p>
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654143"></a>2.6. Configuration support</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2687935"></a>2.6. Configuration support</h2></div></div></div><p>
 Althought all mappers have default values, most of then have
 configuration options. The file <code class="filename">/etc/pam_pkcs11/pam_pkcs11.conf</code>
 stores them.
-</p></div></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="writting"></a>Chapter 3. Writting a mapper</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#id2654171">3.1. Before starting</a></span></dt><dt><span class="sect1"><a href="#id2654220">3.2. Sample mapper configuration entry</a></span></dt><dt><span class="sect1"><a href="#id2654291">3.3. Sample mapper include file</a></span></dt><dt><span class="sect1"><a href="#id2654374">3.4.  Skeleton code for mapper C file.</a></span></dt><dt><span class="sect1"><a href="#id2654560">3.5. Insert mapper into tables</a></span></dt><dt><span class="sect1"><a href="#id2654604">3.6. Adding mapper to Makefile.am to be compiled</a></span></dt><dt><span class="sect1"><a href="#id2654691">3.7. Compilation</a></span></dt></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654171"></a>3.1. Before starting</h2></div></div></div><p>
+</p></div></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="writting"></a>Chapter 3. Writting a mapper</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#id2687963">3.1. Before starting</a></span></dt><dt><span class="sect1"><a href="#id2688012">3.2. Sample mapper configuration entry</a></span></dt><dt><span class="sect1"><a href="#id2688083">3.3. Sample mapper include file</a></span></dt><dt><span class="sect1"><a href="#id2688165">3.4.  Skeleton code for mapper C file.</a></span></dt><dt><span class="sect1"><a href="#id2688352">3.5. Insert mapper into tables</a></span></dt><dt><span class="sect1"><a href="#id2688396">3.6. Adding mapper to Makefile.am to be compiled</a></span></dt><dt><span class="sect1"><a href="#id2688483">3.7. Compilation</a></span></dt></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2687963"></a>3.1. Before starting</h2></div></div></div><p>
 </p><div class="itemizedlist"><ul type="disc"><li>Decide if the mapper will be statically or dinamically compiled
 The first way is for simple, quick and easy mappers that doesn't need
-aditional/optional libraries, just inspect certificate contents
+aditional/optional libraries, just inspect certificate contents.
+
 The second way is for those mappers that need some optional libraries,
 such as ldap, kerberos, openssh or so</li><li>Decide on single or multiple items mapper</li><li>Choose a name and configuration options</li><li>Study provided mappers and <span class="application">libcommon</span> / <span class="application">libmapper</span> code</li></ul></div><p>
 </p><p>
 The best way to start is by mean of these skeleton files:
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654220"></a>3.2. Sample mapper configuration entry</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2688012"></a>3.2. Sample mapper configuration entry</h2></div></div></div><p>
 All mappers should have a configuration entry in <code class="filename">/etc/pam_pkcs11/pam_pkcs11.conf</code>. These entry should at least define:
 </p><div class="itemizedlist"><ul type="disc"><li> The name of the mapper</li><li> The dynamic library to be runtime loaded, or the keyword <code class="option">internal</code> if the mapper is statically linked </li></ul></div><p>
 </p><pre class="screen">
@@ -96,7 +97,7 @@ for each mapped field. Each entry must have an unique mapper name, and (if the m
 </p><p>
 See bellow on how to set up code to include multiple fields mappers to be
 statically compiled
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654291"></a>3.3. Sample mapper include file</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2688083"></a>3.3. Sample mapper include file</h2></div></div></div><p>
 Here comes a sample mapper include file. Note that their main use is to
 allow export internal data when statically compiled. Unless you need several
 files to define a mapper, no need of more data to be included
@@ -158,7 +159,7 @@ FOO_EXTERN mapper_module * foo_mapper_module_init(scconf_block *blk,const char *
 /* End of foo_mapper.h */
 #endif
 </pre><p>
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654374"></a>3.4.  Skeleton code for mapper C file.</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2688165"></a>3.4.  Skeleton code for mapper C file.</h2></div></div></div><p>
 This is a sample skeleton file for single field mappers. It provides all the methods and data required by the API. Is up to you to include aditional functions as required.
 </p><p>
 They only need to export one symbol: the entry point of the init routine
@@ -321,7 +322,7 @@ mapper_module * foo_mapper_module_init(scconf_block *blk,const char *mapper_name
 </p><p>
 See bellow on what's each function is intended to do, comodity macros, 
 and some examples on how to code them
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654560"></a>3.5. Insert mapper into tables</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2688352"></a>3.5. Insert mapper into tables</h2></div></div></div><p>
 Next task is insert mapper into mappers list, by adding it to mapperlist.c
 </p><div class="itemizedlist"><ul type="disc"><li>Add "foo_mapper.h" to #include list</li><li>Add exported entries to static mapper entries table:</li></ul></div><p>
 </p><p>
@@ -344,7 +345,7 @@ mapper_list static_mapper_list [] = {
 As you can see, if your module support several mapping schemes, you should
 insert one entry for each one. All the entries will share the same entry
 point, but differs in module name 
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654604"></a>3.6. Adding mapper to Makefile.am to be compiled</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2688396"></a>3.6. Adding mapper to Makefile.am to be compiled</h2></div></div></div><p>
 Finally add entry to <code class="filename">src/mappers/Makefile.am</code> file and recompile. 
 Note that with the current <span class="application">pam_pkcs11</span> version you cannot compile
 a dynamically loaded mapper in a separate way. This is a job in progress
@@ -361,7 +362,7 @@ foo_mapper_la_LDFLAGS = -module -avoid-version
 foo_mapper_la_LIBADD = libmappers.la
 .....
 </pre></li></ul></div><p>
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654691"></a>3.7. Compilation</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2688483"></a>3.7. Compilation</h2></div></div></div><p>
 That's all: recompile and install
 </p><pre class="screen">
 root# cd /base/directory
@@ -371,7 +372,7 @@ root# ./configure --your-configure-options
 root# make
 root# make install
 </pre><p>
-</p></div></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="deeper"></a>Chapter 4. A Detailed look on mappers</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#id2654721">4.1. The mapper chain</a></span></dt><dt><span class="sect1"><a href="#id2654852">4.2. Exported data and structures</a></span></dt><dt><span class="sect1"><a href="#id2654984">4.3. Comodity macros</a></span></dt><dt><span class="sect1"><a href="#id2659625">4.4. Multifield mappers</a></span></dt><dt><span class="sect1"><a href="#id2659712">4.5.  Configuration entries on static mappers </a></span></dt></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654721"></a>4.1. The mapper chain</h2></div></div></div><p>
+</p></div></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="deeper"></a>Chapter 4. A Detailed look on mappers</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#id2688513">4.1. The mapper chain</a></span></dt><dt><span class="sect1"><a href="#id2688643">4.2. Exported data and structures</a></span></dt><dt><span class="sect1"><a href="#id2688775">4.3. Comodity macros</a></span></dt><dt><span class="sect1"><a href="#id2693417">4.4. Multifield mappers</a></span></dt><dt><span class="sect1"><a href="#id2693504">4.5.  Configuration entries on static mappers </a></span></dt></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2688513"></a>4.1. The mapper chain</h2></div></div></div><p>
 Take a look at <code class="filename">src/pam_pkcs11/mapper_mgr.h</code>. This file contains the data structures used to load a mapper and create a mapper chain
 </p><p>
 Mapper instance entry declaration:
@@ -400,7 +401,7 @@ On each mapper entry, <span class="application">pam_pkcs11</span> search for the
 When module is found or loaded, the <code class="function">module_load()</code> calls to the <code class="function">mapper_module_init()</code> function, and if the result is not null assumes to be returned a pointer to the internal mapper entries table. These entries will be used to call finder, matcher, and deinit functions on the mapper
 </p><p>
 If, for any reason, the mapper loading process, a warn is sent, and the mapper entry module is skipped
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654852"></a>4.2. Exported data and structures</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2688643"></a>4.2. Exported data and structures</h2></div></div></div><p>
 The <code class="function">mapper_module_init()</code> should return a pointer to the following structure (declared in <code class="filename">src/mappers/mapper.h</code>
 </p><pre class="screen">
 /**
@@ -421,19 +422,19 @@ typedef struct mapper_module_st {
 Here comes the meaning of each entry:
 </p><div class="itemizedlist"><ul type="disc"><li><code class="option">name</code> is the name of the mapper module, as provided in the init() call</li><li><code class="option">block</code> is a pointer to the mapper configuration entry as defined in <code class="filename">/etc/pam_pkcs11/pam_pkcs11.conf</code>, as provided int the init() call</li><li><code class="option">context</code> is a pointer to a user-defined local declarations internals to the mapper. If not used it's safe to set to NULL. See below about how to use this entry in multiple instances of same static compiled mapper</li><li><code class="function">entries()</code> is the entry point to the mapper listing method</li><li><code class="function">finder()</code> is the entry point to the mapper login finder method</li><li><code class="function">matcher()</code> is the entry point to the mapper login matcher method </li><li><code class="function">entries()</code> is called when the mapper module is to be removed from mapper chain</li><li><code class="option">dbg_level</code> stores the debugging level to be used when calling any function inside the mapper. Note that the programmer doesn't need to take care on this field: when mapper_module_init() successfully returns, the module loader assumes that returning debug level is the one selected for the mapper, and store it in this field</li></ul></div><p>
 Note that <code class="option">context</code> pointer is passed as <code class="function">void *</code> as there are no way to know how the programmer will use it
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2654984"></a>4.3. Comodity macros</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2688775"></a>4.3. Comodity macros</h2></div></div></div><p>
 Many of the mapper functions are repetitive. Many others are nonsense in some mappers. So the API provide several comodity macros, defined in <code class="filename">src/mappers/mapper.h</code>
 </p><div class="itemizedlist"><ul type="disc"><li><code class="option">_DEFAULT_MAPPER_FIND_ENTRIES</code> to serve as a replacement for <code class="function">entries()</code> listing method</li><li><code class="option">_DEFAULT_MAPPER_FIND_USER</code> to serve as a replacement for <code class="function">finder()</code> login mapper method</li><li><code class="option">_DEFAULT_MAPPER_MATCH_USER</code> to serve as a replacement for <code class="function">matcher()</code> login matching method</li><li><code class="option">_DEFAULT_MAPPER_END</code> to serve as a replacement for <code class="function">deinit()</code> de-initialization method</li><li><code class="option">_DEFAULT_MAPPER_INIT</code> to serve as a replacement for <code class="function">init()</code> initialization method</li></ul></div><p>
 </p><p>
 The only usefull one is _DEFAULT_MAPPER_END, but the other ones are provided for compile work-in-progress mappers
 </p><p>
 See the code, to provide you an idea of how to code real functions
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2659625"></a>4.4. Multifield mappers</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2693417"></a>4.4. Multifield mappers</h2></div></div></div><p>
 The sample code provided in first section can be used directly to create single field mappers. When writting multiple fields mappers ( a mapper, that can resolve two or more different certificate contents, ie CN and KPN ), a different approach is needed:
 </p><p>
 </p><div class="itemizedlist"><ul type="disc"><li>You should provided one mapper entry for each mapper personality in the configuration file</li><li>If the mapper is to be statically linked, you should also declare one entry for each personality in the <code class="filename">src/mappers/mapperlist.c</code> mapper list declaration file</li><li> The mapper loader will make as many calls to <code class="function">mapper_module_init()</code> as declared in mapper chain definition. On each call a different name and configuration context will be provided, and a different mapper_module structure should be returned</li><li> There are an additional problem when use statically linked mappers:
 They cannot contain any global variable, as consecutive init call will overwrite previous value. This is not the case of dynloaded mappers, as each instance has its own address space</li><li> If the above case is yours one, then you must define and create by mean of <code class="function">malloc()</code> an internal environment structure, and store it in the <code class="option">context</code> field of the returned <code class="function">mapper_module</code> structure. <span class="application">pam_pkcs11</span> will include this data in every calls to your entry points, to get sure you can retrieve correct internal data</li></ul></div><p>
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2659712"></a>4.5.  Configuration entries on static mappers </h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2693504"></a>4.5.  Configuration entries on static mappers </h2></div></div></div><p>
 As stated above, to specify that a mapper is not to be dynamically linked, we should remove the keyword "<code class="option">module</code>", or set it to "<code class="option">module = internal ;</code>"
 </p><p>
 Most of statically linked mappers share common configuration options:
@@ -444,11 +445,11 @@ So if up to the system administrator, if agreed with default values, to ommit in
 Above note does not apply, of course, to dynamically loaded mappers, as they allways need at least the "<code class="option">module</code>" entry to be specified
 </p><p>
 See PAM-PKCS#11 Manual to see specific notes on provided mappers
-</p></div></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="api"></a>Chapter 5. The Mapper API</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#id2659814">5.1. Debugging macros and functions</a></span></dt><dt><span class="sect1"><a href="#id2659908">5.2. The mapfile API</a></span></dt><dt><span class="sect1"><a href="#id2660041">5.3.  Configuration parsing API</a></span></dt><dt><span class="sect1"><a href="#id2660168">5.4.  String tools API</a></span></dt><dt><span class="sect1"><a href="#id2660340">5.5.  X509 Cert Tools API</a></span></dt></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2659814"></a>5.1. Debugging macros and functions</h2></div></div></div><p>
+</p></div></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="api"></a>Chapter 5. The Mapper API</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#id2693606">5.1. Debugging macros and functions</a></span></dt><dt><span class="sect1"><a href="#id2693700">5.2. The mapfile API</a></span></dt><dt><span class="sect1"><a href="#id2693853">5.3.  Configuration parsing API</a></span></dt><dt><span class="sect1"><a href="#id2693980">5.4.  String tools API</a></span></dt><dt><span class="sect1"><a href="#id2694152">5.5.  X509 Cert Tools API</a></span></dt></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2693606"></a>5.1. Debugging macros and functions</h2></div></div></div><p>
 Several functions and macros are provided to generate and display debug and error messages. See files <code class="filename">src/common/debug.[ch]</code> and <code class="filename">src/common/error.[ch]</code>
 </p><p>
 </p><div class="itemizedlist"><ul type="disc"><li><code class="function">void set_debug_level(int level);</code> Sets the debug level</li><li><code class="function">int get_debug_level(void);</code> Gets the debug level</li><li><code class="function">void debug_print(int level, char *file, int line, char *format, ...);</code> Prints a message if <code class="option">level</code> is greater than current debug level</li><li><code class="function">DBG(), DBG1(), ... DBG5()</code> Are shortcut macros to <code class="function">debug_print()</code> function</li><li><code class="function">void set_error(char *format, ...);</code> Sets the "last error" message entry</li><li><code class="function">const char *get_error();</code> Gets the last error message</li></ul></div><p>
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2659908"></a>5.2. The mapfile API</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2693700"></a>5.2. The mapfile API</h2></div></div></div><p>
 The mapper API provides several functions to manage mapfiles. They are declared in <code class="filename">src/mappers/mapper.h</code>
 </p><p>
 To use a mapfile, we must create a mapfile entry, then make sucessive calls to retrieve data, and finally destroy the structure. It works in a similar way as <code class="function">setpwent(), getpwent() and endpwent()</code> functions works in walking throught a password file
@@ -472,9 +473,11 @@ struct mapfile {
 The API defines following functions:
 </p><div class="itemizedlist"><ul type="disc"><li><code class="function">struct mapfile *set_mapent(const char *uri);</code> Initializes mapfile data structure</li><li><code class="function">int    get_mapent(struct mapfile *mfile);</code> Iterative calls returns next key/value pairs in mapfile</li><li><code class="function">void   end_mapent(struct mapfile *mfile);</code> Closes and releases mapfile</li><li><code class="function">char *mapfile_find(const char *file,char *key,int ignorecase);</code> To find a given key/value pair in a mapfile</li><li><code class="function">int mapfile_match(const char *file,char *key,const char *value,int ignorecase);</code> To test if any entry on mapfile matches key/value pair</li></ul></div><p>
 </p><p>
+An important note is that mapfiles names can be provided as standard UNIX path names, or Universal Resource Locators. For instance, you can use either <code class="filename">/etc/pam_pkcs11/subject_mapping</code> or <code class="filename">file:///etc/pam_pkcs11/subject_mapping</code>. Our recommentation is to use second format as is not restricted to local files
+</p><p>
 <em class="lineannotation"><span class="lineannotation">NOTE:</span></em>
 The returned "<code class="option">key</code>" and "<code class="option">value</code>" entries should be used as <code class="function">const char *</code>, that is, contents cannot be modified nor free()'d. If the programmer needs to modify these values, please make a copy with the <code class="function">clone_str()</code> API provided function
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2660041"></a>5.3.  Configuration parsing API</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2693853"></a>5.3.  Configuration parsing API</h2></div></div></div><p>
 <span class="application">PAM-PKCS#11</span> configuration files are based in the SCConf library of the <span class="application">OpenSC</span> Project. See the file <code class="filename">src/scconf/README.scconf</code> for a detailed description of the <span class="application">scconf</span>
 </p><p>
 As a resume, bellow are shown the most relevants scconf API functions for the mapper programmer:
@@ -484,7 +487,7 @@ With these functions, we can easily parse all "<code class="option">key = value;
 </p><p>
 <em class="lineannotation"><span class="lineannotation">NOTE:</span></em>
 The user should not modify nor free() values returned from <code class="function">scconf_get_str()</code>. Instead, call <code class="function">clone_str()</code> API method to get a working copy
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2660168"></a>5.4.  String tools API</h2></div></div></div><p>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2693980"></a>5.4.  String tools API</h2></div></div></div><p>
 The <code class="filename">string.h</code> standard library is so powerfull. But lacks on some usefull routines. The file <code class="filename">src/common/strings.c</code> contains some of them, as declared at <code class="filename">src/common/strings.h</code>
 </p><p>
 </p><div class="itemizedlist"><ul type="disc"><li><code class="function"> int is_empty_str(const char *str);</code> Returns true if <code class="option">str</code> is null, empty, or has only spaces</li><li><code class="function"> char *clone_str(const char *str);</code> Returns a duplicate of provided string </li><li><code class="function"> char *toupper_str(const char *str);</code> Same as above, but string is upper-case'd</li><li><code class="function"> char *tolower_str(const char *str);</code> Same as above, but string is lower-case'd</li><li><code class="function"> char *bin2hex(const unsigned char *binstr,const int len);</code> Return a string that contains the hexadecimal representation of the provided binary array of given length. Returned format is :XX:YY:ZZ:...:</li><li><code class="function"> unsigned char *hex2bin(const char *hexstr);</code> Convert a colon-separated hexadecimal string into a binary array</li><li><code class="function"> unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size);</code> Same as above, but programmer supplies pre-allocated memory space for conversion</li><li><code class="function"> char **split(const char *str,char sep, int nelems);</code> Splits provided string in an string array of nelems elements, using sep as character separator</li><li><code class="function"> char **split_static(const char *str,char sep, int nelems,char *dst);</code> Same as above, but user provides pre-allocated buffer for storeing result</li><li><code class="function"> char *trim(const char *str);</code> Return an string that has all superfluous spaces trimmed. Also converts any space char ( newline, tabs, etc ) in normal " " space character</li></ul></div><p>
@@ -494,4 +497,43 @@ A note on <code class="function">split(), and split_static()</code> functions. T
 Note that <code class="function">trim()</code> function behaviour is different from Java or PHP counterparts, as remove ALL extra spaces, not only at the begining and at the end of string
 </p><p>
 See the code for further reference :-)
-</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2660340"></a>5.5.  X509 Cert Tools API</h2></div></div></div></div></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="more"></a>Chapter 6. Going further</h2></div></div></div></div></div></body></html>
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2694152"></a>5.5.  X509 Cert Tools API</h2></div></div></div><p>
+The mapper API provides several adittional tools to inspect the contents of a certificate. They are described in <code class="filename">src/common/cert_info.h</code>
+</p><p>
+The basic library call is:
+</p><div class="itemizedlist"><ul type="disc"><li><code class="function">char **cert_info(X509 *x509, int type, const char *algorithm);</code></li></ul></div><p>
+</p><p>
+This function takes an argument, the X509 certificate to be inspected, and a macro that shows the certificate content to be searched. Some contents needs an aditional third <code class="option">algorithm</code> parameters. When not used should be set to NULL
+</p><p>
+The mapper API defines following macros:
+</p><div class="itemizedlist"><ul type="disc"><li><code class="option"> CERT_CN</code> Certificate Common Name</li><li><code class="option"> CERT_SUBJECT</code> Certificate subject</li><li><code class="option"> CERT_KPN</code> Kerberos principal name</li><li><code class="option"> CERT_EMAIL</code> Certificate e-mail</li><li><code class="option"> CERT_UPN</code> Microsoft's Universal Principal Name</li><li><code class="option"> CERT_UID</code> Certificate Unique Identifier</li><li><code class="option"> CERT_PUK</code> Certificate Public Key (PEM Format)</li><li><code class="option"> CERT_DIGEST</code> Certificate Digest</li><li><code class="option"> CERT_SSHPUK</code> Certificate Public key in OpenSSH format</li><li><code class="option"> CERT_PEM</code> Certificate in PEM format</li></ul></div><p>
+</p><p>
+Aditionally, when requesting <code class="option">CERT_DIGEST</code> you must provide a valid digest algorithm:  "<code class="option">null</code>", "<code class="option">md2</code>", "<code class="option">md4</code>", "<code class="option">md5</code>", "<code class="option">sha</code>", "<code class="option">sha1</code>", "<code class="option">dss</code>", "<code class="option">dss1</code>" or "<code class="option">ripemd160</code>"
+</p><p>
+<code class="function">cert_info()</code> returns an array of up to 15 string entries, corresponding to as many entry founds in the provided certificate. Last entry in the returned array is set to NULL;
+</p><p>
+If some error ocurrs, or the certificate does not contain any entry, return NULL
+</p></div></div><div class="chapter" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="more"></a>Chapter 6. Going further</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="#id2694334">6.1. Hints</a></span></dt><dt><span class="sect1"><a href="#id2694379">6.2. Getting help</a></span></dt></dl></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2694334"></a>6.1. Hints</h2></div></div></div><p>
+It's really recommended the study of provided mappers, and the comodity macros
+</p><p>
+Before start writting a new mapper, perhaps you'd better to check if there are already one mapper that performs your desired map. For instance, pwent and generic mapper can use Naming Swictch Service (NSS) to lookup pasword entries, and NSS is capable of perform some LDAP or Kerberos authentication task
+</p><p>
+Don't hessitate in use of debugging functions. They are really usefull
+</p><p>
+It's recommended write mappers in a way that they could be statically or dynamically linked without code change, Doing so you'll make maintainer life easier :-)
+Also, in order to ease debugging, single field mappers is preferred over multifield mappers
+</p><p>
+Avoid write access to any global variable from the mapper code. Use comodity functions
+</p><p>
+Don't make assumptions on the code. Allways add checks. 
+</p><p>
+Use Universal Resource Locators -and the curl library- instead of hardcoded pathnames to specify files
+</p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2694379"></a>6.2. Getting help</h2></div></div></div><p>
+Send questions, patches, suggestions and so to OpenSC Mailing list: <code class="email">&lt;<a href="mailto:opensc-devel at opensc.org">opensc-devel at opensc.org</a>&gt;</code>
+</p><p>
+For additional specific info, contact with the authors:
+</p><div class="itemizedlist"><ul type="disc"><li>
+Juan Antonio Martinez <code class="email">&lt;<a href="mailto:jonsito at teleline.es">jonsito at teleline.es</a>&gt;</code></li><li>
+Mario Strasser <code class="email">&lt;<a href="mailto:mast at gmx.net">mast at gmx.net</a>&gt;</code></li><li>
+Ludovic Rousseau <code class="email">&lt;<a href="mailto:ludovic.rousseau at free.fr ">ludovic.rousseau at free.fr </a>&gt;</code></li></ul></div><p>
+</p></div></div></div></body></html>

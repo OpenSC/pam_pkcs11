@@ -103,7 +103,7 @@ A mapper can be dinamycally or statically compiled against <application>pam_pkcs
 <para>
 <itemizedlist>
 <listitem>An static mapper is one that is statically linked with <application>pam_pkcs11</application>.</listitem>
-<listitem>A dynamic mapper needs to be dynamically loaded, and the path to
+<listitem>A dynamic mapper needs to be loaded at runtime, and the path to
 the dynamic module must be provided</listitem>
 </itemizedlist>
 </para>
@@ -166,7 +166,8 @@ stores them.
 <itemizedlist>
 <listitem>Decide if the mapper will be statically or dinamically compiled
 The first way is for simple, quick and easy mappers that doesn't need
-aditional/optional libraries, just inspect certificate contents
+aditional/optional libraries, just inspect certificate contents.
+
 The second way is for those mappers that need some optional libraries,
 such as ldap, kerberos, openssh or so</listitem>
 <listitem>Decide on single or multiple items mapper</listitem>
@@ -746,6 +747,9 @@ The API defines following functions:
 </para>
 
 <para>
+An important note is that mapfiles names can be provided as standard UNIX path names, or Universal Resource Locators. For instance, you can use either <filename>/etc/pam_pkcs11/subject_mapping</filename> or <filename>file:///etc/pam_pkcs11/subject_mapping</filename>. Our recommentation is to use second format as is not restricted to local files
+</para>
+<para>
 <lineannotation>NOTE:</lineannotation>
 The returned "<option>key</option>" and "<option>value</option>" entries should be used as <function>const char *</function>, that is, contents cannot be modified nor free()'d. If the programmer needs to modify these values, please make a copy with the <function>clone_str()</function> API provided function
 </para>
@@ -807,13 +811,94 @@ See the code for further reference :-)
 
 <sect1>
 <title> X509 Cert Tools API</title>
-
+<para>
+The mapper API provides several adittional tools to inspect the contents of a certificate. They are described in <filename>src/common/cert_info.h</filename>
+</para>
+<para>
+The basic library call is:
+<itemizedlist>
+<listitem><function>char **cert_info(X509 *x509, int type, const char *algorithm);</function></listitem>
+</itemizedlist>
+</para>
+<para>
+This function takes an argument, the X509 certificate to be inspected, and a macro that shows the certificate content to be searched. Some contents needs an aditional third <option>algorithm</option> parameters. When not used should be set to NULL
+</para>
+<para>
+The mapper API defines following macros:
+<itemizedlist>
+<listitem><option> CERT_CN</option> Certificate Common Name</listitem>
+<listitem><option> CERT_SUBJECT</option> Certificate subject</listitem>
+<listitem><option> CERT_KPN</option> Kerberos principal name</listitem>
+<listitem><option> CERT_EMAIL</option> Certificate e-mail</listitem>
+<listitem><option> CERT_UPN</option> Microsoft's Universal Principal Name</listitem>
+<listitem><option> CERT_UID</option> Certificate Unique Identifier</listitem>
+<listitem><option> CERT_PUK</option> Certificate Public Key (PEM Format)</listitem>
+<listitem><option> CERT_DIGEST</option> Certificate Digest</listitem>
+<listitem><option> CERT_SSHPUK</option> Certificate Public key in OpenSSH format</listitem>
+<listitem><option> CERT_PEM</option> Certificate in PEM format</listitem>
+</itemizedlist>
+</para>
+<para>
+Aditionally, when requesting <option>CERT_DIGEST</option> you must provide a valid digest algorithm:  "<option>null</option>", "<option>md2</option>", "<option>md4</option>", "<option>md5</option>", "<option>sha</option>", "<option>sha1</option>", "<option>dss</option>", "<option>dss1</option>" or "<option>ripemd160</option>"
+</para>
+<para>
+<function>cert_info()</function> returns an array of up to 15 string entries, corresponding to as many entry founds in the provided certificate. Last entry in the returned array is set to NULL;
+</para>
+<para>
+If some error ocurrs, or the certificate does not contain any entry, return NULL
+</para>
 </sect1>
 
 </chapter>
 
 <chapter id="more">
         <title>Going further</title>
+<sect1>
+<title>Hints</title>
+<para>
+It's really recommended the study of provided mappers, and the comodity macros
+</para>
+<para>
+Before start writting a new mapper, perhaps you'd better to check if there are already one mapper that performs your desired map. For instance, pwent and generic mapper can use Naming Swictch Service (NSS) to lookup pasword entries, and NSS is capable of perform some LDAP or Kerberos authentication task
+</para>
+<para>
+Don't hessitate in use of debugging functions. They are really usefull
+</para>
+<para>
+It's recommended write mappers in a way that they could be statically or dynamically linked without code change, Doing so you'll make maintainer life easier :-)
+Also, in order to ease debugging, single field mappers is preferred over multifield mappers
+</para>
+<para>
+Avoid write access to any global variable from the mapper code. Use comodity functions
+</para>
+<para>
+Don't make assumptions on the code. Allways add checks. 
+</para>
+<para>
+Use Universal Resource Locators -and the curl library- instead of hardcoded pathnames to specify files
+</para>
+</sect1>
+<sect1>
+<title>Getting help</title>
+<para>
+Send questions, patches, suggestions and so to OpenSC Mailing list: <email>opensc-devel at opensc.org</email>
+</para>
+<para>
+For additional specific info, contact with the authors:
+<itemizedlist>
+<listitem>
+Juan Antonio Martinez <email>jonsito at teleline.es</email>
+</listitem>
+<listitem>
+Mario Strasser <email>mast at gmx.net</email>
+</listitem>
+<listitem>
+Ludovic Rousseau <email>ludovic.rousseau at free.fr </email>
+</listitem>
+</itemizedlist>
+</para>
+
+</sect1>
 
 </chapter>
 
