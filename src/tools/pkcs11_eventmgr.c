@@ -32,7 +32,7 @@
 
 #define DEF_POLLING 1    /* 1 second timeout */
 #define DEF_EXPIRE 0    /* no expire */
-#define DEF_PKCS11_MODULE "/usr/lib/pkcs11/opensc-pkcs11.so"
+#define DEF_PKCS11_MODULE "/usr/lib/opensc-pkcs11.so"
 #define DEF_CONFIG_FILE "/etc/pam_pkcs11/pkcs11_eventmgr.conf"
 
 #define ONERROR_IGNORE	0
