@@ -14,10 +14,10 @@ bin_PROGRAMS = pkcs11_eventmgr pklogin_finder pkcs11_inspect
 endif
 
 pklogin_finder_SOURCES = pklogin_finder.c
-pklogin_finder_LDADD = $(FINDER_OBJS) @LIBSCCONF@ @LIBMAPPERS@ @LIBCOMMON@ @OPENSSL_LIBS@
+pklogin_finder_LDADD = $(FINDER_OBJS) @LIBMAPPERS@
 
 pkcs11_eventmgr_SOURCES = pkcs11_eventmgr.c
 pkcs11_eventmgr_LDADD = @LIBSCCONF@ @LIBCOMMON@ @OPENSSL_LIBS@
 
 pkcs11_inspect_SOURCES = pkcs11_inspect.c
-pkcs11_inspect_LDADD = $(FINDER_OBJS) @LIBSCCONF@ @LIBMAPPERS@ @LIBCOMMON@ @OPENSSL_LIBS@
+pkcs11_inspect_LDADD = $(FINDER_OBJS) @LIBMAPPERS@
