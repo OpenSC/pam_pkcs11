@@ -48,6 +48,7 @@
 */
 
 static int ignorecase = 0;
+static int debug = 0;
 
 /*
 * Returns the common name of certificate as an array list
@@ -145,8 +146,12 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
 	mapper_module *pt;
-	int debug= scconf_get_bool(blk,"debug",0);
+	if (blk) {
+		debug= scconf_get_bool(blk,"debug",0);
 	ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
+	} else {
+		DBG1("No block declarartion for mapper '%'",mapper_name);
+	}
 	set_debug_level(debug);
 	pt = init_mapper_st(blk,mapper_name);
 	if (pt) DBG("pwent mapper started");

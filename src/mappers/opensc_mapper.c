@@ -193,10 +193,9 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
 mapper_module * opensc_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
-        int debug;
 	mapper_module *pt;
-        if (!blk) return 0; /* should not occurs, but... */
-        debug      = scconf_get_bool(blk,"debug",0);
+        int debug = 0;
+        if (blk) debug = scconf_get_bool(blk,"debug",0);
         set_debug_level(debug);
 	pt = init_mapper_st(blk,mapper_name);
         if(pt) DBG1("OpenSC mapper started. debug: %d",debug);

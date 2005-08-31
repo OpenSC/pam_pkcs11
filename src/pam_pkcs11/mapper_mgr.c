@@ -130,8 +130,8 @@ void unload_module( struct mapper_instance *module ) {
 	DBG1("calling mapper_module_end() %s",module->module_name);
 	if ( module->module_data->deinit )
 		(*module->module_data->deinit)(module->module_data->context);
-	DBG1("unloading module %s",module->module_name);
 	if (module->module_handler) { 
+		DBG1("unloading module %s",module->module_name);
 		dlclose(module->module_handler);
 	} else {/* static mapper module */
 		DBG1("Module %s is static: don't remove",module->module_name);

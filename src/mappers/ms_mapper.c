@@ -52,6 +52,7 @@
 static int ignorecase = 0;
 static int ignoredomain =0;
 static const char *domainname="";
+static int debug =0;
 
 /* check syntax and domain match on provided string */
 static char *check_upn(char *str) {
@@ -173,10 +174,14 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 mapper_module * ms_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
 	mapper_module *pt;
-	int debug = scconf_get_bool(blk,"debug",0);
+	if (blk) {
+		debug = scconf_get_bool(blk,"debug",0);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	ignoredomain = scconf_get_bool(blk,"ignoredomain",ignoredomain);
 	domainname = scconf_get_str(blk,"domainname",domainname);
+	} else {
+		DBG1("No block declaration for mapper '%s'",mapper_name);
+	}
 	set_debug_level(debug);
 	pt = init_mapper_st(blk,mapper_name);
 	if (pt) DBG4("MS PrincipalName mapper started. debug: %d, idomain: %d, icase: %d, domainname: '%s'",debug,ignoredomain,ignorecase,domainname);

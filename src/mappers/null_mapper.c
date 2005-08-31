@@ -41,6 +41,7 @@
 
 static const char *default_user = "nobody";
 static int match=0;
+static int debug=0;
 
 static char * mapper_find_user(X509 *x509,void *context) {
 	if ( !x509 ) return NULL;
@@ -59,7 +60,8 @@ static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
 	pt->name = name;
 	pt->block = blk;
 	pt->context = NULL;
-	pt->entries = mapper_find_entries;
+	/* pt->entries = mapper_find_entries; */ /* nothing to list */
+	pt->entries = NULL;
 	pt->finder = mapper_find_user;
 	pt->matcher = mapper_match_user;
 	pt->deinit = mapper_module_end;
@@ -75,10 +77,15 @@ mapper_module * mapper_module_init(scconf_block *ctx,const char *mapper_name) {
 #else
 mapper_module * null_mapper_module_init(scconf_block *ctx,const char *mapper_name) {
 #endif
-	mapper_module *pt;
-	if (!ctx) return 0; /* should not occurs, but... */
+	mapper_module *pt= NULL;
+	if (ctx) {
 	default_user = scconf_get_str( ctx,"default_user",default_user);
 	match = scconf_get_bool( ctx,"default_match",0);
+		debug = scconf_get_bool( ctx,"debug",0);
+	} else {
+		DBG1("No block declaration for mapper '%'", mapper_name);
+	}
+	set_debug_level(debug);
 	pt = init_mapper_st(ctx,mapper_name);
 	if (pt) DBG1("Null mapper match set to '%s'",match?"allways":"never");
 	else DBG("Null mapper initialization failed");

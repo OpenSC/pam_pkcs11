@@ -42,6 +42,7 @@
 
 static const char *mapfile = "none";
 static int ignorecase = 0;
+static int debug = 0;
 
 /**
 * Return the list of UID's on this certificate
@@ -125,9 +126,13 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 mapper_module * uid_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
 	mapper_module *pt;
-        int debug= scconf_get_bool(blk,"debug",0);
+        if (blk) {
+		debug= scconf_get_bool(blk,"debug",0);
 	mapfile = scconf_get_str(blk,"mapfile",mapfile);
         ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
+	} else {
+		DBG1("No block declaration for mapper '%'", mapper_name);
+	}
         set_debug_level(debug);
 	pt= init_mapper_st(blk,mapper_name);
         if(pt) DBG3("UniqueID mapper started. debug: %d, mapfile: %s, icase: %d",debug,mapfile,ignorecase);

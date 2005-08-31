@@ -39,6 +39,7 @@
 
 static const char *filename = "none";
 static int ignorecase = 0;
+static int debug = 0;
 
 /*
 * returns the Certificate subject
@@ -102,12 +103,14 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
 mapper_module * subject_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
-	int debug;
 	mapper_module *pt;
-	if (!blk) return 0; /* should not occurs, but... */
+	if (blk) {
 	debug      = scconf_get_bool(blk,"debug",0);
 	filename   = scconf_get_str(blk,"mapfile",filename);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
+	} else {
+		DBG1("No block declaration for mapper '%'",mapper_name);
+	}
 	set_debug_level(debug);
 	pt= init_mapper_st(blk,mapper_name);
 	if(pt) DBG3("Subject mapper started. debug: %d, mapfile: %s, icase: %d",debug,filename,ignorecase);

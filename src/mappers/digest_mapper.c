@@ -41,6 +41,7 @@
 
 static const char *mapfile = "none";
 static const char *algorithm= "sha1";
+static int debug= 0;
 
 /*
 * return fingerprint of certificate
@@ -106,19 +107,22 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
 mapper_module * digest_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
-	int debug;
 	mapper_module *pt;
 	const EVP_MD *digest;
-	if (!blk) return 0; /* should not occurs, but... */
+	if (blk) { 
 	debug = scconf_get_bool( blk,"debug",0);
 	algorithm = scconf_get_str( blk,"algorithm","sha1");
+		mapfile= scconf_get_str(blk,"mapfile",mapfile);
+	} else {
+		/* should not occurs, but... */
+		DBG1("No block declaration for mapper '%s'",mapper_name);
+	}
 	set_debug_level(debug);
 	digest = EVP_get_digestbyname(algorithm);
 	if(!digest) {
 		DBG1("Invalid digest algorithm %s, using 'sha1'",algorithm);
 		algorithm="sha1";
 	}
-	mapfile= scconf_get_str(blk,"mapfile",mapfile);
 	pt = init_mapper_st(blk,mapper_name);
 	if (pt) DBG3("Digest mapper started. debug: %d, mapfile: %s, algorithm: %s",debug,mapfile,algorithm);
 	else DBG("Digest mapper initialization failed");

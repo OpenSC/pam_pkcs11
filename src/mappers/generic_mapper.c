@@ -44,6 +44,7 @@ static const char *mapfile = "none";
 static int usepwent = 0;
 static int ignorecase = 0;
 static int id_type = CERT_CN;
+static int debug = 0;
 
 static char **generic_mapper_find_entries(X509 *x509, void *context) {
         if (!x509) {
@@ -163,16 +164,19 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *name) {
 #else
 mapper_module * generic_mapper_module_init(scconf_block *blk,const char *name) {
 #endif
-	int debug;
 	mapper_module *pt;
-	const char *item;
-	if (!blk) return 0; /* should not occurs, but... */
+	const char *item="cn";
+	if (blk) { 
 	debug = scconf_get_bool( blk,"debug",0);
-	set_debug_level(debug);
 	ignorecase = scconf_get_bool( blk,"ignorecase",0);
 	usepwent = scconf_get_bool( blk,"use_getpwent",0);
 	mapfile= scconf_get_str(blk,"mapfile",mapfile);
 	item= scconf_get_str(blk,"cert_item","cn");
+	} else { 
+		/* should not occurs, but... */
+		DBG1("No block declaration for mapper '%s'",name);
+	}
+	set_debug_level(debug);
 	if (!strcasecmp(item,"cn"))           id_type=CERT_CN;
 	else if (!strcasecmp(item,"subject")) id_type=CERT_SUBJECT;
 	else if (!strcasecmp(item,"kpn") )    id_type=CERT_KPN;

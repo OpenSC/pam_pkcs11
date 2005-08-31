@@ -47,7 +47,7 @@ So the first version, will use getpwent() to navigate across all users
 and parsing ${userhome}/.ssh/authorized_keys
 */
 static const char *keyfile="/etc/pam_pkcs11/authorized_keys";
-
+static int debug=0;
 /**
 * This mapper try to locate user by comparing authorized public keys
 * from each $HOME/.ssh user entry, as done in openssh package
@@ -201,11 +201,13 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #else
 mapper_module * openssh_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
-        int debug;
 	mapper_module *pt;
-        if (!blk) return 0; /* should not occurs, but... */
+        if (blk) {
         debug      = scconf_get_bool(blk,"debug",0);
         keyfile    = scconf_get_str(blk,"keyfile",keyfile);
+	} else {
+		DBG1("No block declaration for mapper '%'",mapper_name);
+	}
         set_debug_level(debug);
 	pt = init_mapper_st(blk,mapper_name);
         if(pt) DBG2("OpenSSH mapper started. debug: %d, mapfile: %s",debug,keyfile);

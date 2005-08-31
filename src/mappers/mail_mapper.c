@@ -51,6 +51,8 @@ static int ignorecase = 1;
 static int ignoredomain = 1;
 static char *hostname = NULL;
 
+static int debug=0;
+
 /*
 * Extract list of email entries on certificate
 */
@@ -170,10 +172,14 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 mapper_module * mail_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
 	mapper_module *pt;
-	int debug = scconf_get_bool(blk,"debug",0);
+	if (blk) {
+		debug = scconf_get_bool(blk,"debug",0);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	ignoredomain = scconf_get_bool(blk,"ignoredomain",ignoredomain);
 	mapfile = scconf_get_str(blk,"mapfile",mapfile);
+	} else {
+		DBG1("No block declaration for mapper '%s'",mapper_name);
+	}
 	set_debug_level(debug);
 	/* obtain and store hostname */
 	/* Note: in some systems without nis/yp, getdomainname() call

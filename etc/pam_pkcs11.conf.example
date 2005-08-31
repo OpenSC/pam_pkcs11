@@ -114,7 +114,8 @@ pam_pkcs11 {
   # provided file stores one or more "Subject -> login" lines
   mapper subject {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/subject_mapper.so;
+	# module = /usr/lib/pam_pkcs11/subject_mapper.so;
+	module = internal;
 	ignorecase = false;
 	mapfile = file:///etc/pam_pkcs11/subject_mapping;
   }
@@ -141,7 +142,8 @@ pam_pkcs11 {
   # Null ( no map ) mapper. when user as finder matchs to NULL or "nobody"
   mapper null {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/null_mapper.so;
+	# module = /usr/lib/pam_pkcs11/null_mapper.so;
+	module = internal ;
 	# select behavior: always match, or always fail
 	default_match = false;
 	# on match, select returned user

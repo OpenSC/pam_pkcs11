@@ -40,6 +40,7 @@
 * entry on the certificate to find user name.
 */
 
+static int debug = 0;
 /*
 TODO:
 Implement kerberos authentication via PKINIT protocol
@@ -129,7 +130,7 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 mapper_module * krb_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
 	mapper_module *pt;
-	int debug = scconf_get_bool(blk,"debug",0);
+	if( blk) debug = scconf_get_bool(blk,"debug",0);
 	set_debug_level(debug);
 	pt=init_mapper_st(blk,mapper_name);
 	if(pt) DBG("KPN mappper started");
