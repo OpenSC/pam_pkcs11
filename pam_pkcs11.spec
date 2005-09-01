@@ -1,6 +1,6 @@
 Name:           pam_pkcs11
 Version:        0.5.3
-Release:        0
+Release:        1
 Epoch:          0
 Summary:        PKCS #11 PAM module
 
@@ -81,7 +81,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/pklogin_finder
 %{_bindir}/pkcs11_inspect
 %{_libdir}/%{name}/*.so
-%{_libdir}/security/pam_pkcs11.so
+/%{_lib}/security/pam_pkcs11.so
 %{_mandir}/man8/%{name}.8.gz
 %{_mandir}/man1/pkcs11_eventmgr.1.gz
 %{_mandir}/man1/pkcs11_inspect.1.gz
