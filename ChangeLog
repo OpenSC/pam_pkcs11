@@ -1,3 +1,37 @@
+01- Sep 2005
+	- Finished OpenSC mapper. Thanks to Andreas for their pam_opensc module
+	- New .spec file
+	- Cleanning tasks to prepare next release
+
+31- Aug 2005
+	- Include HOWTO in Pam-pkcs11 manual
+	- Several fixes in src/mappers/Makefile.am to properly manage libraries
+
+30- Aug 2005
+	- Allow static mapper to be instantiated with defaults if
+	no configuration block defined
+	- Documentation updates
+	- Make pam_pkcs11.so to be installed at /lib/security
+	- Debugging improvements
+
+29- Aug 2005
+	- Mappers can be now statically linked
+	- Added Mapper API documentation
+	- Moved most of mappers to be static
+
+28- Aug 2005
+	- Documentation Updates
+	- Created libmapper
+	- pam_sm_authenticate fail on xdmcp remote users
+
+05- Jul 2005
+	- Many improvements to code by Ludovic Rousseau
+	- Configure.in library checks improvements
+	- Do not compile card-eventmgr if pcsc is not installed
+
+09- Jun 2005
+	- Preliminary works on OpenSC mapper
+
 06- Jun 2005
 	- Added openssh mapper
 	- Now pam_pkcs11 generates PEM data for cert and pubk
@@ -23,6 +57,9 @@
 	- Fix configure.in AM_MAINTAINER_MODE
 	- Makefile fixes
 	- Fix some typos and sample files
+
+04- Apr 2005
+	- Tarball moved to OpenSC Project web pages
 
 02- Apr 2005
 	- pkcs11_login-0.5 is out
