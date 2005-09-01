@@ -12,9 +12,9 @@ pam_pkcs11_la_SOURCES =  pam_pkcs11.c  \
 pam_pkcs11_la_LDFLAGS = -module -avoid-version
 pam_pkcs11_la_LIBADD = @LIBMAPPERS@ @OPENSSL_LIBS@ 
 
-# install:       
-#	$(mkinstalldirs) $(DESTDIR)/$(libdir)/security
-#	$(libLTLIBRARIES_INSTALL) $(top_builddir)/src/pam_pkcs11/.libs/pam_pkcs11.so $(DESTDIR)/$(libdir)/security
+install:       
+	$(mkinstalldirs) $(DESTDIR)/$(libdir)
+	$(libLTLIBRARIES_INSTALL) $(top_builddir)/src/pam_pkcs11/.libs/pam_pkcs11.so $(DESTDIR)/$(libdir)
 
 format:
 	indent *.c *.h
