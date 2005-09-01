@@ -81,7 +81,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/pklogin_finder
 %{_bindir}/pkcs11_inspect
 %{_libdir}/%{name}/*.so
-/%{_lib}/security/pam_pkcs11.so
+%{_libdir}/security/pam_pkcs11.so
 %{_mandir}/man8/%{name}.8.gz
 %{_mandir}/man1/pkcs11_eventmgr.1.gz
 %{_mandir}/man1/pkcs11_inspect.1.gz

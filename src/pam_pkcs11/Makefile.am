@@ -1,7 +1,5 @@
 # $Id$
 
-libdir = ${prefix}/../lib/security
-
 AM_CFLAGS = -Wall -fno-strict-aliasing @OPENSSL_CFLAGS@
 
 lib_LTLIBRARIES = pam_pkcs11.la
@@ -13,8 +11,8 @@ pam_pkcs11_la_LDFLAGS = -module -avoid-version
 pam_pkcs11_la_LIBADD = @LIBMAPPERS@ @OPENSSL_LIBS@ 
 
 install:       
-	$(mkinstalldirs) $(DESTDIR)/$(libdir)
-	$(libLTLIBRARIES_INSTALL) $(top_builddir)/src/pam_pkcs11/.libs/pam_pkcs11.so $(DESTDIR)/$(libdir)
+	$(mkinstalldirs) $(DESTDIR)/$(libdir)/security
+	$(libLTLIBRARIES_INSTALL) $(top_builddir)/src/pam_pkcs11/.libs/pam_pkcs11.so $(DESTDIR)/$(libdir)/security
 
 format:
 	indent *.c *.h
