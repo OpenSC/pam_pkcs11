@@ -12,3 +12,10 @@ Timo Sirainen <tss@iki.fi>
 Ludovic Rousseau <ludovic.rousseau@free.fr>
 	Many fixes and improvements
 	card_eventmgr mantainer
+
+Andreas Jellinghaus <aj@dungeon.inka.de>
+	OpenSC and OpenSSH mappers original
+	code from PAM_p11 libraries
+
+Also Thanks to all the people at the OpenSC project
+
