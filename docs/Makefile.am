@@ -1,5 +1,7 @@
 # Process this file with automake to create Makefile.in
 
+MAINTAINERCLEANFILES = Makefile.in
+
 XSLTPROC = @XSLTPROC@
 HTMLFILES = pam_pkcs11.html mappers_api.html pam_pkcs11.css
 XMLFILES = pam_pkcs11.xml mappers_api.xml pam_pkcs11.xsl

@@ -1,5 +1,7 @@
 # Process this file with automake to create Makefile.in
 
+MAINTAINERCLEANFILES = Makefile.in
+
 libdir = @libdir@/pam_pkcs11
 
 # Add openssl specific flags
