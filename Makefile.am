@@ -15,8 +15,8 @@ DEPCLEANFILES = config.log configure
 
 AUTOMAKE_OPTIONS = foreign
 
-# dist: gendoc
+dist: gendoc
 
-#gendoc:
-#	sh $(srcdir)/doc/export-wiki.sh $(srcdir)/doc
-#	sh $(srcdir)/doc/old/generate.sh $(srcdir)/doc/old
+gendoc:
+#	sh $(srcdir)/docs/export-wiki.sh $(srcdir)/docs
+	sh $(srcdir)/docs/generate-api.sh $(srcdir)/docs

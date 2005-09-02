@@ -1,10 +1,12 @@
 # Process this file with automake to create Makefile.in
 
-MAINTAINERCLEANFILES = Makefile.in
+MAINTAINERCLEANFILES = Makefile.in $(HTMLFILES) api/*
 
 XSLTPROC = @XSLTPROC@
-HTMLFILES = pam_pkcs11.html mappers_api.html pam_pkcs11.css
-XMLFILES = pam_pkcs11.xml mappers_api.xml pam_pkcs11.xsl
+HTMLFILES = pam_pkcs11.html mappers_api.html
+XMLFILES = pam_pkcs11.xml mappers_api.xml \
+	pam_pkcs11.xsl export-wiki.xsl \
+	pam_pkcs11.css
 
 MANSRC = \
 	pam_pkcs11.8 card_eventmgr.1 pklogin_finder.1 \
@@ -13,7 +15,8 @@ MANSRC = \
 man_MANS = $(MANSRC)
 noinst_DATA = $(HTMLFILES)
 EXTRA_DIST = $(MANSRC) $(XMLFILES) $(HTMLFILES) doxygen.conf \
-	README.mappers README.autologin README.eventmgr 
+	README.mappers README.autologin README.eventmgr \
+	export-wiki.sh generate-api.sh
 
 STYLESHEET = pam_pkcs11.xsl
 
