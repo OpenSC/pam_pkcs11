@@ -30,21 +30,99 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+* String management library
+*/
 #ifndef _STRINGS_C_
 #define M_EXTERN extern
 #else
 #define M_EXTERN
 #endif
 
+/**
+ * Check for a null or spaced string
+ *@param str Tested string
+ *@return nonzero on null, empty or spaced string, else zero
+ */
 M_EXTERN int is_empty_str(const char *str);
+
+/**
+ * Duplicate a string
+ *@param str String to be cloned
+ *@return Pointer to cloned string or null if error in allocating memory
+ */
 M_EXTERN char *clone_str(const char *str);
+
+/**
+ * Duplicate a string converting all chars to upper-case
+ *@param str String to be cloned & uppercassed
+ *@return Pointer to result string or null if error in allocating memory
+ */
 M_EXTERN char *toupper_str(const char *str);
+
+/**
+ * Duplicate a string converting all chars to lower-case
+ *@param str String to be cloned & lowercased
+ *@return Pointer to result string or null if error in allocating memory
+ */
 M_EXTERN char *tolower_str(const char *str);
+
+/**
+ * Convert a byte array into a colon-separated hexadecimal sequence
+ *@param binstr ByteArray to be parsed
+ *@param len Number of bytes to be converted
+ *@return Pointer to result string or null if error in allocating memory
+ */
 M_EXTERN char *bin2hex(const unsigned char *binstr,const int len);
+
+/**
+ * Convert a colon-separated hexadecimal data into a byte array
+ *@param str String to be parsed
+ *@return Pointer to resulting byte array, or null if no memory available
+ */
 M_EXTERN unsigned char *hex2bin(const char *hexstr);
+
+/**
+ * Convert a colon-separated hexadecimal data into a byte array, 
+ * store result into a previously allocated space
+ *@param str String to be parsed
+ *@param res Pointer to pre-allocated user space
+ *@paran size Pointer to store lenght of data parsed
+ *@return Pointer to resulting byte array, or null on parse error
+ */
 M_EXTERN unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size);
+
+/**
+ * Splits a string to an array of nelems by using sep as character separator.
+ *
+ * To free() memory used by this call, call free(res[0]); free(res);
+ *@param str String to be parsed
+ *@param sep Character to be used as separator
+ *@param nelems Number of elements of resulting array
+ *@return res: Pointer to resulting string array, or null if malloc() error
+ */
 M_EXTERN char **split(const char *str,char sep, int nelems);
+
+/**
+ * Splits a string to an array of nelems by using sep as character separator,
+ * using dest as pre-allocated destination memory for the resulting array
+ *
+ * To free() memory used by this call, just call free result pointer 
+ *@param str String to be parsed
+ *@param sep Character to be used as separator
+ *@param nelems Number of elements of resulting array
+ *@param dst Char array to store temporary data
+ *@return Pointer to resulting string array, or null if malloc() error
+ */
 M_EXTERN char **split_static(const char *str,char sep, int nelems,char *dst);
+
+/**
+ * Remove all extra spaces from a string. 
+ * a char is considered space if trues isspace()
+ *
+ *@param str String to be trimmed
+ *@return Pointer to cloned string with all spaces trimmed or null if error in allocating memory
+ */
 M_EXTERN char *trim(const char *str);
 
 #undef M_EXTERN
