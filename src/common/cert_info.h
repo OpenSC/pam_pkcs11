@@ -16,41 +16,52 @@
  * $Id$
  */
 
-#ifndef _CERT_INFO_H
-#define _CERT_INFO_H
+#ifndef __CERT_INFO_H_
+#define __CERT_INFO_H_
 
 #include <openssl/x509.h>
 
-#define CERT_CN		1	/* Certificate Common Name */
-#define CERT_SUBJECT	2	/* Certificate subject */
-#define CERT_KPN	3	/* Kerberos principal name */
-#define CERT_EMAIL	4	/* Certificate e-mail */
-#define CERT_UPN	5	/* Microsoft's Universal Principal Name */
-#define CERT_UID	6	/* Certificate Unique Identifier */
-#define CERT_PUK	7	/* Certificate Public Key (PEM Format)*/
-#define CERT_DIGEST	8	/* Certificate Digest */
-#define CERT_SSHPUK	9	/* Certificate Public key in OpenSSH format */
-#define CERT_PEM	10	/* Certificate in PEM format */
+/** Certificate Common Name */
+#define CERT_CN		1	
+/** Certificate subject */
+#define CERT_SUBJECT	2
+/** Kerberos principal name */
+#define CERT_KPN	3	
+/** Certificate e-mail */
+#define CERT_EMAIL	4	
+/** Microsoft's Universal Principal Name */
+#define CERT_UPN	5	
+/** Certificate Unique Identifier */
+#define CERT_UID	6	
+/** Certificate Public Key (PEM Format)*/
+#define CERT_PUK	7	
+/** Certificate Digest */
+#define CERT_DIGEST	8	
+/** Certificate Public key in OpenSSH format */
+#define CERT_SSHPUK	9	
+/** Certificate in PEM format */
+#define CERT_PEM	10	
 
-/* max number of entries to find from certificate */
+/** Max size of returned certificate content array */
 #define CERT_INFO_SIZE 16
+/** Max number of entries to find from certificate */
 #define CERT_INFO_MAX_ENTRIES ( CERT_INFO_SIZE - 1 ) 
 
-#ifndef _CERT_INFO_C
-#define M_EXTERN extern
+#ifndef __CERT_INFO_C_
+#define CERTINFO_EXTERN extern
 #else
-#define M_EXTERN
+#define CERTINFO_EXTERN
 #endif
 
 /**
-* request info on certificate
+* Request info on certificate
 * @param x509 certificate to parse
 * @param type information to retrieve
 * @param algorithm to use in evaluate certificate digest; else null
 * @return utf-8 string array with provided information
 */
-M_EXTERN char **cert_info(X509 *x509, int type, const char *algorithm);
+CERTINFO_EXTERN char **cert_info(X509 *x509, int type, const char *algorithm);
 
-#undef M_EXTERN
+#undef CERTINFO_EXTERN
 
-#endif /* _CERT_INFO_H */
+#endif /* __CERT_INFO_H_ */

@@ -15,15 +15,41 @@
  * $Id$
  */
 
-#ifndef URI_H
-#define URI_H
+/** \file
+ This module contains several functions to retrieve data from an URL
+
+ Some examples of valid URL's:
+ <ul>
+ <li>file:///home/mario/projects/pkcs11_login/tests/ca_crl_0.pem</li>
+ <li>ftp://ftp.rediris.es/certs/rediris_cacert.pem</li>
+ <li>http://www-t.zhwin.ch/ca/root_ca.crl</li>
+ <li>ldap://directory.verisign.com:389/CN=VeriSign IECA, OU=IECA-3, OU=Contractor, OU=PKI, OU=DOD, O=U.S. Government, C=US?certificateRevocationList;binary</li>
+ </ul>
+*/
+
+#ifndef __URI_H_
+#define __URI_H_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 #include <malloc.h>
 
-/* Downloads data from a given URI */
-int get_from_uri(const char *uri_str, unsigned char **data, size_t *length);
+#ifndef __URI_C_
+#define URI_EXTERN extern
+#else
+#define URI_EXTERN
+#endif
 
-#endif /* URI_H */
+/**
+*  Downloads data from a given URI
+*@param uri_str URL string where to retrieve data
+*@param data Pointer to a String buffer where data is retrieved
+*@param length Length of retrieved data
+*@return -1 on error, 0 on sucess
+*/
+URI_EXTERN int get_from_uri(const char *uri_str, unsigned char **data, size_t *length);
+
+#undef URI_EXTERN
+
+#endif /* __URI_H_ */

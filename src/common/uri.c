@@ -15,6 +15,8 @@
  * $Id$
  */
 
+#define __URI_C_
+
 #include "uri.h"
 #include "debug.h"
 #include "error.h"
