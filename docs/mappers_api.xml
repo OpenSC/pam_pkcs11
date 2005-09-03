@@ -847,6 +847,14 @@ Aditionally, when requesting <option>CERT_DIGEST</option> you must provide a val
 <para>
 If some error ocurrs, or the certificate does not contain any entry, return NULL
 </para>
+<para>
+There are two additional methods to check certificate/signatures:
+<itemizedlist>
+<listitem><function>int verify_certificate(X509 * x509, char *ca_dir, char *crl_dir, crl_policy_t policy);</function> To check a certificate</listitem>
+<listitem><function>int verify_signature(X509 * x509, unsigned char *data, int data_length, unsigned char *signature, int signature_length);</function> To verify a signature</listitem>
+</itemizedlist>
+
+</para>
 </sect1>
 
 </chapter>

@@ -15,6 +15,8 @@
  * $Id$
  */
 
+#define __CERT_VFY_C_
+
 #include <string.h>
 #include <openssl/objects.h>
 #include <openssl/err.h>

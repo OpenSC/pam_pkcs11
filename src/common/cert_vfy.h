@@ -15,16 +15,58 @@
  * $Id$
  */
 
-#ifndef _CERT_VFY_H
-#define _CERT_VFY_H
+/** \file
+Several routines to:
+<ul>
+<li> Verify certificate</li>
+<li> Check for revocation list</li>
+<li> Verify signature</li>
+</ul>
+*/
+
+#ifndef __CERT_VFY_H_
+#define __CERT_VFY_H_
 
 #include <openssl/x509.h>
 
-typedef enum { CRLP_NONE, CRLP_ONLINE, CRLP_OFFLINE, CRLP_AUTO } crl_policy_t;
+typedef enum { 
+	/** Do not perform any CRL verification */
+	CRLP_NONE, 
+	/** Retrieve CRL from CA site */
+	CRLP_ONLINE, 
+	/** Retrieve CRL from local filesystem */
+	CRLP_OFFLINE,
+	/** Try CRL check online, else ofline, else fail */
+	CRLP_AUTO 
+	} crl_policy_t;
 
-int verify_certificate(X509 * x509, char *ca_dir, char *crl_dir, crl_policy_t policy);
+#ifndef __CERT_VFY_C
+#define CERTVFY_EXTERN extern
+#else
+#define CERTVFY_EXTERN
+#endif
 
-int verify_signature(X509 * x509, unsigned char *data, int data_length,
-                     unsigned char *signature, int signature_length);
+/**
+* Verify provided certificate, and if needed, CRL
+*@param x509 Certificate to check
+*@param ca_dir HashDir to retrieve CA Certificates
+*@param crl_dir HashDir to retrieve CRL's
+*@param policy CRL verify policy
+*@return 1 on cert vfy sucess, 0 on fail, -1 on process error
+*/
+CERTVFY_EXTERN int verify_certificate(X509 * x509, char *ca_dir, char *crl_dir, crl_policy_t policy);
 
-#endif /* _CERT_VFY_H */
+/**
+* Verify signature of provided data
+*@param x509 Certificate to be used
+*@param data Byte array of data to check
+*@param data_len Lenght of provided byte array
+*@param signature Byte array of signature to check
+*@param signature_length Length of signature byte array
+*@return 1 on signature vfy sucess, 0 on vfy fail, -1 on process error
+*/
+CERTVFY_EXTERN int verify_signature(X509 * x509, unsigned char *data, int data_length, unsigned char *signature, int signature_length);
+
+#undef CERTVFY_EXTERN
+
+#endif /* __CERT_VFY_H_ */
