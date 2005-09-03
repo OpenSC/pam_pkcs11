@@ -810,6 +810,20 @@ See the code for further reference :-)
 </sect1>
 
 <sect1>
+<title> BASE64 Encoding functions </title>
+<para>
+In order to read/write public SSH keys, two funtions are provided to manage base64 encoding:
+<itemizedlist>
+<listitem><function>int base64_encode(const unsigned char *in, size_t len, unsigned char *out, size_t outlen, size_t linelength)</function> To encode a byte array into a base64 string</listitem>
+<listitem><function>int base64_decode(const char *in, unsigned char *out, size_t outlen)</function> To decode a base64 data into a byte array</listitem>
+</itemizedlist>
+</para>
+<para>
+See doxygen documentation and source code for more info
+</para>
+</sect1>
+
+<sect1>
 <title> X509 Cert Tools API</title>
 <para>
 The mapper API provides several adittional tools to inspect the contents of a certificate. They are described in <filename>src/common/cert_info.h</filename>

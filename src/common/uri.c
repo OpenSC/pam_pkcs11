@@ -51,8 +51,7 @@ static size_t curl_get(void *ptr, size_t size, size_t nmemb, void *stream) {
     return size;
 }
 
-int get_from_uri(const char *uri_str, unsigned char **data, size_t *length)
-{
+int get_from_uri(const char *uri_str, unsigned char **data, size_t *length) {
   int rv;
   CURL *curl;
   char curl_error[CURL_ERROR_SIZE] = "0";
