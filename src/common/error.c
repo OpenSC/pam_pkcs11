@@ -18,12 +18,16 @@
 #include "error.h"
 #include <string.h>
 
-#define ERROR_BUFFER_SIZE 512
+#define __ERROR_C_
 
 static char error_buffer[ERROR_BUFFER_SIZE] = "";
 
-void set_error(char *format, ...)
-{
+/**
+* store an error message into a temporary buffer, in a similar way as sprintf does
+* @param format String to be stored
+* @param ... Additional parameters
+*/
+void set_error(char *format, ...) {
   static char tmp[ERROR_BUFFER_SIZE];
   va_list ap;
   va_start(ap, format);
@@ -32,7 +36,10 @@ void set_error(char *format, ...)
   strcpy(error_buffer, tmp);
 }
 
-const char *get_error()
-{
+/**
+* Retrieve error message string from buffer
+*@return Error message
+*/
+const char *get_error() {
   return (const char *)error_buffer;
 }

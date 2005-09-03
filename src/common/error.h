@@ -15,21 +15,34 @@
  * $Id$
  */
 
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef __ERROR_H_
+#define __ERROR_H_
 
 #include <stdarg.h>
 #include <openssl/err.h>
 #include <errno.h>
 
-/*
- * Sets the last error message.
- */
-void set_error(char *format, ...);
+/** Default error message buffer size */
+#define ERROR_BUFFER_SIZE 512 
 
-/*
- * Gets the last error message.
- */
-const char *get_error();
+#ifndef __ERROR_C_
+#define ERROR_EXTERN extern
+#else
+#define ERROR_EXTERN
+#endif
 
-#endif /* ERROR_H */
+/**
+* store an error message into a temporary buffer, in a similar way as sprintf does
+* @param format String to be stored
+* @param ... Additional parameters
+*/
+ERROR_EXTERN void set_error(char *format, ...);
+
+/**
+* Retrieve error message string from buffer
+*@return Error message
+*/
+ERROR_EXTERN const char *get_error();
+
+#undef ERROR_EXTERN
+#endif /* __ERROR_H_ */
