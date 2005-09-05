@@ -32,10 +32,9 @@
 *@param len lenght of input data
 *@param out Pointer to preallocated buffer space
 *@param outlen Size of buffer
-*@param linelength Number of chars on each line to be writen
 *@return 0 on sucess, -1 on error
 */
-BASE64_EXTERN int base64_encode(const unsigned char *in, size_t len, unsigned char *out, size_t outlen, size_t linelength);
+BASE64_EXTERN int base64_encode(const unsigned char *in, size_t len, unsigned char *out, size_t *outlen);
 
 /**
 * Decode a base64 string into a byte array

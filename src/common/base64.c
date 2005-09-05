@@ -25,10 +25,12 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "debug.h"
+#include "error.h"
 #include "base64.h"
 
-static const unsigned char base64_table[66] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" "0123456789+/=";
+static const unsigned char codes[66] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
 static const unsigned char bin_table[128] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -48,17 +50,6 @@ static const unsigned char bin_table[128] = {
 	0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
 	0x31, 0x32, 0x33, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 };
-
-static void to_base64(unsigned int i, unsigned char *out, unsigned int fillers) {
-	unsigned int s = 18, c;
-
-	for (c = 0; c < 4; c++) {
-		if (fillers >= 4 - c) *out = base64_table[64];
-		else *out = base64_table[(i >> s) & 0x3f];
-		out++;
-		s -= 6;
-	}
-}
 
 static int from_base64(const char *in, unsigned int *out, int *skip) {
 	unsigned int res = 0, c, s = 18;
@@ -87,47 +78,44 @@ static int from_base64(const char *in, unsigned int *out, int *skip) {
 	return c * 6 / 8;
 }
 
-int base64_encode(const unsigned char *in, size_t len, unsigned char *out, size_t outlen, size_t linelength) {
-	unsigned int chars = 0;
-	size_t i, c;
+int base64_encode(const unsigned char *in,  size_t len, unsigned char *out, size_t *outlen) {
+   size_t i, len2, leven;
+   unsigned char *p;
 
-	linelength -= linelength & 0x03;
-	if (linelength < 0) return -1;
-	while (len >= 3) {
-		i = in[2] + (in[1] << 8) + (in[0] << 16);
-		in += 3;
-		len -= 3;
-		if (outlen < 4) return -1;
-		to_base64(i, out, 0);
-		out += 4;
-		outlen -= 4;
-		chars += 4;
-		if (chars >= linelength && linelength > 0) {
-			if (outlen < 1) return -1;
-			*out = '\n';
-			out++;
-			outlen--;
-			chars = 0;
+   if (!in) return -1;
+   if (!out) return -1;
+   if (!outlen) return -1;
+
+   /* valid output size ? */
+   len2 = 4 * ((len + 2) / 3);
+   if (*outlen < len2 + 1) {
+	DBG3("Not enought space '%d' to process '%d': needed '%d' bytes",*outlen,len,len2+1);
+	return -1;
 		}
+   p = out;
+   leven = 3*(len / 3);
+   for (i = 0; i < leven; i += 3) {
+       *p++ = codes[(in[0] >> 2) & 0x3F];
+       *p++ = codes[(((in[0] & 3) << 4) + (in[1] >> 4)) & 0x3F];
+       *p++ = codes[(((in[1] & 0xf) << 2) + (in[2] >> 6)) & 0x3F];
+       *p++ = codes[in[2] & 0x3F];
+       in += 3;
 	}
-	i = c = 0;
-	while (c < len) i |= *in++ << ((2 - c++) << 3);
-	if (len) {
-		if (outlen < 4) return -1;
-		to_base64(i, out, 3 - len);
-		out += 4;
-		outlen -= 4;
-		chars += 4;
+   /* Pad it if necessary...  */
+   if (i < len) {
+       unsigned a = in[0];
+       unsigned b = (i+1 < len) ? in[1] : 0;
+       *p++ = codes[(a >> 2) & 0x3F];
+       *p++ = codes[(((a & 3) << 4) + (b >> 4)) & 0x3F];
+       *p++ = (i+1 < len) ? codes[(((b & 0xf) << 2)) & 0x3F] : '=';
+       *p++ = '=';
 	}
-	if (chars && linelength > 0) {
-		if (outlen < 1) return -1;
-		*out = '\n';
-		out++;
-		outlen--;
-	}
-	if (outlen < 1) return -1;
-	*out = 0;
 
+   /* append a NULL byte */
+   *p = '\0';
+
+   /* return ok */
+   *outlen = p - out;
 	return 0;
 }
 

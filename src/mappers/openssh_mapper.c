@@ -26,16 +26,25 @@
 #include <config.h>
 #endif
 
-#include <openssl/x509.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <pwd.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
 
+#include <openssl/x509.h>
+#include <openssl/evp.h>
+#include <openssl/bn.h>
+
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
+#include "../common/base64.h"
 #include "../common/strings.h"
 #include "../common/cert_info.h"
 #include "mapper.h"
@@ -48,39 +57,169 @@ and parsing ${userhome}/.ssh/authorized_keys
 */
 static const char *keyfile="/etc/pam_pkcs11/authorized_keys";
 static int debug=0;
+
 /**
 * This mapper try to locate user by comparing authorized public keys
 * from each $HOME/.ssh user entry, as done in openssh package
 */
 
-static int match_key(char *certkey, char *filekey) {
-	if ( strstr(filekey,certkey) ) return 1;
-	return 0;
+#define OPENSSH_LINE_MAX 8192	/* from openssh SSH_MAX_PUBKEY_BYTES */
+
+static EVP_PKEY *ssh1_line_to_key(char *line) {
+	EVP_PKEY *key;
+	RSA *rsa;
+	char *b, *e, *m, *c;
+
+	key = EVP_PKEY_new();
+	if (!key) return NULL;
+	rsa = RSA_new();
+	if (!rsa) goto err;
+
+	/* first digitstring: the bits */
+	b = line;
+	/* second digitstring: the exponent */
+	/* skip all digits */
+	for (e = b; *e >= '0' && *e <= '0'; e++) ;
+	/* must be a whitespace */
+	if (*e != ' ' && *e != '\t') return NULL;
+	/* cut the string in two part */
+	*e = 0;
+	e++;
+	/* skip more whitespace */
+	while (*e == ' ' || *e == '\t') e++;
+	/* third digitstring: the modulus */
+	/* skip all digits */
+	for (m = e; *m >= '0' && *m <= '0'; m++) ;
+	/* must be a whitespace */
+	if (*m != ' ' && *m != '\t') return NULL;
+
+	/* cut the string in two part */
+	*m = 0;
+	m++;
+
+	/* skip more whitespace */
+	while (*m == ' ' || *m == '\t') m++;
+
+	/* look for a comment after the modulus */
+	for (c = m; *c >= '0' && *c <= '0'; c++) ;
+
+	/* could be a whitespace or end of line */
+	if (*c != ' ' && *c != '\t' && *c != '\n' && *c != '\r' && *c != 0) return NULL;
+
+	if (*c == ' ' || *c == '\t') {
+		*c = 0;
+		c++;
+
+		/* skip more whitespace */
+		while (*c == ' ' || *c == '\t') c++;
+
+		if (*c && *c != '\r' && *c != '\n') {
+			/* we have a comment */
+		} else {
+			c = NULL;
+		}
+
+	} else {
+		*c = 0;
+		c = NULL;
+	}
+
+	/* ok, now we have b e m pointing to pure digit
+	 * null terminated strings and maybe c pointing to a comment */
+
+	BN_dec2bn(&rsa->e, e);
+	BN_dec2bn(&rsa->n, m);
+
+	EVP_PKEY_assign_RSA(key, rsa);
+	return key;
+
+      err:
+	free(key);
+	return NULL;
 }
 
-static int match_keyfile(char *certkey,FILE *file) {
-	char line[2048];
-	int res;
-	while(fgets(line,2048,file)!= NULL ) {
-		char *pt;
-		/* Ensure end of string and strip EOL */
-		line[2048]='\0';
-		if (line[0]=='#') continue; /* skip comments */
-		if (line[strlen(line)-1]=='\n') line[strlen(line)-1] ='\0'; 
-		if (is_empty_str(line)) continue; /* skip blank lines */
-		pt = strstr(line,"ssh-dss ");
-		if (!pt) pt = strstr(line,"ssh-rsa ");
-		if (!pt) {
-			/* TODO: parse old style (ssh-v1) keys */
-			DBG1("Unknown line format found: '%s'",line);
-			continue;
-		}
-		res= match_key(certkey,pt);
-		if (res<=0) continue; /* not a key or key doesn't match*/
-		return res; /* match found */
+static EVP_PKEY *ssh2_line_to_key(char *line) {
+	EVP_PKEY *key;
+	RSA *rsa;
+	unsigned char decoded[OPENSSH_LINE_MAX];
+	int len;
+
+	char *b, *c;
+	int i;
+
+	/* find the mime-blob */
+	b = line;
+	if (!b) return NULL;
+
+	/* find the first whitespace */
+	while (*b && *b != ' ') b++;
+	/* skip that whitespace */
+	b++;
+	/* find the end of the blob / comment */
+	for (c = b; *c && *c != ' ' && 'c' != '\t' && *c != '\r' && *c != '\n'; c++) ;
+	*c = 0;
+	/* decode binary data */
+	if (base64_decode(b, decoded, OPENSSH_LINE_MAX) < 0) return NULL;
+
+	i = 0;
+	/* get integer from blob */
+	len =
+	    (decoded[i] << 24) + (decoded[i + 1] << 16) +
+	    (decoded[i + 2] << 8) + (decoded[i + 3]);
+	i += 4;
+
+	/* now: key_from_blob */
+	if (strncmp((char *)&decoded[i], "ssh-rsa", 7) != 0) return NULL; 
+	i += len;
+
+	key = EVP_PKEY_new();
+	rsa = RSA_new();
+
+	/* get integer from blob */
+	len =
+	    (decoded[i] << 24) + (decoded[i + 1] << 16) +
+	    (decoded[i + 2] << 8) + (decoded[i + 3]);
+	i += 4;
+
+	/* get bignum */
+	rsa->e = BN_bin2bn(decoded + i, len, NULL);
+	i += len;
+
+	/* get integer from blob */
+	len =
+	    (decoded[i] << 24) + (decoded[i + 1] << 16) +
+	    (decoded[i + 2] << 8) + (decoded[i + 3]);
+	i += 4;
+
+	/* get bignum */
+	rsa->n = BN_bin2bn(decoded + i, len, NULL);
+
+	EVP_PKEY_assign_RSA(key, rsa);
+	return key;
+}
+
+static void add_key(EVP_PKEY * key, EVP_PKEY *** keys, int *nkeys) {
+	EVP_PKEY **keys2;
+	/* sanity checks */
+	if (!key) return;
+	if (!keys) return;
+	if (!nkeys) return;
+	/* no keys so far */
+	if (!*keys) {
+		*keys = malloc(sizeof(void *));
+		if (!*keys) return;
+		*keys[0] = key;
+		*nkeys = 1;
+		return;
 	}
-	/* end of keyfile without match */
-	return 0;
+	/* enlarge */
+	keys2 = malloc(sizeof(void *) * ((*nkeys) + 1));
+	if (!keys2) return;
+	memcpy(keys2, *keys, sizeof(void *) * (*nkeys));
+	keys2[*nkeys] = key;
+	free(*keys);
+	*keys = keys2;
+	(*nkeys)++;
 }
 
 /*
@@ -95,90 +234,117 @@ static char ** openssh_mapper_find_entries(X509 *x509, void *context) {
         return entries;
 }
 
-/*
-parses the certificate and return the _first_ user that matches public key 
-*/
-static char * openssh_mapper_find_user(X509 *x509, void *context) {
-        char *str;
-	int n;
-	struct passwd *pw;
-	FILE *fd;
+static int openssh_mapper_match_keys(X509 *x509, const char *home) {
 	char filename[512];
-        char **entries  = cert_info(x509,CERT_SSHPUK,NULL);
-        if (!entries) {
-            DBG("get_public_key() failed");
-            return NULL;
+	FILE *fd;
+        char *str;
+	char line[OPENSSH_LINE_MAX];
+	int i;
+	int nkeys =0;
+	EVP_PKEY **keys = NULL;
+	EVP_PKEY *authkey = X509_get_pubkey(x509);
+
+	if (!authkey) {
+	    DBG("Cannot locate Cert Public key");
+	    return 0;
         }
-        /* parse list of users until match */
-	setpwent();
-	while((pw=getpwent()) != NULL) {
             /* parse list of authorized keys until match */
-	    sprintf(filename,"%s/.ssh/authorized_keys",pw->pw_dir);
+	sprintf(filename,"%s/.ssh/authorized_keys",home);
 	    fd=fopen(filename,"rt");
 	    if (!fd) {
-	        /* DBG2("fopen('%s') : '%s'",filename,strerror(errno)); */
-	        continue;
-	    }
-            for (n=0,str=entries[n]; str ; str=entries[n++]) {
-		    int res = match_keyfile(str,fd);
-		    if( res<0) return NULL;
-		    if( res==0) continue; /* no match, try next public key */
-		    /* arriving here means cert public key match */
-		    str= clone_str(pw->pw_name);
-		    fclose(fd);
-		    endpwent();
-		    return str;
-            }
-            DBG1("No cert pubkey match found for user '%s'",pw->pw_name);
-	    fclose(fd);
-        } /* next login */
-	/* no user found that contains key in their authorized_key file */
-	endpwent();
-        DBG("No ${login}/.ssh/authorized_keys maps to any provided public key");
-        return NULL;
-}
-
-/*
-* parses the certificate, extract public key and try to match
-* with contents of ${login}/.ssh/authorized_keys file
-* returns -1, 0 or 1 ( error, no match, or match)
-*/
-static int openssh_mapper_match_user(X509 *x509, const char *login, void *context) {
-	char filename[512];
-	FILE *fd;
-        char *str;
-        struct passwd *pw = getpwnam(login);
-        char **entries  = cert_info(x509,CERT_SSHPUK,NULL);
-        if (!entries) {
-            DBG("get_public_key() failed");
-            return -1;
-        }
-        if (!pw) {
-            DBG1("There are no pwentry for login '%s'",login);
-            return -1;
-        }
-        /* parse list of authorized keys until match */
-	sprintf(filename,"%s/.ssh/authorized_keys",pw->pw_dir);
-	fd=fopen(filename,"rt");
-	if (!fd) {
 	    DBG2("fopen('%s') : '%s'",filename,strerror(errno));
-	    return -1; /* no authorized_keys file -> no match :-) */
+	    return 0; /* no authorized_keys file -> no match :-) */
 	}
-        for (str=*entries; str ; str=*++entries) {
-		int res = match_keyfile(str,fd);
-		if( res<0) return -1;
-		if( res==0) continue; /* no match, try next public key */
-		/* arriving here means cert public key match */
-		fclose(fd);
-		return res;
+	/* read pkey files and compose chain */
+	for (;;) {
+                char *cp;
+                if (!fgets(line, OPENSSH_LINE_MAX, fd))
+                        break;
+
+                /* Skip leading whitespace, empty and comment lines. */
+                for (cp = line; *cp == ' ' || *cp == '\t'; cp++)
+
+                        if (!*cp || *cp == '\n' || *cp == '#') continue;
+
+                if (*cp >= '0' && *cp <= '9') {
+                        /* ssh v1 key format */
+                        EVP_PKEY *key = ssh1_line_to_key(cp);
+                        if (key) add_key(key, &keys, &nkeys);
+
+                }
+                if (strncmp("ssh-rsa", cp, 7) == 0) {
+                        /* ssh v2 rsa key format */
+                        EVP_PKEY *key = ssh2_line_to_key(cp);
+                        if (key)
+                                add_key(key, &keys, &nkeys);
+	    }
+            }
+	    fclose(fd);
+        for (i = 0; i < nkeys; i++) {
+                RSA *authrsa, *rsa;
+                authrsa = EVP_PKEY_get1_RSA(authkey);
+                if (!authrsa) continue;       /* not RSA */
+                rsa = EVP_PKEY_get1_RSA(keys[i]);
+                if (!rsa) continue;       /* not RSA */
+                if (BN_cmp(rsa->e, authrsa->e) != 0) continue;
+                if (BN_cmp(rsa->n, authrsa->n) != 0) continue;
+                return 1;       /* FOUND */
         }
-	fclose(fd);
         DBG("User authorized_keys file doesn't match cert public key(s)");
         return 0;
 }
 
 _DEFAULT_MAPPER_END
 
+/*
+* parses the certificate, extract public key and try to match
+* with contents of ${login}/.ssh/authorized_keys file
+* returns -1, 0 or 1 ( error, no match, or match)
+*/
+static int openssh_mapper_match_user(X509 *x509, const char *user, void *context) {
+        struct passwd *pw;
+        if (!x509) return -1;
+        if (!user) return -1;
+        pw = getpwnam(user);
+        if (!pw || !pw->pw_dir) {
+                DBG1("User '%s' has no home directory",user);
+            return -1;
+        }
+        return openssh_mapper_match_keys(x509,pw->pw_dir);
+}
+
+/*
+parses the certificate and return the _first_ user that matches public key 
+*/
+static char * openssh_mapper_find_user(X509 *x509, void *context) {
+        int n = 0;
+        struct passwd *pw = NULL;
+        char *res = NULL;
+        /* parse list of users until match */
+        setpwent();
+        while((pw=getpwent()) != NULL) {
+            DBG1("Trying to match certificate with user: '%s'",pw->pw_name);
+            n = openssh_mapper_match_keys (x509, pw->pw_dir);
+            if (n<0) {
+                DBG1("Error in matching process with user '%s'",pw->pw_name);
+                endpwent();
+                return NULL;
+        }
+            if (n==0) {
+                DBG1("Certificate doesn't match user '%s'",pw->pw_name);
+                continue;
+	}
+            /* arriving here means user found */
+            DBG1("Certificate match found for user '%s'",pw->pw_name);
+            res= clone_str(pw->pw_name);
+            endpwent();
+		return res;
+        } /* next login */
+        /* no user found that contains cert in their directory */
+        endpwent();
+        DBG("No entry at ${login}/.ssh/authorized_keys maps to any provided certificate");
+        return NULL;
+}
 
 static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
 	mapper_module *pt= malloc(sizeof(mapper_module));

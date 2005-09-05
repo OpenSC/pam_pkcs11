@@ -30,6 +30,7 @@
 #include <openssl/x509v3.h>
 #include <openssl/opensslv.h>
 #include <openssl/pem.h>
+#include <openssl/bn.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -320,41 +321,123 @@ static char **cert_info_puk(X509 *x509) {
 	return entries;
 }
 
+/* Store an integer into buffer */
+static int int_append(unsigned char *pt, int n) {
+	*pt++= (n&0xff000000) >>24;
+	*pt++= (n&0x00ff0000) >>16;
+	*pt++= (n&0x0000ff00) >>8;
+	*pt++= (n&0x000000ff) >>0;
+	return 4;	
+}
+
+/* store an string into buffer */
+static int str_append(unsigned char *pt,char *str,int len) {
+	memcpy(pt,str,len);
+	return len;
+}
+
+/* store a bignum into a buffer */
+static int BN_append(unsigned char *pt, BIGNUM *bn) {
+	unsigned char *old=pt;
+	int res=0;
+	int extrabyte=0;
+	int size= 1 + BN_num_bytes(bn);
+	unsigned char *buff=malloc(size);
+	if(BN_is_zero(bn)) {
+		res= int_append(pt,0);pt+=res;
+		return res;
+	}
+	*buff=0x00;
+	res=BN_bn2bin(bn,buff+1);
+	/* TODO: handle error condition */
+	extrabyte=( buff[1] & 0x80 )? 0:1;
+	res= int_append(pt,size-extrabyte); pt+=res;
+	res= str_append(pt,buff+extrabyte,size-extrabyte); pt+=res;
+	free(buff);
+	return pt-old;
+}
+
 /*
 * Extract Certificate's Public Key in OpenSSH format
 */
 static char **cert_info_sshpuk(X509 *x509) {
-	char *pt,*buf;
-	char *from,*to,*end;
+	char *type,*data,*buf;
+	unsigned char *blob,*pt;
+	int data_len;
+	int res;
 	static char *entries[2] = { NULL,NULL };
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
 	    DBG("Cannot extract public key");
 	    return NULL;
 	}
-	pt=key2pem(pubk);
-	/* malloc at least same length than received and test */
-	if (!pt || !(buf=malloc(strlen(pt)) ) ) { 
-	    DBG("key2pem() failed");
-	    EVP_PKEY_free(pubk);
-	    return NULL;
+	blob=calloc(8192,sizeof(unsigned char));
+	if (!blob ) {
+	    DBG("Cannot allocate space to compose pkey string");
+	    goto sshpuk_fail;
 	}
-	/* now compose data in openssh style */
+	pt=blob;
 	switch (pubk->type) {
-		case EVP_PKEY_RSA: sprintf(buf,"ssh-rsa "); break;
-		case EVP_PKEY_DSA: sprintf(buf,"ssh-dss "); break;
-		default: DBG("Unknown public key type"); return NULL;
+		case EVP_PKEY_DSA:
+			if (!pubk->pkey.dsa) {
+				DBG("No data for public DSA key");
+				goto sshpuk_fail;
+			}
+			type="ssh-dss";
+		        /* dump key into a byte array */
+			res= int_append(pt,strlen(type)); pt+=res;
+		        res= str_append(pt,type,strlen(type)); pt+=res;
+                	res= BN_append(pt, pubk->pkey.dsa->p); pt+=res;
+                	res= BN_append(pt, pubk->pkey.dsa->q); pt+=res;
+                	res= BN_append(pt, pubk->pkey.dsa->g); pt+=res;
+                	res= BN_append(pt, pubk->pkey.dsa->pub_key); pt+=res;
+			break;
+		case EVP_PKEY_RSA: 
+			if (!pubk->pkey.rsa) {
+				DBG("No data for public RSA key");
+				goto sshpuk_fail;
+			}
+		        /* dump key into a byte array */
+			type="ssh-rsa"; 
+			res= int_append(pt,strlen(type)); pt+=res;
+		        res= str_append(pt,type,strlen(type)); pt+=res;
+                	res= BN_append(pt, pubk->pkey.rsa->e); pt+=res;
+                	res= BN_append(pt, pubk->pkey.rsa->n); pt+=res;
+			break;
+		default: DBG("Unknown public key type");
+			goto sshpuk_fail;
 	}
-	EVP_PKEY_free(pubk);
-	/* TODO: convert pk to openssh format */
-	to=buf+strlen(buf);
-	from=1+strchr(pt,'\n'); /* skip BEGIN PUBLIC KEY block */
-	end=strstr(pt,"-----END")-1;
-	for(;from<end;from++) if (! isspace(*from) ) *to++=*from;
-	*to='\0';
+	/* encode data in base64 format */
+	data_len= 1+ 4*((pt-blob)/3);
+	// data_len=8192;
+	data=calloc(data_len,sizeof(char));
+	if(!data) {
+		DBG1("calloc() to uuencode buffer '%d'",data_len);
+		goto sshpuk_fail;
+	}
+	res= base64_encode(blob,pt-blob,data,&data_len);
+	if (res<0) {
+		DBG("BASE64 Encode failed");
+		goto sshpuk_fail;
+	}
+	buf=malloc(strlen(type)+data_len+2);
+	if (!buf) {
+		DBG("No memory to store public key dump");
+		goto sshpuk_fail;
+	}
+	sprintf(buf,"%s %s",type,data);
 	DBG1("Public key is '%s'\n",buf);
+	EVP_PKEY_free(pubk);
+	free(blob);
+	free(data);
 	entries[0]=buf;
 	return entries;
+
+sshpuk_fail:
+	EVP_PKEY_free(pubk);
+	free(blob);
+	free(data);
+	return NULL;
 }
 
 static char* get_fingerprint(X509 *cert,const EVP_MD *type) {
