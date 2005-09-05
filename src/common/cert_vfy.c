@@ -23,53 +23,9 @@
 #include <openssl/x509v3.h>
 #include "debug.h"
 #include "error.h"
+#include "base64.h"
 #include "uri.h"
 #include "cert_vfy.h"
-
-static int base64_to_bin(const char *str, unsigned char *buf, size_t buf_len)
-{
-  int i;
-  size_t str_len = strlen(str);
-  size_t pad_len = 0;
-  size_t length = 0;
-  unsigned char val[4], *b = buf;
-
-  while (str_len > 3) {
-    /* char -> int */
-    for (i = 0; i < 4;) {
-      if ('A' <= *str && *str <= 'Z')
-        val[i++] = *str - 'A';
-      else if ('a' <= *str && *str <= 'z')
-        val[i++] = (*str - 'a') + 26;
-      else if ('0' <= *str && *str <= '9')
-        val[i++] = (*str - '0') + 52;
-      else if (*str == '+')
-        val[i++] = 62;
-      else if (*str == '/')
-        val[i++] = 63;
-      else if (*str == '=')
-        val[i++] = 0, pad_len++;
-      str++;
-      if (--str_len < 0)
-        return -1;
-    }
-    /* 32bit -> 24bit */
-    if (++length > buf_len)
-      return -1;
-    *b++ = (val[0] << 2) + (val[1] >> 4);
-    if (pad_len == 2)
-      break;
-    if (++length > buf_len)
-      return -1;
-    *b++ = (val[1] << 4) + (val[2] >> 2);
-    if (pad_len == 1)
-      break;
-    if (++length > buf_len)
-      return -1;
-    *b++ = (val[2] << 6) + val[3];
-  }
-  return length;
-}
 
 static X509_CRL *download_crl(const char *uri)
 {
@@ -104,7 +60,7 @@ static X509_CRL *download_crl(const char *uri)
       return NULL;
     }
     data[j] = 0;
-    der_len = base64_to_bin((const char *)&data[i + 24], der, der_len);
+    der_len = base64_decode((const char *)&data[i + 24], der, der_len);
     free(data);
     if (der_len <= 0) {
       set_error("invalid base64 (pem) format");
