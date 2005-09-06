@@ -361,6 +361,7 @@ static int BN_append(unsigned char *pt, BIGNUM *bn) {
 * Extract Certificate's Public Key in OpenSSH format
 */
 static char **cert_info_sshpuk(X509 *x509) {
+	char **maillist;
 	char *type,*data,*buf;
 	unsigned char *blob,*pt;
 	int data_len;
@@ -408,7 +409,7 @@ static char **cert_info_sshpuk(X509 *x509) {
 			goto sshpuk_fail;
 	}
 	/* encode data in base64 format */
-	data_len= 1+ 4*((pt-blob)/3);
+	data_len= 1+ 4*((2+pt-blob)/3);
 	// data_len=8192;
 	data=calloc(data_len,sizeof(char));
 	if(!data) {
@@ -420,12 +421,17 @@ static char **cert_info_sshpuk(X509 *x509) {
 		DBG("BASE64 Encode failed");
 		goto sshpuk_fail;
 	}
-	buf=malloc(strlen(type)+data_len+2);
+	/* retrieve email from certificate and compose ssh-key string */
+	maillist= cert_info_email(x509);
+	res=0;
+	if (maillist && maillist[0]) res= strlen(maillist[0]);
+	buf=malloc(1+res+strlen(type)+data_len);
 	if (!buf) {
 		DBG("No memory to store public key dump");
 		goto sshpuk_fail;
 	}
-	sprintf(buf,"%s %s",type,data);
+	if (maillist && maillist[0]) sprintf(buf,"%s %s %s",type,data,maillist[0]);
+	else sprintf(buf,"%s %s",type,data);
 	DBG1("Public key is '%s'\n",buf);
 	EVP_PKEY_free(pubk);
 	free(blob);
