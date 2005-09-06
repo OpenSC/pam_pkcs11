@@ -234,8 +234,7 @@ static char ** openssh_mapper_find_entries(X509 *x509, void *context) {
         return entries;
 }
 
-static int openssh_mapper_match_keys(X509 *x509, const char *home) {
-	char filename[512];
+static int openssh_mapper_match_keys(X509 *x509, const char *filename) {
 	FILE *fd;
         char *str;
 	char line[OPENSSH_LINE_MAX];
@@ -248,10 +247,9 @@ static int openssh_mapper_match_keys(X509 *x509, const char *home) {
 	    DBG("Cannot locate Cert Public key");
 	    return 0;
         }
-            /* parse list of authorized keys until match */
-	sprintf(filename,"%s/.ssh/authorized_keys",home);
-	    fd=fopen(filename,"rt");
-	    if (!fd) {
+        /* parse list of authorized keys until match */
+	fd=fopen(filename,"rt");
+	if (!fd) {
 	    DBG2("fopen('%s') : '%s'",filename,strerror(errno));
 	    return 0; /* no authorized_keys file -> no match :-) */
 	}
@@ -303,14 +301,16 @@ _DEFAULT_MAPPER_END
 */
 static int openssh_mapper_match_user(X509 *x509, const char *user, void *context) {
         struct passwd *pw;
+	char filename[512];
         if (!x509) return -1;
         if (!user) return -1;
         pw = getpwnam(user);
-        if (!pw || !pw->pw_dir) {
-                DBG1("User '%s' has no home directory",user);
+        if (!pw || is_empty_str(pw->pw_dir) ) {
+            DBG1("User '%s' has no home directory",user);
             return -1;
         }
-        return openssh_mapper_match_keys(x509,pw->pw_dir);
+	sprintf(filename,"%s/.ssh/authorized_keys");
+        return openssh_mapper_match_keys(x509,filename);
 }
 
 /*
@@ -323,22 +323,28 @@ static char * openssh_mapper_find_user(X509 *x509, void *context) {
         /* parse list of users until match */
         setpwent();
         while((pw=getpwent()) != NULL) {
+	    char filename[512];
             DBG1("Trying to match certificate with user: '%s'",pw->pw_name);
-            n = openssh_mapper_match_keys (x509, pw->pw_dir);
+            if ( is_empty_str(pw->pw_dir) ) {
+                DBG1("User '%s' has no home directory",pw->pw_name);
+                continue;
+            }
+	    sprintf(filename,"%s/.ssh/authorized_keys",pw->pw_dir);
+            n = openssh_mapper_match_keys (x509,filename);
             if (n<0) {
                 DBG1("Error in matching process with user '%s'",pw->pw_name);
                 endpwent();
                 return NULL;
-        }
+            }
             if (n==0) {
                 DBG1("Certificate doesn't match user '%s'",pw->pw_name);
                 continue;
-	}
+	    }
             /* arriving here means user found */
             DBG1("Certificate match found for user '%s'",pw->pw_name);
             res= clone_str(pw->pw_name);
             endpwent();
-		return res;
+	    return res;
         } /* next login */
         /* no user found that contains cert in their directory */
         endpwent();
