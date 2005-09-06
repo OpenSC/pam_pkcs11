@@ -16,7 +16,7 @@ man_MANS = $(MANSRC)
 noinst_DATA = $(HTMLFILES)
 EXTRA_DIST = $(MANSRC) $(XMLFILES) $(HTMLFILES) doxygen.conf \
 	README.mappers README.autologin README.eventmgr \
-	export-wiki.sh generate-api.sh
+	README.ldap_mapper export-wiki.sh generate-api.sh
 
 STYLESHEET = pam_pkcs11.xsl
 
