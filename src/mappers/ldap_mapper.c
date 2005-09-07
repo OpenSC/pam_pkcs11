@@ -104,7 +104,7 @@ static int ldap_get_certificate(const char *login) {
 		return(-2);
 	}
 
-	if ( LDAP_SUCCESS != ldap_search_s(ldap_connection, base, LDAP_SCOPE_SUB, filter_str, attrs, 0, &res)) {
+	if ( LDAP_SUCCESS != ldap_search_s(ldap_connection, base, LDAP_SCOPE_SUBTREE, filter_str, attrs, 0, &res)) {
 		DBG("ldap_search_s() failed");
 		ldap_unbind_s(ldap_connection);
 		return(-3);
