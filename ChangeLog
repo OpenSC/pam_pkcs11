@@ -1,3 +1,18 @@
+07- Sep 2005
+	- Conditional compilation of pcsc-lite, curl and ldap dependent
+	modules
+	- Added LDAP mapper. Thanks to Dominik Fisher
+	- TODO roadmap updated
+
+06- Sep 2005
+	- Add new OpenSSH mapper. Thanks again Andreas for pam_openssh module
+
+03- Sep 2005
+	- Add base64 encoding functions
+
+02- Sep 2005
+	- Make source doxygen friendly
+
 01- Sep 2005
 	- Finished OpenSC mapper. Thanks to Andreas for their pam_opensc module
 	- New .spec file
