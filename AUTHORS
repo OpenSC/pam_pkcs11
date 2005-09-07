@@ -20,5 +20,8 @@ Andreas Jellinghaus <aj@dungeon.inka.de>
 Dominik Fischer <dom_fischer@web.de>
 	LDAP Mapper
 
+Ville Skyttä <vskytta@gmail.com>
+	Original pam_pkcs11.spec file
+
 Also Thanks to all the people at the OpenSC project
 
