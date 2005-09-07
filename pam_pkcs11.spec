@@ -5,7 +5,7 @@ Epoch:          0
 Summary:        PKCS #11 PAM module
 
 Group:          System Environment/Base
-License:        GPL
+License:        LGPL
 URL:            http://www.opensc.org/pam_pkcs11/
 Source0: 	http://www.opensc.org/files/pam_pkcs11-0.5.3.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
