@@ -44,6 +44,7 @@ then
   AC_CHECK_LIB(curl, curl_easy_init, 
 	[ 
 	with_curl=yes 
+	LIBS="$LIBS -lcurl"
 	],[
 	AC_MSG_WARN(Could not locate cURL library. cURL disabled)
   	with_curl=no
@@ -65,6 +66,7 @@ else
   AC_CHECK_LIB( ldap, ldap_init,
 	[
 	with_ldap=yes
+	LIBS="$LIBS -lldap"
 	],[
 	AC_MSG_WARN([Cannot find LDAP libraries. LDAP support disabled])
 	with_ldap=no
