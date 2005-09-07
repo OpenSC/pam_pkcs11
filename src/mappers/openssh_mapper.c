@@ -256,28 +256,23 @@ static int openssh_mapper_match_keys(X509 *x509, const char *filename) {
 	/* read pkey files and compose chain */
 	for (;;) {
                 char *cp;
-                if (!fgets(line, OPENSSH_LINE_MAX, fd))
-                        break;
-
+                if (!fgets(line, OPENSSH_LINE_MAX, fd)) break;
                 /* Skip leading whitespace, empty and comment lines. */
                 for (cp = line; *cp == ' ' || *cp == '\t'; cp++)
 
                         if (!*cp || *cp == '\n' || *cp == '#') continue;
-
                 if (*cp >= '0' && *cp <= '9') {
                         /* ssh v1 key format */
                         EVP_PKEY *key = ssh1_line_to_key(cp);
                         if (key) add_key(key, &keys, &nkeys);
-
                 }
                 if (strncmp("ssh-rsa", cp, 7) == 0) {
                         /* ssh v2 rsa key format */
                         EVP_PKEY *key = ssh2_line_to_key(cp);
-                        if (key)
-                                add_key(key, &keys, &nkeys);
+                        if (key) add_key(key, &keys, &nkeys);
 	    }
-            }
-	    fclose(fd);
+        }
+	fclose(fd);
         for (i = 0; i < nkeys; i++) {
                 RSA *authrsa, *rsa;
                 authrsa = EVP_PKEY_get1_RSA(authkey);
