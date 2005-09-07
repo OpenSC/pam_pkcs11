@@ -3,29 +3,50 @@ define devel api and code all to-be-written mappers are task to do
 
 Expected things to be done in 0.6 release:
 
-- Create and Define a pam-pkcs11 mapper API & library
-  * source code changes to create a "devel" package
-  * Mapper api changes to allow multi-mapper modules
-  * API manual :-)
+- Create and Define a pam-pkcs11 mapper API & library. 
+  This is mostly done at 0.5.3, but some cleaning is needed. 
+  The goal is to create a mapper "devel" package
+
+- Add remote CA's and CRL's lookups
+  Actually, CA's and local CRL's are stored as hash dir. Need
+  to recode to use URL's as data sources
+
 - Finish mapper coding 
-  * openssh, opensc, ldap mappers
-  * Generic mapper
-  * group simple mappers into "generic" one
+  * opensc:
+	- Generic mapping files
+	0.5.3 searches in ${HOME}/.eid/authorized_certificates. Needs
+	an additional tool to manage a "global" certificate file with
+	user mappings
+  * openssh:
+	- Same as opensc. Hint: use "comment" field on ssh public keys
+	to store login name
+  * ldap mapper:
+	- Allow use of any certificate content to make queries
+	- find() function is too expensive when navigate across
+	databases of thousand of users. Need to optimize search
+	filters.
+  * database mapper:
+	- Define and create a UnixODBC based database mapper
+  * Compile as static all mappers that does not depend on extra
+  libraries
+
 - Debian packaging
+  Sorry: I only know on RPM packaging. Any volunteer?
 
 0.7 is a try to real-life implementation: MS Active directory
 configuration, NSS aware configurations, LDAP settings,
 many samples and docs, general cleanups, etc. 
-It's time to create mail lists and subversion server
 
 Things to be done in 0.7 release:
+- Review all mappers that depends on remote connections.
+  * conditional queries instead of getpwent() query loop
 
-- remove card_eventmgr tool to no longer call pcsc-lite libs
 - Allow pam-pkcs11 login against MS Active Directory
   * Changes to MS_mapper to real use of UPN Domain
   * Documentation and samples
+
 - Manuals on LDAP, NSS and so installations
-- Create subversion, mail list, complete docs and so
+
 - ncurses (gtk?) tool to create/edit mapfiles
 
 0.8 will be a major cleanup: bugfixes, optimizations, pam-session
