@@ -92,15 +92,15 @@ static void add_cert(X509 *cert, X509 ***certs, int *ncerts) {
 static char ** opensc_mapper_find_entries(X509 *x509, void *context) {
         char **entries= cert_info(x509,CERT_PEM,NULL);
         if (!entries) {
-                DBG("get_public_key() failed");
+                DBG("get_certificate() failed");
                 return NULL;
         }
         return entries;
 }
 
 /*
-* parses the certificate, extract public key and try to match
-* with contents of ${login}/.ssh/authorized_keys file
+* parses the certificate, extract it in PEM format, and try to match
+* with contents of ${login}/.ssh/authorized_certificates file
 * returns -1, 0 or 1 ( error, no match, or match)
 */
 static int opensc_mapper_match_certs(X509 *x509, const char *home) {
@@ -154,7 +154,8 @@ static int opensc_mapper_match_user(X509 *x509, const char *user, void *context)
 }
 
 /*
-parses the certificate and return the _first_ user that matches public key 
+parses the certificate and return the _first_ user that has it in
+their ${HOME}/.eid/authorized_certificates
 */
 static char * opensc_mapper_find_user(X509 *x509, void *context) {
 	int n = 0;
