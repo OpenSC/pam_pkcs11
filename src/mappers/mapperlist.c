@@ -29,7 +29,9 @@
 #include "mapperlist.h"
 
 #include "subject_mapper.h"
+#ifdef HAVE_LDAP
 #include "ldap_mapper.h"
+#endif
 #include "opensc_mapper.h"
 #include "mail_mapper.h"
 #include "ms_mapper.h"
@@ -46,8 +48,10 @@ mapper_list static_mapper_list[] = {
 #ifdef SUBJECT_MAPPER_STATIC
 	{ "subject",subject_mapper_module_init },
 #endif
+#ifdef HAVE_LDAP
 #ifdef LDAP_MAPPER_STATIC
 	{ "ldap",ldap_mapper_module_init },
+#endif
 #endif
 #ifdef OPENSC_MAPPER_STATIC
 	{ "opensc",opensc_mapper_module_init },

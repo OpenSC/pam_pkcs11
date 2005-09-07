@@ -43,8 +43,11 @@ libmappers_la_SOURCES = mapper.c mapper.h \
 libmappers_la_LDFLAGS = @LIBSCCONF@ @LIBCOMMON@
 
 # list of dynamic linked mappers
-lib_LTLIBRARIES = ldap_mapper.la opensc_mapper.la \
-	openssh_mapper.la
+if HAVE_LDAP
+lib_LTLIBRARIES = ldap_mapper.la opensc_mapper.la openssh_mapper.la
+else
+lib_LTLIBRARIES = opensc_mapper.la openssh_mapper.la
+endif
 
 openssh_mapper_la_SOURCES = openssh_mapper.c openssh_mapper.h
 openssh_mapper_la_LDFLAGS = -module -avoid-version
@@ -58,9 +61,11 @@ openssh_mapper_la_LIBADD = libmappers.la
 # subject_mapper_la_LDFLAGS = -module -avoid-version
 # subject_mapper_la_LIBADD = libmappers.la
 
+if HAVE_LDAP
 ldap_mapper_la_SOURCES = ldap_mapper.c ldap_mapper.h
 ldap_mapper_la_LDFLAGS = -module -avoid-version
 ldap_mapper_la_LIBADD = libmappers.la
+endif
 
 opensc_mapper_la_SOURCES = opensc_mapper.c opensc_mapper.h
 opensc_mapper_la_LDFLAGS = -module -avoid-version
