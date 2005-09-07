@@ -5,7 +5,8 @@ Expected things to be done in 0.6 release:
 
 - Create and Define a pam-pkcs11 mapper API & library. 
   This is mostly done at 0.5.3, but some cleaning is needed. 
-  The goal is to create a mapper "devel" package
+  * Create a mapper "devel" package
+  * Use OpenSC libp11 pkcs11 library
 
 - Add remote CA's and CRL's lookups
   Actually, CA's and local CRL's are stored as hash dir. Need
