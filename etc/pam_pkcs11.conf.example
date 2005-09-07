@@ -157,6 +157,22 @@ pam_pkcs11 {
 	module = /usr/lib/pam_pkcs11/ldap_mapper.so;
 	# where base directory resides
 	basedir = /etc/pam_pkcs11/mapdir;
+	# hostname of ldap server
+        ldaphost = "localhost";
+	# Port on ldap server to connect
+        ldapport = 389;
+        # Scope of search: 0 = x, 1 = y, 2 = z
+        scope = 2;
+	# DN to bind with. Must have read-access for user entries under "base"
+        binddn = "cn=pam,o=example,c=com";
+	# Password for above DN
+        passwd = "test";
+	# Searchbase for user entries
+        base = "ou=People,o=example,c=com";
+	# Attribute of user entry which contains the certificate
+        attribute = "userCertificate";
+	# Searchfilter for user entry. Must only let pass user entry for the login user.
+        filter = "(&(objectClass=posixAccount)(uid=%s))"
   }
 
   # Assume common name (CN) to be the login
