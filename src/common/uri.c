@@ -22,7 +22,7 @@
 #include "error.h"
 #include <string.h>
 
-#ifdef USE_CURL
+#ifdef HAVE_CURL
 
 #include <curl/curl.h>
 
@@ -86,7 +86,10 @@ int get_from_uri(const char *uri_str, unsigned char **data, size_t *length) {
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+#ifdef HAVE_LDAP
 #include <ldap.h>
+#endif
 
 typedef enum { unknown = 0, file, http, ldap } scheme_t;
 
@@ -104,7 +107,9 @@ typedef struct {
 typedef struct {
   scheme_t scheme;
   generic_uri_t *file, *http;
+#ifdef HAVE_LDAP
   LDAPURLDesc *ldap;
+#endif
 } uri_t;
 
 static void free_uri(uri_t *uri) {
@@ -114,7 +119,9 @@ static void free_uri(uri_t *uri) {
     free(uri->file);
     if(!uri->http) free(uri->http->data);
     free(uri->http);
+#ifdef HAVE_LDAP
     if(!uri->ldap) ldap_free_urldesc(uri->ldap);
+#endif
     free(uri);
   }
 }
@@ -194,6 +201,7 @@ static int parse_generic_uri(const char *in, generic_uri_t **out)
   return 0;
 }
 
+#ifdef HAVE_LDAP
 static int parse_ldap_uri(const char *in, LDAPURLDesc ** out)
 {
   if (ldap_url_parse(in, out) != 0) {
@@ -208,6 +216,7 @@ static int parse_ldap_uri(const char *in, LDAPURLDesc ** out)
   DBG1("filter = [%s]", (*out)->lud_filter);
   return 0;
 }
+#endif
 
 static int parse_uri(const char *str, uri_t **uri)
 {
@@ -234,10 +243,15 @@ static int parse_uri(const char *str, uri_t **uri)
     if (rv != 0)
       set_error("parse_generic_uri() failed: %s", get_error());
   } else if (!strncmp(str, "ldap:", 5)) {
+#ifdef HAVE_LDAP
     (*uri)->scheme = ldap;
     rv = parse_ldap_uri(str, &(*uri)->ldap);
     if (rv != 0)
       set_error("parse_ldap_uri() failed: %s", get_error());
+#else
+    rv = -1;
+    set_error("Compiled without ldap support");
+#endif
   } else {
     (*uri)->scheme = unknown;
     rv = 0;
@@ -444,6 +458,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
   return 0;
 }
 
+#ifdef HAVE_LDAP
 static int get_ldap(uri_t *uri, unsigned char **data, size_t *length)
 {
   int rv;
@@ -505,6 +520,7 @@ static int get_ldap(uri_t *uri, unsigned char **data, size_t *length)
   ldap_unbind_s(ldap);
   return 0;
 }
+#endif
 
 int get_from_uri(const char *str, unsigned char **data, size_t *length)
 {
@@ -531,9 +547,14 @@ int get_from_uri(const char *str, unsigned char **data, size_t *length)
         set_error("get_http() failed: %s", get_error());
       break;
     case ldap:
+#ifdef HAVE_LDAP
       rv = get_ldap(uri, data, length);
       if (rv != 0)
         set_error("get_ldap() failed: %s", get_error());
+#else
+      rv = -1;
+      set_error("Compiled without LDAP support");
+#endif
       break;
     default:
       set_error("unsupported protocol");
