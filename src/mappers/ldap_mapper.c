@@ -29,9 +29,14 @@
 
 #include <ldap.h>
 #include <openssl/x509.h>
+#include <pwd.h>
+
+#include "../common/debug.h"
+#include "../common/error.h"
 #include "../scconf/scconf.h"
 #include "../common/strings.h"
-#include "../common/debug.h"
+#include "../common/cert_info.h"
+
 #include "mapper.h"
 #include "ldap_mapper.h"
 
@@ -66,8 +71,7 @@ static const X509 *ldap_x509;
 /**
 * Get certificate from LDAP-Server.
 */
-int ldap_get_certificate(const char *login)
-{
+static int ldap_get_certificate(const char *login) {
 	LDAP *ldap_connection;
 	int ret, entries;
 	LDAPMessage *res;
@@ -83,8 +87,7 @@ int ldap_get_certificate(const char *login)
 	attrs[1] = NULL;
 	
 
-	DBG("ldap_get_certificate(): begin");
-	DBG1("ldap_get_certificate(): login = %s", login);
+	DBG1("ldap_get_certificate(): begin login = %s", login);
 
 	snprintf(filter_str, sizeof(filter_str), filter, login); 
 
@@ -109,7 +112,8 @@ int ldap_get_certificate(const char *login)
 		entries = ldap_count_entries(ldap_connection, res);
 		DBG1("ldap_get_certificate(): entries = %d", entries);
 
-		/* Only first entry is used. "filter" and "attribute" should be choosen, so that only one entry with
+		/* Only first entry is used. "filter" and "attribute" 
+		 *  should be choosen, so that only one entry with
 		 * one attribute is returned */
 		if ( NULL == (entry = ldap_first_entry(ldap_connection, res))){
 			DBG("ldap_first_entry() failed");
@@ -148,8 +152,7 @@ int ldap_get_certificate(const char *login)
 	return 1;
 }
 
-int read_config(scconf_block *blk)
-{
+static int read_config(scconf_block *blk) {
 	int debug = scconf_get_bool(blk,"debug",0);
 	ldaphost = scconf_get_str(blk,"ldaphost",ldaphost);
 	ldapport = scconf_get_int(blk,"ldapport",ldapport);
@@ -180,17 +183,18 @@ int read_config(scconf_block *blk)
 }
 
 _DEFAULT_MAPPER_END
-_DEFAULT_MAPPER_FIND_ENTRIES
-_DEFAULT_MAPPER_FIND_USER
 
-static int mapper_match_user(X509 *x509, const char *login, void *context)
-{
-	char *str;
+static char ** ldap_mapper_find_entries(X509 *x509, void *context) {
+        char **entries= cert_info(x509,CERT_PEM,NULL);
+        if (!entries) {
+                DBG("get_certificate() failed");
+                return NULL;
+        }
+        return entries;
+}
+
+static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) {
 	int match_found = 0;
-	char **digest;
-	char **ldap_digest;
-	EVP_PKEY *pubk;
-	EVP_PKEY *ldap_pubk;
 
 	if ( 1 != ldap_get_certificate(login)){
 		DBG("ldap_get_certificate() failed");
@@ -208,15 +212,35 @@ static int mapper_match_user(X509 *x509, const char *login, void *context)
 	return match_found;
 }
 
+static char * ldap_mapper_find_user(X509 *x509, void *context) {
+	struct passwd *pw = NULL;
+	char *found=NULL;
+	setpwent();
+	while( (pw=getpwent()) !=NULL) {
+	    int res;
+	    DBG1("Trying to match certificate with user: '%s'",pw->pw_name);
+	    res= ldap_mapper_match_user(x509,pw->pw_name,context);
+	    if (res) {
+		DBG1("Certificate maps to user '%s'",pw->pw_name);
+		found= clone_str(pw->pw_name);
+		break;
+	    } else {
+		DBG1("Certificate map to user '%s' failed",pw->pw_name);
+	    }
+	}
+	endpwent();
+	return found;
+}
+
 static mapper_module * init_mapper_st(scconf_block *blk, const char *name) {
 	mapper_module *pt= malloc(sizeof(mapper_module));
 	if (!pt) return NULL;
 	pt->name = name;
 	pt->block = blk;
 	pt->context = NULL;
-	pt->entries = mapper_find_entries;
-	pt->finder = mapper_find_user;
-	pt->matcher = mapper_match_user;
+	pt->entries = ldap_mapper_find_entries;
+	pt->finder = ldap_mapper_find_user;
+	pt->matcher = ldap_mapper_match_user;
 	pt->deinit = mapper_module_end;
 
 	return pt;
