@@ -70,6 +70,7 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT/%{_lib}/security/*.*a
 rm -f $RPM_BUILD_ROOT/%{_libdir}/%{name}/*.*a
+
 # Hardcoded defaults... no sysconfdir
 install -dm 755 $RPM_BUILD_ROOT/etc/%{name}/cacerts
 install -dm 755 $RPM_BUILD_ROOT/etc/%{name}/crls
@@ -87,10 +88,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc doc/mappers_api.html
 %doc doc/README.autologin
 %doc doc/README.mappers
-%{_sysconfdir}/%{name}/cacerts
-%{_sysconfdir}/%{name}/crls
-%{_sysconfdir}/%{name}/pam_pkcs11.conf
-%{_sysconfdir}/%{name}/pkcs11_eventmgr.conf
+%config(noreplace) %{_sysconfdir}/%{name}/cacerts
+%config(noreplace) %{_sysconfdir}/%{name}/crls
+%config(noreplace) %{_sysconfdir}/%{name}/pam_pkcs11.conf
+%config(noreplace) %{_sysconfdir}/%{name}/pkcs11_eventmgr.conf
 %{_bindir}/make_hash_link.sh
 %{_bindir}/pkcs11_eventmgr
 %{_bindir}/pklogin_finder
@@ -110,7 +111,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%{name}/pkcs11_eventmgr.conf.example
 
 %files pcsc
-%{_sysconfdir}/%{name}/card_eventmgr.conf
+%config(noreplace) %{_sysconfdir}/%{name}/card_eventmgr.conf
 %{_bindir}/card_eventmgr
 %{_mandir}/man1/card_eventmgr.1.gz
 %{_datadir}/%{name}/card_eventmgr.conf.example
@@ -123,6 +124,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Thu Sep 7 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.3-2
 - Add ldap_mapper.so as separate package, as it depends on external library
+- Changes from FC4 team 
 
 * Thu Sep 1 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.3-0
 - Update to 0.5.3
