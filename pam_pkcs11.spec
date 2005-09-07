@@ -1,6 +1,6 @@
 Name:           pam_pkcs11
 Version:        0.5.3
-Release:        1
+Release:        2
 Epoch:          0
 Summary:        PKCS #11 PAM module
 
@@ -10,7 +10,8 @@ URL:            http://www.opensc.org/pam_pkcs11/
 Source0: 	http://www.opensc.org/files/pam_pkcs11-0.5.3.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  pam-devel, openssl-devel, openldap-devel
+BuildRequires:  pam-devel, openssl-devel
+%{?_with_ldap:BuildRequires: openldap-devel}
 %{?_with_curl:BuildRequires: curl-devel}
 BuildRequires: libxslt docbook-style-xsl
 BuildRequires:  automake >= 1.7.8
@@ -41,12 +42,26 @@ Provides:	pam_pkcs11-pcsc
 This package contains pam_pkcs11 tools that relies on PCSC-Lite library
 - card_eventmgr: Generate card insert/removal events
 
+%package ldap
+Group:          System Environment/Utilities
+Summary:	LDAP Cert-to-Login mapper for pam_pkcs11
+BuildRequires:	openldap-devel
+Requires:	openldap
+Requires:	pam_pkcs11
+Provides:	pam_pkcs11-ldap
+
+%description ldap
+This package contains a Certificate-To-Login mapper based on queries 
+to a LDAP server. As it depends on extra libraries, is distributed
+as a separate package
+
+- ldap_mapper.so: ldap based mapper library
 %prep
 %setup -q -n %{name}-%{version}
 #./bootstrap
 
 %build
-%configure --disable-dependency-tracking %{?_with_curl}
+%configure --disable-dependency-tracking %{?_with_curl} %{?_with_ldap}
 make %{?_smp_mflags}
 
 
@@ -80,7 +95,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/pkcs11_eventmgr
 %{_bindir}/pklogin_finder
 %{_bindir}/pkcs11_inspect
-%{_libdir}/%{name}/*.so
+%{_libdir}/%{name}/openssh_mapper.so
+%{_libdir}/%{name}/opensc_mapper.so
 %{_libdir}/security/pam_pkcs11.so
 %{_mandir}/man8/%{name}.8.gz
 %{_mandir}/man1/pkcs11_eventmgr.1.gz
@@ -100,7 +116,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%{name}/card_eventmgr.conf.example
 %doc doc/README.eventmgr
 
+%files ldap
+%{_libdir}/%{name}/ldap_mapper.so
+%doc doc/README.ldap_mapper
+
 %changelog
+* Thu Sep 7 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.3-2
+- Add ldap_mapper.so as separate package, as it depends on external library
+
 * Thu Sep 1 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.3-0
 - Update to 0.5.3
 - Remove tools package, and create pcsc one with pcsc-lite dependent files
