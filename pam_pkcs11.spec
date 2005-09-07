@@ -68,10 +68,10 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING README TODO ChangeLog NEWS
-%doc docs/pam_pkcs11.html
-%doc docs/mappers_api.html
-%doc docs/README.autologin
-%doc docs/README.mappers
+%doc doc/pam_pkcs11.html
+%doc doc/mappers_api.html
+%doc doc/README.autologin
+%doc doc/README.mappers
 %{_sysconfdir}/%{name}/cacerts
 %{_sysconfdir}/%{name}/crls
 %{_sysconfdir}/%{name}/pam_pkcs11.conf
@@ -98,7 +98,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/card_eventmgr
 %{_mandir}/man1/card_eventmgr.1.gz
 %{_datadir}/%{name}/card_eventmgr.conf.example
-%doc docs/README.eventmgr
+%doc doc/README.eventmgr
 
 %changelog
 * Thu Sep 1 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.3-0

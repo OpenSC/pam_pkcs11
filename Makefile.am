@@ -1,6 +1,6 @@
 # $Id$
 
-SUBDIRS = . aclocal docs etc src tools
+SUBDIRS = . aclocal doc etc src tools
 
 EXTRA_DIST = ChangeLog COPYING INSTALL NEWS README TODO \
 	bootstrap pam_pkcs11.spec
@@ -18,5 +18,5 @@ AUTOMAKE_OPTIONS = foreign
 dist: gendoc
 
 gendoc:
-#	sh $(srcdir)/docs/export-wiki.sh $(srcdir)/docs
-	sh $(srcdir)/docs/generate-api.sh $(srcdir)/docs
+#	sh $(srcdir)/doc/export-wiki.sh $(srcdir)/doc
+	sh $(srcdir)/doc/generate-api.sh $(srcdir)/doc

@@ -19,5 +19,5 @@ fi
 rm -rf "$SRCDIR"/api
 mkdir "$SRCDIR"/api
 cd "$SRCDIR"/..
-doxygen docs/doxygen.conf
+doxygen doc/doxygen.conf
 
