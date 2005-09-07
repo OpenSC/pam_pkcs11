@@ -9,7 +9,7 @@ noinst_HEADERS = internal.h scconf.h
 #noinst_PROGRAMS = test-conf
 noinst_LTLIBRARIES = libscconf.la
 
-libscconf_la_SOURCES = scconf.c parse.c write.c sclex.c
+libscconf_la_SOURCES = scconf.h internal.h scconf.c parse.c write.c sclex.c
 
 #test_conf_SOURCES = test-conf.c
 #test_conf_LDADD = libscconf.la
