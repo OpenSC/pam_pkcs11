@@ -8,13 +8,14 @@ revocation, but user mapping depends entirely on the certificate content.
 So we need a configurable, stackable, and definable way to specify
 cert-to-user mapping.
 
-pam-pkcs11 cert mappers provides two functions:
+pam-pkcs11 cert mappers provides several functions:
 
 1- Deduce a login from certificate
 2- Test if a login and a certificate match
+3- Look into the certificate for an specific data
 
 Normal pam-pkcs11 login process involves the following procedures
-    - Enter        login
+    - Enter login
     - Ask for PIN
     - Open and validate certificate
     - Map certificate into an user (*)
@@ -36,7 +37,10 @@ Operations (*) and (**) are the reason for cert-mappers to exist.
 Implementation of cert mappers in pam-pkcs11
 --------------------------------------------
 
-pam-pkcs11 implements cert mapper in form of dynamic loaded modules.
+pam-pkcs11 implements cert mapper in form of several stackable modules.
+Most of them are statically linked; those that depends on external
+libraries are provided as dynamic loadable ones
+
 You can add as many modules as desired, and the system will try all
 of them in turn, until a match succeed, or end of list is reached.
 
@@ -52,9 +56,12 @@ pam-pkcs11 {
     }
 }
 
+Unless you are going to use an internal (static) module with
+default values, you should provide a entry for every declared mapper
+
 "module" entry is mandatory: is tells pam_pkcs11 where to find the
-dynamic library. Additional entries can be defined but are module
-dependent.
+dynamic library (or equals to "internal" if static module is used). 
+Additional entries can be defined but are module dependent.
 
 
 Provided Mappers
@@ -93,13 +100,15 @@ pw     - Compare CN against getpwent() "login" or "gecos" fields to match
 ldap   - Uses an ldap server to retrieve user name. An aditional file tells
          module the mapping between Cert fields and LDAP entries
 
-        This mapper is still under development
+        This mapper is still under development. Provided one just search
+	for certificates, incoming one will ask for "any" certificate
+	content
 
-opensc - Search the certificate public key in
-		 ${HOME}/.ssh/autorized_keys in a similar way as OpenSC does.
-		 When used as login finder, returns "nobody"
+opensc - Search the certificate ${HOME}/.ssh/autorized_certificates 
+	in a similar way as OpenSC does.
 
-        this mapper is still under development
+openssh - Search the certificate public key in
+	 ${HOME}/.ssh/autorized_keys in a similar way as OpenSSH does.
 
 mail   - Try to extract an e-mail from the certificate. If found,
          analyze it against an "aliases" (email to login) list
@@ -131,8 +140,6 @@ ms     - Try to find and use Microsoft Universal Principal Name extension
 
 krb    - Try to find and use Kerberos Principal Name as login name
 
-        This mapper needs to be written
-
 uid    - Use Unique ID field (if found) as login name
 
         Similar to CN mapper, but using UID as field to find/match
@@ -153,26 +160,24 @@ See the provided pam_pkcs11.conf.example file to see module flags
 Adding new mappers
 ------------------
 
-Creating new mappers is easy: just read mapper.h file, provide a file
-that exports the required functions, and modify file
-src/mappers/Makefile.am
+Creating new mappers is easy: just read provided Mapper API file, 
+edit skeleton sample files and follow instructions on how to compile
+and link
 
-Mapper.h provides default implementation for required exports. They 
-should be overriden by user code, but can be used for testing purposes
-
+Mapper.h provides default implementation for required some functions. 
+They should be overriden by user code, but can be used for testing purposes
 
 Wish list
 ---------
 
-- Implement ldap and kerberos mappers
 - Implement PKINIT draft protocol for talking to a kerberos server
 - Use MS Universal Principal Name to autenticate against an MS Active
   directory server
 - Implement mail_aliases parsing for mail mapper module
 
-
 Further information
 -------------------
 Please, send mail with patches, comments and suggestions to
-Juan Antonio Martinez <jonsito@teleline.es>
+Juan Antonio Martinez <jonsito@teleline.es> or even better, to
+OpenSC development mailing list opensc-devel@list.opensc.org
 

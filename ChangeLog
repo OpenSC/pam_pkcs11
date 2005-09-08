@@ -1,3 +1,6 @@
+08- Sep 2005
+	- Fixes to pam_pkcs11.spec
+
 07- Sep 2005
 	- Conditional compilation of pcsc-lite, curl and ldap dependent
 	modules

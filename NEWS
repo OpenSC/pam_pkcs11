@@ -1,3 +1,9 @@
+12- Sep 2005
+	- Finally pam_pkcs11-0.5.3 is out.
+	- New mapper API and Docs
+	- Full documentation available
+	- New mappers: openssh, openssl, ldap, generic and more
+
 12- Apr 2005
 	- Changed name to pam_pkcs11
 	- pam_pkcs11-0.5.2 released
