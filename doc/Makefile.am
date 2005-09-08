@@ -16,7 +16,8 @@ man_MANS = $(MANSRC)
 noinst_DATA = $(HTMLFILES)
 EXTRA_DIST = $(MANSRC) $(XMLFILES) $(HTMLFILES) doxygen.conf \
 	README.mappers README.autologin README.eventmgr \
-	README.ldap_mapper export-wiki.sh generate-api.sh
+	README.ldap_mapper export-wiki.sh generate-api.sh \
+	api/index.html $(shell ls api/*)
 
 STYLESHEET = pam_pkcs11.xsl
 
@@ -31,3 +32,5 @@ else
 	@echo "Docbook support disabled, not building $@" >&2
 endif
 
+api/index.html:
+	sh $(srcdir)/generate-api.sh $(srcdir)

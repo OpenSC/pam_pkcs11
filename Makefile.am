@@ -1,6 +1,7 @@
 # $Id$
 
 SUBDIRS = . aclocal doc etc src tools
+DIST_SUBDIRS = . aclocal doc etc src tools
 
 EXTRA_DIST = ChangeLog COPYING INSTALL NEWS README TODO \
 	bootstrap pam_pkcs11.spec
@@ -14,9 +15,4 @@ MAINTAINERCLEANFILES = \
 DEPCLEANFILES = config.log configure
 
 AUTOMAKE_OPTIONS = foreign
-
-dist: gendoc
-
-gendoc:
-#	sh $(srcdir)/doc/export-wiki.sh $(srcdir)/doc
-	sh $(srcdir)/doc/generate-api.sh $(srcdir)/doc
+ACLOCAL_AMFLAGS = -I aclocal

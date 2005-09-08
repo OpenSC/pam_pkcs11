@@ -5,7 +5,7 @@ MAINTAINERCLEANFILES = Makefile.in
 libdir = @libdir@/pam_pkcs11
 
 # Add openssl specific flags
-AM_CFLAGS = @OPENSSL_CFLAGS@
+AM_CFLAGS = $(OPENSSL_CFLAGS)
 
 # Statically linked mapperis list
 # Uncomment to get refered mapper statically linked
