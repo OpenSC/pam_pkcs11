@@ -105,7 +105,6 @@ static char ** opensc_mapper_find_entries(X509 *x509, void *context) {
 */
 static int opensc_mapper_match_certs(X509 *x509, const char *home) {
         char filename[PATH_MAX];
-	struct passwd *pw;
         X509 **certs;
         int ncerts, i, rc;
         BIO *in;

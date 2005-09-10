@@ -76,7 +76,6 @@ static int ldap_get_certificate(const char *login) {
 	int ret, entries;
 	LDAPMessage *res;
 	LDAPMessage *entry;
-	char **vals = NULL;
 	struct berval **bvals = NULL;
 	BerElement *ber = NULL;
 	char *name = NULL;
@@ -200,7 +199,7 @@ static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) 
 		DBG("ldap_get_certificate() failed");
 		match_found = 0;
 	} else {
-		// TODO: maybe compare public keys instead of hashes
+		/* TODO: maybe compare public keys instead of hashes */
 		if ( 0 == X509_cmp(x509, ldap_x509)) {
 			DBG("Certifcates matching");
 			match_found = 1;

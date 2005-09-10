@@ -146,6 +146,7 @@ void parse_config_file() {
 */
 struct configuration_st *pk_configure( int argc, const char **argv ) {
 	int i;
+	int res;
 	/* try to find a configuration file entry */
 	for (i = 0; i < argc; i++) {
 	    if (strstr(argv[i],"config_file=") ) {
@@ -183,19 +184,19 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		continue;
 	   }
 	   if (strstr(argv[i],"pcs11_module=") ) {
-		sscanf(argv[i],"pkcs11_module=%255s",configuration.pkcs11_module);
+		res=sscanf(argv[i],"pkcs11_module=%255s",configuration.pkcs11_module);
 		continue;
 	   }
 	   if (strstr(argv[i],"slot_num=") ) {
-		sscanf(argv[i],"slot_nume=%d",&configuration.slot_num);
+		res=sscanf(argv[i],"slot_nume=%d",&configuration.slot_num);
 		continue;
 	   }
 	   if (strstr(argv[i],"ca_dir=") ) {
-		sscanf(argv[i],"ca_dir=%255s",configuration.ca_dir);
+		res=sscanf(argv[i],"ca_dir=%255s",configuration.ca_dir);
 		continue;
 	   }
 	   if (strstr(argv[i],"crl_dir=") ) {
-		sscanf(argv[i],"crl_dir=%255s",configuration.crl_dir);
+		res=sscanf(argv[i],"crl_dir=%255s",configuration.crl_dir);
 		continue;
 	   }
 	   if (strstr(argv[i],"crl_policy=") ) {

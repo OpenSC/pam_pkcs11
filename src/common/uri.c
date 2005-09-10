@@ -387,7 +387,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
   close(sock);
   /* decode header */
   DBG("decoding...");
-  if (sscanf(buf, "HTTP/%d.%d %d", &i, &j, &rv) != 3) {
+  if (sscanf((char *)buf, "HTTP/%d.%d %d", &i, &j, &rv) != 3) {
     free(buf);
     set_error("got a malformed http response from the server");
     return -1;
@@ -396,7 +396,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
   if (rv == 301 || rv == 302) {
     uri_t *ruri;
     /* extract the url to the new location */
-    for (i = 0; i < len - 10 && strncmp(&buf[i], "Location: ", 10); i++);
+    for (i = 0; i < len - 10 && strncmp((char *)&buf[i], "Location: ", 10); i++);
     i += 10;
     for (j = i; j < len && buf[j] != '\r' && buf[j] != '\n' && buf[j] != ' '; j++);
     buf[j] = 0;
@@ -407,7 +407,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
       set_error("to many redirections occurred");
       return -1;
     }
-    rv = parse_uri(&buf[i], &ruri);
+    rv = parse_uri((char *)&buf[i], &ruri);
     if (rv != 0) {
       free(buf);
       set_error("parse_uri() failed: %s", get_error());
@@ -431,11 +431,11 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
   }
   /* ... skip rest of the header */
   for (i = 0; i < len; i++) {
-    if (i < len - 2 && !strncmp(&buf[i], "\n\n", 2)) {
+    if (i < len - 2 && !strncmp((char *) &buf[i], "\n\n", 2)) {
       i += 2;
       break;
     }
-    if (i < len - 4 && !strncmp(&buf[i], "\r\n\r\n", 4)) {
+    if (i < len - 4 && !strncmp((char *)&buf[i], "\r\n\r\n", 4)) {
       i += 4;
       break;
     }
@@ -537,7 +537,7 @@ int get_from_uri(const char *str, unsigned char **data, size_t *length)
   /* download data depending on the scheme */
   switch (uri->scheme) {
     case file:
-      rv = get_file(uri, data, length);
+      rv = get_file(uri, data, (ssize_t *) length);
       if (rv != 0)
         set_error("get_file() failed: %s", get_error());
       break;

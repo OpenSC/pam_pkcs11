@@ -204,6 +204,7 @@ int parse_args(int argc, char *argv[]) {
 
 	/* and now re-parse command line to take precedence over cfgfile */
         for (i = 1; i < argc; i++) {
+	    int res;
             if (strcmp("daemon", argv[i]) == 0) {
 		daemonize=1;
 	  	continue;
@@ -217,11 +218,11 @@ int parse_args(int argc, char *argv[]) {
 	  	continue;
 	    }
             if (strstr(argv[i],"timeout=") ) {
-                sscanf(argv[i],"timeout=%d",&timeout);
+                res=sscanf(argv[i],"timeout=%d",&timeout);
                 continue;
             }
             if (strstr(argv[i],"timeout_limit=") ) {
-                sscanf(argv[i],"timeout_limit=%d",&timeout_limit);
+                res=sscanf(argv[i],"timeout_limit=%d",&timeout_limit);
                 continue;
             }
 	    if (strstr(argv[i],"pidfile=") ) {
@@ -251,6 +252,7 @@ pid_t read_pidfile(char *filename)
 {
     FILE *fd;
     pid_t pid;
+    int res;
     long temp = 0;
 
     fd = fopen(filename, "r");
@@ -260,7 +262,7 @@ pid_t read_pidfile(char *filename)
 	return 0;
     }
 
-    fscanf(fd, "%ld", &temp);
+    res=fscanf(fd, "%ld", &temp);
     pid = temp;
 
     fclose(fd);
@@ -277,6 +279,7 @@ void remove_pidfile(char *filename)
 void create_pidfile(char *filename)
 {
     int fd;
+    int res;
     char tmp[20];
 
     fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0644);
@@ -289,7 +292,7 @@ void create_pidfile(char *filename)
     snprintf(tmp, sizeof(tmp)-1, "%d\n", getpid());
     tmp[sizeof(tmp)-1] = '\0';
 
-    write(fd, tmp, strlen(tmp));
+    res=write(fd, tmp, strlen(tmp));
 
     close(fd);
 }

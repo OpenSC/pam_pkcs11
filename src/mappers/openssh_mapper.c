@@ -236,7 +236,6 @@ static char ** openssh_mapper_find_entries(X509 *x509, void *context) {
 
 static int openssh_mapper_match_keys(X509 *x509, const char *filename) {
 	FILE *fd;
-        char *str;
 	char line[OPENSSH_LINE_MAX];
 	int i;
 	int nkeys =0;
@@ -304,7 +303,7 @@ static int openssh_mapper_match_user(X509 *x509, const char *user, void *context
             DBG1("User '%s' has no home directory",user);
             return -1;
         }
-	sprintf(filename,"%s/.ssh/authorized_keys");
+	sprintf(filename,"%s/.ssh/authorized_keys",pw->pw_dir);
         return openssh_mapper_match_keys(x509,filename);
 }
 

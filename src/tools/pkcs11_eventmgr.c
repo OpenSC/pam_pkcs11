@@ -179,6 +179,7 @@ int parse_config_file() {
 
 int parse_args(int argc, char *argv[]) {
 	int i;
+	int res;
 	polling_time = DEF_POLLING;
 	expire_time = DEF_EXPIRE;
 	expire_count = 0;
@@ -213,11 +214,11 @@ int parse_args(int argc, char *argv[]) {
 	  	continue;
 	    }
             if (strstr(argv[i],"polling_time=") ) {
-                sscanf(argv[i],"polling_time=%d",&polling_time);
+                res=sscanf(argv[i],"polling_time=%d",&polling_time);
                 continue;
             }
             if (strstr(argv[i],"expire_time=") ) {
-                sscanf(argv[i],"expire_time=%d",&expire_time);
+                res=sscanf(argv[i],"expire_time=%d",&expire_time);
                 continue;
             }
             if (strstr(argv[i],"pkcs11_module=") ) {

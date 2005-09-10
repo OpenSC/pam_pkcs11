@@ -49,8 +49,8 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 	const scconf_block *root;
 	scconf_block **blocks, *blk;
 	struct mapper_instance *mymodule;
-	void *handler;
 	mapper_module * (*mapper_init)(scconf_block *blk, const char *mapper_name);
+	void *handler = NULL;
 	int old_level=get_debug_level();
 	const char *libname = NULL;
 	mapper_module * res = NULL;

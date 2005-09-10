@@ -39,6 +39,7 @@
 #include "debug.h"
 #include "error.h"
 #include "strings.h"
+#include "base64.h"
 #include "cert_info.h"
 
 #if OPENSSL_VERSION_NUMBER >=  0x00907000L
@@ -352,7 +353,7 @@ static int BN_append(unsigned char *pt, BIGNUM *bn) {
 	/* TODO: handle error condition */
 	extrabyte=( buff[1] & 0x80 )? 0:1;
 	res= int_append(pt,size-extrabyte); pt+=res;
-	res= str_append(pt,buff+extrabyte,size-extrabyte); pt+=res;
+	res= str_append(pt,(char *)(buff+extrabyte),size-extrabyte); pt+=res;
 	free(buff);
 	return pt-old;
 }
@@ -362,8 +363,8 @@ static int BN_append(unsigned char *pt, BIGNUM *bn) {
 */
 static char **cert_info_sshpuk(X509 *x509) {
 	char **maillist;
-	char *type,*data,*buf;
-	unsigned char *blob,*pt;
+	char *type,*buf;
+	unsigned char *blob,*pt,*data;
 	int data_len;
 	int res;
 	static char *entries[2] = { NULL,NULL };
@@ -410,13 +411,13 @@ static char **cert_info_sshpuk(X509 *x509) {
 	}
 	/* encode data in base64 format */
 	data_len= 1+ 4*((2+pt-blob)/3);
-	// data_len=8192;
-	data=calloc(data_len,sizeof(char));
+	/* data_len=8192; */
+	data=calloc(data_len,sizeof(unsigned char));
 	if(!data) {
 		DBG1("calloc() to uuencode buffer '%d'",data_len);
 		goto sshpuk_fail;
 	}
-	res= base64_encode(blob,pt-blob,data,&data_len);
+	res= base64_encode(blob,pt-blob,data,(size_t *) &data_len);
 	if (res<0) {
 		DBG("BASE64 Encode failed");
 		goto sshpuk_fail;

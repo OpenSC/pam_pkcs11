@@ -48,7 +48,10 @@ static char * mapper_find_user(X509 *x509,void *context) {
 	return (match)?clone_str((char *)default_user):NULL;
 }
 
+/* not used */
+#if 0
 _DEFAULT_MAPPER_FIND_ENTRIES
+#endif
 
 _DEFAULT_MAPPER_MATCH_USER
 
