@@ -1,0 +1,85 @@
+.TH card_eventmgr 1 "Aug 2005" "Juan Antonio Martinez" PAM-PKCS#11
+.SH NAME
+card_eventmgr \- PCSC\-Lite Event Manager
+.SH SYNTAX
+.B card_eventmgr
+.RB [ debug ]
+.RB [[ no ] daemon ]
+.RB [ timeout=\fI<msecs>\fP ]
+.RB [ config_file=\fI<filename>\fP ]
+.RB [ kill ]
+.RB [ pidfile=\fI<pidfile>\fP ]
+.SH DESCRIPTION
+.B card_eventmgr
+is a smart card monitoring tool that listen to the status of the
+card reader and dispatch actions on several events.
+.B card_eventmgr
+can be used for several actions: like screen lock on card removal.
+.P
+Three events are supported: card insertion, card removal and timeout on
+removed card. Actions are specified in a configuration file.
+.SH OPTIONS
+.TP 
+.B debug
+Enable debugging output.
+.TP 
+.RB [ no ] daemon
+Runs in background if daemon or in foreground if nodaemon (default). If
+debug is unset, the program dettaches itself from the tty.
+.TP 
+.BI timeout= <msecs>
+Set polling timeout in milliseconds. Defaults to 1000 (1 second).
+.TP 
+.BI config_file= "<configuration file>"
+Sets de configuration file. Default value is
+.IR /etc/pam_pkcs11/card_eventmgr.conf .
+.TP
+.BI pidfile= <pidfile>
+Store the
+.B card_eventmgr
+process ID (pid) in the file
+.IR pidfile .
+.TP
+.B kill
+Read a process id from
+.I pidfile
+and kill that process. You must use
+the argument
+.BI pidfile= <pidfile>
+to use
+.BR kill .
+.SH FILES
+\fI/etc/pam_pkcs11/card_eventmgr.conf\fP 
+.SH EXAMPLES
+To run this program the standard way type:
+.P
+ card_eventmgr 
+.P 
+Alternatively you can specify options:
+.P 
+ card_eventmgr debug nodaemon timeout=500 config_file=$HOME/.card_eventmgr.conf
+.P
+If you want to start and stop card_eventmgr automatically in an X11
+session you can create a \fI~/.xsession\fR file containing:
+ # start the card autolock
+ card_eventmgr pidfile=$HOME/.card_eventmgr.pid
+
+ # start Gnome or something else
+ /usr/bin/x-session-manager
+
+ # kill the card autolock
+ card_eventmgr kill pidfile=$HOME/.card_eventmgr.pid
+.SH BUGS
+Some applications like 
+.B xscreensaver\-command
+may fail due
+to external events (eg: try to unlock an unlocked session).
+In this case, the command incorrectly returns error code.
+.SH AUTHORS
+Juan Antonio Martinez <jonsito@teleline.es>
+.br
+Ludovic Rousseau <ludovic.rousseau@free.fr>
+.SH "SEE ALSO"
+.BR pam_pkcs11 (8),
+.BR pkcs11_eventmgr (1),
+README.eventmgr, PAM\-PKCS11 User Manual

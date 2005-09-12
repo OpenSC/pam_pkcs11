@@ -1,0 +1,174 @@
+This is the README of the PKCS #11 PAM Login Module
+======================================================================
+
+Release: 0.4.1
+Authors:  Mario Strasser <mast@gmx.net>
+	  Juan Antonio Martinez <jonsito@teleline.es>
+
+This Linux-PAM login module allows a X.509 certificate based user 
+login. The certificate and its dedicated private key are thereby
+accessed by means of an appropriate PKCS #11 module. For the 
+verification of the users' certificates, locally stored CA 
+certificates as well as either online or locally accessible CRLs are 
+used.
+
+Detailed information about the Linux-PAM system can be found in [1],
+[2] and [3]. The specification of the Cryptographic Token Interface 
+Standard (PKCS #11) is available at [4].
+
+
+PKCS #11 Module Requirements
+----------------------------------------------------------------------
+The PKCS #11 modules must full-fit the requirements given by the RSA 
+Asymmetric Client Signing Profile, which has been specified in the 
+PKCS #11 Conformance Profile Specification [5] by RSA Laboratories.
+
+
+User Matching
+----------------------------------------------------------------------
+To approve the ownership of a certificate, that is to allow the owner 
+of a certificate to login as a particular user Several modules
+are provided. See README.mappers file in doc directory
+
+[Note: This is still a work in progress, any suggestions for 
+       improvements or alternative matching algorithms are welcome.]
+
+
+Installation
+----------------------------------------------------------------------
+
+bash# tar -xvzf pam_pkcs11-X.Y.tar.gz
+bash# cd pam_pkcs11-X.Y
+bash# ./bootstrap
+bash# ./configure
+bash# make
+bash# make install
+
+
+Configuration
+
+1- Create a directory ( /etc/pam_pkcs11
+2- Copy $(base)/etc/pam_pkcs11.conf.example to /etc/pam_pkcs11 and personalize
+3- Create crls and cacerts directories according with configuration file, 
+   and fill them with proper data 
+4- Choose one o more mappers to install, set up configuration file, and
+   if needed configure mappers
+
+File etc/pam_pkcs11.conf is fully auto-documented, to allow you easy
+editing
+
+5- setup /etc/pam.d/xxx entries
+
+----------------------------------------------------------------------
+To make use of the PKCS #11 login module replace the line
+
+  auth	requisite	pam_unix2.so	...
+
+with
+
+  auth	requisite	pam_pkcs11.so	...
+
+in the pam configuration files.
+
+Some mappers doesn't map to an existing user. To allow correct login,
+you may need to install also pam-mkhomedir in session pam stack
+See http://www.kernel.org/pub/linux/libs/pam for details
+
+The following options are recognised for pam-pkcs11.so:
+
+  debug           
+    Enable debugging support. 
+
+  config_file
+    To specify up configuration file ( default /etc/pam_pkcs11/pam_pkcs11.conf )
+
+Next options should be taken from configuration file, but is up to the
+user to specify them from command line. If so, it takes precedence over
+configuration file
+
+  nullok          
+    Allow empty passwords.
+
+  use_first_pass  
+    Do not prompt the user for the passwords but take them from the 
+    PAM_ items instead.
+
+  try_first_pass  
+    Do not prompt the user for the passwords unless PAM_(OLD)AUTHTOK 
+    is unset.
+
+  use_authtok
+    Like try_first_pass, but fail if the new PAM_AUTHTOK has not been 
+    previously set (intended for stacking password modules only).
+
+Next options are pkcs11 module specific
+
+  pkcs11_module=<file>
+    Filename of the PKCS #11 module. The default value is 
+    /etc/pam_pkcs11/pkcs11_module.so.  
+    Note that this option takes precedence over "module" entry
+    in proper pkcs11_module section, but this section is still needed
+
+  slot_num=<nr>
+    Slot-number to use. One for the first, two for the second and so
+    on. The default value is zero which means to use the first slot
+    with an available token.
+
+  ca_dir=<path>
+    Path to the directory where the CA certificates are stored. The 
+    directory must contain an openssl hash-link to each certificate. 
+    The default value is /etc/pam_pkcs11/cacerts.
+
+  crl_dir=<path>
+    Path to the directory where the CRLs are stored. The directory 
+    must contain an openssl hash-link to each CRL. The default value 
+    is /etc/pam_pkcs11/crls.
+
+  crl_policy={none, online, offline, auto}
+    Sets the CRL verification policy. None performs no verification
+    at all, online downloads the CRL form the location given by the 
+    CRL distribution point extension of the certificate and offline 
+    uses the locally stored CRLs. Auto is a combination of online and 
+    offline; it first tries to download the CRL from a possibly
+    given CRL distribution point and if this fails, uses the local
+    CRLs. The default setting is none.
+
+Example:
+
+  auth  sufficient  pam_pkcs11.so   config_file=/etc/pam_pkcs11/pam_pkcs11.conf
+
+  or ( avoid if possible )
+
+  auth	sufficient pam_pkcs11.so	nullok debug try_first_pass \
+    pkcs11_module=/usr/lib/pkcs11/pkcs11_module.so \
+    ca_dir=/etc/cacerts/ crl_dir=/etc/cacerts/ crl_policy=auto
+
+
+Contact
+----------------------------------------------------------------------
+
+Any comments, suggestions and bug reports are welcome. Please, mention
+the keywords 'pkcs' and 'pam' in the subject.
+
+Mario Strasser <mast@gmx.net>
+Juan Antonio Martinez <jonsito@teleline.es>
+
+
+References
+----------------------------------------------------------------------
+
+[1] The Linux-PAM System Administrators' Guide
+    http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam.html
+
+[2] The Linux-PAM Module Writers' Guide
+    http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam_modules.html 
+
+[3] The Linux-PAM Application Developers' Guide
+    http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/pam_appl.html
+
+[4] PKCS #11 - Cryptographic Token Interface Standard 
+    http://www.rsasecurity.com/rsalabs/pkcs/pkcs-11/
+
+[5] PKCS #11: Conformance Profile Specification
+    http://www.rsasecurity.com/rsalabs/pkcs/pkcs-11/
+

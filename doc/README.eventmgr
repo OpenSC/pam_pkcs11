@@ -1,0 +1,98 @@
+Using the Card Event Manager
+----------------------------
+
+PAM-PKCS11 includes a tool "card_eventmgr" that can be used to
+monitor the status of the card reader and dispatch actions on several
+events. This program can be used for several actions, like screen lock on
+card removal.
+
+Note that this program has no interaction with pam-pkcs11: is just a
+card status monitor. It's up to the sysadmin to define and configure
+actions to take on events.
+
+To invoke the program, just type "card_eventmgr".
+
+Several command lines are recognized:
+
+- debug   - to enable debugging. Defaults to unset
+- daemon  - to run as daemon. If debug is unset, also dettach from tty.
+            Default to unset
+- timeout=<msecs>    - time in msec between two consecutive status poll.
+                       Defaults to 1000 (1 second)
+- config_file=<file> - configuration file to use. Defaults to
+                       /etc/pam_pkcs11/card_eventmgr.conf
+
+Structure of configuration file is described bellow:
+
+card_eventmgr {
+
+	# Run in background.
+	daemon = false;
+
+	# show debug messages
+	debug = false;
+	
+	# polling time in mili-seconds
+	timeout = 1000;
+
+	#
+	# list of events and actions
+
+	# Card inserted
+	event card_insert {
+		# what to do if an action fail?
+		# ignore  : continue to next action
+		# return  : end action sequence
+		# quit    : end program
+		on_error = ignore ;
+
+		# You can enter several, comma-separated action entries
+		# they will be executed in turn
+		action = "/usr/bin/play /usr/share/sounds/warning.wav",
+			"/usr/X11R6/bin/xscreensaver-command -deactivate";
+	}
+
+	# Card has been removed
+	event card_remove { 
+		on_error = ignore;
+		action = "/usr/bin/play /usr/share/sounds/error.wav",
+			"/usr/X11R6/bin/xscreensaver-command -lock";
+	}
+
+	# Too much time locked session
+	event timeout { 
+	}
+}
+
+As you can see, on each event you can define a list of actions, and what
+to do if an action fails.
+
+SECURITY ISSUES:
+
+The best way to start card monitoring is at user login into the system. 
+If so, note that all event commands will be executed with user privileges.
+So is up to the user to take care that he has the rights to execute the
+desired actions.
+
+EXAMPLE: use xscreensaver to lock the screen at card removal
+
+you can use the provided configuration sample file. 
+Just add to your .xsession or KDE/GNOME Autostart directory
+an invocation to card_eventmgr in daemon mode.
+
+Additionally you can add this entry to /etc/pam.d/xscreensaver
+configuration:
+
+#%PAM-1.0
+
+# Red Hat says this is right for them, as of 7.3:
+auth       sufficient    pam_pkcs11.so debug config_file=/etc/pam_pkcs11/pam_pkcs11.conf
+auth       required	pam_stack.so service=system-auth
+
+# This is what we were using before:
+# auth       required	pam_pwdb.so shadow nullok
+At pam-pkcs11-0.4.3 handling of timeout event is not managed yet
+
+In this case, when the card is removed the X screen will be locked. When
+the card is re-inserted, screen will prompt for the card PIN, check it and
+if access is granted the screen will unlock.

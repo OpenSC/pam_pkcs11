@@ -1,0 +1,51 @@
+12- Sep 2005
+	- Finally pam_pkcs11-0.5.3 is out.
+	- New mapper API and Docs
+	- Full documentation available
+	- New mappers: openssh, openssl, ldap, generic and more
+
+12- Apr 2005
+	- Changed name to pam_pkcs11
+	- pam_pkcs11-0.5.2 released
+	- Now pam_pkcs11 is part of OpenSC project web.  
+
+04- Apr 2005
+	- Pkcs11_login-0.5 released:
+	  * Grouped all functions in a common library
+	  * rewritten all mappers ( openssh,opensc,ldap still to be written)
+	  * New certificate digest (md5,sha1, etc) mapper
+	  * Documentation updated and rewritten in DocBook XML
+	  * Tons of bugfixes
+	- New tool: pkcs11_inspect
+
+28- Feb 2005
+	- pkcs11_login-0.4.4 released
+	- New pkcs11_eventmgr tool.
+
+15- Feb 2005
+	- pkcs11_login-0.4.4Beta
+	- Man pages, rpm packages
+
+11- Feb 2005
+	- pkcs11_login-0.4.3 released
+	- Added card_eventmgr tool to launch actions on card insert/remove
+
+9- Feb 2005
+	- pkcs11_login-0.4.2 released. 
+	- See README.autologin to see how to use login-from-certificate
+	  features in console and gdm
+
+8- Feb 2005
+	- pkcs11_login-0.4.1 released. see ChangeLog
+
+7- Feb 2005
+	pkcs11_login-0.4 released:
+	- Now pam_pkcs11 can take arguments from command line 
+	or via configuration file
+	- Certificate to User mappin has been modularized
+	- Preliminary works on entering session without userlogin prompt:
+	just insert certificate and enter PIN
+
+2- Feb 2005
+	Thanks Mario Strasser for allow me re-work in their pam_pkcs11
+	module and re-release it under LGPL

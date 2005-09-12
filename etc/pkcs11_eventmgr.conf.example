@@ -1,0 +1,50 @@
+# Sample pkcs11_eventmgr configuration file
+#
+pkcs11_eventmgr {
+
+	# Run in background? Implies debug=false if true
+	daemon = true;
+
+	# show debug messages?
+	debug = false;
+	
+	# polling time in seconds
+	polling_time = 1;
+
+	# expire time in seconds
+	# default = 0 ( no expire )
+	expire_time = 0;
+	
+	# pkcs11 module to use
+	pkcs11_module = /usr/lib/opensc-pkcs11.so;
+
+	#
+	# list of events and actions
+
+	# Card inserted
+	event card_insert {
+		# what to do if an action fail?
+		# ignore  : continue to next action
+		# return  : end action sequence
+		# quit    : end program
+		on_error = ignore ;
+
+		# You can enter several, comma-separated action entries
+		# they will be executed in turn
+		action = "play /usr/share/sounds/warning.wav",
+			"xscreensaver-command -deactivate";
+	}
+
+	# Card has been removed
+	event card_remove { 
+		on_error = ignore;
+		action = "play /usr/share/sounds/error.wav",
+			"xscreensaver-command -lock";
+	}
+
+	# Too much time card removed
+	event expire_time { 
+		on_error = ignore;
+		action = "/bin/false";
+	}
+}

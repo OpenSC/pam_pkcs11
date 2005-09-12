@@ -1,0 +1,61 @@
+.TH pkcs11_inspect 1 "Aug 2005" "Juan Antonio Martinez" "PAM PKCS#11"
+.SH NAME
+pkcs11_inspect \- print certificate contents
+.SH SYNOPSIS
+.B pkcs11_inspect
+.RB [ debug ]
+.RB [ config_file=\fI<filename>\fP ]
+.SH DESCRIPTION
+.B pkcs11_inspect
+uses the pam_pkcs11 library infrastructure to get
+the content of a certificate and display it.
+.P
+.B pkcs11_inspect
+uses the same configuration file and arguments than
+.BR pam_pkcs11 (8)
+PAM module. It loads defined mapper modules, and use
+them to look into the certificate for required entries (ie: ms_mapper
+looks for ms UPN entries, and so on).
+.P
+When a mapper module finds a proper entry in the certificate, it converts
+to UTF\-8 and print it to stdout.
+.SH OPTIONS
+.TP 
+.B debug
+Enable debugging output.
+.TP 
+.B config_file=\fI<filename>\fP
+Sets the configuration file to use. Default value is
+.IR /etc/pam_pkcs11/pam_pkcs11.conf .
+.P
+As it uses the same configuration file as pam_pkcs11, all pam_pkcs11
+options are also available. Note that some of them have no sense in a
+non\-PAM environment, so they will be ignored. Some mapper options
+(mapfile, ignorecase) have no effect on certificate contents, so they
+will be ignored too.
+.SH "RETURN VALUE"
+On success
+.B pkcs11_inspect
+prints on stdout all certificate contents
+that are found for mappers and returns 0.
+.P
+On error it returns 1.
+.SH FILES
+.LP 
+\fI/etc/pam_pkcs11/pam_pkcs11.conf\fP 
+.SH EXAMPLES
+To run this program the standard way, insert a smart card in the reader
+and type:
+.P
+ pkcs11_inspect
+.P 
+Alternatively you can specify options:
+.P 
+ pkcs11_inspect debug config_file=${HOME}/.pam_pkcs11.conf
+.SH AUTHORS
+.LP 
+Juan Antonio Martinez <jonsito@teleline.es>
+.SH "SEE ALSO"
+\fBpam_pkcs11\fP(8), \fBpklogin_finder\fP(1)
+.br 
+PAM\-PKCS11 User Manual

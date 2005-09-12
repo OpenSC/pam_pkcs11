@@ -1,0 +1,54 @@
+.TH pklogin_finder 1 "Aug 2005" "Juan Antonio Martinez" PAM-PKCS#11
+.SH NAME
+pklogin_finder \- maps certificates into a user
+.SH SYNTAX
+.B pklogin_finder
+.RB [ debug ]
+.RB [ config_file=\fI<filename>\fP ]
+.SH DESCRIPTION
+.B pklogin_finder
+uses the pam_pkcs11 library infrastructure to
+interactively map a PKCS#11 provided certificate to a user.
+.P
+.B pklogin_finder
+uses the the same configuration file and arguments than
+.BR pam_pkcs11 (8)
+PAM module. Load defined mapper modules, and try to
+find a map between found certificates and a user login.
+.SH OPTIONS
+.LP 
+.TP 
+.B debug 
+Enable debugging output. Default is no debug.
+.TP 
+.BI config_file= "<configuration file>"
+Sets the configuration file to use. Default value is
+.IR /etc/pam_pkcs11/pam_pkcs11.conf .
+.P 
+As it uses the same configuration file than pam_pkcs11, all pam_pkcs11
+options are also available. Note that some of them has no sense in a
+non\-PAM environment, so they will be ignored.
+.SH "RETURN VALUE"
+On success
+.B pklogin_finder
+prints on stdout the login name and exits returns 0.
+.P
+On user mapping error it returns 1.
+.P
+On no user match it prints nothing and returns 2.
+.SH FILES
+.I /etc/pam_pkcs11/pam_pkcs11.conf
+.SH EXAMPLES
+To run this program the standard way, insert a smart card into the
+reader and type:
+ pklogin_finder 
+.P
+Alternatively you can specify options:
+ pklogin_finder debug config_file=${HOME}/.pam_pkcs11.conf
+.SH AUTHORS
+.LP 
+Juan Antonio Martinez <jonsito@teleline.es>
+.SH "SEE ALSO"
+.BR pam_pkcs11 (8),
+.BR pkcs11_inspect (1),
+PAM\-PKCS11 User Manual
