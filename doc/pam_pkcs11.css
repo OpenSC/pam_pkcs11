@@ -1,23 +1,30 @@
 .screen {
-	background-color: #dddddd;
-  	cellspacing:"1";
-	cellpadding:"1";
+	background-color: #f0f0f0;
+  	cellspacing: 1;
+	cellpadding: 1;
+	margin: 1em;
+	padding: 1em;
+	border: 1px solid;
 }
 
-.prompt {
-	background-color: #dddddd;
+.prompt, .command {
+	background-color: #e0e0e0;
 }
 
-.command {
-	background-color: #dddddd;
+.token, .option {
+	font-family: monospace;
+	background-color: #ffe0e0;
 }
 
-.title {
+.filename, .application {
+	font-family: monospace;
+	background-color: #ffffe0;
 }
 
-.toc {
+.code {
+	background-color: #e0ffe0;
 }
 
-.book {
-	width: 630pt
+a:hover {
+	background:#ff0;
 }
