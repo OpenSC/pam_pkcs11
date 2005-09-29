@@ -7,4 +7,5 @@ if test -f Makefile; then
 fi
 rm -rf *.cache *.m4 config.guess config.log \
 config.status config.sub depcomp ltmain.sh
+[ -d aclocal ] || mkdir aclocal
 autoreconf --verbose --install
