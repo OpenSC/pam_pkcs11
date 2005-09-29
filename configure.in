@@ -78,7 +78,7 @@ AM_CONDITIONAL(HAVE_LDAP, test x$with_ldap = xyes)
 
 dnl Check for PCSC-Lite
 AC_ARG_WITH(pcsclite,
-  [  --with-pcsclite         Use pcsc-lite (default=yes)])
+  AC_HELP_STRING([--with-pcsclite], [Use pcsc-lite (default=yes)]))
 if test "$with_pcsclite" = "no" -o "$with_pcsclite" = "false"
 then
   with_pcsclite=no
@@ -95,12 +95,12 @@ else
 
 	CFLAGS="$CFLAGS $PCSC_CFLAGS"
 	AC_CHECK_HEADER(winscard.h,,
-		[AC_MSG_ERROR([winscard.h not found, install pcsc-lite, or use CFLAGS=... ./configure])],
+		[AC_MSG_ERROR([winscard.h not found, install pcsc-lite, or use PCSC_CFLAGS=... ./configure])],
 		[ #include <winscard.h> ])
 
-	LDLIBS="$LDLIBS $PCSCLITE_LIBS"
-	AC_CHECK_LIB(pcsclite, SCardEstablishContext, [],
-		[AC_MSG_ERROR([SCardEstablishContext() not found, install pcsc-lite or later,or use LDLIBS=... ./configure])])
+	LIBS="$LDLIBS $PCSC_LIBS"
+	AC_CHECK_FUNC(SCardEstablishContext, ,
+		[AC_MSG_ERROR([SCardEstablishContext() not found, install pcsc-lite or later,or use PCSC_LIBS=... ./configure])])
 
 	LIBS="$OLD_LIBS"
 	CFLAGS="$OLD_CFLAGS"
