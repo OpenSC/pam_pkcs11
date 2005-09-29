@@ -1,7 +1,7 @@
 # $Id$
 
-SUBDIRS = . aclocal doc etc src tools
-DIST_SUBDIRS = . aclocal doc etc src tools
+SUBDIRS = . doc etc src tools
+DIST_SUBDIRS = . doc etc src tools
 
 EXTRA_DIST = ChangeLog COPYING INSTALL NEWS README TODO \
 	bootstrap pam_pkcs11.spec

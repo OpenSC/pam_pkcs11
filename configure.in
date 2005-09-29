@@ -170,7 +170,6 @@ AC_CHECK_FUNCS([memset strdup strerror])
 
 AC_CONFIG_FILES([ 
 Makefile
-aclocal/Makefile
 doc/Makefile
 etc/Makefile
 src/Makefile
