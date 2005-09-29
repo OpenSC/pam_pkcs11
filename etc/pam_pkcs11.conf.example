@@ -99,7 +99,8 @@ pam_pkcs11 {
   # Generic certificate contents mapper
   mapper generic {
         debug = true;
-        module = /usr/lib/pam_pkcs11/generic_mapper.so;
+        #module = /usr/lib/pam_pkcs11/generic_mapper.so;
+        module = internal;
         # ignore letter case on match/compare
         ignorecase = false;
         # Use one of "cn" , "subject" , "kpn" , "email" , "upn" or "uid"
