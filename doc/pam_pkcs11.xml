@@ -1281,6 +1281,8 @@ is:
 
 <listitem><application>xscreensaver</application> (X11 screen saver)</listitem>
 
+<listitem>etc.</listitem>
+
 </itemizedlist>
 </para>
 
@@ -1300,12 +1302,11 @@ pam_pkcs11 fails.
 </para>
 
 <para>
-Using a smart card only login may be more secure but it may also be more
-dangerous. If there is a bug in any smart card related software you will not
-be able to log in even as root. It should be safer to keep the
-possibility to log in using a password but at the same time disable
-password login for normal users. So you will still be able to login as
-root with the root password.
+Note: with the "required" option, if there is a bug in any smart card
+related software you will not be able to log in even as root. It should
+be safer to keep the possibility to log in using a password but at the
+same time disable password login for normal users. So you will still be
+able to login as root with the root password.
 </para>
 </sect1>
 
