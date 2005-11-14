@@ -18,6 +18,7 @@
 #include "debug.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <syslog.h>
 
 /* current debug level */
 static int debug_level = 0;
@@ -33,13 +34,27 @@ int get_debug_level() {
 void debug_print(int level, char *file, int line, char *format, ...) {
   va_list ap;
   if (debug_level >= level) {
-    /* print preamble */
-    printf("\033[34mDEBUG:%s:%d: ", file, line);
-    /* print message */
-    va_start(ap, format);
-    vprintf(format, ap);
-    va_end(ap);
-    /* print postamble */
-    printf("\033[39m\n");
+    /* is stdout is a tty */
+    if (isatty(1)) {
+      /* print preamble */
+      printf("\033[34mDEBUG:%s:%d: ", file, line);
+      /* print message */
+      va_start(ap, format);
+      vprintf(format, ap);
+      va_end(ap);
+      /* print postamble */
+      printf("\033[39m\n");
+    }
+    else {
+	  /* else we use syslog(3) */
+      char buf[100];
+
+      /* print message */
+      va_start(ap, format);
+      vsnprintf(buf, sizeof(buf), format, ap);
+      va_end(ap);
+      
+      syslog(LOG_INFO, buf);
+    }
   }
 }
