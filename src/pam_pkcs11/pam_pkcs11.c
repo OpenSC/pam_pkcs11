@@ -33,7 +33,7 @@
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
-#include "../common/pkcs11.h"
+#include "../common/rsaref/pkcs11.h"
 #include "../common/cert_vfy.h"
 #include "pam_config.h"
 #include "mapper_mgr.h"

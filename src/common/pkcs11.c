@@ -15,7 +15,7 @@
  * $Id$
  */
 
-#include "pkcs11.h"
+#include "rsaref/pkcs11.h"
 #include "debug.h"
 #include "error.h"
 #include <dlfcn.h>

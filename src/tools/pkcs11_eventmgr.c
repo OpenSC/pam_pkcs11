@@ -26,7 +26,7 @@
 #include <sys/wait.h>
 
 #include "../scconf/scconf.h"
-#include "../common/pkcs11.h"
+#include "../common/rsaref/pkcs11.h"
 #include "../common/debug.h"
 #include "../common/error.h"
 
