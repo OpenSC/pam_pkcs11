@@ -77,24 +77,24 @@ AC_SUBST(LDAP_LIBS)
 AM_CONDITIONAL(HAVE_LDAP, test x$with_ldap = xyes)
 
 # Add argument for using libp11
-AC_ARG_WITH(libp11,
-  AC_HELP_STRING([--with-libp11], [use libp11 (default=yes)]))
-if test "$with_libp11" = "no" -o "$with_libp11" = "false"
-then
-  with_libp11=no
-else
-  AC_CHECK_LIB( p11, PKCS11_CTX_new,
-	[
-	with_libp11=yes
-	LIBS="$LIBS -lp11"
-	],[
-	AC_MSG_WARN([Cannot find LIBP11 library. Using direct Pkcs11 access])
-	with_libp11=no
-	])
-fi
-AC_SUBST(LIBP11_CFLAGS)
-AC_SUBST(LIBP11_LIBS)
-AM_CONDITIONAL(HAVE_LIBP11, test x$with_libp11 = xyes)
+#AC_ARG_WITH(libp11,
+#  AC_HELP_STRING([--with-libp11], [use libp11 (default=yes)]))
+#if test "$with_libp11" = "no" -o "$with_libp11" = "false"
+#then
+#  with_libp11=no
+#else
+#  AC_CHECK_LIB( p11, PKCS11_CTX_new,
+#	[
+#	with_libp11=yes
+#	LIBS="$LIBS -lp11"
+#	],[
+#	AC_MSG_WARN([Cannot find LIBP11 library. Using direct Pkcs11 access])
+#	with_libp11=no
+#	])
+#fi
+#AC_SUBST(LIBP11_CFLAGS)
+#AC_SUBST(LIBP11_LIBS)
+#AM_CONDITIONAL(HAVE_LIBP11, test x$with_libp11 = xyes)
 
 # Check and set OpenSSL paths
 PKG_CHECK_MODULES(OPENSSL, openssl, [ with_ssl=yes ], [ AC_MSG_ERROR([openssl not found]) ])
@@ -231,5 +231,5 @@ echo "DocBook support:     ${with_docbook}"
 echo "PC/SC support:       ${with_pcsclite}"
 echo "CURL support:        ${with_curl}"
 echo "LDAP support:        ${with_ldap}"
-echo "LIBP11 support:      ${with_libp11}"
+#echo "LIBP11 support:      ${with_libp11}"
 echo ""
