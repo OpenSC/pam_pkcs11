@@ -15,9 +15,8 @@
  * $Id$
  */
 
-#include "rsaref/pkcs11.h"
-#include "debug.h"
-#include "error.h"
+#define __PKCS11_LIB_C__
+
 #include <dlfcn.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -27,6 +26,11 @@
 #include <string.h>
 #include <openssl/x509.h>
 #include <openssl/err.h>
+
+#include "rsaref/pkcs11.h"
+#include "pkcs11_lib.h"
+#include "debug.h"
+#include "error.h"
 
 int load_pkcs11_module(char *module, pkcs11_handle_t *h)
 {

@@ -28,6 +28,7 @@
 #include "../common/debug.h"
 #include "../common/error.h"
 #include "../common/rsaref/pkcs11.h"
+#include "../common/pkcs11_lib.h"
 #include "../common/cert_vfy.h"
 #include "../pam_pkcs11/pam_config.h"
 #include "../pam_pkcs11/mapper_mgr.h"
