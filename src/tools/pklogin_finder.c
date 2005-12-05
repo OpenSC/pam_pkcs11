@@ -28,6 +28,7 @@
 #include "../common/debug.h"
 #include "../common/error.h"
 #include "../common/rsaref/pkcs11.h"
+#include "../common/pkcs11_lib.h"
 #include "../common/cert_vfy.h"
 #include "../pam_pkcs11/pam_config.h"
 #include "../pam_pkcs11/mapper_mgr.h"
@@ -95,28 +96,10 @@ int main(int argc, const char **argv) {
     return 1;
   }
 
-  /* get password */
-  pin =getpass("PIN for token: ");
-#ifndef DEBUG_HIDE_PASSWORD
-  DBG1("PIN = [%s]", pin);
-#endif
-  /* for safety reasons, clean PIN string from memory asap */
-
-  /* check password length */
-  if (!configuration->nullok && strlen(pin) == 0) {
-    memset(pin, 0, strlen(pin));
-    free(pin);
-    return 2;
-  }
-
-  /* perform pkcs #11 login */
-  rv = pkcs11_login(&ph, pin);
-  memset(pin, 0, strlen(pin));
-  free(pin);
+  rv = pkcs11_pass_login(&ph,configuration->nullok);
   if (rv != 0) {
-    release_pkcs11_module(&ph);
-    DBG1("open_pkcs11_login() failed: %s", get_error());
-    return 1;
+    DBG1("pkcs11_pass_login() failed: %s", get_error());
+    return 2;
   }
 
   /* load all appropriate private keys */
