@@ -428,11 +428,9 @@ So the process to setup ca and crl entries is:
 /usr/bin/make_hash_link.sh</userinput>
 </screen>
         </listitem>
+	<listitem> Repeat above procedure for CRL entries (if used)</listitem>
 
-		<listitem> If CRL are used ("<option>crl_policy</option>" option
-		in "<option>module</option>" is set to
-		<emphasis>offline</emphasis> or <emphasis>auto</emphasis>),
-		repeat the process described above using the CRL directory</listitem>
+	<listitem> Select your Certificate verification policy ("<option>cert_policy</option>" option in "<option>module</option>" entry) </listitem>
 
 </orderedlist>
 </para>
@@ -610,28 +608,34 @@ is <filename class='directory'>/etc/pam_pkcs11/crls/</filename>.
 </varlistentry>
 
 <varlistentry>
-<term><token>crl_policy={none, online, offline, auto}</token></term>
+<term><token>cert_policy={none, ca, signature, crl_online, crl_offline, crl_auto}</token></term>
 <listitem>
 <para>
-Sets the CRL verification policy:
+Sets the Certificate verification policy:
     <itemizedlist> 
 	<listitem><token>none</token>: Performs no verification at all
 	</listitem>
 
-	<listitem><token>online</token>: Downloads the CRL from the location
+	<listitem><token>ca</token>: Checks that Certificate has a recognized CA from ca_dir
+	</listitem>
+
+	<listitem><token>signature></token>: Does a signature check to ensure that private and public key matches
+	</listitem>
+
+	<listitem><token>crl_online</token>: Downloads the CRL from the location
 	given by the CRL distribution point extension of the
 	certificate</listitem>
 
-	<listitem><token>offline</token>: Uses the locally stored CRLs.
+	<listitem><token>crl_offline</token>: Uses the locally stored CRLs.
 	</listitem>
 
-	<listitem><token>auto</token>: Is a combination of online and
+	<listitem><token>crl_auto</token>: Is a combination of online and
 	offline: it first tries to download the CRL from a possibly given
 	CRL distribution point and if this fails it uses the local CRLs.
 	</listitem>
 
     </itemizedlist>
-The default setting is <option>none</option>.
+You can use a comma-separated list to specify all desired options, eg <option>ca,crl_offline,signature</option>. The default setting is <option>none</option>.
 </para>
 </listitem>
 </varlistentry>
@@ -666,7 +670,7 @@ but still possible:
 auth       sufficient    pam_pkcs11.so	nullok debug try_first_pass \
              config_file=/etc/pam_pkcs11/pam_pkcs11.conf \
              pkcs11_module=/usr/lib/pkcs11/pkcs11_module.so \
-             ca_dir=/etc/cacerts/ crl_dir=/etc/cacerts/ crl_policy=auto
+             ca_dir=/etc/cacerts/ crl_dir=/etc/cacerts/ cert_policy=none
 auth       required     pam_securetty.so
 auth       required     pam_stack.so service=system-auth
 auth       required     pam_nologin.so
