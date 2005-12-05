@@ -215,6 +215,38 @@ int pkcs11_login(pkcs11_handle_t *h, char *password)
   return 0;
 }
 
+int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
+{
+  int rv;
+  char *pin;
+
+  /* get password */
+  pin =getpass("PIN for token: ");
+#ifndef DEBUG_HIDE_PASSWORD
+  DBG1("PIN = [%s]", pin);
+#endif
+  /* for safety reasons, clean PIN string from memory asap */
+
+  /* check password length */
+  if (!nullok && strlen(pin) == 0) {
+    memset(pin, 0, strlen(pin));
+    free(pin);
+    set_error("Empty passwords not allowed");
+    return -1;
+  }
+
+  /* perform pkcs #11 login */
+  rv = pkcs11_login(h, pin);
+  memset(pin, 0, strlen(pin));
+  free(pin);
+  if (rv != 0) {
+    release_pkcs11_module(h);
+    /* DBG1("pkcs11_login() failed: %s", get_error()); */
+    return -1;
+  }
+  return 0;
+}
+
 int close_pkcs11_session(pkcs11_handle_t *h)
 {
   int rv, i;
