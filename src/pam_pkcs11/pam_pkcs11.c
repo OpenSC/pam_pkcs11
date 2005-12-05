@@ -344,39 +344,45 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     return PAM_AUTHINFO_UNAVAIL;
   }
 
-  /* read random value */
-  rv = get_random_value(random_value, sizeof(random_value));
-  if (rv != 0) {
-    close_pkcs11_session(&ph);
-    release_pkcs11_module(&ph);
-    DBG1("get_random_value() failed: %s", get_error());
-    syslog(LOG_ERR, "get_random_value() failed: %s", get_error());
-    return PAM_AUTHINFO_UNAVAIL;
-  }
+  /* if signature check is enforced, generate random data, sign and verify */
+  if (configuration->policy.signature_policy) {
 
-  /* sign random value */
-  signature = NULL;
-  rv = sign_value(&ph, random_value, sizeof(random_value), &signature, &signature_length);
-  if (rv != 0) {
-    close_pkcs11_session(&ph);
-    release_pkcs11_module(&ph);
-    DBG1("sign_value() failed: %s", get_error());
-    syslog(LOG_ERR, "sign_value() failed: %s", get_error());
-    return PAM_AUTHINFO_UNAVAIL;
-  }
+    /* read random value */
+    rv = get_random_value(random_value, sizeof(random_value));
+    if (rv != 0) {
+      close_pkcs11_session(&ph);
+      release_pkcs11_module(&ph);
+      DBG1("get_random_value() failed: %s", get_error());
+      syslog(LOG_ERR, "get_random_value() failed: %s", get_error());
+      return PAM_AUTHINFO_UNAVAIL;
+    }
 
-  /* verify the signature */
-  DBG("verifying signature...");
-  rv = verify_signature(ph.choosen_key->x509,
-                        random_value, sizeof(random_value), signature, signature_length);
-  if (signature != NULL)
-    free(signature);
-  if (rv != 0) {
-    close_pkcs11_session(&ph);
-    release_pkcs11_module(&ph);
-    DBG1("verify_signature() failed: %s", get_error());
-    syslog(LOG_ERR, "verify_signature() failed: %s", get_error());
-    return PAM_AUTH_ERR;
+    /* sign random value */
+    signature = NULL;
+    rv = sign_value(&ph, random_value, sizeof(random_value), &signature, &signature_length);
+    if (rv != 0) {
+      close_pkcs11_session(&ph);
+      release_pkcs11_module(&ph);
+      DBG1("sign_value() failed: %s", get_error());
+      syslog(LOG_ERR, "sign_value() failed: %s", get_error());
+      return PAM_AUTHINFO_UNAVAIL;
+    }
+
+    /* verify the signature */
+    DBG("verifying signature...");
+    rv = verify_signature(ph.choosen_key->x509,
+             random_value, sizeof(random_value), signature, signature_length);
+    if (signature != NULL) free(signature);
+    if (rv != 0) {
+      close_pkcs11_session(&ph);
+      release_pkcs11_module(&ph);
+      DBG1("verify_signature() failed: %s", get_error());
+      syslog(LOG_ERR, "verify_signature() failed: %s", get_error());
+      return PAM_AUTH_ERR;
+    }
+
+  } else {
+      DBG("Skipping signature check");
   }
 
   /* close pkcs #11 session */
