@@ -44,16 +44,21 @@ pam_pkcs11 {
     # is /etc/pam_pkcs11/crls.
     crl_dir = /etc/pam_pkcs11/crls;
   
-    # Sets the CRL verification policy. None performs no verification
-    # at all, online downloads the CRL form the location given by the
-    # CRL distribution point extension of the certificate and offline
-    # uses the locally stored CRLs. Auto is a combination of online and
-    # offline; it first tries to download the CRL from a possibly
-    # given CRL distribution point and if this fails, uses the local
-    # CRLs. The default setting is none.
-    # crl_policy={none, online, offline, auto}
-    crl_policy = none;
-
+    # Sets the Certificate verification policy. 
+    # "none"        Performs no verification
+    # "ca"          Does CA check
+    # "crl_online"  Downloads the CRL form the location given by the
+    #               CRL distribution point extension of the certificate
+    # "crl_offline" Uses the locally stored CRLs
+    # "crl_auto"    Is a combination of online and offline; it first 
+    #               tries to download the CRL from a possibly given CRL 
+    #               distribution point and if this fails, uses the local
+    #               CRLs
+    # "signature"   Does also a signature check to ensure that private
+    #               and public key matches
+    # You can use a combination of ca,crl, and signature flags, or just
+    # use "none".
+    cert_policy = ca,signature;
   }
 
   # Default pkcs11 module
@@ -63,7 +68,7 @@ pam_pkcs11 {
     slot_num = 0;
     ca_dir = /etc/pam_pkcs11/cacerts;
     crl_dir = /etc/pam_pkcs11/crls;
-    crl_policy = none;
+    cert_policy = none;
   }
 
   # Which mappers ( Cert to login ) to use?

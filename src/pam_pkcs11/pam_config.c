@@ -43,8 +43,8 @@ struct configuration_st configuration = {
         "/etc/pam_pkcs11/pkcs11_module.so", /* const char *pkcs11_module_path; */
         0,				/* int slot_num; */
         "/etc/pam_pkcs11/cacerts",		/* const char *ca_dir; */
-        "/etc/pam_pkcs11/crls",		/*const char *crl_dir; */
-        CRLP_NONE,			/* int crl_policy; */
+        "/etc/pam_pkcs11/crls",		/* const char *crl_dir; */
+        { 0,CRLP_NONE,0 },		/* cert policy; */
 	NULL				/* char *username */
 };
 
@@ -58,16 +58,18 @@ void display_config () {
         DBG1("slot_num %d",configuration.slot_num);
         DBG1("ca_dir %s",configuration.ca_dir);
         DBG1("crl_dir %s",configuration.crl_dir);
-        DBG1("crl_policy %d",configuration.crl_policy);
+        DBG1("ca_policy %d",configuration.policy.ca_policy);
+        DBG1("crl_policy %d",configuration.policy.crl_policy);
+        DBG1("signature_policy %d",configuration.policy.signature_policy);
 }
 
 /*
 parse configuration file
 */
 void parse_config_file() {
-	const char *str;
 	scconf_block **pkcs11_mblocks,*pkcs11_mblk;
 	const scconf_list *mapper_list;
+	const scconf_list *policy_list;
 	scconf_context *ctx;
 	const scconf_block *root;
 	configuration.ctx = scconf_new(configuration.config_file);
@@ -118,13 +120,27 @@ void parse_config_file() {
 	        scconf_get_str(pkcs11_mblk,"crl_dir",configuration.crl_dir);
 	    configuration.slot_num = 
 	        scconf_get_int(pkcs11_mblk,"slot_num",configuration.slot_num);
-	    str = scconf_get_str(pkcs11_mblk,"crl_policy","none");
-	    if ( !strcmp(str,"none") ) configuration.crl_policy=CRLP_NONE;
-	    else if ( !strcmp(str,"auto") ) configuration.crl_policy=CRLP_AUTO;
-	    else if ( !strcmp(str,"online") ) configuration.crl_policy=CRLP_ONLINE;
-	    else if ( !strcmp(str,"offline") ) configuration.crl_policy=CRLP_OFFLINE;
-	    else {
-               DBG1("Invalid CRL policy: %s",str);
+	    policy_list= scconf_find_list(pkcs11_mblk,"cert_policy");
+	    while(policy_list) {
+	        if ( !strcmp(policy_list->data,"none") ) {
+			configuration.policy.crl_policy=CRLP_NONE;
+			configuration.policy.ca_policy=0;
+			configuration.policy.signature_policy=0;
+			break;
+		} else if ( !strcmp(policy_list->data,"crl_auto") ) {
+			configuration.policy.crl_policy=CRLP_AUTO;
+		} else if ( !strcmp(policy_list->data,"crl_online") ) {
+			configuration.policy.crl_policy=CRLP_ONLINE;
+		} else if ( !strcmp(policy_list->data,"crl_offline") ) {
+			configuration.policy.crl_policy=CRLP_OFFLINE;
+		} else if ( !strcmp(policy_list->data,"ca") ) {
+			configuration.policy.ca_policy=1;
+		} else if ( !strcmp(policy_list->data,"signature") ) {
+			configuration.policy.signature_policy=1;
+		} else {
+                   DBG1("Invalid CRL policy: %s",policy_list->data);
+	        }
+		policy_list= policy_list->next;
 	    }
 	}
 	/* now obtain and initialize mapper list */
@@ -199,11 +215,27 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		res=sscanf(argv[i],"crl_dir=%255s",configuration.crl_dir);
 		continue;
 	   }
-	   if (strstr(argv[i],"crl_policy=") ) {
-		if (strstr(argv[i],"none")) configuration.crl_policy=CRLP_NONE;
-		if (strstr(argv[i],"online")) configuration.crl_policy=CRLP_ONLINE;
-		if (strstr(argv[i],"offline")) configuration.crl_policy=CRLP_OFFLINE;
-		if (strstr(argv[i],"auto")) configuration.crl_policy=CRLP_AUTO;
+	   if (strstr(argv[i],"cert_policy=") ) {
+		if (strstr(argv[i],"none")) {
+			configuration.policy.crl_policy=CRLP_NONE;
+			configuration.policy.ca_policy=0;
+			configuration.policy.signature_policy=0;
+		}
+		if (strstr(argv[i],"crl_online")) {
+			configuration.policy.crl_policy=CRLP_ONLINE;
+		}
+		if (strstr(argv[i],"crl_offline")) {
+			configuration.policy.crl_policy=CRLP_OFFLINE;
+		}
+		if (strstr(argv[i],"crl_auto")) {
+			configuration.policy.crl_policy=CRLP_AUTO;
+		}
+		if (strstr(argv[i],"ca")) {
+			configuration.policy.ca_policy=1;
+		}
+		if (strstr(argv[i],"signature")) {
+			configuration.policy.signature_policy=1;
+		}
 		continue;
 	   }
 	   if (strstr(argv[i],"config_file=") ) {

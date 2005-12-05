@@ -23,6 +23,7 @@
 #define _PAM_CONFIG_H_
 
 #include "../scconf/scconf.h"
+#include "../common/cert_vfy.h"
 
 struct configuration_st {
 	char * config_file;
@@ -37,7 +38,7 @@ struct configuration_st {
 	int slot_num;
 	char *ca_dir;
 	char *crl_dir;
-	int crl_policy;
+	cert_policy policy;
 	char *username; /* provided user name */
 };
 

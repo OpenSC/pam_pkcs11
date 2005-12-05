@@ -129,7 +129,7 @@ int main(int argc, const char **argv) {
     if (x509 != NULL) {
       DBG1("verifing the certificate for the key #%d", i + 1);
       /* verify certificate (date, signature, CRL, ...) */
-      rv = verify_certificate(x509, configuration->ca_dir, configuration->crl_dir, configuration->crl_policy);
+      rv = verify_certificate(x509, configuration->ca_dir, configuration->crl_dir, configuration->policy.crl_policy);
       if (rv < 0) {
         close_pkcs11_session(&ph);
         release_pkcs11_module(&ph);

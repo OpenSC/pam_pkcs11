@@ -40,6 +40,12 @@ typedef enum {
 	CRLP_AUTO 
 	} crl_policy_t;
 
+typedef struct cert_policy_st {
+	int ca_policy;
+	int crl_policy;
+	int signature_policy;
+} cert_policy;
+
 #ifndef __CERT_VFY_C
 #define CERTVFY_EXTERN extern
 #else
