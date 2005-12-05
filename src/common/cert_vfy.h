@@ -44,6 +44,8 @@ typedef struct cert_policy_st {
 	int ca_policy;
 	int crl_policy;
 	int signature_policy;
+	char *ca_dir;
+	char *crl_dir;
 } cert_policy;
 
 #ifndef __CERT_VFY_C
@@ -60,7 +62,7 @@ typedef struct cert_policy_st {
 *@param policy CRL verify policy
 *@return 1 on cert vfy sucess, 0 on fail, -1 on process error
 */
-CERTVFY_EXTERN int verify_certificate(X509 * x509, char *ca_dir, char *crl_dir, crl_policy_t policy);
+CERTVFY_EXTERN int verify_certificate(X509 * x509, cert_policy *policy);
 
 /**
 * Verify signature of provided data

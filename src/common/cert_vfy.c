@@ -237,12 +237,21 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
   return (rv == -1);
 }
 
-int verify_certificate(X509 * x509, char *ca_dir, char *crl_dir, crl_policy_t policy)
+/*
+* @return -1 on error, 0 on verify failed, 1 on verify sucess 
+*/
+int verify_certificate(X509 * x509, cert_policy *policy)
 {
   int rv;
   X509_STORE *store;
   X509_STORE_CTX *ctx;
   X509_LOOKUP *lookup;
+
+  /* if neither ca nor crl check are requested skip */
+  if ( (policy->ca_policy==0) && (policy->crl_policy==CRLP_NONE) ) {
+	DBG("Neither CA nor CRL check requested. CertVrfy() skipped");
+	return 1;
+  }
 
   /* setup the x509 store to verify the certificate */
   store = X509_STORE_new();
@@ -256,36 +265,47 @@ int verify_certificate(X509 * x509, char *ca_dir, char *crl_dir, crl_policy_t po
     set_error("X509_STORE_add_lookup() failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
   }
-  DBG1("adding ca certificate lookup dir %s", ca_dir);
-  rv = X509_LOOKUP_add_dir(lookup, ca_dir, X509_FILETYPE_PEM);
+
+  rv=0;
+
+  /* add lookup dir for CA check */
+  if ( policy->ca_policy ) {
+    DBG1("adding ca certificate lookup dir %s", policy->ca_dir);
+    rv = X509_LOOKUP_add_dir(lookup, policy->ca_dir, X509_FILETYPE_PEM);
   if (rv != 1) {
     X509_LOOKUP_free(lookup);
     X509_STORE_free(store);
     set_error("X509_LOOKUP_add_dir(PEM) failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
   }
-  rv = X509_LOOKUP_add_dir(lookup, ca_dir, X509_FILETYPE_ASN1);
+    rv = X509_LOOKUP_add_dir(lookup, policy->ca_dir, X509_FILETYPE_ASN1);
   if (rv != 1) {
     X509_LOOKUP_free(lookup);
     X509_STORE_free(store);
     set_error("X509_LOOKUP_add_dir(ASN1) failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
   }
-  DBG1("adding crl lookup dir %s", crl_dir);
-  rv = X509_LOOKUP_add_dir(lookup, crl_dir, X509_FILETYPE_PEM);
+  }
+ 
+  /* add lookup dir for CRL check */
+  if ( policy->crl_policy != CRLP_NONE ) {
+    DBG1("adding crl lookup dir %s", policy->crl_dir);
+    rv = X509_LOOKUP_add_dir(lookup, policy->crl_dir, X509_FILETYPE_PEM);
   if (rv != 1) {
     X509_LOOKUP_free(lookup);
     X509_STORE_free(store);
     set_error("X509_LOOKUP_add_dir(PEM) failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
   }
-  rv = X509_LOOKUP_add_dir(lookup, crl_dir, X509_FILETYPE_ASN1);
+    rv = X509_LOOKUP_add_dir(lookup, policy->crl_dir, X509_FILETYPE_ASN1);
   if (rv != 1) {
     X509_LOOKUP_free(lookup);
     X509_STORE_free(store);
     set_error("X509_LOOKUP_add_dir(ASN1) failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
   }
+  }
+
   ctx = X509_STORE_CTX_new();
   if (ctx == NULL) {
     X509_STORE_free(store);
@@ -296,6 +316,7 @@ int verify_certificate(X509 * x509, char *ca_dir, char *crl_dir, crl_policy_t po
 #if 0
   X509_STORE_CTX_set_purpose(ctx, purpose);
 #endif
+  if (policy->ca_policy) {
   rv = X509_verify_cert(ctx);
   if (rv != 1) {
     X509_STORE_CTX_free(ctx);
@@ -305,8 +326,10 @@ int verify_certificate(X509 * x509, char *ca_dir, char *crl_dir, crl_policy_t po
   } else {
     DBG("certificate is valid");
   }
+  }
+
   /* verify whether the certificate was revoked or not */
-  rv = check_for_revocation(x509, ctx, policy);
+  rv = check_for_revocation(x509, ctx, policy->crl_policy);
   X509_STORE_CTX_free(ctx);
   X509_STORE_free(store);
   if (rv < 0) {

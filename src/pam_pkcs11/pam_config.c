@@ -40,11 +40,10 @@ struct configuration_st configuration = {
         0,				/* int use_first_pass; */
         0,				/* int use_authok; */
         "default", 			/* const char *pkcs11_module; */
-        "/etc/pam_pkcs11/pkcs11_module.so", /* const char *pkcs11_module_path; */
+        "/etc/pam_pkcs11/pkcs11_module.so",/* const char *pkcs11_module_path; */
         0,				/* int slot_num; */
-        "/etc/pam_pkcs11/cacerts",		/* const char *ca_dir; */
-        "/etc/pam_pkcs11/crls",		/* const char *crl_dir; */
-        { 0,CRLP_NONE,0 },		/* cert policy; */
+	/* cert policy; */
+        { 0,CRLP_NONE,0,"/etc/pam_pkcs11/cacerts","/etc/pam_pkcs11/crls" },
 	NULL				/* char *username */
 };
 
@@ -56,8 +55,8 @@ void display_config () {
         DBG1("use_authok %d", configuration.use_authok);
         DBG1("pkcs11_module %s",configuration.pkcs11_module);
         DBG1("slot_num %d",configuration.slot_num);
-        DBG1("ca_dir %s",configuration.ca_dir);
-        DBG1("crl_dir %s",configuration.crl_dir);
+        DBG1("ca_dir %s",configuration.policy.ca_dir);
+        DBG1("crl_dir %s",configuration.policy.crl_dir);
         DBG1("ca_policy %d",configuration.policy.ca_policy);
         DBG1("crl_policy %d",configuration.policy.crl_policy);
         DBG1("signature_policy %d",configuration.policy.signature_policy);
@@ -114,10 +113,10 @@ void parse_config_file() {
 	    }
 	    configuration.pkcs11_modulepath = (char *)
 	        scconf_get_str(pkcs11_mblk,"module",configuration.pkcs11_modulepath);
-	    configuration.ca_dir = (char *)
-	        scconf_get_str(pkcs11_mblk,"ca_dir",configuration.ca_dir);
-	    configuration.crl_dir = (char *)
-	        scconf_get_str(pkcs11_mblk,"crl_dir",configuration.crl_dir);
+	    configuration.policy.ca_dir = (char *)
+	        scconf_get_str(pkcs11_mblk,"ca_dir",configuration.policy.ca_dir);
+	    configuration.policy.crl_dir = (char *)
+	        scconf_get_str(pkcs11_mblk,"crl_dir",configuration.policy.crl_dir);
 	    configuration.slot_num = 
 	        scconf_get_int(pkcs11_mblk,"slot_num",configuration.slot_num);
 	    policy_list= scconf_find_list(pkcs11_mblk,"cert_policy");
@@ -208,11 +207,11 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		continue;
 	   }
 	   if (strstr(argv[i],"ca_dir=") ) {
-		res=sscanf(argv[i],"ca_dir=%255s",configuration.ca_dir);
+		res=sscanf(argv[i],"ca_dir=%255s",configuration.policy.ca_dir);
 		continue;
 	   }
 	   if (strstr(argv[i],"crl_dir=") ) {
-		res=sscanf(argv[i],"crl_dir=%255s",configuration.crl_dir);
+		res=sscanf(argv[i],"crl_dir=%255s",configuration.policy.crl_dir);
 		continue;
 	   }
 	   if (strstr(argv[i],"cert_policy=") ) {

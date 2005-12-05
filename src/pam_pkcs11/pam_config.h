@@ -36,8 +36,6 @@ struct configuration_st {
 	char *pkcs11_module;
 	char *pkcs11_modulepath;
 	int slot_num;
-	char *ca_dir;
-	char *crl_dir;
 	cert_policy policy;
 	char *username; /* provided user name */
 };
