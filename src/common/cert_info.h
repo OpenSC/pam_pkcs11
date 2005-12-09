@@ -54,6 +54,14 @@
 #endif
 
 /**
+* Generate and compose a certificate chain
+* @param cert Certificate to add
+* @param certs pointer to list of certificates
+* @param ncerts pointer to number of certificates in list
+*/
+void add_cert(X509 *cert, X509 ***certs, int *ncerts);
+
+/**
 * Request info on certificate
 * @param x509 certificate to parse
 * @param type information to retrieve

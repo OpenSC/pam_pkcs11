@@ -58,35 +58,6 @@
 */
 
 /*
-* this routine creates a certificate chain
-*/
-static void add_cert(X509 *cert, X509 ***certs, int *ncerts) {
-        X509 **certs2;
-        /* sanity checks */
-        if (!cert) return;
-        if (!certs) return;
-        if (!ncerts) return;
-
-        /* no certs so far */
-        if (!*certs) {
-                *certs = malloc(sizeof(void *));
-                if (!*certs) return;
-                *certs[0] = cert;
-                *ncerts = 1;
-                return;
-        }
-
-        /* enlarge current cert chain by malloc(new)+copy()+free(old) */
-        certs2 = malloc(sizeof(void *) * ((*ncerts) + 1));
-        if (!certs2) return;
-        memcpy(certs2, *certs, sizeof(void *) * (*ncerts));
-        certs2[*ncerts] = cert;
-        free(*certs);
-        *certs = certs2;
-        (*ncerts)++;
-}
-
-/*
 * Return the list of certificates as an array list
 */
 static char ** opensc_mapper_find_entries(X509 *x509, void *context) {
