@@ -17,6 +17,7 @@
 #ifndef __PKCS11_LIB_H__
 #define __PKCS11_LIB_H__
 
+#include <openssl/x509.h>
 #include "rsaref/pkcs11.h"
 
 #ifndef __PKCS11_LIB_C__
@@ -32,6 +33,7 @@ PKCS11_EXTERN int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot);
 PKCS11_EXTERN int close_pkcs11_session(pkcs11_handle_t *h);
 PKCS11_EXTERN int pkcs11_login(pkcs11_handle_t *h, char *password);
 PKCS11_EXTERN int pkcs11_pass_login(pkcs11_handle_t *h, int nullok);
+PKCS11_EXTERN X509 **get_certificate_list(pkcs11_handle_t *h, int *ncerts);
 PKCS11_EXTERN int get_certificates(pkcs11_handle_t *h);
 PKCS11_EXTERN int get_private_keys(pkcs11_handle_t *h);
 PKCS11_EXTERN int sign_value(pkcs11_handle_t *h, CK_BYTE *data, CK_ULONG length,

@@ -31,6 +31,7 @@
 #include "pkcs11_lib.h"
 #include "debug.h"
 #include "error.h"
+#include "cert_info.h"
 
 int load_pkcs11_module(char *module, pkcs11_handle_t *h)
 {
@@ -279,6 +280,100 @@ int close_pkcs11_session(pkcs11_handle_t *h)
   return 0;
 }
 
+X509 **get_certificate_list(pkcs11_handle_t *h, int *ncerts) 
+{
+  CK_BYTE *cert_value;
+  CK_OBJECT_HANDLE object;
+  CK_ULONG object_count;
+  int rv;
+  X509 *cert;
+  X509 **certs=NULL;
+  
+  CK_OBJECT_CLASS cert_class = CKO_CERTIFICATE;
+  CK_CERTIFICATE_TYPE cert_type = CKC_X_509;
+  CK_ATTRIBUTE cert_template[] = {
+    {CKA_CLASS, &cert_class, sizeof(CK_OBJECT_CLASS)}
+    ,
+    {CKA_CERTIFICATE_TYPE, &cert_type, sizeof(CK_CERTIFICATE_TYPE)}
+    ,
+    {CKA_VALUE, NULL, 0}
+  };
+
+  rv = h->fl->C_FindObjectsInit(h->session, cert_template, 2);
+  if (rv != CKR_OK) {
+    set_error("C_FindObjectsInit() failed: %x", rv);
+    return NULL;
+  }
+  while(1) {
+    /* look for certificates */
+    rv = h->fl->C_FindObjects(h->session, &object, 1, &object_count);
+    if (rv != CKR_OK) {
+      set_error("C_FindObjects() failed: %x", rv);
+      goto getlist_error;
+    }
+    if (object_count == 0) break; /* no more certs */
+
+    /* Cert found, read */
+
+    /* retrieve object length */
+    cert_template[2].pValue = NULL;
+    rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 3);
+    if (rv != CKR_OK) {
+        set_error("C_GetAttributeValue() failed: %x", rv);
+        goto getlist_error;
+    }
+    /* allocate enought space */
+    cert_value = malloc(cert_template[2].ulValueLen);
+    if (cert_value == NULL) {
+        set_error("not enough free memory available", rv);
+        goto getlist_error;
+    }
+    /* read certificate into allocated space */
+    cert_template[2].pValue = cert_value;
+    rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 3);
+    if (rv != CKR_OK) {
+        free(cert_value);
+        set_error("C_GetAttributeValue() failed: %x", rv);
+        goto getlist_error;
+    }
+    /* parse certificate */
+    /* convert to X509 data structure */
+    cert = d2i_X509(NULL, (CK_BYTE **)&cert_template[2].pValue, cert_template[2].ulValueLen);
+    if (cert == NULL) {
+        free(cert_value);
+        set_error("d2i_x509() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+        goto getlist_error;
+    }
+    /* finally add certificate to chain */
+    add_cert(cert,&certs,ncerts);
+
+  } /* end of while(1) */
+
+  /* release FindObject Sesion */
+  rv = h->fl->C_FindObjectsFinal(h->session);
+  if (rv != CKR_OK) {
+    set_error("C_FindObjectsFinal() failed: %x", rv);
+    free(certs);
+    return NULL;
+  }
+
+  /* arriving here means that's all right */
+  DBG1("Found %d certificates in token",ncerts);
+  return certs;
+
+  /* some error arrived: clean as possible, and return fail */
+getlist_error:
+  rv = h->fl->C_FindObjectsFinal(h->session);
+  if (rv != CKR_OK) {
+    set_error("C_FindObjectsFinal() failed: %x", rv);
+  }
+  free(certs);
+  return NULL;
+}
+
+/*
+* retrieve certificates that match with a stored list of private keys
+*/
 int get_certificates(pkcs11_handle_t *h)
 {
   CK_OBJECT_CLASS cert_class = CKO_CERTIFICATE;
