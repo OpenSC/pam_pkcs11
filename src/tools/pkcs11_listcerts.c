@@ -110,6 +110,7 @@ int main(int argc, const char **argv) {
   cert_list=NULL;
   cert_list = get_certificate_list(&ph,&ncerts);
   if (!cert_list) {
+    close_pkcs11_session(&ph);
     release_pkcs11_module(&ph);
     DBG1("get_certificate_list() failed: %s", get_error());
     return 3;

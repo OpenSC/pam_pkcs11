@@ -35,12 +35,13 @@
 
 int main(int argc, const char **argv) {
   int i, rv;
-  char *pin;
   char *user;
-  unsigned int slot_num = 0;
-  struct configuration_st *configuration;
-
   pkcs11_handle_t ph;
+  struct configuration_st *configuration;
+  unsigned int slot_num = 0;
+  int ncerts=0;
+  X509 **cert_list=NULL;
+
 
   /* first of all check whether debugging should be enabled */
   for (i = 0; i < argc; i++)
@@ -96,38 +97,33 @@ int main(int argc, const char **argv) {
     return 1;
   }
 
+#if 0
+  /* not really needed, but... */
   rv = pkcs11_pass_login(&ph,configuration->nullok);
   if (rv != 0) {
     DBG1("pkcs11_pass_login() failed: %s", get_error());
     return 2;
   }
+#endif
 
-  /* load all appropriate private keys */
-  rv = get_private_keys(&ph);
-  if (rv != 0) {
+  /* get certificate list */
+  cert_list = get_certificate_list(&ph,&ncerts);
+  if (!cert_list) {
     close_pkcs11_session(&ph);
     release_pkcs11_module(&ph);
-    DBG1("get_private_keys() failed: %s", get_error());
-    return 1;
-  }
-
-  /* load corresponding certificates */
-  rv = get_certificates(&ph);
-  if (rv != 0) {
-    close_pkcs11_session(&ph);
-    release_pkcs11_module(&ph);
-    DBG1("get_certificates() failed: %s", get_error());
-    return 1;
+    DBG1("get_certificate_list() failed: %s", get_error());
+    return 3;
   }
 
   /* load mapper modules */
   load_mappers(configuration->ctx);
 
   /* find a valid and matching certificates */
-  for (i = 0; i < ph.key_count; i++) {
-    X509 *x509 = ph.keys[i].x509;
+  DBG1("Found '%d' certificate(s)",ncerts);
+  for (i = 0; i < ncerts; i++) {
+    X509 *x509 = cert_list[i];
     if (x509 != NULL) {
-      DBG1("verifing the certificate for the key #%d", i + 1);
+      DBG1("verifing the certificate #%d", i + 1);
       /* verify certificate (date, signature, CRL, ...) */
       rv = verify_certificate(x509,&configuration->policy);
       if (rv < 0) {
@@ -154,6 +150,7 @@ int main(int argc, const char **argv) {
     }
   }
 
+  free(cert_list);
   unload_mappers(); /* no longer needed */
 
   /* close pkcs #11 session */
