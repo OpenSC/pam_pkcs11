@@ -119,7 +119,7 @@ int main(int argc, const char **argv) {
   DBG1("Found '%d' certificate(s)",ncerts);
   for(i =0; i<ncerts;i++) {
     X509 *cert=cert_list[i];
-    DBG1("Certificate #%d:", ncerts);
+    DBG1("Certificate #%d:", i);
     DBG1("- Subject:   %s", X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0));
     DBG1("- Issuer:    %s", X509_NAME_oneline(X509_get_issuer_name(cert), NULL, 0));
     DBG1("- Algorithm: %s", OBJ_nid2ln(OBJ_obj2nid(cert->cert_info->key->algor->algorithm)));
