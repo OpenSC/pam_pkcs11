@@ -26,6 +26,7 @@
 #endif
 #include <security/pam_appl.h>
 #include <security/pam_modules.h>
+#include <openssl/x509.h>
 #include <syslog.h>
 #include <ctype.h>
 #include <string.h>
@@ -124,6 +125,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   unsigned char random_value[128];
   unsigned char *signature;
   unsigned long signature_length;
+  X509 **cert_list = NULL;
+  X509 *myCert     = NULL;
+  int ncerts=0;
 
   /* first of all check whether debugging should be enabled */
   for (i = 0; i < argc; i++)
@@ -208,7 +212,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
 
   /* get password */
-  sprintf(password_prompt, "Password for token %.32s: ", ph.slots[slot_num].label);
+  sprintf(password_prompt, "PIN for token %.32s: ", ph.slots[slot_num].label);
   if (configuration->use_first_pass) {
     rv = pam_get_pwd(pamh, &password, NULL, PAM_AUTHTOK, 0);
   } else if (configuration->try_first_pass) {
@@ -232,140 +236,148 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     return PAM_AUTH_ERR;
   }
 
-  /* perform pkcs #11 login */
-  rv = pkcs11_login(&ph, password);
-  memset(password, 0, strlen(password));
-  free(password);
-  if (rv != 0) {
-    release_pkcs11_module(&ph);
-    DBG1("open_pkcs11_login() failed: %s", get_error());
-    syslog(LOG_ERR, "open_pkcs11_login() failed: %s", get_error());
-    return PAM_AUTHINFO_UNAVAIL;
-  }
-
-  /* load all appropriate private keys */
-  rv = get_private_keys(&ph);
-  if (rv != 0) {
-    close_pkcs11_session(&ph);
-    release_pkcs11_module(&ph);
-    DBG1("get_private_keys() failed: %s", get_error());
-    syslog(LOG_ERR, "get_private_keys() failed: %s", get_error());
-    return PAM_AUTHINFO_UNAVAIL;
-  }
-
-  /* load corresponding certificates */
-  rv = get_certificates(&ph);
-  if (rv != 0) {
-    close_pkcs11_session(&ph);
-    release_pkcs11_module(&ph);
-    DBG1("get_certificates() failed: %s", get_error());
-    syslog(LOG_ERR, "get_certificates failed: %s", get_error());
-    return PAM_AUTHINFO_UNAVAIL;
+  cert_list = get_certificate_list(&ph,&ncerts);
+  if (!cert_list) {
+    DBG1("get_certificate_list() failed: %s", get_error());
+    syslog(LOG_ERR, "get_certificate_list() failed: %s", get_error());
+    goto auth_failed;
   }
 
   /* load mapper modules */
   load_mappers(configuration->ctx);
 
   /* find a valid and matching certificates */
-  ph.choosen_key = NULL;
-  for (i = 0; i < ph.key_count; i++) {
-    X509 *x509 = ph.keys[i].x509;
-    if (x509 != NULL) {
-      DBG1("verifing the certificate for the key #%d", i + 1);
+  for (i = 0; i < ncerts; i++) {
+    X509 *x509 = cert_list[i];
+    if (!x509 ) continue; /* sanity check */
+    DBG1("verifing the certificate #%d", i + 1);
+
       /* verify certificate (date, signature, CRL, ...) */
       rv = verify_certificate(x509,&configuration->policy);
       if (rv < 0) {
-        close_pkcs11_session(&ph);
-        release_pkcs11_module(&ph);
-        unload_mappers();
         DBG1("verify_certificate() failed: %s", get_error());
         syslog(LOG_ERR, "verify_certificate() failed: %s", get_error());
-        return PAM_AUTHINFO_UNAVAIL;
+	goto auth_failed;
       } else if (rv != 1) {
         DBG1("verify_certificate() failed: %s", get_error());
-        continue;
+        continue; /* try next certificate */
       }
 
+    /* CA and CRL verified, now check/find user */
+
+    if ( is_spaced_str(user) ) {
       /* 
 	if provided user is null or empty extract and set user
 	name from certificate
       */
-      if ( is_spaced_str(user) ) {
 	DBG("Empty login: try to deduce from certificate");
 	user=find_user(x509);
 	if (!user) {
-          close_pkcs11_session(&ph);
-          release_pkcs11_module(&ph);
-	  unload_mappers();
-          DBG1("find_user() failed: %s", get_error());
-          syslog(LOG_ERR,"find_user() failed: %s",get_error());
-          return PAM_AUTHINFO_UNAVAIL;
+          DBG2("find_user() failed: %s on cert #%d", get_error(),i+1);
+          syslog(LOG_ERR,"find_user() failed: %s on cert #%d",get_error(),i+1);
+	  continue; /* try on next certificate */
 	} else {
           DBG1("certificate is valid and matches user %s",user);
 	  /* try to set up PAM user entry with evaluated value */
   	  rv = pam_set_item(pamh, PAM_USER,(const void *)user);
 	  if (rv != PAM_SUCCESS) {
-            close_pkcs11_session(&ph);
-            release_pkcs11_module(&ph);
-	    unload_mappers();
 	    DBG1("pam_set_item() failed %s", pam_strerror(pamh, rv));
 	    syslog(LOG_ERR, "pam_set_item() failed %s", pam_strerror(pamh, rv));
-	    return PAM_AUTHINFO_UNAVAIL;
-	  }
-          ph.choosen_key = &ph.keys[i];
-          break;
+	    goto auth_failed;
 	}
+          myCert = cert_list[i];
+          break; /* end loop, as find user success */
       }
-
-      /* check whether the certificate matches the user */
+    } else {
+      /* User provided:
+         check whether the certificate matches the user */
       rv = match_user(x509, user);
-      if (rv < 0) {
-        close_pkcs11_session(&ph);
-        release_pkcs11_module(&ph);
-	unload_mappers();
+        if (rv < 0) { /* match error; abort and return */
         DBG1("match_user() failed: %s", get_error());
         syslog(LOG_ERR, "match_user() failed: %s", get_error());
-        return PAM_AUTHINFO_UNAVAIL;
-      } else if (rv == 0) {
+	  goto auth_failed;
+        } else if (rv == 0) { /* match didn't success */
         DBG("certificate is valid bus does not match the user");
-      } else {
+	  continue; /* try next certificate */
+        } else { /* match success */
         DBG("certificate is valid and matches the user");
-        ph.choosen_key = &ph.keys[i];
+          myCert = cert_list[i];
         break;
       }
-    }
-  }
-  unload_mappers(); /* no longer needed */
-  if (ph.choosen_key == NULL) {
-    close_pkcs11_session(&ph);
-    release_pkcs11_module(&ph);
+    } /* if is_spaced string */
+  } /* for (i=0; i<ncerts; i++) */
+
+  /* now myCert points to our found certificate or null if no user found */
+  if (!myCert) {
     DBG("no valid certificate which meets all requirements found");
     syslog(LOG_ERR, "no valid certificate which meets all requirements found");
-    return PAM_AUTHINFO_UNAVAIL;
+    goto auth_failed;
+  }
+
+  /* call pkcs#11 login to ensure that the user is the real owner of the card */
+  rv = pkcs11_login(&ph, password);
+
+  /* erase and free in-memory password data asap */
+  memset(password, 0, strlen(password));
+  free(password); 
+  if (rv != 0) {
+    DBG1("open_pkcs11_login() failed: %s", get_error());
+    syslog(LOG_ERR, "open_pkcs11_login() failed: %s", get_error());
+    goto auth_failed_nopw;
   }
 
   /* if signature check is enforced, generate random data, sign and verify */
   if (configuration->policy.signature_policy) {
 
+    /* locate the key that matches current certificate */
+#if 0
+    ph.choosen_key = get_private_key(myCert);
+#else
+    /* TODO:
+       this horrible code try to get all priv keys and then
+       look for the one that has same id than selected cert
+       Anyone that provide get_private_key(cert) function?
+    */
+    rv = get_private_keys(&ph);
+    if (rv != 0) {
+      DBG1("get_private_keys() failed: %s", get_error());
+      syslog(LOG_ERR, "get_private_keys() failed: %s", get_error());
+      goto auth_failed_nopw;
+    }
+    /* load corresponding certificates */
+    rv = get_certificates(&ph);
+    if (rv != 0) {
+      DBG1("get_certificates() failed: %s", get_error());
+      syslog(LOG_ERR, "get_certificates failed: %s", get_error());
+      goto auth_failed_nopw;
+    }
+    ph.choosen_key= NULL;
+    for (i=0; i< ph.key_count; i++)  {
+	X509 *cert= ph.keys[i].x509;
+	if (X509_cmp(cert,myCert) == 0) ph.choosen_key = &ph.keys[i];
+    }
+    if (!ph.choosen_key) {
+      DBG("Cannot locate private key matching successfull cert");
+      syslog(LOG_ERR, "Cannot locate private key matching successfull cert");
+      goto auth_failed_nopw;
+    }
+#endif
+
     /* read random value */
     rv = get_random_value(random_value, sizeof(random_value));
     if (rv != 0) {
-      close_pkcs11_session(&ph);
-      release_pkcs11_module(&ph);
       DBG1("get_random_value() failed: %s", get_error());
       syslog(LOG_ERR, "get_random_value() failed: %s", get_error());
-      return PAM_AUTHINFO_UNAVAIL;
+      goto auth_failed_nopw;
     }
 
     /* sign random value */
     signature = NULL;
     rv = sign_value(&ph, random_value, sizeof(random_value), &signature, &signature_length);
     if (rv != 0) {
-      close_pkcs11_session(&ph);
-      release_pkcs11_module(&ph);
       DBG1("sign_value() failed: %s", get_error());
       syslog(LOG_ERR, "sign_value() failed: %s", get_error());
-      return PAM_AUTHINFO_UNAVAIL;
+      goto auth_failed_nopw;
     }
 
     /* verify the signature */
@@ -374,6 +386,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
              random_value, sizeof(random_value), signature, signature_length);
     if (signature != NULL) free(signature);
     if (rv != 0) {
+      free(cert_list); 
       close_pkcs11_session(&ph);
       release_pkcs11_module(&ph);
       DBG1("verify_signature() failed: %s", get_error());
@@ -384,6 +397,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   } else {
       DBG("Skipping signature check");
   }
+
+  /* remove certificate list */
+  free(cert_list); 
 
   /* close pkcs #11 session */
   rv = close_pkcs11_session(&ph);
@@ -400,6 +416,18 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
   DBG("authentication succeeded");
   return PAM_SUCCESS;
+
+auth_failed:
+    /* quick and dirty fail exit point */
+    memset(password, 0, strlen(password));
+    free(password); /* erase and free in-memory password data */
+
+auth_failed_nopw:
+    unload_mappers();
+    free(cert_list); /* remove certificate list */
+    close_pkcs11_session(&ph);
+    release_pkcs11_module(&ph);
+    return PAM_AUTHINFO_UNAVAIL;
 }
 
 PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv)
