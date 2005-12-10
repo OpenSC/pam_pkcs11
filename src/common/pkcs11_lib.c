@@ -241,7 +241,6 @@ int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
   memset(pin, 0, strlen(pin));
   free(pin);
   if (rv != 0) {
-    release_pkcs11_module(h);
     /* DBG1("pkcs11_login() failed: %s", get_error()); */
     return -1;
   }

@@ -353,6 +353,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     }
     ph.choosen_key= NULL;
     for (i=0; i< ph.key_count; i++)  {
+        if (!ph.keys[i].x509) continue; /* private key without cert !! */
 	X509 *cert= ph.keys[i].x509;
 	if (X509_cmp(cert,myCert) == 0) ph.choosen_key = &ph.keys[i];
     }
