@@ -144,25 +144,4 @@ typedef struct {
   key_object_t *choosen_key;
 } pkcs11_handle_t;
 
-int load_pkcs11_module(char *module, pkcs11_handle_t *h);
-
-int init_pkcs11_module(pkcs11_handle_t *h);
-
-void release_pkcs11_module(pkcs11_handle_t *h);
-
-int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot);
-
-int pkcs11_login(pkcs11_handle_t *h, char *password);
-
-int close_pkcs11_session(pkcs11_handle_t *h);
-
-int get_certificates(pkcs11_handle_t *h);
-
-int get_private_keys(pkcs11_handle_t *h);
-
-int sign_value(pkcs11_handle_t *h, CK_BYTE *data, CK_ULONG length,
-               CK_BYTE **signature, CK_ULONG *signature_length);
-
-int get_random_value(unsigned char *data, int length);
-
 #endif /* PKCS11_H */

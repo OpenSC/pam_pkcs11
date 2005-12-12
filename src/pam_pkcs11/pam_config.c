@@ -42,6 +42,7 @@ struct configuration_st configuration = {
         "default", 			/* const char *pkcs11_module; */
         "/etc/pam_pkcs11/pkcs11_module.so",/* const char *pkcs11_module_path; */
         0,				/* int slot_num; */
+	0,				/* support threads */
 	/* cert policy; */
         { 0,CRLP_NONE,0,"/etc/pam_pkcs11/cacerts","/etc/pam_pkcs11/crls" },
 	NULL				/* char *username */
@@ -57,6 +58,7 @@ void display_config () {
         DBG1("slot_num %d",configuration.slot_num);
         DBG1("ca_dir %s",configuration.policy.ca_dir);
         DBG1("crl_dir %s",configuration.policy.crl_dir);
+        DBG1("support_threads %d",configuration.support_threads);
         DBG1("ca_policy %d",configuration.policy.ca_policy);
         DBG1("crl_policy %d",configuration.policy.crl_policy);
         DBG1("signature_policy %d",configuration.policy.signature_policy);
@@ -119,6 +121,8 @@ void parse_config_file() {
 	        scconf_get_str(pkcs11_mblk,"crl_dir",configuration.policy.crl_dir);
 	    configuration.slot_num = 
 	        scconf_get_int(pkcs11_mblk,"slot_num",configuration.slot_num);
+	    configuration.support_threads = 
+	        scconf_get_bool(pkcs11_mblk,"support_threads",configuration.support_threads);
 	    policy_list= scconf_find_list(pkcs11_mblk,"cert_policy");
 	    while(policy_list) {
 	        if ( !strcmp(policy_list->data,"none") ) {

@@ -78,14 +78,12 @@ int load_pkcs11_module(char *module, pkcs11_handle_t *h)
   return 0;
 }
 
-int init_pkcs11_module(pkcs11_handle_t *h)
+int init_pkcs11_module(pkcs11_handle_t *h,int flag)
 {
   int rv;
   CK_ULONG i, j;
   CK_SLOT_ID_PTR slots;
   CK_INFO info;
-
-#ifdef HAVE_PTHREAD
   CK_C_INITIALIZE_ARGS initArgs;
   /* 
    Set up arguments to allow native threads 
@@ -100,15 +98,12 @@ int init_pkcs11_module(pkcs11_handle_t *h)
   initArgs.CreateMutex = NULL;
 
   /* initialise the module */
-  rv = h->fl->C_Initialize((CK_VOID_PTR) &initArgs);
+  if (flag) rv = h->fl->C_Initialize((CK_VOID_PTR) &initArgs);
+  else      rv = h->fl->C_Initialize(NULL);
   if (rv != CKR_OK) {
     set_error("C_Initialize() failed: %x", rv);
     return -1;
   }
-#else
-  /* no native ptrheads */
-  rv = h->fl->C_Initialize(NULL);
-#endif
 
   rv = h->fl->C_GetInfo(&info);
   if (rv != CKR_OK) {

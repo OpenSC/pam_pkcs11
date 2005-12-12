@@ -44,6 +44,10 @@ pam_pkcs11 {
     # is /etc/pam_pkcs11/crls.
     crl_dir = /etc/pam_pkcs11/crls;
   
+    # Some pcks#11 libraries can handle multithreading. So 
+    # set it to true to properly call C_Initialize() 
+    support_threads = false;
+
     # Sets the Certificate verification policy. 
     # "none"        Performs no verification
     # "ca"          Does CA check
@@ -61,11 +65,23 @@ pam_pkcs11 {
     cert_policy = ca,signature;
   }
 
+  # Aladdin eTokenPRO 32
+  pkcs11_module etoken {
+    module = /usr/local/lib/libetpkcs11.so
+    description = "Aladdin eTokenPRO-32";
+    slot_num = 0;
+    support_threads = true;
+    ca_dir = /etc/pam_pkcs11/cacerts;
+    crl_dir = /etc/pam_pkcs11/crls;
+    cert_policy = ca,signature;
+  }
+
   # Default pkcs11 module
   pkcs11_module default {
     module = /usr/lib/pam_pkcs11/pkcs11_module.so;
     description = "Default pkcs#11 module";
     slot_num = 0;
+    support_threads = false;
     ca_dir = /etc/pam_pkcs11/cacerts;
     crl_dir = /etc/pam_pkcs11/crls;
     cert_policy = none;

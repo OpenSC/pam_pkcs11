@@ -181,7 +181,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
   /* initialise pkcs #11 module */
   DBG("initialising pkcs #11 module...");
-  rv = init_pkcs11_module(&ph);
+  rv = init_pkcs11_module(&ph,configuration->support_threads);
   if (rv != 0) {
     release_pkcs11_module(&ph);
     DBG1("init_pkcs11_module() failed: %s", get_error());

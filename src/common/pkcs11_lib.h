@@ -27,7 +27,7 @@
 #endif
 
 PKCS11_EXTERN int load_pkcs11_module(char *module, pkcs11_handle_t *h);
-PKCS11_EXTERN int init_pkcs11_module(pkcs11_handle_t *h);
+PKCS11_EXTERN int init_pkcs11_module(pkcs11_handle_t *h,int flag);
 PKCS11_EXTERN void release_pkcs11_module(pkcs11_handle_t *h);
 PKCS11_EXTERN int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot);
 PKCS11_EXTERN int close_pkcs11_session(pkcs11_handle_t *h);
