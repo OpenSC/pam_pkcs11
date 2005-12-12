@@ -17,4 +17,5 @@ libcommon_la_SOURCES = cert_vfy.c cert_vfy.h \
 	pkcs11_lib.c \
 	base64.c base64.h
 
-libcommon_la_LIBADD = $(OPENSSL_LIBS)
+libcommon_la_LIBADD = $(OPENSSL_LIBS) $(PTHREAD_LIBS)
+libcommon_la_CFLAGS = $(PTHREAD_CFLAGS)
