@@ -85,12 +85,31 @@ int init_pkcs11_module(pkcs11_handle_t *h)
   CK_SLOT_ID_PTR slots;
   CK_INFO info;
 
+#ifdef HAVE_PTHREAD
+  CK_C_INITIALIZE_ARGS initArgs;
+  /* 
+   Set up arguments to allow native threads 
+   According with pkcs#11v2.20, must set all pointers to null
+   and flags CKF_OS_LOCKING_OK
+  */
+  initArgs.CreateMutex = NULL;
+  initArgs.DestroyMutex = NULL;
+  initArgs.LockMutex = NULL;
+  initArgs.UnlockMutex = NULL;
+  initArgs.flags = CKF_OS_LOCKING_OK;
+  initArgs.CreateMutex = NULL;
+
   /* initialise the module */
-  rv = h->fl->C_Initialize(NULL);
+  rv = h->fl->C_Initialize((CK_VOID_PTR) &initArgs);
   if (rv != CKR_OK) {
     set_error("C_Initialize() failed: %x", rv);
     return -1;
   }
+#else
+  /* no native ptrheads */
+  rv = h->fl->C_Initialize(NULL);
+#endif
+
   rv = h->fl->C_GetInfo(&info);
   if (rv != CKR_OK) {
     set_error("C_GetInfo() failed: %x", rv);
