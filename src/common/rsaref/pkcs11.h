@@ -119,29 +119,4 @@ struct CK_FUNCTION_LIST {
 #undef CK_PKCS11_FUNCTION_INFO
 #undef __PASTE
 
-typedef struct {
-  CK_KEY_TYPE type;
-  CK_BYTE *id;
-  CK_ULONG id_length;
-  CK_OBJECT_HANDLE private_key;
-  X509 *x509;
-} key_object_t;
-
-typedef struct {
-  CK_SLOT_ID id;
-  CK_BBOOL token_present;
-  CK_UTF8CHAR label[33];
-} slot_t;
-
-typedef struct {
-  void *module_handle;
-  CK_FUNCTION_LIST_PTR fl;
-  slot_t *slots; 
-  CK_ULONG slot_count;
-  CK_SESSION_HANDLE session;
-  key_object_t *keys;
-  int key_count;
-  key_object_t *choosen_key;
-} pkcs11_handle_t;
-
 #endif /* PKCS11_H */
