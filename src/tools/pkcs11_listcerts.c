@@ -115,6 +115,10 @@ int main(int argc, const char **argv) {
   DBG1("Found '%d' certificate(s)",ph.cert_count);
   for(i =0; i<ph.cert_count;i++) {
     X509 *cert=ph.certs[i].x509;
+    DBG1("Certificate #%d:", i+1);
+    DBG1("- Subject:   %s", X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0));
+    DBG1("- Issuer:    %s", X509_NAME_oneline(X509_get_issuer_name(cert), NULL, 0));
+    DBG1("- Algorithm: %s", OBJ_nid2ln(OBJ_obj2nid(cert->cert_info->key->algor->algorithm)));
     rv = verify_certificate(cert,&configuration->policy);
     if (rv < 0) {
         DBG1("verify_certificate() process error: %s", get_error());
@@ -124,15 +128,11 @@ int main(int argc, const char **argv) {
         continue; /* try next certificate */
     }
     ph.choosen_cert=&ph.certs[i];
-    DBG1("Certificate #%d:", i);
-    DBG1("- Subject:   %s", X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0));
-    DBG1("- Issuer:    %s", X509_NAME_oneline(X509_get_issuer_name(cert), NULL, 0));
-    DBG1("- Algorithm: %s", OBJ_nid2ln(OBJ_obj2nid(cert->cert_info->key->algor->algorithm)));
     rv = get_private_key(&ph);
     if (rv<0) {
-	DBG("Certificate does not have associated private key");
-  }
+	DBG1("Certificate '%d'does not have associated private key",i+1);
     }
+  } /* for */
 
   /* close pkcs #11 session */
   rv = close_pkcs11_session(&ph);
