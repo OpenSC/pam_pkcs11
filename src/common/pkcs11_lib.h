@@ -29,6 +29,13 @@ typedef struct {
 } key_object_t;
 
 typedef struct {
+  CK_KEY_TYPE type;
+  CK_BYTE *id;
+  CK_ULONG id_length;
+  X509 *x509;
+} cert_object_t;
+
+typedef struct {
   CK_SLOT_ID id;
   CK_BBOOL token_present;
   CK_UTF8CHAR label[33];
@@ -40,8 +47,9 @@ typedef struct {
   slot_t *slots;
   CK_ULONG slot_count;
   CK_SESSION_HANDLE session;
-  key_object_t *keys;
-  int key_count;
+  cert_object_t *certs;
+  int cert_count;
+  cert_object_t *choosen_cert;
   key_object_t *choosen_key;
 } pkcs11_handle_t;
 
@@ -58,9 +66,8 @@ PKCS11_EXTERN int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot);
 PKCS11_EXTERN int close_pkcs11_session(pkcs11_handle_t *h);
 PKCS11_EXTERN int pkcs11_login(pkcs11_handle_t *h, char *password);
 PKCS11_EXTERN int pkcs11_pass_login(pkcs11_handle_t *h, int nullok);
-PKCS11_EXTERN X509 **get_certificate_list(pkcs11_handle_t *h, int *ncerts);
 PKCS11_EXTERN int get_certificates(pkcs11_handle_t *h);
-PKCS11_EXTERN int get_private_keys(pkcs11_handle_t *h);
+PKCS11_EXTERN int get_private_key(pkcs11_handle_t *h);
 PKCS11_EXTERN int sign_value(pkcs11_handle_t *h, CK_BYTE *data, CK_ULONG length,
                CK_BYTE **signature, CK_ULONG *signature_length);
 PKCS11_EXTERN int get_random_value(unsigned char *data, int length);

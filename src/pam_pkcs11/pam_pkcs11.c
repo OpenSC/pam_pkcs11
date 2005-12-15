@@ -125,9 +125,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   unsigned char random_value[128];
   unsigned char *signature;
   unsigned long signature_length;
-  X509 **cert_list = NULL;
-  X509 *myCert     = NULL;
-  int ncerts=0;
 
   /* first of all check whether debugging should be enabled */
   for (i = 0; i < argc; i++)
@@ -236,8 +233,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     return PAM_AUTH_ERR;
   }
 
-  cert_list = get_certificate_list(&ph,&ncerts);
-  if (!cert_list) {
+  rv= get_certificates(&ph);
+  if (rv<0) {
     DBG1("get_certificate_list() failed: %s", get_error());
     syslog(LOG_ERR, "get_certificate_list() failed: %s", get_error());
     goto auth_failed;
@@ -247,8 +244,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   load_mappers(configuration->ctx);
 
   /* find a valid and matching certificates */
-  for (i = 0; i < ncerts; i++) {
-    X509 *x509 = cert_list[i];
+  for (i = 0; i < ph.cert_count; i++) {
+    X509 *x509 = ph.certs[i].x509;
     if (!x509 ) continue; /* sanity check */
     DBG1("verifing the certificate #%d", i + 1);
 
@@ -285,7 +282,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	    syslog(LOG_ERR, "pam_set_item() failed %s", pam_strerror(pamh, rv));
 	    goto auth_failed;
 	}
-          myCert = cert_list[i];
+          ph.choosen_cert = &ph.certs[i];
           break; /* end loop, as find user success */
       }
     } else {
@@ -301,14 +298,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	  continue; /* try next certificate */
         } else { /* match success */
         DBG("certificate is valid and matches the user");
-          myCert = cert_list[i];
+        ph.choosen_cert = &ph.certs[i];
         break;
       }
     } /* if is_spaced string */
   } /* for (i=0; i<ncerts; i++) */
 
   /* now myCert points to our found certificate or null if no user found */
-  if (!myCert) {
+  if (!ph.choosen_cert) {
     DBG("no valid certificate which meets all requirements found");
     syslog(LOG_ERR, "no valid certificate which meets all requirements found");
     goto auth_failed;
@@ -329,40 +326,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   /* if signature check is enforced, generate random data, sign and verify */
   if (configuration->policy.signature_policy) {
 
-    /* locate the key that matches current certificate */
-#if 0
-    ph.choosen_key = get_private_key(myCert);
-#else
-    /* TODO:
-       this horrible code try to get all priv keys and then
-       look for the one that has same id than selected cert
-       Anyone that provide get_private_key(cert) function?
-    */
-    rv = get_private_keys(&ph);
+    rv = get_private_key(&ph);
     if (rv != 0) {
-      DBG1("get_private_keys() failed: %s", get_error());
-      syslog(LOG_ERR, "get_private_keys() failed: %s", get_error());
+      DBG1("get_private_key() failed: %s", get_error());
+      syslog(LOG_ERR, "get_private_key() failed: %s", get_error());
       goto auth_failed_nopw;
     }
-    /* load corresponding certificates */
-    rv = get_certificates(&ph);
-    if (rv != 0) {
-      DBG1("get_certificates() failed: %s", get_error());
-      syslog(LOG_ERR, "get_certificates failed: %s", get_error());
-      goto auth_failed_nopw;
-    }
-    ph.choosen_key= NULL;
-    for (i=0; i< ph.key_count; i++)  {
-        if (!ph.keys[i].x509) continue; /* private key without cert !! */
-	X509 *cert= ph.keys[i].x509;
-	if (X509_cmp(cert,myCert) == 0) ph.choosen_key = &ph.keys[i];
-    }
-    if (!ph.choosen_key) {
-      DBG("Cannot locate private key matching successfull cert");
-      syslog(LOG_ERR, "Cannot locate private key matching successfull cert");
-      goto auth_failed_nopw;
-    }
-#endif
 
     /* read random value */
     rv = get_random_value(random_value, sizeof(random_value));
@@ -387,7 +356,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
              random_value, sizeof(random_value), signature, signature_length);
     if (signature != NULL) free(signature);
     if (rv != 0) {
-      free(cert_list); 
       close_pkcs11_session(&ph);
       release_pkcs11_module(&ph);
       DBG1("verify_signature() failed: %s", get_error());
@@ -398,9 +366,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   } else {
       DBG("Skipping signature check");
   }
-
-  /* remove certificate list */
-  free(cert_list); 
 
   /* close pkcs #11 session */
   rv = close_pkcs11_session(&ph);
@@ -425,7 +390,6 @@ auth_failed:
 
 auth_failed_nopw:
     unload_mappers();
-    free(cert_list); /* remove certificate list */
     close_pkcs11_session(&ph);
     release_pkcs11_module(&ph);
     return PAM_AUTHINFO_UNAVAIL;

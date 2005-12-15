@@ -279,28 +279,31 @@ int close_pkcs11_session(pkcs11_handle_t *h)
     return -1;
   }
   DBG("releasing keys and certificates");
-  if (h->keys != NULL) {
-    for (i = 0; i < h->key_count; i++) {
-      if (h->keys[i].x509 != NULL)
-        X509_free(h->keys[i].x509);
-      if (h->keys[i].id != NULL)
-        free(h->keys[i].id);
+  if (h->certs != NULL) {
+    for (i = 0; i < h->cert_count; i++) {
+      if (h->certs[i].x509 != NULL)
+        X509_free(h->certs[i].x509);
+      if (h->certs[i].id != NULL)
+        free(h->certs[i].id);
     }
-    free(h->keys);
-    h->keys = NULL;
-    h->key_count = 0;
+    free(h->certs);
+    h->certs = NULL;
+    h->cert_count = 0;
   }
+  free(h->choosen_key);
   return 0;
 }
 
-X509 **get_certificate_list(pkcs11_handle_t *h, int *ncerts) 
+/* get a list of certificates */
+int get_certificates(pkcs11_handle_t *h) 
 {
+  CK_BYTE *id_value;
   CK_BYTE *cert_value;
   CK_OBJECT_HANDLE object;
   CK_ULONG object_count;
+  X509 *x509;
+  cert_object_t *certs;
   int rv;
-  X509 *cert;
-  X509 **certs=NULL;
   
   CK_OBJECT_CLASS cert_class = CKO_CERTIFICATE;
   CK_CERTIFICATE_TYPE cert_type = CKC_X_509;
@@ -309,13 +312,15 @@ X509 **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     ,
     {CKA_CERTIFICATE_TYPE, &cert_type, sizeof(CK_CERTIFICATE_TYPE)}
     ,
+    {CKA_ID, NULL, 0}
+    ,
     {CKA_VALUE, NULL, 0}
   };
 
   rv = h->fl->C_FindObjectsInit(h->session, cert_template, 2);
   if (rv != CKR_OK) {
     set_error("C_FindObjectsInit() failed: %x", rv);
-    return NULL;
+    return -1;
   }
   while(1) {
     /* look for certificates */
@@ -328,51 +333,96 @@ X509 **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
 
     /* Cert found, read */
 
-    /* retrieve object length */
+    /* pass 1: get cert id */
+
+    /* retrieve cert object id length */
     cert_template[2].pValue = NULL;
+    cert_template[2].ulValueLen = 0;
     rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 3);
     if (rv != CKR_OK) {
-        set_error("C_GetAttributeValue() failed: %x", rv);
+        set_error("CertID length: C_GetAttributeValue() failed: %x", rv);
         goto getlist_error;
     }
     /* allocate enought space */
-    cert_value = malloc(cert_template[2].ulValueLen);
-    if (cert_value == NULL) {
-        set_error("not enough free memory available", rv);
+    id_value = malloc(cert_template[2].ulValueLen);
+    if (id_value == NULL) {
+        set_error("CertID malloc(%d): not enough free memory available", cert_template[2].ulValueLen);
         goto getlist_error;
     }
-    /* read certificate into allocated space */
-    cert_template[2].pValue = cert_value;
+    /* read cert id into allocated space */
+    cert_template[2].pValue = id_value;
     rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 3);
     if (rv != CKR_OK) {
-        free(cert_value);
-        set_error("C_GetAttributeValue() failed: %x", rv);
+        free(id_value);
+        set_error("CertID value: C_GetAttributeValue() failed: %x", rv);
         goto getlist_error;
     }
-    /* parse certificate */
+
+    /* pass 2: get certificate */
+
+    /* retrieve cert length */
+      cert_template[3].pValue = NULL;
+      rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
+      if (rv != CKR_OK) {
+        set_error("Cert Length: C_GetAttributeValue() failed: %x", rv);
+        goto getlist_error;
+      }
+    /* allocate enought space */
+      cert_value = malloc(cert_template[3].ulValueLen);
+      if (cert_value == NULL) {
+        set_error("Cert Length malloc(%d): not enough free memory available", cert_template[3].ulValueLen);
+        goto getlist_error;
+      }
+    /* read certificate into allocated space */
+      cert_template[3].pValue = cert_value;
+      rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
+      if (rv != CKR_OK) {
+        free(cert_value);
+        set_error("Cert Value: C_GetAttributeValue() failed: %x", rv);
+        goto getlist_error;
+      }
+
+    /* Pass 3: store certificate */
+
     /* convert to X509 data structure */
-    cert = d2i_X509(NULL, (CK_BYTE **)&cert_template[2].pValue, cert_template[2].ulValueLen);
-    if (cert == NULL) {
+      x509 = d2i_X509(NULL, (CK_BYTE **)&cert_template[3].pValue, cert_template[3].ulValueLen);
+      if (x509 == NULL) {
+        free(id_value);
         free(cert_value);
         set_error("d2i_x509() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto getlist_error;
-    }
+      }
     /* finally add certificate to chain */
-    add_cert(cert,&certs,ncerts);
+    certs= realloc(h->certs,(h->cert_count+1) * sizeof(cert_object_t));
+    if (!certs) {
+        free(id_value);
+        free(cert_value);
+	set_error("realloc() not space to re-size cert table");
+        goto getlist_error;
+    }
+    h->certs=certs;
+    DBG1("Saving Certificate #%d:", h->cert_count + 1);
+    memset(&h->certs[h->cert_count], 0, sizeof(cert_object_t));
+    DBG1("- type: %02x", cert_type);
+    DBG1("- id:   %02x", id_value[0]);
+    h->certs[h->cert_count].type = cert_type;
+    h->certs[h->cert_count].id   = id_value;
+    h->certs[h->cert_count].id_length = cert_template[2].ulValueLen;
+    h->certs[h->cert_count].x509 = x509;
+    ++h->cert_count;
 
   } /* end of while(1) */
 
   /* release FindObject Sesion */
-  rv = h->fl->C_FindObjectsFinal(h->session);
-  if (rv != CKR_OK) {
-    set_error("C_FindObjectsFinal() failed: %x", rv);
-    free(certs);
-    return NULL;
-  }
+    rv = h->fl->C_FindObjectsFinal(h->session);
+    if (rv != CKR_OK) {
+      set_error("C_FindObjectsFinal() failed: %x", rv);
+      return -1;
+    }
 
   /* arriving here means that's all right */
-  DBG1("Found %d certificates in token",ncerts);
-  return certs;
+  DBG1("Found %d certificates in token",h->cert_count);
+  return 0;
 
   /* some error arrived: clean as possible, and return fail */
 getlist_error:
@@ -380,94 +430,11 @@ getlist_error:
   if (rv != CKR_OK) {
     set_error("C_FindObjectsFinal() failed: %x", rv);
   }
-  free(certs);
-  return NULL;
+  return -1;
 }
 
-/*
-* retrieve certificates that match with a stored list of private keys
-*/
-int get_certificates(pkcs11_handle_t *h)
-{
-  CK_OBJECT_CLASS cert_class = CKO_CERTIFICATE;
-  CK_CERTIFICATE_TYPE cert_type = CKC_X_509;
-  CK_ATTRIBUTE cert_template[] = {
-    {CKA_CLASS, &cert_class, sizeof(CK_OBJECT_CLASS)}
-    ,
-    {CKA_CERTIFICATE_TYPE, &cert_type, sizeof(CK_CERTIFICATE_TYPE)}
-    ,
-    {CKA_ID, NULL, 0}
-    ,
-    {CKA_VALUE, NULL, 0}
-  };
-  CK_BYTE *cert_value;
-  CK_OBJECT_HANDLE object;
-  CK_ULONG object_count;
-  X509 *x509;
-  int i, rv;
-
-  /* search for appropriate certificates */
-  for (i = 0; i < h->key_count; i++) {
-    DBG1("searching certificate for key #%d", i + 1);
-    cert_template[2].pValue = h->keys[i].id;
-    cert_template[2].ulValueLen = h->keys[i].id_length;
-    cert_template[3].pValue = 0;
-    cert_template[3].ulValueLen = 0;
-    rv = h->fl->C_FindObjectsInit(h->session, cert_template, 3);
-    if (rv != CKR_OK) {
-      set_error("C_FindObjectsInit() failed: %x", rv);
-      return -1;
-    }
-    rv = h->fl->C_FindObjects(h->session, &object, 1, &object_count);
-    if (rv != CKR_OK) {
-      set_error("C_FindObjects() failed: %x", rv);
-      return -1;
-    }
-    if (object_count > 0) {
-      DBG("X.509 certificate found");
-      /* read certificate */
-      cert_template[3].pValue = NULL;
-      rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
-      if (rv != CKR_OK) {
-        set_error("C_GetAttributeValue() failed: %x", rv);
-        return -1;
-      }
-      cert_value = malloc(cert_template[3].ulValueLen);
-      if (cert_value == NULL) {
-        set_error("not enough free memory available", rv);
-        return -1;
-      }
-      cert_template[3].pValue = cert_value;
-      rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
-      if (rv != CKR_OK) {
-        free(cert_value);
-        set_error("C_GetAttributeValue() failed: %x", rv);
-        return -1;
-      }
-      /* parse certificate */
-      x509 = d2i_X509(NULL, (CK_BYTE **)&cert_template[3].pValue, cert_template[3].ulValueLen);
-      if (x509 == NULL) {
-        free(cert_value);
-        set_error("d2i_x509() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-        return -1;
-      }
-      DBG1("saving certificate #%d:", i + 1);
-      h->keys[i].x509 = x509;
-      DBG1("- subject:    %s", X509_NAME_oneline(X509_get_subject_name(x509), NULL, 0));
-      DBG1("- issuer:     %s", X509_NAME_oneline(X509_get_issuer_name(x509), NULL, 0));
-      DBG1("- algorith:   %s", OBJ_nid2ln(OBJ_obj2nid(x509->cert_info->key->algor->algorithm)));
-    }
-    rv = h->fl->C_FindObjectsFinal(h->session);
-    if (rv != CKR_OK) {
-      set_error("C_FindObjectsFinal() failed: %x", rv);
-      return -1;
-    }
-  }
-  return 0;
-}
-
-int get_private_keys(pkcs11_handle_t *h)
-{
+/* retrieve the private key associated with a given certificate */
+int get_private_key(pkcs11_handle_t *h) {
   CK_OBJECT_CLASS key_class = CKO_PRIVATE_KEY;
   CK_BBOOL key_sign = CK_TRUE;
   CK_KEY_TYPE key_type = CKK_RSA; /* default, should be properly set */
@@ -485,71 +452,59 @@ int get_private_keys(pkcs11_handle_t *h)
   CK_BYTE *key_id;
   key_object_t *keys;
   int rv;
+  if (!h->choosen_cert) {
+    set_error("No certificate selected", rv);
+    return -1;
+  }
 
-  /* search all private keys which can be used to sign */
-  rv = h->fl->C_FindObjectsInit(h->session, key_template, 2);
+  key_template[3].pValue= h->choosen_cert->id;
+  key_template[3].ulValueLen= h->choosen_cert->id_length;
+  rv = h->fl->C_FindObjectsInit(h->session, key_template, 4);
   if (rv != CKR_OK) {
     set_error("C_FindObjectsInit() failed: %x", rv);
     return -1;
   }
-  while (1) {
+
     rv = h->fl->C_FindObjects(h->session, &object, 1, &object_count);
     if (rv != CKR_OK) {
       set_error("C_FindObjects() failed: %x", rv);
-      return -1;
+      goto get_privkey_failed;
     }
-    if (object_count == 0)
-      break;
-    DBG("private key found");
-    /* get attribute size */
-    key_template[3].pValue = NULL;
-    rv = h->fl->C_GetAttributeValue(h->session, object, key_template, 4);
-    if (rv != CKR_OK) {
-      set_error("C_GetAttributeValue() failed: %x", rv);
-      return -1;
-    }
-    key_id = malloc(key_template[3].ulValueLen);
-    if (key_id == NULL) {
-      set_error("not enough free memory available");
-      return -1;
-    }
-    key_template[3].pValue = key_id;
-    /* get attribute */
-    rv = h->fl->C_GetAttributeValue(h->session, object, key_template, 4);
-    if (rv != CKR_OK) {
-      free(key_id);
-      set_error("C_GetAttributeValue() failed: %x", rv);
-      return -1;
-    }
-    keys = realloc(h->keys, (h->key_count + 1) * sizeof(key_object_t));
-    if (keys == NULL) {
-      free(key_id);
-      set_error("not enough free memory available");
-      return -1;
-    }
-    h->keys = keys;
-    /* save key */
-    DBG1("saving private key #%d:", h->key_count + 1);
-    memset(&h->keys[h->key_count], 0, sizeof(key_object_t));
-    DBG1("- type: %02x", key_type);
-    DBG1("- id:   %02x", key_id[0]);
-    h->keys[h->key_count].private_key = object;
-    h->keys[h->key_count].type = key_type;
-    h->keys[h->key_count].id = key_id;
-    h->keys[h->key_count].id_length = key_template[3].ulValueLen;
-    ++h->key_count;
+  if (object_count <= 0) {
+      /* cert without prk: perhaps CA or CA-chain cert */
+      set_error("No private key found for cert: %x", rv);
+      goto get_privkey_failed;
   }
+  /* create space for priv key data */
+  h->choosen_key=malloc(sizeof(key_object_t));
+  if (!h->choosen_key) {
+      set_error("No space for private data");
+      goto get_privkey_failed;
+  }
+  /* and store priv key related data */
+  h->choosen_key->type = key_type;
+  h->choosen_key->id = h->choosen_cert->id;
+  h->choosen_key->id_length = h->choosen_cert->id_length;
+  h->choosen_key->x509 = h->choosen_cert->x509;
+  h->choosen_key->private_key = object;
+
+  /* and finally release Find session */
+  rv = h->fl->C_FindObjectsFinal(h->session);
+    if (rv != CKR_OK) {
+      set_error("C_FindObjectsFinal() failed: %x", rv);
+      return -1;
+    }
+
+  return 0;
+
+get_privkey_failed:
   rv = h->fl->C_FindObjectsFinal(h->session);
   if (rv != CKR_OK) {
     set_error("C_FindObjectsFinal() failed: %x", rv);
     return -1;
   }
-  /* we need at least one private key */
-  if (h->key_count == 0) {
-    set_error("no appropiate private keys found");
+  h->choosen_key=NULL;
     return -1;
-  }
-  return 0;
 }
 
 int sign_value(pkcs11_handle_t *h, CK_BYTE *data, CK_ULONG length,

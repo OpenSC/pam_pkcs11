@@ -39,9 +39,7 @@ int main(int argc, const char **argv) {
   int ncerts;
   unsigned int slot_num = 0;
   struct configuration_st *configuration;
-  X509 **cert_list;
   pkcs11_handle_t ph;
-  X509 *myCert=NULL;
 
   /* first of all check whether debugging should be enabled */
   for (i = 0; i < argc; i++)
@@ -98,19 +96,25 @@ int main(int argc, const char **argv) {
   }
 
   /* get certificate list */
-  ncerts=0;
-  cert_list=NULL;
-  cert_list = get_certificate_list(&ph,&ncerts);
-  if (!cert_list) {
+  rv = get_certificates(&ph);
+  if (rv<0) {
     close_pkcs11_session(&ph);
     release_pkcs11_module(&ph);
-    DBG1("get_certificate_list() failed: %s", get_error());
+    DBG1("get_certificates() failed: %s", get_error());
     return 3;
   }
+
+  /* do login */
+  rv= pkcs11_pass_login(&ph,configuration->nullok);
+  if (rv<0){
+    DBG1("Login failed: %s",get_error());
+    return 4;
+  }
+
   /* print some info on found certificates */
-  DBG1("Found '%d' certificate(s)",ncerts);
-  for(i =0; i<ncerts;i++) {
-    X509 *cert=cert_list[i];
+  DBG1("Found '%d' certificate(s)",ph.cert_count);
+  for(i =0; i<ph.cert_count;i++) {
+    X509 *cert=ph.certs[i].x509;
     rv = verify_certificate(cert,&configuration->policy);
     if (rv < 0) {
         DBG1("verify_certificate() process error: %s", get_error());
@@ -119,46 +123,16 @@ int main(int argc, const char **argv) {
         DBG1("verify_certificate() failed: %s", get_error());
         continue; /* try next certificate */
     }
-    myCert=cert;
+    ph.choosen_cert=&ph.certs[i];
     DBG1("Certificate #%d:", i);
     DBG1("- Subject:   %s", X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0));
     DBG1("- Issuer:    %s", X509_NAME_oneline(X509_get_issuer_name(cert), NULL, 0));
     DBG1("- Algorithm: %s", OBJ_nid2ln(OBJ_obj2nid(cert->cert_info->key->algor->algorithm)));
+    rv = get_private_key(&ph);
+    if (rv<0) {
+	DBG("Certificate does not have associated private key");
   }
-
-  if (configuration->policy.signature_policy) {
-    rv = pkcs11_pass_login(&ph,configuration->nullok);
-    if (rv != 0) {
-      DBG1("pkcs11_pass_login() failed: %s", get_error());
-      free(cert_list);
-      close_pkcs11_session(&ph);
-      release_pkcs11_module(&ph);
-      return 2;
     }
-    rv = get_private_keys(&ph);
-    if (rv != 0) {
-      DBG1("get_private_keys() failed: %s", get_error());
-      goto auth_failed;
-    }
-    /* load corresponding certificates */
-    rv = get_certificates(&ph);
-    if (rv != 0) {
-      DBG1("get_certificates() failed: %s", get_error());
-      goto auth_failed;
-    }
-    ph.choosen_key= NULL;
-    for (i=0; i< ph.key_count; i++)  {
-	if (!ph.keys[i].x509) continue;
-        X509 *cert= ph.keys[i].x509;
-        if (X509_cmp(cert,myCert) == 0) ph.choosen_key = &ph.keys[i];
-    }
-    if (!ph.choosen_key) {
-      DBG("Cannot locate private key matching successfull cert");
-      goto auth_failed;
-    }
-  }
-
-  free(cert_list);
 
   /* close pkcs #11 session */
   rv = close_pkcs11_session(&ph);
@@ -176,7 +150,6 @@ int main(int argc, const char **argv) {
   return 0;
 
 auth_failed:
-  free(cert_list);
   close_pkcs11_session(&ph);
   release_pkcs11_module(&ph);
   return 5;

@@ -39,8 +39,6 @@ int main(int argc, const char **argv) {
   pkcs11_handle_t ph;
   struct configuration_st *configuration;
   unsigned int slot_num = 0;
-  int ncerts=0;
-  X509 **cert_list=NULL;
 
 
   /* first of all check whether debugging should be enabled */
@@ -107,11 +105,11 @@ int main(int argc, const char **argv) {
 #endif
 
   /* get certificate list */
-  cert_list = get_certificate_list(&ph,&ncerts);
-  if (!cert_list) {
+  rv = get_certificates(&ph);
+  if (rv<0) {
     close_pkcs11_session(&ph);
     release_pkcs11_module(&ph);
-    DBG1("get_certificate_list() failed: %s", get_error());
+    DBG1("get_certificates() failed: %s", get_error());
     return 3;
   }
 
@@ -119,9 +117,9 @@ int main(int argc, const char **argv) {
   load_mappers(configuration->ctx);
 
   /* find a valid and matching certificates */
-  DBG1("Found '%d' certificate(s)",ncerts);
-  for (i = 0; i < ncerts; i++) {
-    X509 *x509 = cert_list[i];
+  DBG1("Found '%d' certificate(s)",ph.cert_count);
+  for (i = 0; i < ph.cert_count; i++) {
+    X509 *x509 = ph.certs[i].x509;
     if (x509 != NULL) {
       DBG1("verifing the certificate #%d", i + 1);
       /* verify certificate (date, signature, CRL, ...) */
@@ -150,7 +148,6 @@ int main(int argc, const char **argv) {
     }
   }
 
-  free(cert_list);
   unload_mappers(); /* no longer needed */
 
   /* close pkcs #11 session */
