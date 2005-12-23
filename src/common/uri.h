@@ -41,6 +41,11 @@
 #define URI_EXTERN
 #endif
 
+URI_EXTERN int is_uri(const char *path);
+URI_EXTERN int is_file(const char *path);
+URI_EXTERN int is_dir(const char *path);
+URI_EXTERN int is_symlink(const char *path);
+
 /**
 *  Downloads data from a given URI
 *@param uri_str URL string where to retrieve data

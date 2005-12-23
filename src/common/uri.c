@@ -17,10 +17,66 @@
 
 #define __URI_C_
 
+#include <sys/stat.h>
+#include <string.h>
+
 #include "uri.h"
 #include "debug.h"
 #include "error.h"
-#include <string.h>
+#include "strings.h"
+
+static char *valid_urls[]= 
+		{"file:///","http://","https://","ftp://","ldap://",NULL};
+/* 
+comodity functions 
+Analize provided pathname and check type
+Returns 1 on true, 0 on false, -1 on error
+*/
+
+int is_uri(const char *path) {
+	int n=0;
+	if(is_empty_str(path)) return -1;
+	while(valid_urls[n]) {
+		if(strstr(path,valid_urls[n++])) return 1;
+	}
+	return 0;
+}
+
+static struct stat * stat_file(const char *path) {
+	static struct stat buf;
+	int res;
+	const char *pt=path;
+	if(is_empty_str(path)) return NULL;
+	if (is_uri(path)) {
+		if (!strstr(path,"file:///")) return NULL;
+		pt=path+8;
+	}
+	res = stat(pt,&buf);
+	if (res<0) return NULL;
+	return &buf;
+}
+
+int is_file(const char *path){
+	struct stat *info = stat_file(path);
+	if (!info) return -1;
+	if ( S_ISREG(info->st_mode) ) return 1;
+	return 0;
+}
+
+int is_dir(const char *path){
+	struct stat *info = stat_file(path);
+	if (!info) return -1;
+	if ( S_ISDIR(info->st_mode) ) return 1;
+	return 0;
+}
+
+int is_symlink(const char *path){
+	struct stat *info = stat_file(path);
+	if (!info) return -1;
+	if ( S_ISLNK(info->st_mode) ) return 1;
+	return 0;
+}
+
 
 #ifdef HAVE_CURL
 
