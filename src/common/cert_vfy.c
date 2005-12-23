@@ -237,6 +237,106 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
   return (rv == -1);
 }
 
+static int add_hash( X509_LOOKUP *lookup, char *dir) {
+  int rv=0;
+  rv = X509_LOOKUP_add_dir(lookup,dir, X509_FILETYPE_PEM);
+  if (rv != 1) { /* load all hash links in PEM format */
+    set_error("X509_LOOKUP_add_dir(PEM) failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    return -1;
+  }
+  rv = X509_LOOKUP_add_dir(lookup, dir, X509_FILETYPE_ASN1);
+  if (rv != 1) { /* load all hash links in ASN1 format */
+    set_error("X509_LOOKUP_add_dir(ASN1) failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    return -1;
+  }
+  return 1;
+}
+
+static int add_file( X509_LOOKUP *lookup, char *file) {
+  int rv=0;
+  rv = X509_LOOKUP_load_file(lookup,file, X509_FILETYPE_PEM);
+  if (rv == 1) return 1;
+  DBG("File format is not PEM: trying ASN1");
+  rv = X509_LOOKUP_load_file(lookup,file, X509_FILETYPE_ASN1);
+  if(rv!=1) {
+    set_error("X509_LOOKUP_load_file(ASN1) failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    return -1; /* neither PEM nor ASN1 format: return error */
+  }
+  return 1;
+}
+
+X509_STORE * setup_store(cert_policy *policy) {
+  int rv;
+  X509_STORE *store = NULL;
+  X509_LOOKUP *lookup = NULL;
+
+  /* setup the x509 store to verify the certificate */
+  store = X509_STORE_new();
+  if (store == NULL) {
+    set_error("X509_STORE_new() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    return NULL;
+  }
+
+  /* if needed add hash_dir lookup methods */
+  if ( (is_dir(policy->ca_dir)>0) || (is_dir(policy->crl_dir)>0) ) {
+    DBG("Adding hashdir lookup to x509_store");
+    lookup = X509_STORE_add_lookup(store,X509_LOOKUP_hash_dir());
+    if (!lookup) {
+      X509_STORE_free(store);
+      set_error("X509_STORE_add_lookup(hash_dir) failed: %s", ERR_error_string(ERR_get_error(), NULL));
+      return NULL;
+    }
+  }
+  /* add needed hash dir pathname entries */
+  if ( (policy->ca_policy) && (is_dir(policy->ca_dir)>0) ) {
+    char *pt=policy->ca_dir;
+    if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
+    DBG1("Adding hash dir '%s' to CACERT checks",policy->ca_dir);
+    rv = add_hash( lookup, pt);
+    if (rv<0) goto add_store_error;
+  }
+  if ( (policy->crl_policy!=CRLP_NONE) && (is_dir(policy->crl_dir)>0 ) ) {
+    char *pt=policy->crl_dir;
+    if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
+    DBG1("Adding hash dir '%s' to CRL checks",policy->crl_dir);
+    rv = add_hash( lookup, pt);
+    if (rv<0) goto add_store_error;
+  }
+
+  /* if needed add file lookup methods */
+  if ( (is_file(policy->ca_dir)>0) || (is_file(policy->crl_dir)>0) ) {
+    DBG("Adding file lookup to x509_store");
+    lookup = X509_STORE_add_lookup(store,X509_LOOKUP_file());
+    if (!lookup) {
+      X509_STORE_free(store);
+      set_error("X509_STORE_add_lookup(file) failed: %s", ERR_error_string(ERR_get_error(), NULL));
+      return NULL;
+    }
+  }
+  /* and add file entries to lookup */
+  if ( (policy->ca_policy) && (is_file(policy->ca_dir)>0) ) {
+    char *pt=policy->ca_dir;
+    if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
+    DBG1("Adding file '%s' to CACERT checks",policy->ca_dir);
+    rv = add_file(lookup, pt);
+    if (rv<0) goto add_store_error;
+  }
+  if ( (policy->crl_policy!=CRLP_NONE) && (is_file(policy->crl_dir)>0 ) ) {
+    char *pt=policy->crl_dir;
+    if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
+    DBG1("Adding file '%s' to CRL checks",policy->crl_dir);
+    rv = add_file(lookup, pt);
+    if (rv<0) goto add_store_error;
+  }
+  return store;
+
+add_store_error:
+  DBG1("setup_store() error: '%s'",get_error());
+  X509_LOOKUP_free(lookup);
+  X509_STORE_free(store);
+  return NULL;
+}
+
 /*
 * @return -1 on error, 0 on verify failed, 1 on verify sucess 
 */
@@ -245,7 +345,6 @@ int verify_certificate(X509 * x509, cert_policy *policy)
   int rv;
   X509_STORE *store;
   X509_STORE_CTX *ctx;
-  X509_LOOKUP *lookup;
 
   /* if neither ca nor crl check are requested skip */
   if ( (policy->ca_policy==0) && (policy->crl_policy==CRLP_NONE) ) {
@@ -254,56 +353,10 @@ int verify_certificate(X509 * x509, cert_policy *policy)
   }
 
   /* setup the x509 store to verify the certificate */
-  store = X509_STORE_new();
+  store = setup_store(policy);
   if (store == NULL) {
-    set_error("X509_STORE_new() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+    set_error("setup_store() failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
-  }
-  lookup = X509_STORE_add_lookup(store, X509_LOOKUP_hash_dir());
-  if (lookup == NULL) {
-    X509_STORE_free(store);
-    set_error("X509_STORE_add_lookup() failed: %s", ERR_error_string(ERR_get_error(), NULL));
-    return -1;
-  }
-
-  rv=0;
-
-  /* add lookup dir for CA check */
-  if ( policy->ca_policy ) {
-    DBG1("adding ca certificate lookup dir %s", policy->ca_dir);
-    rv = X509_LOOKUP_add_dir(lookup, policy->ca_dir, X509_FILETYPE_PEM);
-  if (rv != 1) {
-    X509_LOOKUP_free(lookup);
-    X509_STORE_free(store);
-    set_error("X509_LOOKUP_add_dir(PEM) failed: %s", ERR_error_string(ERR_get_error(), NULL));
-    return -1;
-  }
-    rv = X509_LOOKUP_add_dir(lookup, policy->ca_dir, X509_FILETYPE_ASN1);
-  if (rv != 1) {
-    X509_LOOKUP_free(lookup);
-    X509_STORE_free(store);
-    set_error("X509_LOOKUP_add_dir(ASN1) failed: %s", ERR_error_string(ERR_get_error(), NULL));
-    return -1;
-  }
-  }
- 
-  /* add lookup dir for CRL check */
-  if ( policy->crl_policy != CRLP_NONE ) {
-    DBG1("adding crl lookup dir %s", policy->crl_dir);
-    rv = X509_LOOKUP_add_dir(lookup, policy->crl_dir, X509_FILETYPE_PEM);
-  if (rv != 1) {
-    X509_LOOKUP_free(lookup);
-    X509_STORE_free(store);
-    set_error("X509_LOOKUP_add_dir(PEM) failed: %s", ERR_error_string(ERR_get_error(), NULL));
-    return -1;
-  }
-    rv = X509_LOOKUP_add_dir(lookup, policy->crl_dir, X509_FILETYPE_ASN1);
-  if (rv != 1) {
-    X509_LOOKUP_free(lookup);
-    X509_STORE_free(store);
-    set_error("X509_LOOKUP_add_dir(ASN1) failed: %s", ERR_error_string(ERR_get_error(), NULL));
-    return -1;
-  }
   }
 
   ctx = X509_STORE_CTX_new();

@@ -34,14 +34,18 @@ pam_pkcs11 {
     # with an available token.
     slot_num = 0;
 
-    # Path to the directory where the CA certificates are stored. The
-    # directory must contain an openssl hash-link to each certificate.
+    # Where are CA certificates stored?
+    # You can setup this value to:
+    # 1- A directory with openssl hash-links to all certificates
+    # 2- A CA file in PEM (.pem) or ASN1 (.cer) format, 
+    # containing all allowed CA certs
     # The default value is /etc/pam_pkcs11/cacerts.
     ca_dir = /etc/pam_pkcs11/cacerts;
   
-    # Path to the directory where the CRLs are stored. The directory
-    # must contain an openssl hash-link to each CRL. The default value
-    # is /etc/pam_pkcs11/crls.
+    # Path to the directory where the local (offline) CRLs are stored.
+    # Same convention as above is applied: you can choose either
+    # hash-link directory or CRL file
+    # The default value is /etc/pam_pkcs11/crls.
     crl_dir = /etc/pam_pkcs11/crls;
   
     # Some pcks#11 libraries can handle multithreading. So 
