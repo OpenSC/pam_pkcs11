@@ -1,6 +1,7 @@
 # Process this file with automake to create Makefile.in
 
 MAINTAINERCLEANFILES = Makefile.in $(HTMLFILES) api/*
+DISTCLEANFILES = doxygen.conf
 
 XSLTPROC = @XSLTPROC@
 HTMLFILES = pam_pkcs11.html mappers_api.html
@@ -13,8 +14,8 @@ MANSRC = \
 	pkcs11_eventmgr.1 pkcs11_inspect.1
 
 man_MANS = $(MANSRC)
-noinst_DATA = $(HTMLFILES)
-EXTRA_DIST = $(MANSRC) $(XMLFILES) $(HTMLFILES) doxygen.conf \
+noinst_DATA = $(HTMLFILES) doxygen.conf
+EXTRA_DIST = $(MANSRC) $(XMLFILES) $(HTMLFILES) doxygen.conf.in \
 	README.mappers README.autologin README.eventmgr \
 	README.ldap_mapper export-wiki.sh generate-api.sh \
 	api/index.html $(shell ls api/*)
@@ -34,3 +35,6 @@ endif
 
 api/index.html:
 	sh $(srcdir)/generate-api.sh $(srcdir)
+
+%: %.in
+	sed -e "s#PKGVERSION#$(shell eval echo $(VERSION))#" < $^ > $@
