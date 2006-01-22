@@ -194,7 +194,7 @@ improvements or alternative matching algorithms are welcome.]
 <para>
 <orderedlist>
     <listitem>Download source code from the <ulink
-	url="http://www.opensc.org/pam_pkcs11/">official
+	url="http://www.opensc-project.org/pam_pkcs11/">official
 	site</ulink>.
     </listitem>
     <listitem>Unpack source tarball:
@@ -390,13 +390,13 @@ pam-pkcs11 {
 <para>
 For detailed description see the
 <ulink
-url="http://www.opensc.org/pam_pkcs11/file/trunk/etc/pam_pkcs11.conf.example">pam_pkcs11.conf.example</ulink> file.
+url="http://www.opensc-project.org/pam_pkcs11/file/trunk/etc/pam_pkcs11.conf.example">pam_pkcs11.conf.example</ulink> file.
 </para>
 
 <para>
 Details on scconf syntax and API are provided in the
 <ulink
-url="http://www.opensc.org/pam_pkcs11/file/trunk/src/scconf/README.scconf">src/scconf/README.scconf</ulink>
+url="http://www.opensc-project.org/pam_pkcs11/file/trunk/src/scconf/README.scconf">src/scconf/README.scconf</ulink>
 file.
 </para>
 

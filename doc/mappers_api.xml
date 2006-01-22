@@ -903,7 +903,7 @@ Use Universal Resource Locators -and the curl library- instead of hardcoded path
 <sect1>
 <title>Getting help</title>
 <para>
-Send questions, patches, suggestions and so to OpenSC Mailing list: <email>opensc-devel at opensc.org</email>
+Send questions, patches, suggestions and so to OpenSC Mailing list: <email>opensc-devel at opensc-project.org</email>
 </para>
 <para>
 For additional specific info, contact with the authors:
