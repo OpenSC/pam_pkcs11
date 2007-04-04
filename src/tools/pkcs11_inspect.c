@@ -48,7 +48,7 @@ int main(int argc, const char **argv) {
   /* call configure routines */
   configuration = pk_configure(argc,argv);
   if (!configuration ) {
-	DBG("Error setting configuration parameters");
+	ERR("Error setting configuration parameters");
 	return 1;
   }
 
@@ -60,7 +60,7 @@ int main(int argc, const char **argv) {
   DBG("loading pkcs #11 module...");
   rv = load_pkcs11_module(configuration->pkcs11_modulepath, &ph);
   if (rv != 0) {
-    DBG2("load_pkcs11_module(%s) failed: %s", configuration->pkcs11_modulepath,
+    ERR2("load_pkcs11_module(%s) failed: %s", configuration->pkcs11_modulepath,
       get_error());
     return 1;
   }
@@ -81,7 +81,7 @@ int main(int argc, const char **argv) {
     for (slot_num = 0; slot_num < ph.slot_count && !ph.slots[slot_num].token_present; slot_num++);
     if (slot_num >= ph.slot_count) {
       release_pkcs11_module(&ph);
-      DBG("no token available");
+      ERR("no token available");
       return 1;
     }
   } else {
@@ -90,7 +90,7 @@ int main(int argc, const char **argv) {
   rv = open_pkcs11_session(&ph, slot_num);
   if (rv != 0) {
     release_pkcs11_module(&ph);
-    DBG1("open_pkcs11_session() failed: %s", get_error());
+    ERR1("open_pkcs11_session() failed: %s", get_error());
     return 1;
   }
 
@@ -98,7 +98,7 @@ int main(int argc, const char **argv) {
   /* not really needed, but.... */
   rv = pkcs11_pass_login(&ph,configuration->nullok);
   if (rv != 0) {
-    DBG1("pkcs11_pass_login() failed: %s", get_error());
+    ERR1("pkcs11_pass_login() failed: %s", get_error());
     return 2;
   }
 #endif
@@ -108,7 +108,7 @@ int main(int argc, const char **argv) {
   if (rv<0) {
     close_pkcs11_session(&ph);
     release_pkcs11_module(&ph);
-    DBG1("get_certificates() failed: %s", get_error());
+    ERR1("get_certificates() failed: %s", get_error());
     return 3;
   }
 
@@ -127,10 +127,10 @@ int main(int argc, const char **argv) {
         close_pkcs11_session(&ph);
         release_pkcs11_module(&ph);
 	unload_mappers();
-        DBG1("verify_certificate() failed: %s", get_error());
+        ERR1("verify_certificate() failed: %s", get_error());
         return 1;
       } else if (rv != 1) {
-        DBG1("verify_certificate() failed: %s", get_error());
+        ERR1("verify_certificate() failed: %s", get_error());
         continue;
       }
 
@@ -146,7 +146,7 @@ int main(int argc, const char **argv) {
   rv = close_pkcs11_session(&ph);
   if (rv != 0) {
     release_pkcs11_module(&ph);
-    DBG1("close_pkcs11_session() failed: %s", get_error());
+    ERR1("close_pkcs11_session() failed: %s", get_error());
     return 1;
   }
 
