@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
-/* $Id: card_eventmgr.c,v 1.13 2004/04/02 06:44:38 rousseau Exp $ */
+/* $Id$ */
 
 #include <stdio.h>
 #include <stdlib.h>

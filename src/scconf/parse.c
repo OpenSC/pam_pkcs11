@@ -1,5 +1,5 @@
 /*
- * $Id: parse.c,v 1.14 2004/01/22 12:37:26 aet Exp $
+ * $Id$
  *
  * Copyright (C) 2002
  *  Antti Tapaninen <aet@cc.hut.fi>

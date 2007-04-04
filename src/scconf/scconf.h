@@ -1,5 +1,5 @@
 /*
- * $Id: scconf.h,v 1.12 2003/12/03 14:09:15 aet Exp $
+ * $Id$
  *
  * Copyright (C) 2002
  *  Antti Tapaninen <aet@cc.hut.fi>

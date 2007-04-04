@@ -1,5 +1,5 @@
 /*
- * $Id: sclex.c,v 1.6 2003/12/18 21:37:34 aet Exp $
+ * $Id$
  *
  * Copyright (C) 2003
  *  Jamie Honan <jhonan@optusnet.com.au>

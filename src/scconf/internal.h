@@ -1,5 +1,5 @@
 /*
- * $Id: internal.h,v 1.3 2003/11/20 14:15:32 aet Exp $
+ * $Id$
  *
  * Copyright (C) 2002
  *  Antti Tapaninen <aet@cc.hut.fi>
