@@ -36,14 +36,19 @@ void debug_print(int level, char *file, int line, char *format, ...) {
   if (debug_level >= level) {
     /* is stdout is a tty */
     if (isatty(1)) {
+      char *t = "\033[34mDEBUG"; /* blue */
+
+      if (-1 == level)
+        t = "\033[31mERROR"; /* red */
+
       /* print preamble */
-      printf("\033[34mDEBUG:%s:%d: ", file, line);
+      printf("%s:%s:%d: ", t, file, line);
       /* print message */
       va_start(ap, format);
       vprintf(format, ap);
       va_end(ap);
       /* print postamble */
-      printf("\033[39m\n");
+      printf("\033[0m\n");
     }
     else {
 	  /* else we use syslog(3) */

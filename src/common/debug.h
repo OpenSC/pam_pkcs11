@@ -53,6 +53,13 @@
 #define DBG4(f,a,b,c,d) debug_print(1, __FILE__, __LINE__, f , a , b , c , d )
 #define DBG5(f,a,b,c,d,e) debug_print(1, __FILE__, __LINE__, f , a , b , c , d , e )
 
+#define ERR(f) debug_print(-1, __FILE__, __LINE__, f )
+#define ERR1(f,a) debug_print(-1, __FILE__, __LINE__, f , a )
+#define ERR2(f,a,b) debug_print(-1, __FILE__, __LINE__, f , a , b )
+#define ERR3(f,a,b,c) debug_print(-1, __FILE__, __LINE__, f , a , b , c )
+#define ERR4(f,a,b,c,d) debug_print(-1, __FILE__, __LINE__, f , a , b , c , d )
+#define ERR5(f,a,b,c,d,e) debug_print(-1, __FILE__, __LINE__, f , a , b , c , d , e )
+
 #ifndef __DEBUG_C_
 #define DEBUG_EXTERN extern
 #else 
