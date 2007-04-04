@@ -10,7 +10,7 @@ pam_pkcs11_la_SOURCES =  pam_pkcs11.c  \
 			mapper_mgr.c mapper_mgr.h \
 			pam_config.c pam_config.h
 pam_pkcs11_la_LDFLAGS = -module -avoid-version
-pam_pkcs11_la_LIBADD = @LIBMAPPERS@ $(OPENSSL_LIBS)
+pam_pkcs11_la_LIBADD = $(LIBMAPPERS) $(OPENSSL_LIBS)
 
 install:       
 	$(mkinstalldirs) $(DESTDIR)/$(libdir)/security
