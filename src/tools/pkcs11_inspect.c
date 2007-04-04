@@ -60,7 +60,8 @@ int main(int argc, const char **argv) {
   DBG("loading pkcs #11 module...");
   rv = load_pkcs11_module(configuration->pkcs11_modulepath, &ph);
   if (rv != 0) {
-    DBG1("load_pkcs11_module() failed: %s", get_error());
+    DBG2("load_pkcs11_module(%s) failed: %s", configuration->pkcs11_modulepath,
+      get_error());
     return 1;
   }
 
