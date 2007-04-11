@@ -104,7 +104,7 @@ PKG_PROG_PKG_CONFIG
 
 # Check and set crypto paths
 AC_ARG_WITH(nss,
-  [  --with-nss          use NSS instead of openSSL and raw PKCS 11 (default=no)])
+  AC_HELP_STRING([--with-nss], [use NSS instead of openSSL and raw PKCS 11 (default=no])])
 if test "$with_nss" = "yes" -o "$with_nss" = "true"
 then
   PKG_CHECK_MODULES(NSS, nss, [with_nss=yes],
