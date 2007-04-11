@@ -39,10 +39,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <openssl/bn.h>
-#include <openssl/pem.h>
-#include <openssl/x509.h>
-
+#include "../common/cert_st.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
@@ -61,7 +58,7 @@
 * Return the list of certificates as an array list
 */
 static char ** opensc_mapper_find_entries(X509 *x509, void *context) {
-        char **entries= cert_info(x509,CERT_PEM,NULL);
+        char **entries= cert_info(x509,CERT_PEM,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_certificate() failed");
                 return NULL;
@@ -78,6 +75,10 @@ static int opensc_mapper_match_certs(X509 *x509, const char *home) {
         char filename[PATH_MAX];
         X509 **certs;
         int ncerts, i, rc;
+#ifdef HAVE_NSS
+	/* still need to genericize the BIO functions here */
+	return -1;
+#else
         BIO *in;
 
         if (!x509) return -1;
@@ -109,6 +110,7 @@ static int opensc_mapper_match_certs(X509 *x509, const char *home) {
             if (X509_cmp(certs[i],x509) == 0) return 1; /* Match found */
         }
         return 0; /* Don't match */
+#endif
 }
 
 static int opensc_mapper_match_user(X509 *x509, const char *user, void *context) {

@@ -26,9 +26,9 @@
 #include <config.h>
 #endif
 
-#include <openssl/objects.h>
-#include <openssl/err.h>
-#include <openssl/x509v3.h>
+/*#include <openssl/objects.h> */
+/*#include <openssl/err.h> */
+#include "../common/cert_st.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
@@ -45,7 +45,7 @@ static int debug = 0;
 * returns the Certificate subject
 */
 static char ** subject_mapper_find_entries(X509 *x509, void *context) {
-	char **entries= cert_info(x509,CERT_SUBJECT,NULL);
+	char **entries= cert_info(x509,CERT_SUBJECT,ALGORITHM_NULL);
 	if (!entries) {
 		DBG("X509_get_subject_name failed");
 		return NULL;
@@ -57,7 +57,7 @@ static char ** subject_mapper_find_entries(X509 *x509, void *context) {
 parses the certificate and return the first Subject entry found, or NULL
 */
 static char * subject_mapper_find_user(X509 *x509, void *context) {
-	char **entries = cert_info(x509,CERT_SUBJECT,NULL);
+	char **entries = cert_info(x509,CERT_SUBJECT,ALGORITHM_NULL);
 	if (!entries) {
 		DBG("X509_get_subject_name failed");
 		return NULL;
@@ -70,7 +70,7 @@ static char * subject_mapper_find_user(X509 *x509, void *context) {
 * with provided user
 */
 static int subject_mapper_match_user(X509 *x509, const char *login, void *context) {
-	char **entries = cert_info(x509,CERT_SUBJECT,NULL);
+	char **entries = cert_info(x509,CERT_SUBJECT,ALGORITHM_NULL);
 	if (!entries) {
 		DBG("X509_get_subject_name failed");
 		return -1;

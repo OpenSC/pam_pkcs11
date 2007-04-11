@@ -57,7 +57,7 @@ static int debug=0;
 * Extract list of email entries on certificate
 */
 static char ** mail_mapper_find_entries(X509 *x509, void *context) {
-        char **entries= cert_info(x509,CERT_EMAIL,NULL);
+        char **entries= cert_info(x509,CERT_EMAIL,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_email() failed");
                 return NULL;
@@ -107,7 +107,7 @@ static int compare_email(char *email, const char *user) {
 parses the certificate and return the email entry found, or NULL
 */
 static char * mail_mapper_find_user(X509 *x509, void *context) {
-        char **entries= cert_info(x509,CERT_EMAIL,NULL);
+        char **entries= cert_info(x509,CERT_EMAIL,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_email() failed");
                 return NULL;
@@ -123,7 +123,7 @@ static char * mail_mapper_find_user(X509 *x509, void *context) {
 static int mail_mapper_match_user(X509 *x509, const char *login, void *context) {
 	char *item;
 	char *str;
-        char **entries= cert_info(x509,CERT_EMAIL,NULL);
+        char **entries= cert_info(x509,CERT_EMAIL,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_email() failed");
                 return 0;

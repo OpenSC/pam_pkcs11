@@ -44,7 +44,7 @@ struct configuration_st configuration = {
         0,				/* int slot_num; */
 	0,				/* support threads */
 	/* cert policy; */
-        { 0,CRLP_NONE,0,"/etc/pam_pkcs11/cacerts","/etc/pam_pkcs11/crls" },
+        { 0,CRLP_NONE,0,"/etc/pam_pkcs11/cacerts","/etc/pam_pkcs11/crls","/etc/pam_pkcs11/nssdb",OCSP_NONE },
 	NULL				/* char *username */
 };
 
@@ -58,10 +58,12 @@ void display_config () {
         DBG1("slot_num %d",configuration.slot_num);
         DBG1("ca_dir %s",configuration.policy.ca_dir);
         DBG1("crl_dir %s",configuration.policy.crl_dir);
+        DBG1("nss_dir %s",configuration.policy.nss_dir);
         DBG1("support_threads %d",configuration.support_threads);
         DBG1("ca_policy %d",configuration.policy.ca_policy);
         DBG1("crl_policy %d",configuration.policy.crl_policy);
         DBG1("signature_policy %d",configuration.policy.signature_policy);
+        DBG1("ocsp_policy %d",configuration.policy.ocsp_policy);
 }
 
 /*
@@ -93,8 +95,8 @@ void parse_config_file() {
 	    scconf_get_bool(root,"nullok",configuration.nullok);
 	configuration.debug = 
 	    scconf_get_bool(root,"debug",configuration.debug);
-	if (configuration.debug) set_debug_level(1);
-	else set_debug_level(0);
+	/*if (configuration.debug) set_debug_level(1);
+	else set_debug_level(0); */
 	configuration.use_first_pass = 
 	    scconf_get_bool(root,"use_first_pass",configuration.use_first_pass);
 	configuration.try_first_pass = 
@@ -119,6 +121,8 @@ void parse_config_file() {
 	        scconf_get_str(pkcs11_mblk,"ca_dir",configuration.policy.ca_dir);
 	    configuration.policy.crl_dir = (char *)
 	        scconf_get_str(pkcs11_mblk,"crl_dir",configuration.policy.crl_dir);
+	    configuration.policy.nss_dir = (char *)
+	        scconf_get_str(pkcs11_mblk,"nss_dir",configuration.policy.nss_dir);
 	    configuration.slot_num = 
 	        scconf_get_int(pkcs11_mblk,"slot_num",configuration.slot_num);
 	    configuration.support_threads = 
@@ -127,6 +131,7 @@ void parse_config_file() {
 	    while(policy_list) {
 	        if ( !strcmp(policy_list->data,"none") ) {
 			configuration.policy.crl_policy=CRLP_NONE;
+			configuration.policy.ocsp_policy=OCSP_NONE;
 			configuration.policy.ca_policy=0;
 			configuration.policy.signature_policy=0;
 			break;
@@ -136,6 +141,8 @@ void parse_config_file() {
 			configuration.policy.crl_policy=CRLP_ONLINE;
 		} else if ( !strcmp(policy_list->data,"crl_offline") ) {
 			configuration.policy.crl_policy=CRLP_OFFLINE;
+		} else if ( !strcmp(policy_list->data,"ocsp_on") ) {
+			configuration.policy.ocsp_policy=OCSP_ON;
 		} else if ( !strcmp(policy_list->data,"ca") ) {
 			configuration.policy.ca_policy=1;
 		} else if ( !strcmp(policy_list->data,"signature") ) {
@@ -218,11 +225,16 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		res=sscanf(argv[i],"crl_dir=%255s",configuration.policy.crl_dir);
 		continue;
 	   }
+	   if (strstr(argv[i],"nss_dir=") ) {
+		res=sscanf(argv[i],"nss_dir=%255s",configuration.policy.nss_dir);
+		continue;
+	   }
 	   if (strstr(argv[i],"cert_policy=") ) {
 		if (strstr(argv[i],"none")) {
 			configuration.policy.crl_policy=CRLP_NONE;
 			configuration.policy.ca_policy=0;
 			configuration.policy.signature_policy=0;
+			configuration.policy.ocsp_policy=OCSP_NONE;
 		}
 		if (strstr(argv[i],"crl_online")) {
 			configuration.policy.crl_policy=CRLP_ONLINE;
@@ -232,6 +244,9 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		}
 		if (strstr(argv[i],"crl_auto")) {
 			configuration.policy.crl_policy=CRLP_AUTO;
+		}
+		if ( strstr(argv[i],"ocsp_on") ) {
+			configuration.policy.ocsp_policy=OCSP_ON;
 		}
 		if (strstr(argv[i],"ca")) {
 			configuration.policy.ca_policy=1;

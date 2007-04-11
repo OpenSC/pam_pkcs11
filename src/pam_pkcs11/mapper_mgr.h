@@ -28,8 +28,7 @@
 #include <config.h>
 #endif
 
-#include <openssl/x509.h>
-
+#include "../common/cert_st.h"
 #include "../scconf/scconf.h"
 #include "../mappers/mapper.h"
 

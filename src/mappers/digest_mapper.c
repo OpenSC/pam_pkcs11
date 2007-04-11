@@ -26,8 +26,8 @@
 #include <config.h>
 #endif
 
-#include <openssl/evp.h>
-#include <openssl/x509.h>
+#include "../common/cert_st.h"
+#include "../common/alg_st.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
@@ -40,7 +40,7 @@
 */
 
 static const char *mapfile = "none";
-static const char *algorithm= "sha1";
+static ALGORITHM_TYPE algorithm= ALGORITHM_SHA1;
 static int debug= 0;
 
 /*
@@ -108,23 +108,23 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 mapper_module * digest_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
 	mapper_module *pt;
-	const EVP_MD *digest;
+	char *hash_alg_string;
 	if (blk) { 
 	debug = scconf_get_bool( blk,"debug",0);
-	algorithm = scconf_get_str( blk,"algorithm","sha1");
+	hash_alg_string = scconf_get_str( blk,"algorithm","sha1");
 		mapfile= scconf_get_str(blk,"mapfile",mapfile);
 	} else {
 		/* should not occurs, but... */
 		DBG1("No block declaration for mapper '%s'",mapper_name);
 	}
 	set_debug_level(debug);
-	digest = EVP_get_digestbyname(algorithm);
-	if(!digest) {
-		DBG1("Invalid digest algorithm %s, using 'sha1'",algorithm);
-		algorithm="sha1";
+	algorithm = Alg_get_alg_from_string(hash_alg_string);
+	if(algorithm == ALGORITHM_NULL) {
+		DBG1("Invalid digest algorithm %s, using 'sha1'", hash_alg_string);
+		algorithm = ALGORITHM_SHA1;
 	}
 	pt = init_mapper_st(blk,mapper_name);
-	if (pt) DBG3("Digest mapper started. debug: %d, mapfile: %s, algorithm: %s",debug,mapfile,algorithm);
+	if (pt) DBG3("Digest mapper started. debug: %d, mapfile: %s, algorithm: %s",debug,mapfile,hash_alg_string);
 	else DBG("Digest mapper initialization failed");
 	return pt;
 }

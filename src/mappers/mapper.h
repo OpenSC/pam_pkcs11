@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pwd.h>
-#include <openssl/x509.h>
+#include <../common/cert_st.h>
 #include "../scconf/scconf.h"
 
 /**

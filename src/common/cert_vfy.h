@@ -27,7 +27,7 @@ Several routines to:
 #ifndef __CERT_VFY_H_
 #define __CERT_VFY_H_
 
-#include <openssl/x509.h>
+#include "cert_st.h"
 
 typedef enum { 
 	/** Do not perform any CRL verification */
@@ -40,13 +40,20 @@ typedef enum {
 	CRLP_AUTO 
 	} crl_policy_t;
 
-typedef struct cert_policy_st {
+typedef enum { 
+	OCSP_NONE, 
+	OCSP_ON 
+	} ocsp_policy_t;
+
+struct cert_policy_st {
 	int ca_policy;
 	int crl_policy;
 	int signature_policy;
 	char *ca_dir;
 	char *crl_dir;
-} cert_policy;
+	char *nss_dir;
+	int ocsp_policy;
+};
 
 #ifndef __CERT_VFY_C
 #define CERTVFY_EXTERN extern

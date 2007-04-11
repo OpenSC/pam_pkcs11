@@ -37,9 +37,11 @@
 #include <string.h>
 #include <errno.h>
 
-#include <openssl/x509.h>
+#include "../common/cert_st.h"
+#ifndef HAVE_NSS
 #include <openssl/evp.h>
 #include <openssl/bn.h>
+#endif
 
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
@@ -65,6 +67,7 @@ static int debug=0;
 
 #define OPENSSH_LINE_MAX 8192	/* from openssh SSH_MAX_PUBKEY_BYTES */
 
+#ifndef HAVE_NSS
 static EVP_PKEY *ssh1_line_to_key(char *line) {
 	EVP_PKEY *key;
 	RSA *rsa;
@@ -221,12 +224,13 @@ static void add_key(EVP_PKEY * key, EVP_PKEY *** keys, int *nkeys) {
 	*keys = keys2;
 	(*nkeys)++;
 }
+#endif
 
 /*
 * Returns the public key of certificate as an array list
 */
 static char ** openssh_mapper_find_entries(X509 *x509, void *context) {
-        char **entries= cert_info(x509,CERT_SSHPUK,NULL);
+        char **entries= cert_info(x509,CERT_SSHPUK,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_public_key() failed");
                 return NULL;
@@ -235,6 +239,9 @@ static char ** openssh_mapper_find_entries(X509 *x509, void *context) {
 }
 
 static int openssh_mapper_match_keys(X509 *x509, const char *filename) {
+#ifdef HAVE_NSS
+	return -1;
+#else
 	FILE *fd;
 	char line[OPENSSH_LINE_MAX];
 	int i;
@@ -284,6 +291,7 @@ static int openssh_mapper_match_keys(X509 *x509, const char *filename) {
         }
         DBG("User authorized_keys file doesn't match cert public key(s)");
         return 0;
+#endif
 }
 
 _DEFAULT_MAPPER_END

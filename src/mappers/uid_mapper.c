@@ -26,7 +26,7 @@
 #include <config.h>
 #endif
 
-#include <openssl/x509.h>
+#include "../common/cert_st.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
@@ -48,7 +48,7 @@ static int debug = 0;
 * Return the list of UID's on this certificate
 */ 
 static char ** uid_mapper_find_entries(X509 *x509, void *context) {
-	char **entries= cert_info(x509,CERT_UID,NULL);
+	char **entries= cert_info(x509,CERT_UID,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_unique_id() failed");
                 return NULL;
@@ -63,7 +63,7 @@ If no UID found or map error, return NULL
 */
 static char * uid_mapper_find_user(X509 *x509, void *context) {
 	char *res;
-	char **entries= cert_info(x509,CERT_UID,NULL);
+	char **entries= cert_info(x509,CERT_UID,ALGORITHM_NULL);
         if (!entries) {
             DBG("get_unique_id() failed");
             return NULL;
@@ -84,7 +84,7 @@ static char * uid_mapper_find_user(X509 *x509, void *context) {
 static int uid_mapper_match_user(X509 *x509, const char *login, void *context) {
 	char *str;
 	int match_found = 0;
-	char **entries  = cert_info(x509,CERT_UID,NULL);
+	char **entries  = cert_info(x509,CERT_UID,ALGORITHM_NULL);
         if (!entries) {
             DBG("get_unique_id() failed");
             return -1;

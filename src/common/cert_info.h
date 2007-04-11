@@ -19,7 +19,7 @@
 #ifndef __CERT_INFO_H_
 #define __CERT_INFO_H_
 
-#include <openssl/x509.h>
+#include "cert_st.h"
 
 /** Certificate Common Name */
 #define CERT_CN		1	
@@ -41,6 +41,12 @@
 #define CERT_SSHPUK	9	
 /** Certificate in PEM format */
 #define CERT_PEM	10	
+/** Certificate issuer */
+#define CERT_ISSUER	11
+/** Certificate serial number */
+#define CERT_SERIAL	12
+/** Certificate key algorithm */
+#define CERT_KEY_ALG	13
 
 /** Max size of returned certificate content array */
 #define CERT_INFO_SIZE 16
@@ -68,7 +74,7 @@ void add_cert(X509 *cert, X509 ***certs, int *ncerts);
 * @param algorithm to use in evaluate certificate digest; else null
 * @return utf-8 string array with provided information
 */
-CERTINFO_EXTERN char **cert_info(X509 *x509, int type, const char *algorithm);
+CERTINFO_EXTERN char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm);
 
 #undef CERTINFO_EXTERN
 

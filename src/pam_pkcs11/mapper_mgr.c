@@ -29,7 +29,7 @@
 
 #include <stdlib.h>
 #include <dlfcn.h>
-#include <openssl/x509.h>
+#include "../common/cert_st.h"
 
 #include "../scconf/scconf.h"
 #include "../common/debug.h"

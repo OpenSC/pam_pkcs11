@@ -26,7 +26,7 @@
 #include <config.h>
 #endif
 
-#include <openssl/x509v3.h>
+#include "../common/cert_st.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
@@ -86,7 +86,7 @@ static int compare_name(char *name, const char *user) {
 * Extract the MS Universal Principal Name array list
 */
 static char ** ms_mapper_find_entries(X509 *x509, void *context) {
-        char **entries= cert_info(x509,CERT_UPN,NULL);
+        char **entries= cert_info(x509,CERT_UPN,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_ms_upn() failed");
                 return NULL;
@@ -99,7 +99,7 @@ parses the certificate and return the first valid UPN entry found, or NULL
 */
 static char * ms_mapper_find_user(X509 *x509, void *context) {
 	char *str;
-        char **entries  = cert_info(x509,CERT_UPN,NULL);
+        char **entries  = cert_info(x509,CERT_UPN,ALGORITHM_NULL);
         if (!entries) {
             DBG("get_ms_upn() failed");
             return NULL;
@@ -127,7 +127,7 @@ static char * ms_mapper_find_user(X509 *x509, void *context) {
 static int ms_mapper_match_user(X509 *x509, const char *user, void *context) {
         char *str;
         int match_found = 0;
-        char **entries  = cert_info(x509,CERT_UPN,NULL);
+        char **entries  = cert_info(x509,CERT_UPN,ALGORITHM_NULL);
         if (!entries) {
             DBG("get_ms_upn() failed");
             return -1;

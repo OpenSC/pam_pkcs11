@@ -18,8 +18,15 @@
 #ifndef __ERROR_H_
 #define __ERROR_H_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <config.h>
 #include <stdarg.h>
+#ifndef HAVE_NSS
 #include <openssl/err.h>
+#endif
 #include <errno.h>
 
 /** Default error message buffer size */

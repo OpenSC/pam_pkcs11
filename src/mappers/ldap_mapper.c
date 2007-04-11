@@ -28,9 +28,9 @@
 #endif
 
 #include <ldap.h>
-#include <openssl/x509.h>
 #include <pwd.h>
 
+#include "../common/cert_st.h"
 #include "../common/debug.h"
 #include "../common/error.h"
 #include "../scconf/scconf.h"
@@ -184,7 +184,7 @@ static int read_config(scconf_block *blk) {
 _DEFAULT_MAPPER_END
 
 static char ** ldap_mapper_find_entries(X509 *x509, void *context) {
-        char **entries= cert_info(x509,CERT_PEM,NULL);
+        char **entries= cert_info(x509,CERT_PEM,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_certificate() failed");
                 return NULL;

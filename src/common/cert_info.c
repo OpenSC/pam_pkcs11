@@ -23,6 +23,189 @@
 #include <config.h>
 #endif
 
+#include "debug.h"
+#include "error.h"
+#include "strings.h"
+#include "cert_info.h"
+#include "alg_st.h"
+
+#ifdef HAVE_NSS
+
+#include "secoid.h"
+
+/*
+ * NSS dynamic oid support.
+ *  NSS is able to understand new oid tags provided by the application, 
+ *  including
+ *  understanding new cert extensions that NSS previously did not understand.
+ *  This code adds the oids for the Kerberos Principle and the Microsoft UPN
+ */
+#define TO_ITEM(x) {siDEROID, (unsigned char *)(x), sizeof(x) }
+
+/* kerberois oid: 1.3.6.1.5.2.2 */
+SECOidTag CERT_KerberosPN_OID = SEC_OID_UNKNOWN;
+static const unsigned char kerberosOID[] =  { 0x2b, 0x6, 0x1, 0x5, 0x2, 0x2 };
+static const SECOidData kerberosPN_Entry = 
+       { TO_ITEM(kerberosOID), SEC_OID_UNKNOWN, 
+       "Kerberos Priniciple", CKM_INVALID_MECHANISM, INVALID_CERT_EXTENSION };
+
+SECOidTag CERT_MicrosoftUPN_OID = SEC_OID_UNKNOWN;
+/* { 1.3.6.1.4.1.311 } */
+static const unsigned char microsoftUPNOID[] =  
+        { 0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37 }; /*, xxxx  */
+static const SECOidData microsoftUPN_Entry = 
+        { TO_ITEM(microsoftUPNOID), SEC_OID_UNKNOWN, 
+        "Microsoft Universal Priniciple", CKM_INVALID_MECHANISM, 
+        INVALID_CERT_EXTENSION };
+
+/* register the oid if we haven't already */
+static void
+cert_fetchOID(SECOidTag *data, const SECOidData *src)
+{
+  if (*data == SEC_OID_UNKNOWN) {
+    /* AddEntry does the right thing if someone else has already
+     * added the oid. (that is return that oid tag) */
+    *data = SECOID_AddEntry(src);
+  }
+  return;
+}
+
+static char **
+cert_GetNameElements(CERTName *name, int wantedTag)
+{
+  static char *results[CERT_INFO_SIZE];
+  CERTRDN** rdns;
+  CERTRDN *rdn;
+  char *buf = 0;
+  int i=0;
+
+  rdns = name->rdns;
+  while (rdns && (rdn = *rdns++) != 0) {
+    CERTAVA** avas = rdn->avas;
+    CERTAVA*  ava;
+    while (avas && (ava = *avas++) != 0) {
+      int tag = CERT_GetAVATag(ava);
+      if ( tag == wantedTag ) {
+        SECItem *decodeItem = CERT_DecodeAVAValue(&ava->value);
+        if(!decodeItem) {
+          results[i] = NULL;
+          return results[0] ? results : NULL;
+        }
+        buf = (char *)malloc(decodeItem->len + 1);
+        if ( buf ) {
+          memcpy(buf, decodeItem->data, decodeItem->len);
+          buf[decodeItem->len] = 0;
+        }
+        SECITEM_FreeItem(decodeItem, PR_TRUE);
+        results[i] = buf;
+        i++;
+        if (i == CERT_INFO_SIZE-1) {
+          goto done;
+        }
+      }
+    }
+  }
+done:
+  results[i] = NULL;
+  return results[0] ? results : NULL;
+}
+
+/*
+* Evaluate Certificate Signature Digest
+*/
+static char **cert_info_digest(X509 *x509, ALGORITHM_TYPE algorithm) {
+  static char *entries[2] = { NULL,NULL };
+  HASH_HashType  type = HASH_GetHashTypeByOidTag(algorithm);
+  unsigned char data[HASH_LENGTH_MAX];
+
+  if (type == HASH_AlgNULL) {
+    type = HASH_AlgSHA1;
+    DBG1("Invalid digest algorithm, using 'sha1'",algorithm);
+  }
+  HASH_HashBuf(type, data, x509->derCert.data, x509->derCert.len);
+  entries[0] = bin2hex(data,HASH_ResultLen(type));
+  return entries;
+}
+
+
+/**
+* request info on certificate
+* @param x509 	Certificate to parse
+* @param type 	Information to retrieve
+* @param algorithm Digest algoritm to use
+* @return utf-8 string array with provided information
+*/
+char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm ) {
+  static char *results[CERT_INFO_SIZE];
+  SECOidData *oid;
+  int i;
+
+  if (!x509) {
+    DBG("Null certificate provided");
+    return NULL;
+  }
+  switch (type) {
+    case CERT_CN      : /* Certificate Common Name */
+      return cert_GetNameElements(&x509->subject, SEC_OID_AVA_COMMON_NAME);
+    case CERT_SUBJECT : /* Certificate subject */
+      results[0] = CERT_NameToAscii(&x509->subject);
+      results[1] = 0;
+      break;
+    case CERT_ISSUER : /* Certificate issuer */
+      results[0] = CERT_NameToAscii(&x509->issuer);
+      results[1] = 0;
+      break;
+    case CERT_SERIAL : /* Certificate serial number */
+      results[0] = bin2hex(x509->serialNumber.data, x509->serialNumber.len);
+      results[1] = 0;
+      break;
+    case CERT_KPN     : /* Kerberos principal name */
+      cert_fetchOID(&CERT_KerberosPN_OID, &kerberosPN_Entry);
+      return cert_GetNameElements(&x509->subject, CERT_KerberosPN_OID);
+    case CERT_EMAIL   : /* Certificate e-mail */
+      for (i=1, results[0] = CERT_GetFirstEmailAddress(x509);
+        results[i-1] && i < CERT_INFO_SIZE; i++) {
+        results[i] = CERT_GetNextEmailAddress(x509, results[i-1]);
+      }
+      results[i] = NULL;
+      for (i=0; results[i]; i++) {
+        results[i] = strdup(results[i]);
+      }
+      break;
+    /* need oid tag. */
+    case CERT_UPN     : /* Microsoft's Universal Principal Name */
+      cert_fetchOID(&CERT_MicrosoftUPN_OID ,& microsoftUPN_Entry);
+      return cert_GetNameElements(&x509->subject, CERT_MicrosoftUPN_OID);
+    case CERT_UID     : /* Certificate Unique Identifier */
+      return cert_GetNameElements(&x509->subject, SEC_OID_RFC1274_UID);
+      break;
+    case CERT_PUK     : /* Certificate Public Key */
+      return NULL;
+    case CERT_DIGEST  : /* Certificate Signature Digest */
+      if ( !algorithm ) {
+        DBG("Must specify digest algorithm");
+        return NULL;		
+      }
+      return cert_info_digest(x509,algorithm);
+    case CERT_KEY_ALG     :
+      oid = SECOID_FindOID(&x509->subjectPublicKeyInfo.algorithm.algorithm);
+      if (oid == NULL) {
+        results[0] = strdup("Unknown");
+      } else {
+        results[0] = strdup(oid->desc);
+      }
+      results[1] = 0;
+      break;
+    default           :
+      DBG1("Invalid info type requested: %d",type);
+      return NULL;
+    }
+  if (results[0] == NULL) {
+    return NULL;
+  }
+  return results;
+}
+#else
 #include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/err.h>
@@ -134,6 +317,23 @@ static char **cert_info_subject(X509 *x509) {
                 return NULL;
         }
         X509_NAME_oneline(subject, entries[0], 256 );
+	return entries;
+}
+
+/*
+* Extract Certificate's Issuer
+*/
+static char **cert_info_issuer(X509 *x509) {
+	X509_NAME *issuer;
+	static char *entries[2] = { NULL, NULL };
+	entries[0] = malloc(256);
+	if (!entries[0]) return NULL;
+        issuer = X509_get_issuer_name(x509);
+        if (!issuer) {
+                DBG("X509_get_issuer_name failed");
+                return NULL;
+        }
+        X509_NAME_oneline(issuer, entries[0], 256 );
 	return entries;
 }
 
@@ -265,6 +465,9 @@ static char **cert_info_upn(X509 *x509) {
 static char **cert_info_uid(X509 *x509) {
 	static char *results[CERT_INFO_SIZE];
 	int lastpos,position;
+        ASN1_STRING *str;
+        unsigned char *txt;
+	int uid_type = UID_TYPE;
         X509_NAME *name = X509_get_subject_name(x509);
         if (!name) {
 		DBG("Certificate has no subject");
@@ -272,10 +475,14 @@ static char **cert_info_uid(X509 *x509) {
 	}
 	for (position=0;position<CERT_INFO_SIZE;position++) results[position]= NULL;
 	position=0;
-	lastpos = X509_NAME_get_index_by_NID(name,UID_TYPE,-1);
+	lastpos = X509_NAME_get_index_by_NID(name,uid_type,-1);
 	if (lastpos == -1) {
-		DBG("Certificate has no UniqueID");
-		return NULL;
+		uid_type = NID_userId;
+		lastpos = X509_NAME_get_index_by_NID(name,uid_type,-1);
+		if (lastpos == -1) {
+			DBG("Certificate has no UniqueID");
+			return NULL;
+		}
 	}
 	while( ( lastpos != -1 ) && (position<CERT_INFO_MAX_ENTRIES) ) {
 	    X509_NAME_ENTRY *entry;
@@ -531,6 +738,17 @@ static char **cert_info_pem(X509 *x509) {
 	return entries;
 }
 
+/*
+* Return certificate in PEM format
+*/
+static char **cert_key_alg(X509 *x509) {
+	static char *entries[2] = { NULL,NULL };
+	char *alg = OBJ_nid2ln(
+                    OBJ_obj2nid(x509->cert_info->key->algor->algorithm));
+	entries[0]=strdup(alg);
+	return entries;
+}
+
 /**
 * request info on certificate
 * @param x509 	Certificate to parse
@@ -548,6 +766,11 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 		return cert_info_cn(x509);
 	    case CERT_SUBJECT : /* Certificate subject */
 		return cert_info_subject(x509);
+	    case CERT_ISSUER : /* Certificate issuer */
+		return cert_info_issuer(x509);
+	    case CERT_SERIAL : /* Certificate serial number */
+		/* fix me */
+		return NULL;
 	    case CERT_KPN     : /* Kerberos principal name */
 		return cert_info_kpn(x509);
 	    case CERT_EMAIL   : /* Certificate e-mail */
@@ -568,6 +791,8 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 		    return NULL;		
 		}
 		return cert_info_digest(x509,algorithm);
+	    case CERT_KEY_ALG     : /* certificate signature algorithm */
+		return cert_key_alg(x509);
 	    default           :
 		DBG1("Invalid info type requested: %d",type);
 		return NULL;
@@ -575,5 +800,5 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 	/* should not get here */
 	return NULL;
 }
-
-#endif /* __CERT_INFO_C_ */
+#endif /* HAVE_NSS */
+#endif /* _CERT_INFO_C */

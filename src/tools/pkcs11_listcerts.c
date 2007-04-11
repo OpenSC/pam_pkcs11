@@ -24,11 +24,9 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <openssl/x509.h>
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
-#include "../common/rsaref/pkcs11.h"
 #include "../common/pkcs11_lib.h"
 #include "../common/cert_info.h"
 #include "../pam_pkcs11/pam_config.h"
@@ -39,7 +37,8 @@ int main(int argc, const char **argv) {
   int ncerts;
   unsigned int slot_num = 0;
   struct configuration_st *configuration;
-  pkcs11_handle_t ph;
+  pkcs11_handle_t *ph;
+  cert_object_t **certs;
 
   /* first of all check whether debugging should be enabled */
   for (i = 0; i < argc; i++)
@@ -55,8 +54,11 @@ int main(int argc, const char **argv) {
   }
 
   /* init openssl */
-  OpenSSL_add_all_algorithms();
-  ERR_load_crypto_strings();
+  rv = crypto_init(&configuration->policy);
+  if (rv != 0) {
+    DBG("Couldn't initialize crypto module ");
+    return 1;
+  }
 
   /* load pkcs #11 module */
   DBG("loading pkcs #11 module...");
@@ -68,57 +70,57 @@ int main(int argc, const char **argv) {
 
   /* initialise pkcs #11 module */
   DBG("initialising pkcs #11 module...");
-  rv = init_pkcs11_module(&ph,configuration->support_threads);
+  rv = init_pkcs11_module(ph,configuration->support_threads);
   if (rv != 0) {
-    release_pkcs11_module(&ph);
+    release_pkcs11_module(ph);
     DBG1("init_pkcs11_module() failed: %s", get_error());
     return 1;
   }
 
   /* open pkcs #11 session */
-  slot_num= configuration->slot_num;
-  if (slot_num == 0) {
-    DBG("using the first slot with an available token");
-    for (slot_num = 0; slot_num < ph.slot_count && !ph.slots[slot_num].token_present; slot_num++);
-    if (slot_num >= ph.slot_count) {
-      release_pkcs11_module(&ph);
-      DBG("no token available");
-      return 1;
-    }
-  } else {
-    slot_num--;
-  }
-  rv = open_pkcs11_session(&ph, slot_num);
+  rv = find_slot_by_number(ph, configuration->slot_num, &slot_num);
   if (rv != 0) {
-    release_pkcs11_module(&ph);
+    release_pkcs11_module(ph);
+    DBG("no token available");
+    return 1;
+  }
+
+  rv = open_pkcs11_session(ph, slot_num);
+  if (rv != 0) {
+    release_pkcs11_module(ph);
     DBG1("open_pkcs11_session() failed: %s", get_error());
     return 1;
   }
 
-  /* get certificate list */
-  rv = get_certificates(&ph);
-  if (rv<0) {
-    close_pkcs11_session(&ph);
-    release_pkcs11_module(&ph);
-    DBG1("get_certificates() failed: %s", get_error());
-    return 3;
-  }
-
   /* do login */
-  rv= pkcs11_pass_login(&ph,configuration->nullok);
+  rv = pkcs11_pass_login(ph,configuration->nullok);
   if (rv<0){
     DBG1("Login failed: %s",get_error());
     return 4;
   }
 
+  /* get certificate list */
+  certs = get_certificate_list(ph, &ncerts);
+  if (certs == NULL) {
+    close_pkcs11_session(ph);
+    release_pkcs11_module(ph);
+    DBG1("get_certificates() failed: %s", get_error());
+    return 3;
+  }
+
   /* print some info on found certificates */
-  DBG1("Found '%d' certificate(s)",ph.cert_count);
-  for(i =0; i<ph.cert_count;i++) {
-    X509 *cert=ph.certs[i].x509;
+  DBG1("Found '%d' certificate(s)", ncerts);
+  for(i =0; i< ncerts;i++) {
+    char **name;
+    X509 *cert=get_X509_certificate(certs[i]);
+    
     DBG1("Certificate #%d:", i+1);
-    DBG1("- Subject:   %s", X509_NAME_oneline(X509_get_subject_name(cert), NULL, 0));
-    DBG1("- Issuer:    %s", X509_NAME_oneline(X509_get_issuer_name(cert), NULL, 0));
-    DBG1("- Algorithm: %s", OBJ_nid2ln(OBJ_obj2nid(cert->cert_info->key->algor->algorithm)));
+    name = cert_info(cert, CERT_SUBJECT, ALGORITHM_NULL);
+    DBG1("- Subject:   %s", name[0]); free(name[0]);
+    name = cert_info(cert, CERT_ISSUER, ALGORITHM_NULL);
+    DBG1("- Issuer:    %s", name[0]); free(name[0]);
+    name = cert_info(cert, CERT_KEY_ALG, ALGORITHM_NULL);
+    DBG1("- Algorithm: %s", name[0]); free(name[0]);
     rv = verify_certificate(cert,&configuration->policy);
     if (rv < 0) {
         DBG1("verify_certificate() process error: %s", get_error());
@@ -127,31 +129,30 @@ int main(int argc, const char **argv) {
         DBG1("verify_certificate() failed: %s", get_error());
         continue; /* try next certificate */
     }
-    ph.choosen_cert=&ph.certs[i];
-    rv = get_private_key(&ph);
+    rv = get_private_key(ph, certs[i]);
     if (rv<0) {
 	DBG1("Certificate '%d'does not have associated private key",i+1);
     }
   } /* for */
 
   /* close pkcs #11 session */
-  rv = close_pkcs11_session(&ph);
+  rv = close_pkcs11_session(ph);
   if (rv != 0) {
-    release_pkcs11_module(&ph);
+    release_pkcs11_module(ph);
     DBG1("close_pkcs11_session() failed: %s", get_error());
     return 4;
   }
 
   /* release pkcs #11 module */
   DBG("releasing pkcs #11 module...");
-  release_pkcs11_module(&ph);
+  release_pkcs11_module(ph);
 
   DBG("Process completed");
   return 0;
 
 auth_failed:
-  close_pkcs11_session(&ph);
-  release_pkcs11_module(&ph);
+  close_pkcs11_session(ph);
+  release_pkcs11_module(ph);
   return 5;
 
 }

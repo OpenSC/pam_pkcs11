@@ -26,7 +26,7 @@
 #include <config.h>
 #endif
 
-#include <openssl/x509.h>
+#include "../common/cert_st.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"

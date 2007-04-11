@@ -28,9 +28,7 @@
 
 #include <pwd.h>
 #include <sys/types.h>
-#include <openssl/objects.h>
-#include <openssl/err.h>
-#include <openssl/x509v3.h>
+#include "../common/cert_st.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
@@ -54,7 +52,7 @@ static int debug = 0;
 * Returns the common name of certificate as an array list
 */
 static char ** pwent_mapper_find_entries(X509 *x509, void *context) {
-        char **entries= cert_info(x509,CERT_CN,NULL);
+        char **entries= cert_info(x509,CERT_CN,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_common_name() failed");
                 return NULL;
@@ -68,7 +66,7 @@ parses the certificate and return the _first_ CN entry found, or NULL
 static char * pwent_mapper_find_user(X509 *x509,void *context) {
         char *str;
 	char *found_user = NULL;
-        char **entries  = cert_info(x509,CERT_CN,NULL);
+        char **entries  = cert_info(x509,CERT_CN,ALGORITHM_NULL);
         if (!entries) {
             DBG("get_common_name() failed");
             return NULL;
@@ -100,7 +98,7 @@ static char * pwent_mapper_find_user(X509 *x509,void *context) {
 static int pwent_mapper_match_user(X509 *x509, const char *login, void *context) {
         char *str;
 	struct passwd *pw = getpwnam(login); 
-        char **entries  = cert_info(x509,CERT_CN,NULL);
+        char **entries  = cert_info(x509,CERT_CN,ALGORITHM_NULL);
         if (!entries) {
             DBG("get_common_name() failed");
             return -1;

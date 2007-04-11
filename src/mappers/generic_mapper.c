@@ -26,8 +26,8 @@
 #include <config.h>
 #endif
 
-#include <openssl/evp.h>
-#include <openssl/x509.h>
+/*#include <openssl/evp.h> */
+#include "../common/cert_st.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
@@ -51,7 +51,7 @@ static char **generic_mapper_find_entries(X509 *x509, void *context) {
                 DBG("NULL certificate provided");
                 return NULL;
         }
-	return cert_info(x509, id_type, NULL); 
+	return cert_info(x509, id_type, ALGORITHM_NULL); 
 }
 
 static char **get_mapped_entries(char **entries) {
