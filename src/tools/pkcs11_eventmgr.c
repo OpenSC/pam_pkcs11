@@ -499,7 +499,7 @@ int main(int argc, char *argv[]) {
     parse_args(argc,argv);
     /* load pkcs11 module */
     DBG("loading pkcs #11 module...");
-    rv = load_pkcs11_module(pkcs11_module, ph);
+    rv = load_pkcs11_module(pkcs11_module, &ph);
     if (rv != 0) {
         DBG1("load_pkcs11_module() failed: %s", get_error());
         return 1;
