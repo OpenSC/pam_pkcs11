@@ -390,7 +390,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   DBG("authentication succeeded");
   return PAM_SUCCESS;
 
-auth_failed:
     /* quick and dirty fail exit point */
     memset(password, 0, strlen(password));
     free(password); /* erase and free in-memory password data */
