@@ -30,6 +30,10 @@
 #include "../common/debug.h"
 #include "../common/error.h"
 
+#ifdef HAVE_NSS
+#include <nss/secmod.h>
+#endif
+
 #define DEF_POLLING 1    /* 1 second timeout */
 #define DEF_EXPIRE 0    /* no expire */
 #define DEF_PKCS11_MODULE "/usr/lib/opensc-pkcs11.so"
