@@ -43,13 +43,13 @@
 * @param format String to be stored
 * @param ... Additional parameters
 */
-ERROR_EXTERN void set_error(char *format, ...);
+ERROR_EXTERN void set_error(const char *format, ...);
 
 /**
 * Retrieve error message string from buffer
 *@return Error message
 */
-ERROR_EXTERN const char *get_error();
+ERROR_EXTERN const char *get_error(void);
 
 #undef ERROR_EXTERN
 #endif /* __ERROR_H_ */

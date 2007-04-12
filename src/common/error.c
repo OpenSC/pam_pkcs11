@@ -27,7 +27,7 @@ static char error_buffer[ERROR_BUFFER_SIZE] = "";
 * @param format String to be stored
 * @param ... Additional parameters
 */
-void set_error(char *format, ...) {
+void set_error(const char *format, ...) {
   static char tmp[ERROR_BUFFER_SIZE];
   va_list ap;
   va_start(ap, format);
@@ -40,6 +40,6 @@ void set_error(char *format, ...) {
 * Retrieve error message string from buffer
 *@return Error message
 */
-const char *get_error() {
+const char *get_error(void) {
   return (const char *)error_buffer;
 }
