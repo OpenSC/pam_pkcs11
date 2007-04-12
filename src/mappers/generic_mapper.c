@@ -72,7 +72,7 @@ static char **get_mapped_entries(char **entries) {
 	if ( usepwent==0 ) {
 	    DBG("Use Naming Services is disabled");
 	} else {
-	    char *res=NULL;
+	    res=NULL;
 	    DBG("Using Naming Services");
 	    for(n=0,entry=entries[n];entry;entry=entries[++n]) {
 		res = search_pw_entry(entry,ignorecase);
