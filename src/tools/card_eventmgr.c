@@ -61,7 +61,7 @@ SCARDCONTEXT hContext;
 char *pidfile = NULL;
 char AraKiri = FALSE;
 
-void thats_all_folks() {
+static void thats_all_folks() {
     int rv;
     DBG("Exitting");
     /* We try to leave things as clean as possible */
@@ -75,7 +75,7 @@ void thats_all_folks() {
 	scconf_free(ctx);
 }
 
-int my_system(char *command) {
+static int my_system(char *command) {
 	extern char **environ;
 	int pid, status;
 	   if (!command) return 1;
@@ -97,7 +97,7 @@ int my_system(char *command) {
            } while(1);
 }
 
-int execute_event (char *action) {
+static int execute_event (const char *action) {
 	int onerr;
 	const char *onerrorstr;
 	const scconf_list *actionlist;
@@ -154,7 +154,7 @@ int execute_event (char *action) {
 	return 0;
 }
 
-int parse_config_file() {
+static int parse_config_file() {
         ctx = scconf_new(cfgfile);
         if (!ctx) {
            DBG("Error creating conf context");
@@ -178,7 +178,7 @@ int parse_config_file() {
 	return 0;
 }
 
-int parse_args(int argc, char *argv[]) {
+static int parse_args(int argc, char *argv[]) {
 	int i;
 	timeout = DEF_TIMEOUT;
 	timeout_limit = 0;
@@ -248,7 +248,7 @@ int parse_args(int argc, char *argv[]) {
 	return 0;
 }
 
-pid_t read_pidfile(char *filename)
+static pid_t read_pidfile(char *filename)
 {
     FILE *fd;
     pid_t pid;
@@ -270,13 +270,13 @@ pid_t read_pidfile(char *filename)
     return pid;
 }
 
-void remove_pidfile(char *filename)
+static void remove_pidfile(char *filename)
 {
     if (unlink(filename))
 	DBG2("Can't unlink pidfile %s: %s", filename, strerror(errno));
 }
 
-void create_pidfile(char *filename)
+static void create_pidfile(char *filename)
 {
     int fd;
     int res;
@@ -297,7 +297,7 @@ void create_pidfile(char *filename)
     close(fd);
 }
 
-void signal_trap(int sig)
+static void signal_trap(int sig)
 {
     if (FALSE == AraKiri)
     {
