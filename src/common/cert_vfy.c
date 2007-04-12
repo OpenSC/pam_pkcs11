@@ -318,7 +318,7 @@ static int add_file( X509_LOOKUP *lookup, char *file) {
   return 1;
 }
 
-X509_STORE * setup_store(cert_policy *policy) {
+static X509_STORE * setup_store(cert_policy *policy) {
   int rv;
   X509_STORE *store = NULL;
   X509_LOOKUP *lookup = NULL;
