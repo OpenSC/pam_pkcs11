@@ -137,7 +137,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   /* call configure routines */
   configuration = pk_configure(argc,argv);
   if (!configuration ) {
-	DBG("Error setting configuration parameters");
+	ERR("Error setting configuration parameters");
 	return PAM_AUTHINFO_UNAVAIL;
   }
   /* open log */
@@ -161,7 +161,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   /* init openssl */
   rv = crypto_init(&configuration->policy);
   if (rv != 0) {
-    DBG("Failed to initialize crypto");
+    ERR("Failed to initialize crypto");
     syslog(LOG_ERR, "Failed to initialize crypto");
     return PAM_AUTHINFO_UNAVAIL;
   }
@@ -178,7 +178,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   DBG("loading pkcs #11 module...");
   rv = load_pkcs11_module(configuration->pkcs11_modulepath, &ph);
   if (rv != 0) {
-    DBG1("load_pkcs11_module() failed: %s", get_error());
+    ERR1("load_pkcs11_module() failed: %s", get_error());
     syslog(LOG_ERR, "load_pkcs11_module() failed: %s", get_error());
     return PAM_AUTHINFO_UNAVAIL;
   }
@@ -188,7 +188,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   rv = init_pkcs11_module(ph,configuration->support_threads);
   if (rv != 0) {
     release_pkcs11_module(ph);
-    DBG1("init_pkcs11_module() failed: %s", get_error());
+    ERR1("init_pkcs11_module() failed: %s", get_error());
     syslog(LOG_ERR, "init_pkcs11_module() failed: %s", get_error());
     return PAM_AUTHINFO_UNAVAIL;
   }
@@ -197,14 +197,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   rv = find_slot_by_number(ph, configuration->slot_num, &slot_num);
   if (rv != 0) {
     release_pkcs11_module(ph);
-    DBG("no token available");
+    ERR("no token available");
     syslog(LOG_ERR, "no token available");
     return PAM_AUTHINFO_UNAVAIL;
   }
   rv = open_pkcs11_session(ph, slot_num);
   if (rv != 0) {
     release_pkcs11_module(ph);
-    DBG1("open_pkcs11_session() failed: %s", get_error());
+    ERR1("open_pkcs11_session() failed: %s", get_error());
     syslog(LOG_ERR, "open_pkcs11_session() failed: %s", get_error());
     return PAM_AUTHINFO_UNAVAIL;
   }
@@ -244,14 +244,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   memset(password, 0, strlen(password));
   free(password); 
   if (rv != 0) {
-    DBG1("open_pkcs11_login() failed: %s", get_error());
+    ERR1("open_pkcs11_login() failed: %s", get_error());
     syslog(LOG_ERR, "open_pkcs11_login() failed: %s", get_error());
     goto auth_failed_nopw;
   }
 
   cert_list = get_certificate_list(ph, &ncert);
   if (rv<0) {
-    DBG1("get_certificate_list() failed: %s", get_error());
+    ERR1("get_certificate_list() failed: %s", get_error());
     syslog(LOG_ERR, "get_certificate_list() failed: %s", get_error());
     goto auth_failed_nopw;
   }
@@ -268,11 +268,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       /* verify certificate (date, signature, CRL, ...) */
       rv = verify_certificate(x509,&configuration->policy);
       if (rv < 0) {
-        DBG1("verify_certificate() failed: %s", get_error());
+        ERR1("verify_certificate() failed: %s", get_error());
         syslog(LOG_ERR, "verify_certificate() failed: %s", get_error());
 	goto auth_failed_nopw;
       } else if (rv != 1) {
-        DBG1("verify_certificate() failed: %s", get_error());
+        ERR1("verify_certificate() failed: %s", get_error());
         continue; /* try next certificate */
       }
 
@@ -286,7 +286,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	DBG("Empty login: try to deduce from certificate");
 	user=find_user(x509);
 	if (!user) {
-          DBG2("find_user() failed: %s on cert #%d", get_error(),i+1);
+          ERR2("find_user() failed: %s on cert #%d", get_error(),i+1);
           syslog(LOG_ERR,"find_user() failed: %s on cert #%d",get_error(),i+1);
 	  continue; /* try on next certificate */
 	} else {
@@ -294,7 +294,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	  /* try to set up PAM user entry with evaluated value */
   	  rv = pam_set_item(pamh, PAM_USER,(const void *)user);
 	  if (rv != PAM_SUCCESS) {
-	    DBG1("pam_set_item() failed %s", pam_strerror(pamh, rv));
+	    ERR1("pam_set_item() failed %s", pam_strerror(pamh, rv));
 	    syslog(LOG_ERR, "pam_set_item() failed %s", pam_strerror(pamh, rv));
 	    goto auth_failed_nopw;
 	}
@@ -306,7 +306,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
          check whether the certificate matches the user */
         rv = match_user(x509, user);
         if (rv < 0) { /* match error; abort and return */
-          DBG1("match_user() failed: %s", get_error());
+          ERR1("match_user() failed: %s", get_error());
           syslog(LOG_ERR, "match_user() failed: %s", get_error());
 	  goto auth_failed_nopw;
         } else if (rv == 0) { /* match didn't success */
@@ -322,7 +322,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
   /* now myCert points to our found certificate or null if no user found */
   if (!chosen_cert) {
-    DBG("no valid certificate which meets all requirements found");
+    ERR("no valid certificate which meets all requirements found");
     syslog(LOG_ERR, "no valid certificate which meets all requirements found");
     goto auth_failed_nopw;
   }
@@ -334,7 +334,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 #ifdef notdef
     rv = get_private_key(ph);
     if (rv != 0) {
-      DBG1("get_private_key() failed: %s", get_error());
+      ERR1("get_private_key() failed: %s", get_error());
       syslog(LOG_ERR, "get_private_key() failed: %s", get_error());
       goto auth_failed_nopw;
     }
@@ -343,7 +343,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     /* read random value */
     rv = get_random_value(random_value, sizeof(random_value));
     if (rv != 0) {
-      DBG1("get_random_value() failed: %s", get_error());
+      ERR1("get_random_value() failed: %s", get_error());
       syslog(LOG_ERR, "get_random_value() failed: %s", get_error());
       goto auth_failed_nopw;
     }
@@ -353,7 +353,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     rv = sign_value(ph, chosen_cert, random_value, sizeof(random_value), 
 		    &signature, &signature_length);
     if (rv != 0) {
-      DBG1("sign_value() failed: %s", get_error());
+      ERR1("sign_value() failed: %s", get_error());
       syslog(LOG_ERR, "sign_value() failed: %s", get_error());
       goto auth_failed_nopw;
     }
@@ -366,7 +366,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     if (rv != 0) {
       close_pkcs11_session(ph);
       release_pkcs11_module(ph);
-      DBG1("verify_signature() failed: %s", get_error());
+      ERR1("verify_signature() failed: %s", get_error());
       syslog(LOG_ERR, "verify_signature() failed: %s", get_error());
       return PAM_AUTH_ERR;
     }
@@ -379,7 +379,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   rv = close_pkcs11_session(ph);
   if (rv != 0) {
     release_pkcs11_module(ph);
-    DBG1("close_pkcs11_session() failed: %s", get_error());
+    ERR1("close_pkcs11_session() failed: %s", get_error());
     syslog(LOG_ERR, "close_pkcs11_module() failed: %s", get_error());
     return PAM_AUTHINFO_UNAVAIL;
   }
@@ -411,7 +411,7 @@ PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const cha
 
 PAM_EXTERN int pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
-  DBG("Warning: Function pm_sm_acct_mgmt() is not implemented in this module");
+  ERR("Warning: Function pm_sm_acct_mgmt() is not implemented in this module");
   openlog(LOGNAME, LOG_CONS | LOG_PID, LOG_AUTHPRIV);
   syslog(LOG_WARNING, "Function pm_sm_acct_mgmt() is not implemented in this module");
   closelog();
@@ -420,7 +420,7 @@ PAM_EXTERN int pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const c
 
 PAM_EXTERN int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
-  DBG("Warning: Function pam_sm_open_session() is not implemented in this module");
+  ERR("Warning: Function pam_sm_open_session() is not implemented in this module");
   openlog(LOGNAME, LOG_CONS | LOG_PID, LOG_AUTHPRIV);
   syslog(LOG_WARNING, "Function pm_sm_open_session() is not implemented in this module");
   closelog();
@@ -429,7 +429,7 @@ PAM_EXTERN int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, cons
 
 PAM_EXTERN int pam_sm_close_session(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
-  DBG("Warning: Function pam_sm_close_session() is not implemented in this module");
+  ERR("Warning: Function pam_sm_close_session() is not implemented in this module");
   openlog(LOGNAME, LOG_CONS | LOG_PID, LOG_AUTHPRIV);
   syslog(LOG_WARNING, "Function pm_sm_close_session() is not implemented in this module");
   closelog();
@@ -438,7 +438,7 @@ PAM_EXTERN int pam_sm_close_session(pam_handle_t *pamh, int flags, int argc, con
 
 PAM_EXTERN int pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
-  DBG("Warning: Function pam_sm_chauthtok() is not implemented in this module");
+  ERR("Warning: Function pam_sm_chauthtok() is not implemented in this module");
   openlog(LOGNAME, LOG_CONS | LOG_PID, LOG_AUTHPRIV);
   syslog(LOG_WARNING, "Function pam_sm_chauthtok() is not implemented in this module");
   closelog();
