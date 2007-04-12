@@ -151,8 +151,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
 	  if (display && (display[0] != ':') && (display[0] != '\0'))
 	  {
+		ERR1("Remote login (from %s) is not (yet) supported", display);
 		syslog(LOG_ERR, "Remote login (from %s) is not (yet) supported",
-			getenv("DISPLAY"));
+			display);
 		return PAM_AUTHINFO_UNAVAIL;
 	  }
   }
