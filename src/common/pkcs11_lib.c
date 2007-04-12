@@ -883,7 +883,7 @@ static void free_certs(cert_object_t **certs, int cert_count)
 
 int close_pkcs11_session(pkcs11_handle_t *h)
 {
-  int rv, i;
+  int rv;
 
   /* close user-session */
   DBG("logout user");
@@ -1085,8 +1085,6 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
   };
   CK_OBJECT_HANDLE object;
   CK_ULONG object_count;
-  CK_BYTE *key_id;
-  cert_object_t *keys;
   int rv;
 
   if (cert->private_key != CK_INVALID_HANDLE) {
