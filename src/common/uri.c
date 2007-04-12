@@ -25,7 +25,7 @@
 #include "error.h"
 #include "strings.h"
 
-static char *valid_urls[]= 
+static const char *valid_urls[]= 
 		{"file:///","http://","https://","ftp://","ldap://",NULL};
 /* 
 comodity functions 
