@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <syslog.h>
+#include <unistd.h>
 
 /* current debug level */
 static int debug_level = 0;
