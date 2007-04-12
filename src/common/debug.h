@@ -12,7 +12,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * $Id:$
+ * $Id$
  */
 
 /**
@@ -90,7 +90,7 @@ DEBUG_EXTERN int get_debug_level(void);
  *@param format Message format
  *@param .... Optional arguments
  */
-DEBUG_EXTERN void debug_print(int level, char *file, int line, char *format, ...);
+DEBUG_EXTERN void debug_print(int level, const char *file, int line, const char *format, ...);
 
 #undef DEBUG_EXTERN
 

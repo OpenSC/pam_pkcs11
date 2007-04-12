@@ -31,7 +31,7 @@ int get_debug_level() {
 	return debug_level;
 }
 
-void debug_print(int level, char *file, int line, char *format, ...) {
+void debug_print(int level, const char *file, int line, const char *format, ...) {
   va_list ap;
   if (debug_level >= level) {
     /* is stdout is a tty */
