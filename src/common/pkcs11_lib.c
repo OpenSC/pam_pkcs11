@@ -637,7 +637,7 @@ int load_pkcs11_module(char *module, pkcs11_handle_t **hp)
 {
   int rv;
   struct stat module_stat;
-  CK_C_GetFunctionList C_GetFunctionList;
+  CK_C_GetFunctionList C_GetFunctionList_ptr;
   pkcs11_handle_t *h;
 
   DBG1("PKCS #11 module = [%s]", module);
@@ -675,13 +675,13 @@ int load_pkcs11_module(char *module, pkcs11_handle_t **hp)
   }
   /* try to get the function list */
   DBG("getting function list");
-  C_GetFunctionList = (CK_C_GetFunctionList)dlsym(h->module_handle, "C_GetFunctionList");
-  if (C_GetFunctionList == NULL) {
+  C_GetFunctionList_ptr = (CK_C_GetFunctionList)dlsym(h->module_handle, "C_GetFunctionList");
+  if (C_GetFunctionList_ptr == NULL) {
     set_error("dlsym() failed: %s", dlerror());
     free(h);
     return -1;
   }
-  rv = C_GetFunctionList(&h->fl);
+  rv = C_GetFunctionList_ptr(&h->fl);
   if (rv != CKR_OK) {
     set_error("C_GetFunctionList() failed: %x", rv);
     free(h);
