@@ -631,6 +631,7 @@ int crypto_init(cert_policy *policy)
   /* arg is ignored for OPENSSL */
   OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
+  return 0;
 }
 
 int load_pkcs11_module(char *module, pkcs11_handle_t **hp)
