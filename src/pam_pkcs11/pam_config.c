@@ -48,7 +48,7 @@ struct configuration_st configuration = {
 	NULL				/* char *username */
 };
 
-void display_config () {
+static void display_config () {
         DBG1("debug %d",configuration.debug);
         DBG1("nullok %d",configuration.nullok);
         DBG1("try_first_pass %d",configuration.try_first_pass);
@@ -69,7 +69,7 @@ void display_config () {
 /*
 parse configuration file
 */
-void parse_config_file() {
+static void parse_config_file() {
 	scconf_block **pkcs11_mblocks,*pkcs11_mblk;
 	const scconf_list *mapper_list;
 	const scconf_list *policy_list;
