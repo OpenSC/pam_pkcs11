@@ -17,6 +17,7 @@
 
 #define __URI_C_
 
+#include <stdio.h>
 #include <sys/stat.h>
 #include <string.h>
 
