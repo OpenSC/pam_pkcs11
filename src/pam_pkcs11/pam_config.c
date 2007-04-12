@@ -48,7 +48,8 @@ struct configuration_st configuration = {
 	NULL				/* char *username */
 };
 
-static void display_config () {
+#if 0
+static void display_config (void) {
         DBG1("debug %d",configuration.debug);
         DBG1("nullok %d",configuration.nullok);
         DBG1("try_first_pass %d",configuration.try_first_pass);
@@ -65,11 +66,12 @@ static void display_config () {
         DBG1("signature_policy %d",configuration.policy.signature_policy);
         DBG1("ocsp_policy %d",configuration.policy.ocsp_policy);
 }
+#endif
 
 /*
 parse configuration file
 */
-static void parse_config_file() {
+static void parse_config_file(void) {
 	scconf_block **pkcs11_mblocks,*pkcs11_mblk;
 	const scconf_list *mapper_list;
 	const scconf_list *policy_list;
