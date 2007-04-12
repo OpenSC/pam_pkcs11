@@ -465,8 +465,6 @@ static char **cert_info_upn(X509 *x509) {
 static char **cert_info_uid(X509 *x509) {
 	static char *results[CERT_INFO_SIZE];
 	int lastpos,position;
-        ASN1_STRING *str;
-        unsigned char *txt;
 	int uid_type = UID_TYPE;
         X509_NAME *name = X509_get_subject_name(x509);
         if (!name) {
