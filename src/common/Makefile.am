@@ -8,7 +8,8 @@ AM_CPPFLAGS = $(CRYPTO_CFLAGS)
 SUBDIRS = . rsaref
 
 noinst_HEADERS = debug.h error.h uri.h strings.h \
-	cert_vfy.h cert_info.h base64.h pkcs11_lib.h
+	cert_vfy.h cert_info.h base64.h pkcs11_lib.h \
+	cert_st.h alg_st.h SSLerrs.h SECerrs.h NSPRerrs.h
 
 noinst_PROGRAMS = 
 noinst_LTLIBRARIES = libcommon.la
