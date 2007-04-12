@@ -108,7 +108,7 @@ mapper_module * mapper_module_init(scconf_block *blk,const char *mapper_name) {
 mapper_module * digest_mapper_module_init(scconf_block *blk,const char *mapper_name) {
 #endif
 	mapper_module *pt;
-	const char *hash_alg_string;
+	const char *hash_alg_string = NULL;
 	if (blk) { 
 	debug = scconf_get_bool( blk,"debug",0);
 	hash_alg_string = scconf_get_str( blk,"algorithm","sha1");
