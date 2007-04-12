@@ -93,7 +93,7 @@ int main(int argc, const char **argv) {
     return 1;
   }
 
-#if HAVE_NSS
+#ifdef HAVE_NSS
   /* not really needed, but.... */
   rv = pkcs11_pass_login(ph,configuration->nullok);
   if (rv != 0) {
