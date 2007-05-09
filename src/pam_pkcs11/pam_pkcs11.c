@@ -310,7 +310,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
           syslog(LOG_ERR, "match_user() failed: %s", get_error());
 	  goto auth_failed_nopw;
         } else if (rv == 0) { /* match didn't success */
-          DBG("certificate is valid bus does not match the user");
+          DBG("certificate is valid but does not match the user");
 	  continue; /* try next certificate */
         } else { /* match success */
           DBG("certificate is valid and matches the user");
