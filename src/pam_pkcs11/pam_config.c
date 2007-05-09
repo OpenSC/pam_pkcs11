@@ -211,7 +211,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		set_debug_level(0);
 		continue;
 	   }
-	   if (strstr(argv[i],"pcs11_module=") ) {
+	   if (strstr(argv[i],"pkcs11_module=") ) {
 		res=sscanf(argv[i],"pkcs11_module=%255s",configuration.pkcs11_module);
 		continue;
 	   }
