@@ -128,7 +128,7 @@ static int mail_mapper_match_user(X509 *x509, const char *login, void *context) 
                 DBG("get_email() failed");
                 return 0;
         }
-	DBG1("Trying to finf match for user '%s'",login);
+	DBG1("Trying to find match for user '%s'",login);
 	for (item=*entries;item;item=*++entries) {
 	    DBG1("Trying to match email entry '%s'",item);
 	    str= mapfile_find(mapfile,item,ignorecase);
