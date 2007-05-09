@@ -181,24 +181,46 @@ pam_pkcs11 {
   mapper ldap {
 	debug = false;
 	module = /usr/lib/pam_pkcs11/ldap_mapper.so;
-	# where base directory resides
-	basedir = /etc/pam_pkcs11/mapdir;
-	# hostname of ldap server
-        ldaphost = "localhost";
-	# Port on ldap server to connect
-        ldapport = 389;
-        # Scope of search: 0 = x, 1 = y, 2 = z
-        scope = 2;
-	# DN to bind with. Must have read-access for user entries under "base"
-        binddn = "cn=pam,o=example,c=com";
+	# hostname of ldap server (use LDAP-URI for more then one)
+	ldaphost = "";
+	# Port on ldap server to connect, this is also the default
+	#   if no port is given in URI below
+	#   if empty, then 389 for TLS and 636 for SSL is used
+	ldapport = ;
+	# space separted list of LDAP URIs (URIs are used by given order)
+	URI = "";
+	# Scope of search: 0-2
+	#   Default is 1 = "one", meaning the set of records one
+	#   level below the basedn.
+	#   0 = "base"  means search only the basedn, and
+	#   2 = "sub"  means the union of entries at the "base" level
+	#   and ? all or "one" level below ??? FIXME
+	scope = 2;
+	# DN to bind with. Must have read-access for user entries
+	# under "base"
+	binddn = "cn=pam,o=example,c=com";
 	# Password for above DN
-        passwd = "test";
+	passwd = "";
 	# Searchbase for user entries
-        base = "ou=People,o=example,c=com";
+	base = "ou=People,o=example,c=com";
 	# Attribute of user entry which contains the certificate
-        attribute = "userCertificate";
-	# Searchfilter for user entry. Must only let pass user entry for the login user.
-        filter = "(&(objectClass=posixAccount)(uid=%s))"
+	attribute = "userCertificate";
+	# Searchfilter for user entry. Must only let pass user entry
+	# for the login user.
+	filter = "(&(objectClass=posixAccount)(uid=%s))"
+	# SSL/TLS-Switch
+	#   This is a global switch, you can't switch between
+	#   SSL or TLS and non secured connections per URI!
+	#   values: off (standard), tls or on (ssl) or ssl
+	ssl = tls
+	# SSL specific settings
+	# tls_randfile = ...
+	tls_cacertfile = /etc/ssl/cacert.pem
+	# tls_cacertdir = ...
+	tls_checkpeer = 0
+	#tls_ciphers = ...
+	#tls_cert = ...
+	#tls_key = ...
   }
 
   # Assume common name (CN) to be the login

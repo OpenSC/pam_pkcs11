@@ -1663,6 +1663,184 @@ Uses an LDAP server to retrieve user name. An additional file tells
 <para>
 	This mapper is still under development.
 </para>
+<para>
+ldap_mapper configuration file shows like:
+<screen>
+  # Directory ( ldap style ) mapper
+  mapper ldap {
+        debug = false;
+        module = /usr/lib/pam_pkcs11/ldap_mapper.so;
+        ldaphost = "";
+        ldapport = ;
+        URI = "";
+        scope = 2;
+        binddn = "cn=pam,o=example,c=com";
+        passwd = "";
+        base = "ou=People,o=example,c=com";
+        attribute = "userCertificate";
+        filter = "<![CDATA[(&(objectClass=posixAccount)(uid=%s))]]>"
+        # SSL/TLS-Settings
+        ssl = tls
+        # tls_randfile = ...
+        tls_cacertfile = /etc/ssl/cacert.pem
+        # tls_cacertdir = ...
+        tls_checkpeer = 0
+        #tls_ciphers = ...
+        #tls_cert = ...
+        #tls_key = ...
+  }
+</screen>
+The following options are recognized by
+
+<varlistentry>
+<term><token>ldaphost</token></term>
+<listitem>The FQDN (hostname) oder IP-address of the ldap server.</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>URI</token></term>
+<listitem>A space separated list of LDAP URIs. The URIs are used in the given order.
+If a ldaphost is also submitted, it will be appended to the URI list.
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>ldapport</token></term>
+<listitem>The LDAP Port on the server (default:
+389 for LDAP and LDAP-TLS and 636 for SSL)
+</listitem>
+</varlistentry>
+
+<varlistentry>
+ <term><token>scope</token></term>
+ <listitem>Scope of search: 0-2
+	<itemizedlist>
+		<listitem><option> 0 </option> "base", search only the basedn
+		</listitem>
+	
+		<listitem><option> 1 </option> "one", only the set of records one
+	    level below the basedn is searched (default) 
+	    </listitem>
+	
+		<listitem><option> 2 </option> "sub"  means the union of entries 
+		at the "base" level and all levels below are searched 
+		</listitem>
+	</itemizedlist>
+ </listitem>
+	
+</varlistentry>
+
+<varlistentry>
+<term><token>binddn</token></term>
+<listitem>The bind-DN if needed.
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>passwd</token></term>
+<listitem>Password for bind-DN
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>base</token></term>
+<listitem>The DN of the searchbase (see scope)
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>attribute</token></term>
+<listitem>The user attribute in LDAP entry, which contains 
+the certificate. This can be an multi-value attribute. That
+implies you can store more than one certificate under this
+attribute. All certificates are utilized.
+</listitem>
+</varlistentry>
+
+
+<varlistentry>
+<term><token>filter</token></term>
+<listitem>LDAP filter string. You can use ist to restrict
+the entries returned by the LDAP server, e.g. by checking
+other attributes of the user entry.
+%s is substituted by the user name.
+
+<![CDATA[(&(objectClass=posixAccount)(uid=%s))]]>
+means, only that
+LDAP entry is returned which has an objectClass 
+"posixAccount" and the uid with the user name.
+
+<lineannotation>IMPORTANT NOTE:</lineannotation> The filter string
+must be choosen in such a way that only one entry for the user is 
+returned. If an user has more certifactes than these should be 
+collected under the attribute.
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>ssl</token></term>
+<listitem>Enable or disable the usage of TLS or SSL
+	<itemizedlist>
+		<listitem><option> off </option>   TLS/SSL off(default)
+		</listitem>
+	
+		<listitem><option> tls </option>   enable TLS 
+	    </listitem>
+	
+		<listitem><option> on|ssl </option>   enable SSL
+		</listitem>
+	</itemizedlist>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>tls_randfile</token></term>
+<listitem>Specifies the path to an entropy source.
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>tls_cacertfile</token></term>
+<listitem>Specifies the path to the X.509 certificate for peer authentication.
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>tls_cacertdir</token></term>
+<listitem>Specifies the directory containing X.509 certificates for peer authentication.
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>tls_checkpeer</token></term>
+<listitem>Specifies whether to require and verify the server certificate or not.
+<option> 1 </option>  check the certificate 
+<option> 0 </option>  off (default)
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>tls_ciphers</token></term>
+<listitem>Specifies the ciphers to use.
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>tls_cert</token></term>
+<listitem>Specifies the path to the file containing the local certificate for client TLS authentication if required.
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>tls_key</token></term>
+<listitem>Specifies the path to the file containing the private key for client TLS authentication.
+</listitem>
+</varlistentry>
+
+</para>
+
+
+
 </sect2>
 
 <sect2>

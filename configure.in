@@ -76,6 +76,11 @@ else
 	with_ldap=no
 	])
 fi
+if test "$with_ldap" \!= "no"; then
+  AC_CHECK_FUNCS(ldap_init ldap_initialize)
+  AC_CHECK_FUNCS(ldap_set_option ldap_get_option)  
+  AC_CHECK_FUNCS(ldap_start_tls ldap_start_tls_s)
+fi	
 AC_SUBST(LDAP_CFLAGS)
 AC_SUBST(LDAP_LIBS)
 AM_CONDITIONAL(HAVE_LDAP, test x$with_ldap = xyes)
