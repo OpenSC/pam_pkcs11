@@ -73,6 +73,7 @@ typedef struct slot_st slot_t;
 struct pkcs11_handle_str {
   void *module_handle;
   CK_FUNCTION_LIST_PTR fl;
+  int should_finalize;
   slot_t *slots;
   CK_ULONG slot_count;
   CK_SESSION_HANDLE session;
@@ -509,15 +510,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /* open pkcs11 sesion */
-    DBG("initialising pkcs #11 module...");
-    rv = ph->fl->C_Initialize(NULL);
-    if (rv != 0) {
-        release_pkcs11_module(ph);
-        DBG1("C_Initialize() failed: %d", rv);
-        return 1;
-    }
-
     /* put my self into background if flag is set */
     if (daemonize) {
 	DBG("Going to be daemon...");
@@ -528,6 +520,18 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
     }
+
+    /* open pkcs11 sesion */
+    DBG("initialising pkcs #11 module...");
+    rv = ph->fl->C_Initialize(NULL);
+    if (rv != 0) {
+        release_pkcs11_module(ph);
+	if (ctx)
+	  scconf_free(ctx);
+        DBG1("C_Initialize() failed: %d", rv);
+        return 1;
+    }
+    ph->should_finalize = 1;
 
     /* 
      * Wait endlessly for all events in the list of readers
@@ -550,6 +554,8 @@ int main(int argc, char *argv[]) {
 	   new_state = get_a_token();
 	   if (new_state == CARD_ERROR) {
     		DBG("Error trying to get a token");
+		rv = ph->fl->C_Finalize(NULL);
+		rv = ph->fl->C_Initialize(NULL);
     		break;
 	   }
 	   if (old_state == new_state ) { /* state unchanged */

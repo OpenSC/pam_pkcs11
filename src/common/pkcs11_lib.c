@@ -617,6 +617,7 @@ typedef struct {
 struct pkcs11_handle_str {
   void *module_handle;
   CK_FUNCTION_LIST_PTR fl;
+  int should_finalize;
   slot_t *slots;
   CK_ULONG slot_count;
   CK_SESSION_HANDLE session;
@@ -714,7 +715,9 @@ int init_pkcs11_module(pkcs11_handle_t *h,int flag)
   /* initialise the module */
   if (flag) rv = h->fl->C_Initialize((CK_VOID_PTR) &initArgs);
   else      rv = h->fl->C_Initialize(NULL);
-  if (rv != CKR_OK) {
+  if (rv == CKR_OK)
+    h->should_finalize = 1;
+  else if (rv != CKR_CRYPTOKI_ALREADY_INITIALIZED) {
     set_error("C_Initialize() failed: %x", rv);
     return -1;
   }
@@ -803,7 +806,8 @@ void release_pkcs11_module(pkcs11_handle_t *h)
 {
   /* finalise pkcs #11 module */
   if (h->fl != NULL)
-    h->fl->C_Finalize(NULL);
+    if (h->should_finalize)
+      h->fl->C_Finalize(NULL);
   /* unload the module */
   if (h->module_handle != NULL)
     dlclose(h->module_handle);
