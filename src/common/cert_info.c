@@ -748,7 +748,7 @@ static char **cert_key_alg(X509 *x509) {
 }
 
 /*
-* Return certificate in PEM format
+* Return certificate serial number as a hex string
 */
 static char **cert_info_serial_number(X509 *x509) {
 	static char *entries[2] = { NULL,NULL };

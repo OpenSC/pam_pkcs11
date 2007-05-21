@@ -952,7 +952,7 @@ int find_slot_by_number_and_label(pkcs11_handle_t *h,
   int rv;
   const char *slot_label = NULL;
 
-  /* we want a specific slot id, or we don't kare about the label */
+  /* we want a specific slot id, or we don't care about the label */
   if ((wanted_slot_label == NULL) || (wanted_slot_id != 0)) {
     rv = find_slot_by_number(h, wanted_slot_id, slot_num);
 
