@@ -81,8 +81,13 @@ int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
 #include "ocsp.h"
 #include <unistd.h>
 #include <errno.h>
+#include "syslog.h"
 
 #include "cert_vfy.h"
+
+#ifndef PAM_PKCS11_POLL_TIME
+#define PAM_PKCS11_POLL_TIME 500 /* ms */
+#endif
 
 struct pkcs11_handle_str {
   SECMODModule *module;
@@ -290,6 +295,96 @@ int find_slot_by_number(pkcs11_handle_t *h, int slot_num, unsigned int *slotID)
   return -1;
 }
 
+/*
+ * find a slot by it's slot number or label. If slot number is '0' any
+ * slot is ok.
+ */
+int find_slot_by_number_and_label(pkcs11_handle_t *h, 
+				  int wanted_slot_id,
+				  const char *wanted_slot_label,
+                                  unsigned int *slot_num)
+{
+  int rv;
+  const char *slot_label = NULL;
+  PK11SlotInfo *slot = NULL;
+
+  /* we want a specific slot id, or we don't kare about the label */
+  if ((wanted_slot_label == NULL) || (wanted_slot_id != 0)) {
+    rv = find_slot_by_number(h, wanted_slot_id, slot_num);
+
+    /* if we don't care about the label, or we failed, we're done */
+    if ((wanted_slot_label == NULL) || (rv != 0)) {
+      return rv;
+    }
+
+    /* verify it's the label we want */
+    slot_label = PK11_GetTokenName(h->slot);
+
+    if ((slot_label != NULL) && 
+        (strcmp (wanted_slot_label, slot_label) == 0)) {
+      return 0;
+    }
+    return -1;
+  }
+
+  /* we want a specific slot by label only */
+  slot = PK11_FindSlotByName(wanted_slot_label);
+  if (!slot) {
+    return -1;
+  }
+
+  /* make sure it's in the right module */
+  if (h->module) {
+    if (h->module != PK11_GetModule(slot)) {
+	PK11_FreeSlot(slot);
+	return -1;
+    }
+  } else {
+    /* no module was specified, use the one slot came in */
+    h->module = SECMOD_ReferenceModule(PK11_GetModule(slot));
+  }
+  h->slot = slot; /* Adopt the reference */
+  *slot_num = PK11_GetSlotID(h->slot);
+  return 0;
+}
+
+int wait_for_token(pkcs11_handle_t *h, 
+                   int wanted_slot_id,
+                   const char *wanted_slot_label,
+                   unsigned int *slot_num)
+{
+  int rv;
+
+  rv = -1;
+  do {
+    /* see if the card we're looking for is inserted */
+    rv = find_slot_by_number_and_label (h, wanted_slot_id,  wanted_slot_label,
+                                        slot_num);
+    if (rv !=  0) {
+      PK11SlotInfo *slot;
+      PRIntervalTime slot_poll_interval; /* only for legacy hardware */
+
+      /* if the card is not inserted, then block until something happens */
+      slot_poll_interval = PR_MillisecondsToInterval(PAM_PKCS11_POLL_TIME);
+      slot = SECMOD_WaitForAnyTokenEvent(h->module, 0 /* flags */,
+                                         slot_poll_interval);
+
+      /* unexpected error */
+      if (slot == NULL) {
+        break;
+      }
+
+      /* something happened, continue loop and check if the card
+       * we're looking for is inserted
+       */
+      PK11_FreeSlot(slot);
+      continue;
+    }
+  } while (rv != 0);
+
+  return rv;
+}
+
 void release_pkcs11_module(pkcs11_handle_t *h) 
 {
   SECStatus rv;
@@ -382,6 +477,8 @@ const char *get_slot_label(pkcs11_handle_t *h)
   }
   return PK11_GetTokenName(h->slot);
 }
+
+
 
 cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *count)
 {
@@ -693,10 +790,50 @@ int load_pkcs11_module(char *module, pkcs11_handle_t **hp)
   return 0;
 }
 
+static int
+refresh_slots(pkcs11_handle_t *h)
+{
+  CK_ULONG i;
+  int j;
+
+  for (i = 0; i < h->slot_count; i++) {
+    CK_SLOT_INFO sinfo;
+    CK_TOKEN_INFO tinfo;
+    CK_RV rv;
+
+    DBG1("slot %d:", i + 1);
+    rv = h->fl->C_GetSlotInfo(h->slots[i].id, &sinfo);
+    if (rv != CKR_OK) {
+      set_error("C_GetSlotInfo() failed: %x", rv);
+      return -1;
+    }
+    DBG1("- description: %.64s", sinfo.slotDescription);
+    DBG1("- manufacturer: %.32s", sinfo.manufacturerID);
+    DBG1("- flags: %04lx", sinfo.flags);
+    if (sinfo.flags & CKF_TOKEN_PRESENT) {
+      DBG("- token:");
+      rv = h->fl->C_GetTokenInfo(h->slots[i].id, &tinfo);
+      if (rv != CKR_OK) {
+        set_error("C_GetTokenInfo() failed: %x", rv);
+        return -1;
+      }
+      DBG1("  - label: %.32s", tinfo.label);
+      DBG1("  - manufacturer: %.32s", tinfo.manufacturerID);
+      DBG1("  - model: %.16s", tinfo.model);
+      DBG1("  - serial: %.16s", tinfo.serialNumber);
+      DBG1("  - flags: %04lx", tinfo.flags);
+      h->slots[i].token_present = TRUE;
+      memcpy(h->slots[i].label, tinfo.label, 32);
+      for (j = 31; h->slots[i].label[j] == ' '; j--) h->slots[i].label[j] = 0;
+    }
+  }
+  return 0;
+}
+
 int init_pkcs11_module(pkcs11_handle_t *h,int flag)
 {
   int rv;
-  CK_ULONG i, j;
+  CK_ULONG i;
   CK_SLOT_ID_PTR slots;
   CK_INFO info;
   CK_C_INITIALIZE_ARGS initArgs;
@@ -766,40 +903,10 @@ int init_pkcs11_module(pkcs11_handle_t *h,int flag)
   DBG1("number of slots (b): %d", h->slot_count);
   /* show some information about the slots/tokens and setup slot info */
   for (i = 0; i < h->slot_count; i++) {
-    CK_SLOT_INFO sinfo;
-    CK_TOKEN_INFO tinfo;
-
-    DBG1("slot %d:", i + 1);
-    rv = h->fl->C_GetSlotInfo(slots[i], &sinfo);
-    if (rv != CKR_OK) {
-      free(slots);
-      set_error("C_GetSlotInfo() failed: %x", rv);
-      return -1;
-    }
     h->slots[i].id = slots[i];
-    DBG1("- description: %.64s", sinfo.slotDescription);
-    DBG1("- manufacturer: %.32s", sinfo.manufacturerID);
-    DBG1("- flags: %04lx", sinfo.flags);
-    if (sinfo.flags & CKF_TOKEN_PRESENT) {
-      DBG("- token:");
-      rv = h->fl->C_GetTokenInfo(slots[i], &tinfo);
-      if (rv != CKR_OK) {
-        free(slots);
-        set_error("C_GetTokenInfo() failed: %x", rv);
-        return -1;
-      }
-      DBG1("  - label: %.32s", tinfo.label);
-      DBG1("  - manufacturer: %.32s", tinfo.manufacturerID);
-      DBG1("  - model: %.16s", tinfo.model);
-      DBG1("  - serial: %.16s", tinfo.serialNumber);
-      DBG1("  - flags: %04lx", tinfo.flags);
-      h->slots[i].token_present = TRUE;
-      memcpy(h->slots[i].label, tinfo.label, 32);
-      for (j = 31; h->slots[i].label[j] == ' '; j--) h->slots[i].label[j] = 0;
-    }
   }
   free(slots);
-  return 0;
+  return refresh_slots(h);
 }
 
 void release_pkcs11_module(pkcs11_handle_t *h)
@@ -836,6 +943,70 @@ int find_slot_by_number(pkcs11_handle_t *h, int slot_num, unsigned int *slot)
    return 0;
 }
 	
+int find_slot_by_number_and_label(pkcs11_handle_t *h, 
+				  int wanted_slot_id,
+				  const char *wanted_slot_label,
+                                  unsigned int *slot_num)
+{
+  unsigned int slot_index;
+  int rv;
+  const char *slot_label = NULL;
+
+  /* we want a specific slot id, or we don't kare about the label */
+  if ((wanted_slot_label == NULL) || (wanted_slot_id != 0)) {
+    rv = find_slot_by_number(h, wanted_slot_id, slot_num);
+
+    /* if we don't care about the label, or we failed, we're done */
+    if ((wanted_slot_label == NULL) || (rv != 0)) {
+      return rv;
+    }
+
+    /* verify it's the label we want */
+    slot_label = h->slots[*slot_num].label;
+
+    if ((slot_label != NULL) && 
+        (strcmp (wanted_slot_label, slot_label) == 0)) {
+      return 0;
+    }
+    return -1;
+  }
+
+  /* look up the slot by it's label from the list */
+  for (slot_index = 0; slot_index < h->slot_count; slot_index++) {
+    if (h->slots[slot_index].token_present) {
+      slot_label = h->slots[slot_index].label;
+      if ((slot_label != NULL) && 
+          (strcmp (wanted_slot_label, slot_label) == 0)) {
+        *slot_num = slot_index;
+        return 0;
+      }
+    }
+  }
+  return -1;
+}
+
+int wait_for_token(pkcs11_handle_t *h, 
+                   int wanted_slot_id,
+                   const char *wanted_slot_label,
+                   unsigned int *slot_num)
+{
+  int rv;
+
+  rv = -1;
+  do {
+    /* see if the card we're looking for is inserted */
+    rv = find_slot_by_number_and_label (h, wanted_slot_id,  wanted_slot_label,
+                                        slot_num);
+    if (rv !=  0) {
+      /* could call C_WaitForSlotEvent, for now just poll */
+      sleep(10);
+      refresh_slots(h);
+      continue;
+    }
+  } while (rv != 0);
+
+  return rv;
+}
 
 int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot)
 {

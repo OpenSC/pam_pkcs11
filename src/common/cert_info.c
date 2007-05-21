@@ -747,6 +747,34 @@ static char **cert_key_alg(X509 *x509) {
 	return entries;
 }
 
+/*
+* Return certificate in PEM format
+*/
+static char **cert_info_serial_number(X509 *x509) {
+	static char *entries[2] = { NULL,NULL };
+	ASN1_INTEGER *serial = X509_get_serialNumber(x509);
+	int len;
+	char *buffer = NULL, *tmp_ptr;
+
+	len = i2c_ASN1_INTEGER(serial, NULL);
+	
+	if (len < 0) {
+		return NULL;
+	}
+	buffer = malloc(len);
+	if (buffer == NULL) {
+		return NULL;
+	}
+
+	/* i2c_ASN1_INTEGER "kindly" increments our pointer by len,
+	 * give it a temp ptr it can tweak to it's hearts content */
+	tmp_ptr = buffer;
+	len = i2c_ASN1_INTEGER(serial, &tmp_ptr);
+	entries[0] = bin2hex(buffer,len);
+	free(buffer);
+	return entries;
+}
+
 /**
 * request info on certificate
 * @param x509 	Certificate to parse
@@ -768,7 +796,7 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 		return cert_info_issuer(x509);
 	    case CERT_SERIAL : /* Certificate serial number */
 		/* fix me */
-		return NULL;
+		return cert_info_serial_number(x509);
 	    case CERT_KPN     : /* Kerberos principal name */
 		return cert_info_kpn(x509);
 	    case CERT_EMAIL   : /* Certificate e-mail */

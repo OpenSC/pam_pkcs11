@@ -33,8 +33,11 @@ struct configuration_st {
 	int try_first_pass;
 	int use_first_pass;
 	int use_authok;
+	int card_only;
+	int wait_for_card;
 	char *pkcs11_module;
 	char *pkcs11_modulepath;
+	char **screen_savers;
 	int slot_num;
 	int support_threads;
 	cert_policy policy;

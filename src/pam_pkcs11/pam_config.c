@@ -39,8 +39,11 @@ struct configuration_st configuration = {
         0,				/* int try_first_pass; */
         0,				/* int use_first_pass; */
         0,				/* int use_authok; */
+        0,				/* int card_only; */
+        0,				/* int wait_for_card; */
         "default", 			/* const char *pkcs11_module; */
         "/etc/pam_pkcs11/pkcs11_module.so",/* const char *pkcs11_module_path; */
+        NULL,                           /* screen savers */
         0,				/* int slot_num; */
 	0,				/* support threads */
 	/* cert policy; */
@@ -55,6 +58,8 @@ static void display_config (void) {
         DBG1("try_first_pass %d",configuration.try_first_pass);
         DBG1("use_first_pass %d", configuration.use_first_pass);
         DBG1("use_authok %d", configuration.use_authok);
+        DBG1("card_only %d", configuration.card_only);
+        DBG1("wait_for_card %d", configuration.wait_for_card);
         DBG1("pkcs11_module %s",configuration.pkcs11_module);
         DBG1("slot_num %d",configuration.slot_num);
         DBG1("ca_dir %s",configuration.policy.ca_dir);
@@ -75,6 +80,8 @@ static void parse_config_file(void) {
 	scconf_block **pkcs11_mblocks,*pkcs11_mblk;
 	const scconf_list *mapper_list;
 	const scconf_list *policy_list;
+ 	const scconf_list *screen_saver_list;
+ 	const scconf_list *tmp;
 	scconf_context *ctx;
 	const scconf_block *root;
 	configuration.ctx = scconf_new(configuration.config_file);
@@ -105,6 +112,10 @@ static void parse_config_file(void) {
 	    scconf_get_bool(root,"try_first_pass",configuration.try_first_pass);
 	configuration.use_authok = 
 	    scconf_get_bool(root,"use_authok",configuration.use_authok);
+	configuration.card_only = 
+	    scconf_get_bool(root,"card_only",configuration.card_only);
+	configuration.wait_for_card = 
+	    scconf_get_bool(root,"wait_for_card",configuration.wait_for_card);
 	configuration.pkcs11_module = ( char * )
 	    scconf_get_str(root,"use_pkcs11_module",configuration.pkcs11_module);
 	/* search pkcs11 module options */
@@ -155,6 +166,18 @@ static void parse_config_file(void) {
 		policy_list= policy_list->next;
 	    }
 	}
+	screen_saver_list = scconf_find_list(root,"screen_savers");
+	if (screen_saver_list) {
+	   int count,i;
+	   for (count=0, tmp=screen_saver_list; tmp ; tmp=tmp->next, count++);
+
+	   configuration.screen_savers = 
+				(char **) malloc((count+1)*sizeof(char *));
+	   for (i=0, tmp=screen_saver_list; tmp; tmp=tmp->next, i++) {
+		configuration.screen_savers[i] = (char *)tmp->data;
+	   }
+	   configuration.screen_savers[count] = 0;
+        }
 	/* now obtain and initialize mapper list */
 	mapper_list = scconf_find_list(root,"use_mappers");
 	if (!mapper_list) {
@@ -187,8 +210,8 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	parse_config_file();
 	/* display_config(); */
 	/* finally parse provided arguments */
-	/* skip argv[0] :-) */
-	for (i = 1; i < argc; i++) {
+	/* dont skip argv[0] */
+	for (i = 0; i < argc; i++) {
 	   if (strcmp("nullok", argv[i]) == 0) {
 		configuration.nullok = 1;
 		continue;
@@ -199,6 +222,14 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	   }
     	   if (strcmp("use_first_pass", argv[i]) == 0) {
       		configuration.use_first_pass = 1;
+		continue;
+	   }
+    	   if (strcmp("wait_for_card", argv[i]) == 0) {
+      		configuration.wait_for_card = 1;
+		continue;
+	   }
+    	   if (strcmp("dont_wait_for_card", argv[i]) == 0) {
+      		configuration.wait_for_card = 0;
 		continue;
 	   }
     	   if (strcmp("debug", argv[i]) == 0) {

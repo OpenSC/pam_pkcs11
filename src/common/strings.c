@@ -83,6 +83,10 @@ char *bin2hex(const unsigned char *binstr,const int len) {
 	char *pt;
 	char *res= (char *) malloc(1+3*len);
 	if (!res) return NULL;
+	if (len == 0) {
+	    *res = 0;
+	    return res;
+	}
 	for(i=0,pt=res;i<len;i++,pt+=3){
 	    sprintf(pt,"%02X:",binstr[i]);
 	}

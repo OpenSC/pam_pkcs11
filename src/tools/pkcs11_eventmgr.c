@@ -31,7 +31,7 @@
 #include "../common/error.h"
 
 #ifdef HAVE_NSS
-#include <nss/secmod.h>
+#include <secmod.h>
 #endif
 
 #define DEF_POLLING 1    /* 1 second timeout */
@@ -405,7 +405,10 @@ int main(int argc, char *argv[]) {
 						moduleSpec, pkcs11_module);
 	module = SECMOD_LoadUserModule(moduleSpec, NULL, 0);
 	free(moduleSpec);
-	if (!module) {
+	if (!module || module->loaded == 0) {
+            if (module) {
+               SECMOD_DestroyModule(module);
+            }
 	    DBG("Failed to load SmartCard software");
 	    return 1;
 	}

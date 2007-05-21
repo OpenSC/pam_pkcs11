@@ -33,7 +33,14 @@ PKCS11_EXTERN int load_pkcs11_module(char *module, pkcs11_handle_t **h);
 PKCS11_EXTERN int init_pkcs11_module(pkcs11_handle_t *h,int flag);
 PKCS11_EXTERN int find_slot_by_number(pkcs11_handle_t *h,int slot_num,
                                       unsigned int *slot);
+PKCS11_EXTERN int find_slot_by_number_and_label(pkcs11_handle_t *h,
+                                      int slot_num, const char *slot_label,
+                                      unsigned int *slot);
 PKCS11_EXTERN const char *get_slot_label(pkcs11_handle_t *h);
+PKCS11_EXTERN int wait_for_token(pkcs11_handle_t *h,
+                                 int wanted_slot_num, 
+                                 const char *wanted_slot_label,
+                                 unsigned int *slot);
 PKCS11_EXTERN const X509 *get_X509_certificate(cert_object_t *cert);
 PKCS11_EXTERN void release_pkcs11_module(pkcs11_handle_t *h);
 PKCS11_EXTERN int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot);
