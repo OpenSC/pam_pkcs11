@@ -26,7 +26,9 @@
 #endif
 #include <security/pam_appl.h>
 #include <security/pam_modules.h>
+#ifdef HAVE_SECURITY_PAM_EXT_H
 #include <security/pam_ext.h>
+#endif
 #include <syslog.h>
 #include <ctype.h>
 #include <string.h>
@@ -56,6 +58,53 @@ int is_spaced_str(const char *str) {
 	for (;*pt;pt++) if (!isspace(*pt)) return 0;
 	return 1;
 }
+
+#ifndef HAVE_SECURITY_PAM_EXT_H
+/*
+ * implement pam utilities for older versions of pam.
+ */
+static int pam_prompt(pam_handle_t *pamh, int style, char **response, char *text)
+{
+  int rv;
+  struct pam_conv *conv;
+  struct pam_message msg;
+  struct pam_response *resp;
+  /* struct pam_message *(msgp[1]) = { &msg}; */
+  struct pam_message *(msgp[1]);
+  msgp[0] = &msg;
+
+  msg.msg_style = style;
+  msg.msg = text;
+  rv = pam_get_item(pamh, PAM_CONV, (const void **) &conv);
+  if (rv != PAM_SUCCESS)
+    return rv;
+  if ((conv == NULL) || (conv->conv == NULL))
+    return PAM_CRED_INSUFFICIENT;
+  rv = conv->conv(1, (const struct pam_message **)msgp, &resp, conv->appdata_ptr);
+  if (rv != PAM_SUCCESS)
+    return rv;
+  if ((resp == NULL) || (resp[0].resp == NULL))
+    return !response ? PAM_SUCCESS : PAM_CRED_INSUFFICIENT;
+  if (response) {
+     *response = strdup(resp[0].resp);
+  }
+  /* overwrite memory and release it */
+  memset(resp[0].resp, 0, strlen(resp[0].resp));
+  free(&resp[0]);
+  return PAM_SUCCESS;
+}
+
+static void 
+pam_syslog(pam_handle_t *pamh, int priority, const char *fmt, ...)
+{
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsyslog(priority, fmt, ap);
+    va_end(ap);
+}
+#endif
+
 
 /*
  * Gets the users password. Depending whether it was already asked, either

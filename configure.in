@@ -220,6 +220,7 @@ fi
 if test "x$with_libp11" = "xyes"; then
 AC_CHECK_HEADERS([libp11.h])
 fi
+AC_CHECK_HEADERS([security/pam_ext.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
