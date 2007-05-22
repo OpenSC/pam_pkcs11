@@ -1,0 +1,45 @@
+# SOME DESCRIPTIVE TITLE.
+# This file is put in the public domain.
+# Ludovic Rousseau <ludovic.rousseau@free.fr>, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pam_pkcs11 0.5.4\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-05-22 10:27+0200\n"
+"PO-Revision-Date: 2007-05-22 10:27+0200\n"
+"Last-Translator: Ludovic Rousseau <ludovic.rousseau@free.fr>\n"
+"Language-Team: French <fr@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/pam_pkcs11/pam_pkcs11.c:278 src/pam_pkcs11/pam_pkcs11.c:354
+msgid "Please insert your smart card or enter your username."
+msgstr "Veuillez insérer votre carte à puce ou entrer votre login."
+
+#: src/pam_pkcs11/pam_pkcs11.c:333
+#, c-format
+msgid "Please insert your smart card called \"%.32s\"."
+msgstr "Veuillez insérer la carte à puce appelée \"%.32s\"."
+
+#: src/pam_pkcs11/pam_pkcs11.c:338
+msgid "Please insert your smart card."
+msgstr "Veuillez insérer votre carte à puce."
+
+#: src/pam_pkcs11/pam_pkcs11.c:367
+msgid "Smart card inserted. "
+msgstr "Carte à puce insérée. "
+
+#: src/pam_pkcs11/pam_pkcs11.c:378
+#, c-format
+msgid "Welcome %.32s!"
+msgstr "Bienvenue %.32s !"
+
+#: src/pam_pkcs11/pam_pkcs11.c:383 src/pam_pkcs11/pam_pkcs11.c:386
+msgid "Smart card password: "
+msgstr "Mot de passe de la carte à puce : "
+
+#: src/pam_pkcs11/pam_pkcs11.c:680
+msgid "Cannot change the password on your smart card."
+msgstr "Ne peut pas changer le mot de passe de la carte à puce."

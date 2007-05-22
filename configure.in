@@ -15,8 +15,8 @@ AM_MAINTAINER_MODE
 AM_GNU_GETTEXT_VERSION([0.16.1])
 AM_GNU_GETTEXT([external])
 
-AM_GNU_GETTEXT_VERSION([0.16.1])
-AM_GNU_GETTEXT([external])
+dnl Add the languages which your application supports here.
+ALL_LINGUAS="fr"
 
 # Checks for programs.
 AC_PROG_CC
