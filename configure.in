@@ -12,6 +12,12 @@ AC_CONFIG_HEADERS([config.h])
 
 AM_MAINTAINER_MODE
 
+AM_GNU_GETTEXT_VERSION([0.16.1])
+AM_GNU_GETTEXT([external])
+
+AM_GNU_GETTEXT_VERSION([0.16.1])
+AM_GNU_GETTEXT([external])
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
@@ -236,6 +242,7 @@ AC_CHECK_FUNCS([memset strdup strerror])
 
 AC_CONFIG_FILES([ 
 Makefile
+po/Makefile.in
 doc/Makefile
 etc/Makefile
 src/Makefile

@@ -43,6 +43,14 @@
 #include "pam_config.h"
 #include "mapper_mgr.h"
 
+#if ENABLE_NLS
+#include <libintl.h>
+#include <locale.h>
+#define _(string) gettext(string)
+#else
+#define _(string) string
+#endif
+
 #ifndef PAM_EXTERN
 #define PAM_EXTERN extern
 #endif
@@ -213,6 +221,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		return PAM_AUTHINFO_UNAVAIL;
 	  }
   }
+
+#ifdef ENABLE_NLS
+  setlocale(LC_ALL, "");
+  bindtextdomain(PACKAGE, "/usr/share/locale");
+  textdomain(PACKAGE);
+#endif
   
   /* init openssl */
   rv = crypto_init(&configuration->policy);
@@ -261,7 +275,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	} 
   } else {
         pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-                   "Please insert your smart card or enter your username.");
+                   _("Please insert your smart card or enter your username."));
 	/* get user name */
 	rv = pam_get_user(pamh, &user, NULL);
 
@@ -316,12 +330,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     if (login_token_name || configuration->wait_for_card) {
       if (login_token_name) {
         sprintf(password_prompt,
-                "Please insert your smart card called \"%.32s\".",
+                _("Please insert your smart card called \"%.32s\"."),
                 login_token_name);
         pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
       } else {
         pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-                 "Please insert your smart card.");
+                 _("Please insert your smart card."));
       }
       rv = wait_for_token(ph, configuration->slot_num,
                           login_token_name, &slot_num);
@@ -337,7 +351,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       /* we haven't prompted for the user yet, get the user and see if
        * the smart card has been inserted in the mean time */
       pam_prompt(pamh, PAM_TEXT_INFO, NULL, 
-                 "Please insert your smart card or enter username.");
+                 _("Please insert your smart card or enter username."));
       rv = pam_get_user(pamh, &user, NULL);
 
       /* check one last time for the smart card before bouncing to the next
@@ -350,7 +364,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       }
     }
   } else {
-      pam_prompt(pamh, PAM_TEXT_INFO, NULL, "Smart card inserted. ");
+      pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("Smart card inserted. "));
   }
   rv = open_pkcs11_session(ph, slot_num);
   if (rv != 0) {
@@ -361,14 +375,16 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
 
   /* get password */
-  sprintf(password_prompt, "Welcome %.32s!", get_slot_label(ph));
+  sprintf(password_prompt, _("Welcome %.32s!"), get_slot_label(ph));
   pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
   if (configuration->use_first_pass) {
     rv = pam_get_pwd(pamh, &password, NULL, PAM_AUTHTOK, 0);
   } else if (configuration->try_first_pass) {
-    rv = pam_get_pwd(pamh, &password, "Smart card password:", PAM_AUTHTOK, PAM_AUTHTOK);
+    rv = pam_get_pwd(pamh, &password, _("Smart card password: "), PAM_AUTHTOK,
+      PAM_AUTHTOK);
   } else {
-    rv = pam_get_pwd(pamh, &password, "Smart card password:", 0, PAM_AUTHTOK);
+    rv = pam_get_pwd(pamh, &password, _("Smart card password: "), 0,
+      PAM_AUTHTOK);
   }
   if (rv != PAM_SUCCESS) {
     release_pkcs11_module(ph);
@@ -661,7 +677,7 @@ PAM_EXTERN int pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const c
   login_token_name = getenv("PKCS11_LOGIN_TOKEN_NAME");
   if (login_token_name && (flags & PAM_PRELIM_CHECK)) {
     pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-               "Cannot change the password on your smart card.");
+               _("Cannot change the password on your smart card."));
   }
   return PAM_SERVICE_ERR;
 }

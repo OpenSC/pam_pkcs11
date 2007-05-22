@@ -1,13 +1,13 @@
 Name:           pam_pkcs11
-Version:        0.5.3
-Release:        2
+Version:        0.5.4
+Release:        1
 Epoch:          0
 Summary:        PKCS #11 PAM module
 
 Group:          System Environment/Base
 License:        LGPL
 URL:            http://www.opensc-project.org/pam_pkcs11/
-Source0: 	http://www.opensc-project.org/files/pam_pkcs11-0.5.3.tar.gz
+Source0: 	http://www.opensc-project.org/files/pam_pkcs11-0.5.4.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  pam-devel, openssl-devel
@@ -96,6 +96,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/pkcs11_eventmgr
 %{_bindir}/pklogin_finder
 %{_bindir}/pkcs11_inspect
+%{_bindir}/pkcs11_listcerts
+%{_bindir}/pkcs11_setup
 %{_libdir}/%{name}/openssh_mapper.so
 %{_libdir}/%{name}/opensc_mapper.so
 %{_libdir}/security/pam_pkcs11.so

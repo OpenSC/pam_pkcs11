@@ -1,0 +1,2 @@
+# List of source files which contain translatable strings.
+src/pam_pkcs11/pam_pkcs11.c
