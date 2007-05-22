@@ -351,7 +351,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       /* we haven't prompted for the user yet, get the user and see if
        * the smart card has been inserted in the mean time */
       pam_prompt(pamh, PAM_TEXT_INFO, NULL, 
-                 _("Please insert your smart card or enter username."));
+                 _("Please insert your smart card or enter your username."));
       rv = pam_get_user(pamh, &user, NULL);
 
       /* check one last time for the smart card before bouncing to the next

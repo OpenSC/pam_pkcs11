@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-05-22 09:59+0200\n"
+"POT-Creation-Date: 2007-05-22 10:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/pam_pkcs11/pam_pkcs11.c:278
+#: src/pam_pkcs11/pam_pkcs11.c:278 src/pam_pkcs11/pam_pkcs11.c:354
 msgid "Please insert your smart card or enter your username."
 msgstr ""
 
@@ -26,10 +26,6 @@ msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:338
 msgid "Please insert your smart card."
-msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:354
-msgid "Please insert your smart card or enter username."
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:367
