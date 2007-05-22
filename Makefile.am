@@ -4,7 +4,7 @@ SUBDIRS = . doc etc src tools
 DIST_SUBDIRS = . doc etc src tools
 
 EXTRA_DIST = ChangeLog COPYING INSTALL NEWS README TODO \
-	bootstrap pam_pkcs11.spec
+	bootstrap pam_pkcs11.spec ChangeLog.svn
 
 MAINTAINERCLEANFILES = \
 	Makefile.in config.h.in configure \
@@ -16,3 +16,6 @@ DEPCLEANFILES = config.log configure
 
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I aclocal
+
+ChangeLog.svn:
+	-svn2cl --group-by-day --stdout --include-rev > $@
