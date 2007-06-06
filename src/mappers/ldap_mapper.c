@@ -370,7 +370,7 @@ DBG("do_bind return -1");
  * Opes connection to an LDAP server
  * uri must be one URI
  */
-static int do_open (LDAP **ld, const char* uri, int defport, ldap_ssl_options_t ssl_on)
+static int do_open (LDAP **ld, const char* uri, int defport, ldap_ssl_options_t ssl_on_local)
 {
 	
 #if defined(LDAP_OPT_NETWORK_TIMEOUT) || defined(HAVE_LDAP_START_TLS)	
@@ -419,7 +419,7 @@ static int do_open (LDAP **ld, const char* uri, int defport, ldap_ssl_options_t 
 
 
 #if defined(HAVE_LDAP_START_TLS_S) || defined(HAVE_LDAP_START_TLS)
-	if (ssl_on == SSL_START_TLS)
+	if (ssl_on_local == SSL_START_TLS)
     {
 		int version;
 
@@ -510,7 +510,7 @@ static int do_open (LDAP **ld, const char* uri, int defport, ldap_ssl_options_t 
 	/*
 	 * If SSL is desired, then enable it.
 	 */
-	if (ssl_on == SSL_LDAPS)
+	if (ssl_on_local == SSL_LDAPS)
     {
 #if defined(HAVE_LDAP_SET_OPTION) && defined(LDAP_OPT_X_TLS)
 		int tls = LDAP_OPT_X_TLS_HARD;
