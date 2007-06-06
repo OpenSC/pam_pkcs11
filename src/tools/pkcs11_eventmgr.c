@@ -133,7 +133,7 @@ static int my_system(char *command) {
            } while(1);
 }
 
-static int execute_event (char *action) {
+static int execute_event (const char *action) {
 	int onerr;
 	const char *onerrorstr;
 	const scconf_list *actionlist;
