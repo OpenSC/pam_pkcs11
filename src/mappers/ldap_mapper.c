@@ -545,7 +545,7 @@ static int do_open (LDAP **ld, const char* uri, int defport, ldap_ssl_options_t 
 /*
  * add singe URI to array of uris
  */
-int ldap_add_uri (char **uris, const char *a_uri, char **buffer, size_t *buflen)
+static int ldap_add_uri (char **uris, const char *a_uri, char **buffer, size_t *buflen)
 {
 	int i;
 	size_t uri_len;
