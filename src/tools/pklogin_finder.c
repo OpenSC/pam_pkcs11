@@ -34,7 +34,7 @@
 
 int main(int argc, const char **argv) {
   int i, rv;
-  char *user;
+  char *user = NULL;
   pkcs11_handle_t *ph;
   struct configuration_st *configuration;
   cert_object_t **certs;
