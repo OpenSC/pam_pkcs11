@@ -84,7 +84,7 @@ struct pkcs11_handle_str {
  
 #endif
 
-void thats_all_folks() {
+static void thats_all_folks(void) {
     int rv;
     DBG("Exitting");
 #ifdef HAVE_NSS
@@ -112,7 +112,7 @@ void thats_all_folks() {
     return;
 }
 
-int my_system(char *command) {
+static int my_system(char *command) {
 	extern char **environ;
 	int pid, status;
 	   if (!command) return 1;
@@ -134,7 +134,7 @@ int my_system(char *command) {
            } while(1);
 }
 
-int execute_event (char *action) {
+static int execute_event (char *action) {
 	int onerr;
 	const char *onerrorstr;
 	const scconf_list *actionlist;
@@ -191,7 +191,7 @@ int execute_event (char *action) {
 	return 0;
 }
 
-int parse_config_file() {
+static int parse_config_file() {
         ctx = scconf_new(cfgfile);
         if (!ctx) {
            DBG("Error creating conf context");
@@ -219,7 +219,7 @@ int parse_config_file() {
 	return 0;
 }
 
-int parse_args(int argc, char *argv[]) {
+static int parse_args(int argc, char *argv[]) {
 	int i;
 	int res;
 	polling_time = DEF_POLLING;
@@ -353,7 +353,7 @@ get_token_status(CK_SLOT_ID slotID)
 * try to find a valid token from slot list
 * returns CARD_PRESENT, CARD_NOT_PRESENT or CARD_ERROR
 */
-int get_a_token() {
+static int get_a_token() {
     int rv;
     unsigned long num_tokens=0;
     /* get Number of of slots with valid tokens */
