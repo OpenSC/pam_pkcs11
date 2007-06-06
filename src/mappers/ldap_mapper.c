@@ -604,6 +604,9 @@ static int ldap_get_certificate(const char *login) {
 	const char *p;
 	int current_uri = 0, start_uri = 0;
 
+	char *buffer;
+	size_t buflen;
+
 	uris[0] = NULL;
 
 	attrs[0] = (char *)attribute;
@@ -617,8 +620,8 @@ static int ldap_get_certificate(const char *login) {
 	DBG1("ldap_get_certificate(): filter_str = %s", filter_str);
 	
 	/* parse and split URI config entry */
-	char *buffer = uribuf;
-    size_t buflen = sizeof (uribuf);
+	buffer = uribuf;
+	buflen = sizeof (uribuf);
 
 	strncpy(uri, ldapURI, sizeof (uri)-1);
 
@@ -780,6 +783,8 @@ static int ldap_get_certificate(const char *login) {
 
 static int read_config(scconf_block *blk) {
 	int debug = scconf_get_bool(blk,"debug",0);
+	const char *ssltls;
+
 	ldaphost = scconf_get_str(blk,"ldaphost",ldaphost);
 	ldapport = scconf_get_int(blk,"ldapport",ldapport);
 	ldapURI = scconf_get_str(blk,"uri",ldapURI);
@@ -792,7 +797,7 @@ static int read_config(scconf_block *blk) {
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	searchtimeout = scconf_get_int(blk,"searchtimeout",searchtimeout);
 
-	const char *ssltls =  scconf_get_str(blk,"ssl","off");
+	ssltls =  scconf_get_str(blk,"ssl","off");
 	if (! strncasecmp (ssltls, "tls", 3)) 
 		ssl_on = SSL_START_TLS;
 	else if( ! strncasecmp (ssltls, "on", 2))
