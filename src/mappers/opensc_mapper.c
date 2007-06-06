@@ -79,6 +79,7 @@ static int opensc_mapper_match_certs(X509 *x509, const char *home) {
 	/* still need to genericize the BIO functions here */
 	return -1;
 #else
+#include <openssl/pem.h>
         BIO *in;
 
         if (!x509) return -1;
