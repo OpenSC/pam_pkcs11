@@ -49,7 +49,6 @@
 
 int polling_time;
 int expire_time;
-int expire_count;
 int daemonize;
 int debug;
 char *cfgfile;
@@ -224,7 +223,6 @@ static int parse_args(int argc, char *argv[]) {
 	int res;
 	polling_time = DEF_POLLING;
 	expire_time = DEF_EXPIRE;
-	expire_count = 0;
 	debug   = 0;
 	daemonize  = 0;
 	cfgfile = DEF_CONFIG_FILE;
