@@ -41,7 +41,7 @@ static const char List_modules[] = "list_modules";
 
 enum params { INS_ACTION, RM_ACTION, USE_MODULE, LIST_MODULES };
 
-static const char const *param_names[] = { Ins_action, Rm_action, Use_module, List_modules };
+static const char *param_names[] = { Ins_action, Rm_action, Use_module, List_modules };
 static int pn_sizes[] = { sizeof(Ins_action), sizeof(Rm_action), sizeof(Use_module), sizeof(List_modules) };
 
 #define NUM_PARAMS (sizeof(param_names)/sizeof(param_names[0]))
