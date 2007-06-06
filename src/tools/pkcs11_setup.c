@@ -427,7 +427,7 @@ bail:
 int main(int argc, const char **argv)
 {
     int i;
-    int pname;
+    unsigned int pname;
     const char *params[NUM_PARAMS];
     
     memset(params, '\0', sizeof(params));
