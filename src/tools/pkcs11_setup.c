@@ -46,7 +46,7 @@ static int pn_sizes[] = { sizeof(Ins_action), sizeof(Rm_action), sizeof(Use_modu
 
 #define NUM_PARAMS (sizeof(param_names)/sizeof(param_names[0]))
 
-const char *scconf_replace_str(scconf_block * block, const char *option, const char *value)
+static const char *scconf_replace_str(scconf_block * block, const char *option, const char *value)
 {
     scconf_list *list = NULL;
     scconf_item *item;
@@ -60,7 +60,7 @@ const char *scconf_replace_str(scconf_block * block, const char *option, const c
     return value;
 }
 
-int scconf_replace_str_list(scconf_block * block, const char *option, const char *value)
+static int scconf_replace_str_list(scconf_block * block, const char *option, const char *value)
 {
     scconf_list *list = NULL;
     scconf_item *item;
@@ -90,7 +90,7 @@ int scconf_replace_str_list(scconf_block * block, const char *option, const char
     return 0;
 }
 
-int list_modules(void)
+static int list_modules(void)
 {
     const scconf_block *pam_pkcs11;
     scconf_block **pkcs11_blocks;
@@ -145,7 +145,7 @@ bail:
     return result;
 }
 
-int print_default_module(void)
+static int print_default_module(void)
 {
     const scconf_block *pam_pkcs11;
     scconf_context *ctx = NULL;
@@ -177,7 +177,7 @@ int print_default_module(void)
     return result;
 }
 
-int set_default_module(const char *mod)
+static int set_default_module(const char *mod)
 {
 	scconf_block *pam_pkcs11, *pkcs11_eventmgr;
 	scconf_block **modules = NULL;
@@ -244,7 +244,7 @@ bail:
 	return result;
 }
 
-int print_card_insert_action(void)
+static int print_card_insert_action(void)
 {
 	const scconf_block *pkcs11_eventmgr;
 	scconf_block **event_blocks = NULL;
@@ -292,7 +292,7 @@ bail:
 	return result;
 }
 
-int set_card_insert_action(const char *act)
+static int set_card_insert_action(const char *act)
 {
 	scconf_block *pkcs11_eventmgr;
 	scconf_block **insert_blocks = NULL;
@@ -334,7 +334,7 @@ bail:
 	return result;
 }
 
-int print_card_remove_action(void)
+static int print_card_remove_action(void)
 {
 	const scconf_block *pkcs11_eventmgr;
 	scconf_block **event_blocks = NULL;
@@ -382,7 +382,7 @@ bail:
 	return result;
 }
 
-int set_card_remove_action(const char *act)
+static int set_card_remove_action(const char *act)
 {
 	scconf_block *pkcs11_eventmgr;
 	scconf_block **insert_blocks = NULL;
