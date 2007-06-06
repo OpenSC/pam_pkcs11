@@ -598,7 +598,7 @@ static int BN_append(unsigned char *pt, BIGNUM *bn) {
 static char **cert_info_sshpuk(X509 *x509) {
 	char **maillist;
 	char *type,*buf;
-	unsigned char *blob,*pt,*data;
+	unsigned char *blob,*pt,*data = NULL;
 	int data_len;
 	int res;
 	static char *entries[2] = { NULL,NULL };
@@ -677,7 +677,8 @@ static char **cert_info_sshpuk(X509 *x509) {
 sshpuk_fail:
 	EVP_PKEY_free(pubk);
 	free(blob);
-	free(data);
+	if (data)
+		free(data);
 	return NULL;
 }
 
