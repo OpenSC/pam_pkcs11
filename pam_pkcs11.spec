@@ -1,13 +1,13 @@
 Name:           pam_pkcs11
-Version:        0.5.4
-Release:        1
+Version:        0.6.0
+Release:        0
 Epoch:          0
 Summary:        PKCS #11 PAM module
 
 Group:          System Environment/Base
 License:        LGPL
 URL:            http://www.opensc-project.org/pam_pkcs11/
-Source0: 	http://www.opensc-project.org/files/pam_pkcs11-0.5.4.tar.gz
+Source0: 	http://www.opensc-project.org/files/pam_pkcs11-0.6.0.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  pam-devel, openssl-devel
@@ -111,6 +111,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%{name}/mail_mapping.example
 %{_datadir}/%{name}/digest_mapping.example
 %{_datadir}/%{name}/pkcs11_eventmgr.conf.example
+%{_datadir}/locale/*/LC_MESSAGES/*
 
 %files pcsc
 %config(noreplace) %{_sysconfdir}/%{name}/card_eventmgr.conf
@@ -124,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc doc/README.ldap_mapper
 
 %changelog
+* Wed Jun 6 2007 Ludovic Rousseau <ludovic.rousseau@free.fr> 0:0.6.0-1
+- Update to 0.6.0
+
 * Thu Sep 7 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.3-2
 - Add ldap_mapper.so as separate package, as it depends on external library
 - Changes from FC4 team 
