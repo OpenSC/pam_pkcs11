@@ -3,7 +3,7 @@
 SUBDIRS = . po doc etc src tools
 DIST_SUBDIRS = . po doc etc src tools
 
-EXTRA_DIST = config.rpath  config.rpath  ChangeLog COPYING INSTALL \
+EXTRA_DIST = config.rpath ChangeLog COPYING INSTALL \
 	NEWS README TODO bootstrap pam_pkcs11.spec ChangeLog.svn
 
 MAINTAINERCLEANFILES = \
