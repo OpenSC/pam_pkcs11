@@ -1,0 +1,48 @@
+# LANGUAGE translation of PACKAGE.
+# This file is put in the public domain.
+# sergio <mailbox@sergio.spb.ru>, 2007.
+# , fuzzy
+# 
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-05-22 10:27+0200\n"
+"PO-Revision-Date: 2007-09-10 14:14+0400\n"
+"Last-Translator: sergio <mailbox@sergio.spb.ru>\n"
+"Language-Team: Russian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+#: src/pam_pkcs11/pam_pkcs11.c:278 src/pam_pkcs11/pam_pkcs11.c:354
+msgid "Please insert your smart card or enter your username."
+msgstr "Пожалуйста, вставьте смарткарту или введите имя пользователя."
+
+#: src/pam_pkcs11/pam_pkcs11.c:333
+#, c-format
+msgid "Please insert your smart card called \"%.32s\"."
+msgstr "Пожалуйста, вставьте смарткарту, которая называется \"%.32s\"."
+
+#: src/pam_pkcs11/pam_pkcs11.c:338
+msgid "Please insert your smart card."
+msgstr "Пожалуйста, вставьте смарткарту."
+
+#: src/pam_pkcs11/pam_pkcs11.c:367
+msgid "Smart card inserted. "
+msgstr "Смарткарта вставлена. "
+
+#: src/pam_pkcs11/pam_pkcs11.c:378
+#, c-format
+msgid "Welcome %.32s!"
+msgstr "Добро пожаловать %.32s!"
+
+#: src/pam_pkcs11/pam_pkcs11.c:383 src/pam_pkcs11/pam_pkcs11.c:386
+msgid "Smart card password: "
+msgstr "Пароль смарткарты: "
+
+#: src/pam_pkcs11/pam_pkcs11.c:680
+msgid "Cannot change the password on your smart card."
+msgstr "Не могу поменять пароль смарткарты."
+
