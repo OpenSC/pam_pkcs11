@@ -14,7 +14,7 @@ msgstr ""
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit"
+"Content-Transfer-Encoding: 8bit\n"
 
 #: src/pam_pkcs11/pam_pkcs11.c:278 src/pam_pkcs11/pam_pkcs11.c:354
 msgid "Please insert your smart card or enter your username."
@@ -45,4 +45,3 @@ msgstr "Пароль смарткарты: "
 #: src/pam_pkcs11/pam_pkcs11.c:680
 msgid "Cannot change the password on your smart card."
 msgstr "Не могу поменять пароль смарткарты."
-
