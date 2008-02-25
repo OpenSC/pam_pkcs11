@@ -59,7 +59,7 @@
 /*
 * comodity function that returns 1 on null, empty o spaced string
 */
-int is_spaced_str(const char *str) {
+static int is_spaced_str(const char *str) {
 	char *pt=(char *)str;
 	if(!str) return 1;
 	if (!strcmp(str,"")) return 1;
