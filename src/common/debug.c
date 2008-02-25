@@ -28,7 +28,7 @@ void set_debug_level(int level) {
   debug_level = level;
 }
 
-int get_debug_level() {
+int get_debug_level(void) {
 	return debug_level;
 }
 
