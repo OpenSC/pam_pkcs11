@@ -33,7 +33,7 @@ else
 	@echo "Docbook support disabled, not building $@" >&2
 endif
 
-api/index.html:
+api/index.html: doxygen.conf
 	sh $(srcdir)/generate-api.sh $(srcdir)
 
 %: %.in
