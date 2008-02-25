@@ -34,6 +34,8 @@
 #include <config.h>
 #endif
 
+/* FIXME do not use deprecated ldap_* functions */
+#define LDAP_DEPRECATED 1
 #include <ldap.h>
 #include <pwd.h>
 
