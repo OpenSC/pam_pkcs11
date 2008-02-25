@@ -190,7 +190,7 @@ static int execute_event (const char *action) {
 	return 0;
 }
 
-static int parse_config_file() {
+static int parse_config_file(void) {
         ctx = scconf_new(cfgfile);
         if (!ctx) {
            DBG("Error creating conf context");
@@ -351,7 +351,7 @@ get_token_status(CK_SLOT_ID slotID)
 * try to find a valid token from slot list
 * returns CARD_PRESENT, CARD_NOT_PRESENT or CARD_ERROR
 */
-static int get_a_token() {
+static int get_a_token(void) {
     int rv;
     unsigned long num_tokens=0;
     /* get Number of of slots with valid tokens */
