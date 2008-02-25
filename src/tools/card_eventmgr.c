@@ -154,7 +154,7 @@ static int execute_event (const char *action) {
 	return 0;
 }
 
-static int parse_config_file() {
+static int parse_config_file(void) {
         ctx = scconf_new(cfgfile);
         if (!ctx) {
            DBG("Error creating conf context");
