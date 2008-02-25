@@ -61,7 +61,7 @@ SCARDCONTEXT hContext;
 char *pidfile = NULL;
 char AraKiri = FALSE;
 
-static void thats_all_folks() {
+static void thats_all_folks(void) {
     int rv;
     DBG("Exitting");
     /* We try to leave things as clean as possible */
