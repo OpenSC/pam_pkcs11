@@ -57,7 +57,7 @@ Not sure on usage of authorized keys map file...
 So the first version, will use getpwent() to navigate across all users 
 and parsing ${userhome}/.ssh/authorized_keys
 */
-static const char *keyfile="/etc/pam_pkcs11/authorized_keys";
+static const char *keyfile=CONFDIR "/authorized_keys";
 static int debug=0;
 
 /**

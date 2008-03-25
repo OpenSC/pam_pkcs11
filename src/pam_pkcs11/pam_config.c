@@ -20,6 +20,7 @@
 
 #include <syslog.h>
 #include <string.h>
+#include "config.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
@@ -32,7 +33,7 @@
 */
 
 struct configuration_st configuration = {
-	"/etc/pam_pkcs11/pam_pkcs11.conf",	/* char * config_file; */
+	CONFDIR "/pam_pkcs11.conf",	/* char * config_file; */
 	NULL,				/* scconf_context *ctx; */
         0,				/* int debug; */
         0,				/* int nullok; */
@@ -42,12 +43,20 @@ struct configuration_st configuration = {
         0,				/* int card_only; */
         0,				/* int wait_for_card; */
         "default", 			/* const char *pkcs11_module; */
-        "/etc/pam_pkcs11/pkcs11_module.so",/* const char *pkcs11_module_path; */
+        CONFDIR "/pkcs11_module.so",/* const char *pkcs11_module_path; */
         NULL,                           /* screen savers */
         0,				/* int slot_num; */
 	0,				/* support threads */
 	/* cert policy; */
-        { 0,CRLP_NONE,0,"/etc/pam_pkcs11/cacerts","/etc/pam_pkcs11/crls","/etc/pam_pkcs11/nssdb",OCSP_NONE },
+        {
+		0,
+		CRLP_NONE,
+		0,
+		CONFDIR "/cacerts",
+		CONFDIR "/crls",
+		CONFDIR "/nssdb",
+		OCSP_NONE
+	},
 	NULL				/* char *username */
 };
 

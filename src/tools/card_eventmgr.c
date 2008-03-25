@@ -33,6 +33,7 @@
 #include <wintypes.h>
 #include <winscard.h>
 
+#include "config.h"
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
@@ -43,7 +44,7 @@
 #endif
 
 #define DEF_TIMEOUT 1000    /* 1 second timeout */
-#define DEF_CONFIG_FILE "/etc/pam_pkcs11/card_eventmgr.conf"
+#define DEF_CONFIG_FILE CONFDIR "/card_eventmgr.conf"
 
 #define ONERROR_IGNORE	0
 #define ONERROR_RETURN	1

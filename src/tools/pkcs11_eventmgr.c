@@ -25,6 +25,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 
+#include "config.h"
 #include "../scconf/scconf.h"
 #include "../common/pkcs11_lib.h"
 #include "../common/debug.h"
@@ -37,7 +38,7 @@
 #define DEF_POLLING 1    /* 1 second timeout */
 #define DEF_EXPIRE 0    /* no expire */
 #define DEF_PKCS11_MODULE "/usr/lib/opensc-pkcs11.so"
-#define DEF_CONFIG_FILE "/etc/pam_pkcs11/pkcs11_eventmgr.conf"
+#define DEF_CONFIG_FILE CONFDIR "/pkcs11_eventmgr.conf"
 
 #define ONERROR_IGNORE	0
 #define ONERROR_RETURN	1

@@ -31,8 +31,8 @@
 #include "../common/debug.h"
 #include "../common/error.h"
 
-#define PAM_PKCS11_CONF "/etc/pam_pkcs11/pam_pkcs11.conf"
-#define EVENTMGR_CONF "/etc/pam_pkcs11/pkcs11_eventmgr.conf"
+#define PAM_PKCS11_CONF CONFDIR "/pam_pkcs11.conf"
+#define EVENTMGR_CONF CONFDIR "/pkcs11_eventmgr.conf"
 
 static const char Ins_action[] = "ins_action=";
 static const char Rm_action[] = "rm_action=";
