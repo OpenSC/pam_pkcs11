@@ -66,6 +66,16 @@ AC_SUBST(CURL_CFLAGS)
 AC_SUBST(CURL_LIBS)
 AM_CONDITIONAL(HAVE_CURL, test x$with_curl = xyes)
 
+# Add argument for defining configuration directory
+AC_ARG_WITH(confdir,
+AC_HELP_STRING([--with-confdir=DIR],
+	[directory containing pam_pkcs11.conf (default /etc/pam_pkcs11)]),
+	[confdir="${with_confdir}"], [confdir=false])
+if test x${confdir} = xfalse ; then
+	confdir="/etc/pam_pkcs11"
+fi
+AC_DEFINE_UNQUOTED(CONFDIR, "$confdir", [directory containing pam_pkcs11.conf (default /etc/pam_pkcs11)])
+
 # Add argument for using ldap
 AC_ARG_WITH(ldap,
   AC_HELP_STRING([--with-ldap], [use ldap (default=yes)]))
@@ -283,5 +293,6 @@ echo "CURL support:        ${with_curl}"
 echo "LDAP support:        ${with_ldap}"
 echo "NSS support:         ${with_nss}"
 echo "OPENSSL support:     ${with_ssl}"
+echo "confdir:             ${confdir}"
 #echo "LIBP11 support:      ${with_libp11}"
 echo ""
