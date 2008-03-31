@@ -161,8 +161,8 @@ static int parse_config_file(void) {
            DBG("Error creating conf context");
            return -1;
         }
-        if ( scconf_parse(ctx) <=0 ) {
-           DBG1("Error parsing file '%s'",cfgfile);
+        if ( scconf_parse(ctx) <= 0 ) {
+           DBG2("Error parsing file '%s': %s",cfgfile, ctx->errmsg);
            return -1;
         }
         /* now parse options */
