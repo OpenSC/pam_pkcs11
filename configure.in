@@ -75,6 +75,7 @@ if test x${confdir} = xfalse ; then
 	confdir="/etc/pam_pkcs11"
 fi
 AC_DEFINE_UNQUOTED(CONFDIR, "$confdir", [directory containing pam_pkcs11.conf (default /etc/pam_pkcs11)])
+AC_SUBST(confdir)
 
 # Add argument for using ldap
 AC_ARG_WITH(ldap,
@@ -254,6 +255,11 @@ AC_CONFIG_FILES([
 Makefile
 po/Makefile.in
 doc/Makefile
+doc/card_eventmgr.1
+doc/pam_pkcs11.8
+doc/pkcs11_eventmgr.1
+doc/pkcs11_inspect.1
+doc/pklogin_finder.1
 etc/Makefile
 src/Makefile
 src/scconf/Makefile

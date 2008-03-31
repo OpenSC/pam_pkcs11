@@ -28,7 +28,7 @@ configuration details. The existing PAM service definitions for
 other applications on your system is also a good source for examples
 on how to configure a PAM service.
 .SH "FILES"
-\fI/etc/pam_pkcs11/pam_pkcs11.conf\fP
+\fI@confdir@/pam_pkcs11.conf\fP
 .br 
 \fI/usr/lib/pam_pkcs11/*_mapper.so\fP
 .SH "AUTHOR"
