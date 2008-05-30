@@ -110,6 +110,7 @@ static int execute_event (const char *action) {
 	}
 	myblock=blocklist[0];
 	free(blocklist);
+	blocklist = NULL;
 	if (!myblock) {
 		DBG1("Event item not found: '%s'",action);
 		return -1;
@@ -366,7 +367,9 @@ get_readers:
     /* free memory possibly allocated in a previous loop */
     /* free() already check if pt is null, so no check needed */
     free(readers);
+    readers = NULL;
     free(rgReaderStates_t);
+    rgReaderStates_t = NULL;
 
     /* Retrieve the available readers list.
      *
@@ -383,6 +386,7 @@ get_readers:
 
     /* if non NULL we came back so free first */
     free(mszReaders);
+    mszReaders = NULL;
 
     mszReaders = malloc(sizeof(char)*dwReaders);
     if (mszReaders == NULL) {
@@ -521,7 +525,9 @@ get_readers:
 end:
     /* free memory possibly allocated */
     free(readers);
+    readers = NULL;
     free(rgReaderStates_t);
+    rgReaderStates_t = NULL;
 
     if (pidfile)
 	remove_pidfile(pidfile);
