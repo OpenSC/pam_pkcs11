@@ -52,31 +52,31 @@ fi
 # process all files
 for file in *; do
   hash=`$OPENSSL x509 -inform pem -in $file -noout -hash 2> /dev/null`
-  if [ ! -z $hash ]; then
+  if [ ! -z "$hash" ]; then
     is_ca=`$OPENSSL x509 -inform pem -in $file -noout -text | grep 'CA:TRUE'`
-    if [ ! -z $is_ca ]; then
+    if [ ! -z "$is_ca" ]; then
       hash=$hash.
       mk_link
     fi
     continue
   fi
   hash=`$OPENSSL x509 -inform der -in $file -noout -hash 2> /dev/null`
-  if [ ! -z $hash ]; then
+  if [ ! -z "$hash" ]; then
     is_ca=`$OPENSSL x509 -inform der -in $file -noout -text | grep 'CA:TRUE'`
-    if [ ! -z $is_ca ]; then
+    if [ ! -z "$is_ca" ]; then
       hash=$hash.
       mk_link
     fi
     continue
   fi
   hash=`$OPENSSL crl -inform pem -in $file -noout -hash 2> /dev/null`
-  if [ ! -z $hash ]; then
+  if [ ! -z "$hash" ]; then
     hash=$hash.r
     mk_link
     continue
   fi
   hash=`$OPENSSL crl -inform der -in $file -noout -hash 2> /dev/null`
-  if [ ! -z $hash ]; then
+  if [ ! -z "$hash" ]; then
     hash=$hash.r
     mk_link
     continue
