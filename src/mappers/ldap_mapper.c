@@ -186,9 +186,9 @@ static int do_init (LDAP ** ld, const char *uri, int ldapdefport)
 	}
 
 # ifdef HAVE_LDAP_INIT
-	*ld = ldap_init (uri, defport);
+	*ld = ldap_init (uri, ldapdefport);
 # else
-	*ld = ldap_open (uri, defport);
+	*ld = ldap_open (uri, ldapdefport);
 # endif
 	rc = (*ld == NULL) ? LDAP_SERVER_DOWN : LDAP_SUCCESS;
 
