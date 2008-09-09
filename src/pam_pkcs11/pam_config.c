@@ -256,7 +256,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		continue;
 	   }
 	   if (strstr(argv[i],"slot_num=") ) {
-		res=sscanf(argv[i],"slot_nume=%d",&configuration.slot_num);
+		res=sscanf(argv[i],"slot_num=%d",&configuration.slot_num);
 		continue;
 	   }
 	   if (strstr(argv[i],"ca_dir=") ) {
