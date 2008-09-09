@@ -1,48 +1,72 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
-export SERVER=http://www.opensc-project.org
-export WIKI=pam_pkcs11/wiki
-export XSL=export-wiki.xsl
+test -z "$XSLTPROC" && XSLTPROC="xsltproc"
+test -z "$WGET" && WGET="wget"
+test -z "$WGET_OPTS" && WGET_OPTS="$WGET_OPTS"
+test -z "$SED" && SED="sed"
+test -z "$TR" && TR="tr"
+
+test -z "$SERVER" && SERVER="http://www.opensc-project.org"
+test -z "$PROJECT" && PROJECT="pam_pkcs11"
 
 SRCDIR=.
+OUTDIR=wiki
+test -n "$1" && SRCDIR="$1"
+test -n "$2" &&	OUTDIR="$2"
 
-if test -n "$1"
-then
-	SRCDIR="$1"
-fi
+WIKI="$PROJECT/wiki"
+XSL="$SRCDIR/export-wiki.xsl"
 
 test -f "$SRCDIR"/`basename $0`
 
-if ! test -w "$SRCDIR"
-then
-	exit 0
-fi
+test -e "$OUTDIR" && rm -fr "$OUTDIR"
 
-rm -rf "$SRCDIR"/*.html "$SRCDIR"/*.css
+mkdir "$OUTDIR" || exit 1
 
-wget -nv $SERVER/$WIKI/TitleIndex -O "$SRCDIR"/TitleIndex.tmp
+$WGET $WGET_OPTS $SERVER/$WIKI/TitleIndex -O "$OUTDIR"/TitleIndex.tmp
 
-grep "\"/$WIKI/[^\"]*\"" "$SRCDIR"/TitleIndex.tmp \
-        |sed -e "s#.*\"/$WIKI/\([^\"]*\)\".*#\1#g" \
-	> "$SRCDIR"/WikiWords.tmp
-sed -e /^Trac/d -e /^Wiki/d -e /^TitleIndex/d -e /^RecentChanges/d \
-	-e /^CamelCase/d -e /^SandBox/d -i "$SRCDIR"/WikiWords.tmp
+$SED -e "s#</li>#</li>\n#g" < "$OUTDIR"/TitleIndex.tmp \
+	| grep "\"/$WIKI/[^\"]*\"" \
+        |$SED -e "s#.*\"/$WIKI/\([^\"]*\)\".*#\1#g" \
+	> "$OUTDIR"/WikiWords.tmp
+$SED -e /^Trac/d -e /^Wiki/d -e /^TitleIndex/d -e /^RecentChanges/d \
+        -e /^CamelCase/d -e /^SandBox/d -e /^InterMapTxt/d -e /^InterWiki/d \
+        -e /^InterTrac/d -i "$OUTDIR"/WikiWords.tmp
 
-for A in WikiStart `cat "$SRCDIR"/WikiWords.tmp`
+
+for A in WikiStart `cat "$OUTDIR"/WikiWords.tmp`
 do
-	F=`echo $A|sed -e 's/\//_/g'`
-	wget -nv $SERVER/$WIKI/$A  -O "$SRCDIR"/$F.tmp
-	xsltproc --output "$SRCDIR"/$F.html "$SRCDIR"/$XSL "$SRCDIR"/$F.tmp
-	sed -e "s#<a href=\"/$WIKI/\([^\"]*\)\"#<a href=\"\1.html\"#g" \
-		-i "$SRCDIR"/$F.html
+	F=`echo $A|$SED -e 's/\//_/g'`
+	$WGET $WGET_OPTS $SERVER/$WIKI/$A  -O "$OUTDIR"/$F.tmp
+	$XSLTPROC --nonet --output "$OUTDIR"/$F.html "$XSL" "$OUTDIR"/$F.tmp
+	$SED -e "s#<a href=\"/$WIKI/\([^\"]*\)\"#<a href=\"\1.html\"#g" \
+		-i "$OUTDIR"/$F.html
 done
 
-mv "$SRCDIR"/WikiStart.html "$SRCDIR"/index.html
+mv "$OUTDIR"/WikiStart.html "$OUTDIR"/index.html
 
-wget -nv http://www.opensc-project.org/trac/css/trac.css \
-	-O "$SRCDIR"/trac.css
+$WGET $WGET_OPTS http://www.opensc-project.org/trac/css/trac.css \
+	-O "$OUTDIR"/trac.css
 
-rm "$SRCDIR"/*.tmp
+cat "$OUTDIR"/*.html |grep "<img src=\"/$PROJECT/attachment/wiki" \
+	|$SED -e 's/.*<img src="\/'$PROJECT'\/attachment\/wiki\/\([^"]*\)?format=raw".*/\1/g' \
+	|sort -u |while read A
+do
+	B="`echo $A |$TR / _`"
+	$WGET $WGET_OPTS "$SERVER/$PROJECT/attachment/wiki/$A?format=raw" -O "$OUTDIR"/$B
+	for C in "${OUTDIR}"/*.html
+	do
+		$SED -e 's#\/'$PROJECT'\/attachment\/wiki\/'$A'?format=raw#'$B'#g' -i "$C"
+	done
+done
 
+for A in "${OUTDIR}"/*.html
+do
+	$SED -e 's#href="/'$PROJECT'/wiki/\([^"]*\)"#href="\1.html"#g' \
+		-i $A
+done
+
+rm "$OUTDIR"/*.tmp
+exit 0
