@@ -38,6 +38,7 @@ struct configuration_st {
 	char *pkcs11_module;
 	char *pkcs11_modulepath;
 	char **screen_savers;
+	char *slot_description;
 	int slot_num;
 	int support_threads;
 	cert_policy policy;

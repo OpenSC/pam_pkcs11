@@ -67,13 +67,76 @@ int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
   return 0;
 }
 
+/*
+ * memcmp_pad_max() is a specialized version of memcmp() which compares two
+ * pieces of data up to a maximum length.  If the two data match up the
+ * maximum length, they are considered matching.  Trailing blanks do not cause
+ * the match to fail if one of the data is shorted.
+ *
+ * Examples of matches:
+ *	"one"           |
+ *	"one      "     |
+ *	                ^maximum length
+ *
+ *	"Number One     |  X"	(X is beyond maximum length)
+ *	"Number One   " |
+ *	                ^maximum length
+ *
+ * Examples of mismatches:
+ *	" one"
+ *	"one"
+ *
+ *	"Number One    X|"
+ *	"Number One     |"
+ *	                ^maximum length
+ */
+static int
+memcmp_pad_max(void *d1, size_t d1_len, void *d2, size_t d2_len,
+    size_t max_sz)
+{
+	size_t		len, extra_len;
+	char		*marker;
+
+	/* No point in comparing anything beyond max_sz */
+	if (d1_len > max_sz)
+		d1_len = max_sz;
+	if (d2_len > max_sz)
+		d2_len = max_sz;
+
+	/* Find shorter of the two data. */
+	if (d1_len <= d2_len) {
+		len = d1_len;
+		extra_len = d2_len;
+		marker = d2;
+	} else {	/* d1_len > d2_len */
+		len = d2_len;
+		extra_len = d1_len;
+		marker = d1;
+	}
+
+	/* Have a match in the shortest length of data? */
+	if (memcmp(d1, d2, len) != 0)
+		/* CONSTCOND */
+		return (1);
+
+	/* If the rest of longer data is nulls or blanks, call it a match. */
+	while (len < extra_len && marker[len])
+		if (!isspace(marker[len++]))
+			/* CONSTCOND */
+			return (1);
+	return (0);
+}
+
+
 #ifdef HAVE_NSS
 /*
  * Using NSS to find the manage the PKCS #11 modules
  */
 #include "nss.h"
+#include "nspr.h"
 #include "cert.h"
 #include "secmod.h"
+#include "secutil.h"
 #include "pk11pub.h"
 #include "cert_st.h"
 #include "secutil.h"
@@ -301,34 +364,34 @@ int find_slot_by_number(pkcs11_handle_t *h, int slot_num, unsigned int *slotID)
  */
 int find_slot_by_number_and_label(pkcs11_handle_t *h, 
 				  int wanted_slot_id,
-				  const char *wanted_slot_label,
+				  const char *wanted_token_label,
                                   unsigned int *slot_num)
 {
   int rv;
-  const char *slot_label = NULL;
+  const char *token_label = NULL;
   PK11SlotInfo *slot = NULL;
 
   /* we want a specific slot id, or we don't kare about the label */
-  if ((wanted_slot_label == NULL) || (wanted_slot_id != 0)) {
+  if ((wanted_token_label == NULL) || (wanted_slot_id != 0)) {
     rv = find_slot_by_number(h, wanted_slot_id, slot_num);
 
     /* if we don't care about the label, or we failed, we're done */
-    if ((wanted_slot_label == NULL) || (rv != 0)) {
+    if ((wanted_token_label == NULL) || (rv != 0)) {
       return rv;
     }
 
     /* verify it's the label we want */
-    slot_label = PK11_GetTokenName(h->slot);
+    token_label = PK11_GetTokenName(h->slot);
 
-    if ((slot_label != NULL) && 
-        (strcmp (wanted_slot_label, slot_label) == 0)) {
+    if ((token_label != NULL) && 
+        (strcmp (wanted_token_label, token_label) == 0)) {
       return 0;
     }
     return -1;
   }
 
   /* we want a specific slot by label only */
-  slot = PK11_FindSlotByName(wanted_slot_label);
+  slot = PK11_FindSlotByName(wanted_token_label);
   if (!slot) {
     return -1;
   }
@@ -350,7 +413,7 @@ int find_slot_by_number_and_label(pkcs11_handle_t *h,
 
 int wait_for_token(pkcs11_handle_t *h, 
                    int wanted_slot_id,
-                   const char *wanted_slot_label,
+                   const char *wanted_token_label,
                    unsigned int *slot_num)
 {
   int rv;
@@ -358,7 +421,7 @@ int wait_for_token(pkcs11_handle_t *h,
   rv = -1;
   do {
     /* see if the card we're looking for is inserted */
-    rv = find_slot_by_number_and_label (h, wanted_slot_id,  wanted_slot_label,
+    rv = find_slot_by_number_and_label (h, wanted_slot_id,  wanted_token_label,
                                         slot_num);
     if (rv !=  0) {
       PK11SlotInfo *slot;
@@ -384,6 +447,149 @@ int wait_for_token(pkcs11_handle_t *h,
 
   return rv;
 }
+
+/* 
+ * This function will search the slot list to find a slot based on the slot
+ * label.  If the wanted_slot_label is "none", then we will return the first
+ * slot with the token presented.
+ * 
+ * This function return 0 if it found a matching slot; otherwise, it returns
+ * -1.
+ */
+int
+find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
+    unsigned int *slotID)
+{
+  SECMODModule *module = h->module;
+  PK11SlotInfo *slot;
+  int rv;
+  int i;
+
+  if (slotID == NULL || wanted_slot_label == NULL ||
+      strlen(wanted_slot_label) == 0 || module == NULL)
+    return (-1);
+
+  if (strcmp(wanted_slot_label, "none") == 0) {
+    rv = find_slot_by_number(h, 0, slotID);
+    return (rv);
+  } else {
+    /* wanted_slot_label is not "none"  */
+    for (i = 0; i < module->slotCount; i++) {
+      if (module->slots[i] && PK11_IsPresent(module->slots[i])) {
+        const char *slot_label;
+
+	slot = PK11_ReferenceSlot(module->slots[i]);
+	slot_label = PK11_GetSlotName(slot);	
+	if (memcmp_pad_max((void *)slot_label, strlen(slot_label),
+	    (void *)wanted_slot_label, strlen(wanted_slot_label), 64) == 0) {
+	  h->slot = slot;
+	  *slotID = PK11_GetSlotID(slot);
+	  return 0;
+        }
+      }
+    }
+  }
+
+  return (-1);
+}
+
+
+int
+find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
+    const char *wanted_slot_label, const char *wanted_token_label,
+    unsigned int *slot_num)
+{
+  SECMODModule *module = h->module;
+  PK11SlotInfo *slot;
+  unsigned long i;
+  int rv;
+
+  if (slot_num == NULL || module == NULL)
+    return (-1);
+
+  if (wanted_token_label == NULL){ 
+    rv = find_slot_by_slotlabel(h, wanted_slot_label, slot_num);
+    return (rv);
+  }
+
+  /* wanted_token_label != NULL */
+  if (strcmp(wanted_slot_label, "none") == 0) { 
+    for (i = 0; i < module->slotCount; i++) {
+      if (module->slots[i] && PK11_IsPresent(module->slots[i])) {
+	const char *token_label;
+	slot = PK11_ReferenceSlot(module->slots[i]);
+	token_label = PK11_GetTokenName(slot);
+	if (memcmp_pad_max((void *) token_label, strlen(token_label),
+	    (void *)wanted_token_label, strlen(wanted_token_label), 33) == 0) {
+          h->slot =  slot;
+          *slot_num =  PK11_GetSlotID(slot);
+	  return (0);
+        }
+      }
+    }
+    return (-1);
+  } else {
+    for (i = 0; i < module->slotCount; i++) {
+      if (module->slots[i] && PK11_IsPresent(module->slots[i])) {
+	const char *slot_label;
+	const char *token_label;
+
+	slot = PK11_ReferenceSlot(module->slots[i]);
+	slot_label = PK11_GetSlotName(slot);
+	token_label = PK11_GetTokenName(slot);
+	if ((memcmp_pad_max((void *)slot_label, strlen(slot_label),
+	    (void *)wanted_slot_label, strlen(wanted_slot_label), 64) == 0) &&
+            (memcmp_pad_max((void *)token_label, strlen(token_label),
+	    (void *)wanted_token_label, strlen(wanted_token_label), 33) == 0))
+	{
+          h->slot =  slot;
+          *slot_num =  PK11_GetSlotID(slot);
+	  return (0);
+        }
+      }
+    }
+    return (-1);
+  }
+}
+
+int wait_for_token_by_slotlabel(pkcs11_handle_t *h, 
+                   const char *wanted_slot_label,
+                   const char *wanted_token_label,
+                   unsigned int *slot_num)
+{
+  int rv;
+
+  rv = -1;
+  do {
+    /* see if the card we're looking for is inserted */
+    rv = find_slot_by_slotlabel_and_tokenlabel (h, wanted_slot_label,
+	wanted_token_label, slot_num);
+  
+    if (rv !=  0) {
+      PK11SlotInfo *slot;
+      PRIntervalTime slot_poll_interval; /* only for legacy hardware */
+
+      /* if the card is not inserted, then block until something happens */
+      slot_poll_interval = PR_MillisecondsToInterval(PAM_PKCS11_POLL_TIME);
+      slot = SECMOD_WaitForAnyTokenEvent(h->module, 0 /* flags */,
+                                         slot_poll_interval);
+
+      /* unexpected error */
+      if (slot == NULL) {
+        break;
+      }
+
+      /* something happened, continue loop and check if the card
+       * we're looking for is inserted
+       */
+      PK11_FreeSlot(slot);
+      continue;
+    }
+  } while (rv != 0);
+
+  return rv;
+}
+
 
 void release_pkcs11_module(pkcs11_handle_t *h) 
 {
@@ -470,7 +676,7 @@ int close_pkcs11_session(pkcs11_handle_t *h)
   return 0;
 }
 
-const char *get_slot_label(pkcs11_handle_t *h)
+const char *get_slot_tokenlabel(pkcs11_handle_t *h)
 {
   if (!h->slot) {
     return NULL;
@@ -613,7 +819,6 @@ int get_random_value(unsigned char *data, int length)
   return (rv == SECSuccess) ? 0 : -1;
 }
 
-#include "nspr.h"
 
 struct tuple_str {
     PRErrorCode	 errNum;
@@ -708,7 +913,8 @@ struct cert_object_str {
 typedef struct {
   CK_SLOT_ID id;
   CK_BBOOL token_present;
-  CK_UTF8CHAR label[33];
+  CK_UTF8CHAR label[33]; /* token label */
+  CK_UTF8CHAR slotDescription[64];
 } slot_t;
 
 struct pkcs11_handle_str {
@@ -807,6 +1013,10 @@ refresh_slots(pkcs11_handle_t *h)
       set_error("C_GetSlotInfo() failed: 0x%08lX", rv);
       return -1;
     }
+
+    (void) memcpy(h->slots[i].slotDescription, sinfo.slotDescription,
+		sizeof(h->slots[i].slotDescription));
+
     DBG1("- description: %.64s", sinfo.slotDescription);
     DBG1("- manufacturer: %.32s", sinfo.manufacturerID);
     DBG1("- flags: %04lx", sinfo.flags);
@@ -945,27 +1155,27 @@ int find_slot_by_number(pkcs11_handle_t *h, int slot_num, unsigned int *slot)
 	
 int find_slot_by_number_and_label(pkcs11_handle_t *h, 
 				  int wanted_slot_id,
-				  const char *wanted_slot_label,
+				  const char *wanted_token_label,
                                   unsigned int *slot_num)
 {
   unsigned int slot_index;
   int rv;
-  const char *slot_label = NULL;
+  const char *token_label = NULL;
 
   /* we want a specific slot id, or we don't care about the label */
-  if ((wanted_slot_label == NULL) || (wanted_slot_id != 0)) {
+  if ((wanted_token_label == NULL) || (wanted_slot_id != 0)) {
     rv = find_slot_by_number(h, wanted_slot_id, slot_num);
 
     /* if we don't care about the label, or we failed, we're done */
-    if ((wanted_slot_label == NULL) || (rv != 0)) {
+    if ((wanted_token_label == NULL) || (rv != 0)) {
       return rv;
     }
 
     /* verify it's the label we want */
-    slot_label = h->slots[*slot_num].label;
+    token_label = h->slots[*slot_num].label;
 
-    if ((slot_label != NULL) && 
-        (strcmp (wanted_slot_label, slot_label) == 0)) {
+    if ((token_label != NULL) && 
+        (strcmp (wanted_token_label, token_label) == 0)) {
       return 0;
     }
     return -1;
@@ -974,9 +1184,9 @@ int find_slot_by_number_and_label(pkcs11_handle_t *h,
   /* look up the slot by it's label from the list */
   for (slot_index = 0; slot_index < h->slot_count; slot_index++) {
     if (h->slots[slot_index].token_present) {
-      slot_label = h->slots[slot_index].label;
-      if ((slot_label != NULL) && 
-          (strcmp (wanted_slot_label, slot_label) == 0)) {
+      token_label = h->slots[slot_index].label;
+      if ((token_label != NULL) && 
+          (strcmp (wanted_token_label, token_label) == 0)) {
         *slot_num = slot_index;
         return 0;
       }
@@ -985,9 +1195,98 @@ int find_slot_by_number_and_label(pkcs11_handle_t *h,
   return -1;
 }
 
-int wait_for_token(pkcs11_handle_t *h, 
-                   int wanted_slot_id,
+
+/* 
+ * This function will search the slot list to find a slot based on the slot
+ * label.  If the wanted_slot_label is "none", then we will return the first
+ * slot with the token presented.
+ * 
+ * This function return 0 if it found a matching slot; otherwise, it returns
+ * -1.
+ */
+int
+find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
+    unsigned int *slot_num)
+{
+  unsigned long index;
+  size_t len;
+
+  if (slot_num == NULL || wanted_slot_label == NULL ||
+      strlen(wanted_slot_label) == 0)
+    return (-1);
+
+  if (strcmp(wanted_slot_label, "none") == 0) {
+    for (index = 0; index < h->slot_count; index++) {
+      if (h->slots[index].token_present) {
+	*slot_num = index;
+	return (0);
+      }
+    }
+  } else {
+    /* Look up the slot by it's slotDescription */
+    len = strlen(wanted_slot_label);
+    for (index = 0; index < h->slot_count; index++) {
+      if (memcmp_pad_max(h->slots[index].slotDescription, 64,
+	  (void *)wanted_slot_label, len, 64) == 0) {
+	*slot_num = index;
+	return (0);
+      }
+    }
+  }
+
+  return (-1);
+}
+
+
+int
+find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
+    const char *wanted_slot_label, const char *wanted_token_label,
+    unsigned int *slot_num)
+{
+  unsigned long i;
+  int rv;
+
+  if (slot_num == NULL)
+    return (-1);
+
+  if (wanted_token_label == NULL) {
+    rv = find_slot_by_slotlabel(h, wanted_slot_label, slot_num);
+    return (rv);
+  }
+
+  /* wanted_token_label != NULL */
+  if (strcmp(wanted_slot_label, "none") == 0) { 
+    for (i= 0; i < h->slot_count; i++) {
+      if (h->slots[i].token_present &&
+	  strcmp(wanted_token_label, h->slots[i].label) == 0) {
+	*slot_num = i;
+	return (0);
+      }
+    }
+    return (-1);
+  } else {
+    for (i = 0; i < h->slot_count; i++) {
+      if (h->slots[i].token_present) {
+        const char *slot_label = h->slots[i].slotDescription;
+        const char *token_label = h->slots[i].label;
+
+	if ((memcmp_pad_max((void *)slot_label, strlen(slot_label),
+	    (void *)wanted_slot_label, strlen(wanted_slot_label), 64) == 0) &&
+            (memcmp_pad_max((void *)token_label, strlen(token_label),
+            (void *)wanted_token_label, strlen(wanted_token_label), 33) == 0))
+        {
+	  *slot_num = i;
+	  return (0);
+        }
+      }
+    }
+    return (-1);
+  }
+}
+
+int wait_for_token_by_slotlabel(pkcs11_handle_t *h, 
                    const char *wanted_slot_label,
+                   const char *wanted_token_label,
                    unsigned int *slot_num)
 {
   int rv;
@@ -995,7 +1294,30 @@ int wait_for_token(pkcs11_handle_t *h,
   rv = -1;
   do {
     /* see if the card we're looking for is inserted */
-    rv = find_slot_by_number_and_label (h, wanted_slot_id,  wanted_slot_label,
+    rv = find_slot_by_slotlabel_and_tokenlabel (h, wanted_slot_label,
+	wanted_token_label, slot_num);
+    if (rv !=  0) {
+      /* could call C_WaitForSlotEvent, for now just poll */
+      sleep(10);
+      refresh_slots(h);
+      continue;
+    }
+  } while (rv != 0);
+
+  return rv;
+}
+
+int wait_for_token(pkcs11_handle_t *h, 
+                   int wanted_slot_id,
+                   const char *wanted_token_label,
+                   unsigned int *slot_num)
+{
+  int rv;
+
+  rv = -1;
+  do {
+    /* see if the card we're looking for is inserted */
+    rv = find_slot_by_number_and_label (h, wanted_slot_id,  wanted_token_label,
                                         slot_num);
     if (rv !=  0) {
       /* could call C_WaitForSlotEvent, for now just poll */
@@ -1306,7 +1628,7 @@ get_privkey_failed:
   return -1;
 }
 
-const char *get_slot_label(pkcs11_handle_t *h)
+const char *get_slot_tokenlabel(pkcs11_handle_t *h)
 {
   return h->slots[h->current_slot].label;
 }

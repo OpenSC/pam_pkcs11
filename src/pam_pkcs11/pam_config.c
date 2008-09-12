@@ -45,7 +45,8 @@ struct configuration_st configuration = {
         "default", 			/* const char *pkcs11_module; */
         CONFDIR "/pkcs11_module.so",/* const char *pkcs11_module_path; */
         NULL,                           /* screen savers */
-        0,				/* int slot_num; */
+        NULL,			/* slot_description */
+        -1,				/* int slot_num; */
 	0,				/* support threads */
 	/* cert policy; */
         {
@@ -145,8 +146,22 @@ static void parse_config_file(void) {
 	        scconf_get_str(pkcs11_mblk,"crl_dir",configuration.policy.crl_dir);
 	    configuration.policy.nss_dir = (char *)
 	        scconf_get_str(pkcs11_mblk,"nss_dir",configuration.policy.nss_dir);
+		configuration.slot_description = (char *)
+			scconf_get_str(pkcs11_mblk,"slot_description",configuration.slot_description);
+
 	    configuration.slot_num = 
 	        scconf_get_int(pkcs11_mblk,"slot_num",configuration.slot_num);
+
+	    if (configuration.slot_description != NULL && configuration.slot_num != -1) {
+		DBG1("Can not specify both slot_description and slot_num in file %s",configuration.config_file);
+	            return;
+	    }
+
+	    if (configuration.slot_description == NULL && configuration.slot_num == -1) {
+		DBG1("Neither slot_description nor slot_num found in file %s",configuration.config_file);
+	            return;
+	    }
+
 	    configuration.support_threads = 
 	        scconf_get_bool(pkcs11_mblk,"support_threads",configuration.support_threads);
 	    policy_list= scconf_find_list(pkcs11_mblk,"cert_policy");
@@ -255,10 +270,16 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		res=sscanf(argv[i],"pkcs11_module=%255s",configuration.pkcs11_module);
 		continue;
 	   }
+	   if (strstr(argv[i],"slot_description=") ) {
+		res=sscanf(argv[i],"slot_description=%255s",&configuration.slot_description);
+		continue;
+	   }
+
 	   if (strstr(argv[i],"slot_num=") ) {
 		res=sscanf(argv[i],"slot_num=%d",&configuration.slot_num);
 		continue;
 	   }
+
 	   if (strstr(argv[i],"ca_dir=") ) {
 		res=sscanf(argv[i],"ca_dir=%255s",configuration.policy.ca_dir);
 		continue;
@@ -308,4 +329,3 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	}
 	return &configuration;
 }
-

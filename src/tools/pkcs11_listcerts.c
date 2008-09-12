@@ -53,6 +53,11 @@ int main(int argc, const char **argv) {
 	return 1;
   }
 
+  if ((configuration->slot_description != NULL && configuration->slot_num != -1) || (configuration->slot_description == NULL && configuration->slot_num == -1)) {
+	ERR("Error setting configuration parameters");
+	return 1;
+  }
+
   /* init openssl */
   rv = crypto_init(&configuration->policy);
   if (rv != 0) {
@@ -78,7 +83,12 @@ int main(int argc, const char **argv) {
   }
 
   /* open pkcs #11 session */
-  rv = find_slot_by_number(ph, configuration->slot_num, &slot_num);
+  if (configuration->slot_description != NULL) {
+    rv = find_slot_by_slotlabel(ph,configuration->slot_description, &slot_num);
+  } else { 
+    rv = find_slot_by_number(ph,configuration->slot_num, &slot_num);
+  }
+
   if (rv != 0) {
     release_pkcs11_module(ph);
     DBG("no token available");

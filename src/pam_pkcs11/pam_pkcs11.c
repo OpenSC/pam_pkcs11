@@ -206,6 +206,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	return PAM_AUTHINFO_UNAVAIL;
   }
 
+  /* Either slot_description or slot_num, but not both, needs to be used */
+  if ((configuration->slot_description != NULL && configuration->slot_num != -1) || (configuration->slot_description == NULL && configuration->slot_num == -1)) {
+	ERR("Error setting configuration parameters");
+	return PAM_AUTHINFO_UNAVAIL;
+  }
+
   /* fail if we are using a remote server
    * local login: DISPLAY=:0
    * XDMCP login: DISPLAY=host:0 */
@@ -314,8 +320,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
 
   /* open pkcs #11 session */
-  rv = find_slot_by_number_and_label(ph, configuration->slot_num, 
+  if (configuration->slot_description != NULL) {
+    rv = find_slot_by_slotlabel_and_tokenlabel(ph,
+      configuration->slot_description, login_token_name, &slot_num);
+  } else if (configuration->slot_num != -1) {
+    rv = find_slot_by_number_and_label(ph, configuration->slot_num,
                                      login_token_name, &slot_num);
+  }
+
   if (rv != 0) {
     ERR("no suitable token available");
     pam_syslog(pamh, LOG_ERR, "no suitable token available");
@@ -337,8 +349,15 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
         pam_prompt(pamh, PAM_TEXT_INFO, NULL,
                  _("Please insert your smart card."));
       }
-      rv = wait_for_token(ph, configuration->slot_num,
+
+      if (configuration->slot_description != NULL) {
+	rv = wait_for_token_by_slotlabel(ph, configuration->slot_description,
+          login_token_name, &slot_num);
+      } else if (configuration->slot_num != -1) {
+        rv = wait_for_token(ph, configuration->slot_num,
                           login_token_name, &slot_num);
+      }
+
       if (rv != 0) {
         release_pkcs11_module(ph);
         return pkcs11_pam_fail;
@@ -356,7 +375,13 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
       /* check one last time for the smart card before bouncing to the next
        * module */
-      rv = find_slot_by_number(ph, configuration->slot_num, &slot_num);
+      if (configuration->slot_description != NULL) {
+	rv = find_slot_by_slotlabel(ph, configuration->slot_description,
+	  &slot_num);
+      } else if (configuration->slot_num != -1) {
+        rv = find_slot_by_number(ph, configuration->slot_num, &slot_num);
+      }
+
       if (rv != 0) {
         /* user gave us a user id and no smart card go to next module */
         release_pkcs11_module(ph);
@@ -375,7 +400,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
 
   /* get password */
-  sprintf(password_prompt, _("Welcome %.32s!"), get_slot_label(ph));
+  sprintf(password_prompt, _("Welcome %.32s!"), get_slot_tokenlabel(ph));
   pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
   if (configuration->use_first_pass) {
     rv = pam_get_pwd(pamh, &password, NULL, PAM_AUTHTOK, 0);
@@ -558,7 +583,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   snprintf(env_temp, sizeof(env_temp) - 1,
 	   "PKCS11_LOGIN_TOKEN_NAME=%.*s", 
 	   (sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_TOKEN_NAME="),
-	   get_slot_label(ph));
+	   get_slot_tokenlabel(ph));
   rv = pam_putenv(pamh, env_temp);
 
   if (rv != PAM_SUCCESS) {

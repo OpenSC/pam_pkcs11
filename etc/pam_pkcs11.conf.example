@@ -29,10 +29,25 @@ pam_pkcs11 {
   pkcs11_module opensc {
     module = /usr/lib/opensc-pkcs11.so;
     description = "OpenSC PKCS#11 module";
-    # Slot-number to use. One for the first, two for the second and so
-    # on. The default value is zero which means to use the first slot
-    # with an available token.
-    slot_num = 0;
+
+    # Which slot to use?
+    # You can use "slot_num" or "slot_description", but not both, to specify
+    # the slot to use.   Using "slot_description" is preferred because the
+    # PKCS#11 specification does not guarantee slot ordering. "slot_num" should
+    # only be used with those PKCS#11 implementations that guarantee
+    # constant slot numbering.
+    #
+    #  slot_description = "xxxx"
+    #      The slot is specified by the slot description, for example, 
+    #      slot_description = "Sun Crypto Softtoken".  The default value is
+    #      "none" which means to use the first slot with an available token.
+    #
+    #  slot_num = a_number
+    #      The slot is specified by the slot number, for example, slot_num = 1.
+    #      The default value is zero which means to use the first slot with an
+    #      available token.
+    #
+    slot_description = "none";
 
     # Where are CA certificates stored?
     # You can setup this value to:
