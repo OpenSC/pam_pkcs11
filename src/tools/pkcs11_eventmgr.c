@@ -431,6 +431,7 @@ int main(int argc, char *argv[]) {
 	}
     }
 
+#ifdef HAVE_DAEMON
     if (daemonize) {
 	DBG("Going to be daemon...");
 	if ( daemon(0,debug)<0 ) {
@@ -441,6 +442,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
     }
+#endif
 
     /* 
      * Wait endlessly for all events in the list of readers
@@ -512,6 +514,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+#ifdef HAVE_DAEMON
     /* put my self into background if flag is set */
     if (daemonize) {
 	DBG("Going to be daemon...");
@@ -522,6 +525,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
     }
+#endif
 
     /* open pkcs11 sesion */
     DBG("initialising pkcs #11 module...");

@@ -248,7 +248,7 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_STAT
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([memset strdup strerror strndup])
+AC_CHECK_FUNCS([memset strdup strerror strndup daemon])
 
 
 AC_CONFIG_FILES([ 
