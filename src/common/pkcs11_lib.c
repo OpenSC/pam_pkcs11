@@ -964,7 +964,7 @@ int load_pkcs11_module(char *module, pkcs11_handle_t **hp)
   DBG3("module permissions: uid = %d, gid = %d, mode = %o",
       module_stat.st_uid, module_stat.st_gid, module_stat.st_mode & 0777);
   if (module_stat.st_mode & S_IWGRP || module_stat.st_mode & S_IWOTH
-      || module_stat.st_uid != 0 || module_stat.st_gid != 0) {
+      || module_stat.st_uid != 0) {
     set_error("the pkcs #11 module MUST be owned by root and MUST NOT "
               "be writeable by the group or others");
     free(h);
