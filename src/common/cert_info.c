@@ -52,7 +52,7 @@ static const SECOidData kerberosPN_Entry =
 SECOidTag CERT_MicrosoftUPN_OID = SEC_OID_UNKNOWN;
 /* { 1.3.6.1.4.1.311 } */
 static const unsigned char microsoftUPNOID[] =  
-        { 0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37 }; /*, xxxx  */
+        { 0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x14, 0x2, 0x3 };
 static const SECOidData microsoftUPN_Entry = 
         { TO_ITEM(microsoftUPNOID), SEC_OID_UNKNOWN, 
         "Microsoft Universal Priniciple", CKM_INVALID_MECHANISM, 
@@ -127,6 +127,74 @@ static char **cert_info_digest(X509 *x509, ALGORITHM_TYPE algorithm) {
   return entries;
 }
 
+static char **
+cert_info_upn (X509 *x509)
+{
+    SECItem alt_name;
+    SECStatus status;
+    PRArenaPool *arena = NULL;
+    CERTGeneralName *nameList;
+    CERTGeneralName *current;
+    SECOidTag tag;
+    static char *results[CERT_INFO_SIZE] = { NULL };
+    int result = 0;
+    SECItem decoded;
+
+    DBG("Looking for ALT_NAME");
+
+    status = CERT_FindCertExtension(x509, SEC_OID_X509_SUBJECT_ALT_NAME, &alt_name);
+    if (status != SECSuccess) {
+        DBG("Not found");
+        goto no_upn;
+    }
+    
+    arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
+    if (!arena) {
+        DBG("Could not allocate arena");
+        goto no_upn;
+    }
+
+    nameList = current = CERT_DecodeAltNameExtension(arena, &alt_name);
+    if (!nameList) {
+        DBG("Could not decode name");
+        goto no_upn;
+    }
+
+    cert_fetchOID(&CERT_MicrosoftUPN_OID, &microsoftUPN_Entry);
+    do {
+        if (current->type == certOtherName) {
+            tag = SECOID_FindOIDTag(&current->name.OthName.oid);
+            DBG1("got other name with tag %#x", tag);
+            if (tag == CERT_MicrosoftUPN_OID) {
+				status = SEC_ASN1DecodeItem(arena, &decoded,
+					SEC_UTF8StringTemplate, &current->name.OthName.name);
+                if (status == SECSuccess) {
+                    results[result] = malloc(decoded.len + 1);
+                    memcpy(results[result], decoded.data, decoded.len);
+                    results[result][decoded.len] = '\0';
+                    DBG1("Got upn: %s", results[result]);
+                    result++;
+                } else {
+                    DBG("Could not decode upn...");
+                }
+            }
+        } else {
+            DBG("not other name...");
+        }
+        current = CERT_GetNextGeneralName(current);
+    } while (current != nameList && result < CERT_INFO_MAX_ENTRIES);
+
+no_upn:
+    if (arena) {
+        PORT_FreeArena(arena, PR_FALSE);
+    }
+
+    if (alt_name.data) {
+        SECITEM_FreeItem(&alt_name, PR_FALSE);
+    }
+
+    return results;
+}
 
 /**
 * request info on certificate
@@ -174,8 +242,7 @@ char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm ) {
       break;
     /* need oid tag. */
     case CERT_UPN     : /* Microsoft's Universal Principal Name */
-      cert_fetchOID(&CERT_MicrosoftUPN_OID ,& microsoftUPN_Entry);
-      return cert_GetNameElements(&x509->subject, CERT_MicrosoftUPN_OID);
+      return cert_info_upn(x509);
     case CERT_UID     : /* Certificate Unique Identifier */
       return cert_GetNameElements(&x509->subject, SEC_OID_RFC1274_UID);
       break;

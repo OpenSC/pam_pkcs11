@@ -70,7 +70,7 @@ static char *check_upn(char *str) {
 	    return NULL;
 	}
 	if (ignoredomain) return str;
-	if (!strcmp(domainname,domain)) {
+	if (strcmp(domainname,domain)) {
 	    DBG2("Domain '%s' doesn't match UPN domain '%s'",domainname,domain);
 	    return NULL;
 	}
