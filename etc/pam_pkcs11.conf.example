@@ -146,7 +146,7 @@ pam_pkcs11 {
         # Use one of "cn" , "subject" , "kpn" , "email" , "upn" or "uid"
         cert_item  = cn;
         # Define mapfile if needed, else select "none"
-        mapfile = file:///etc/pam_pkcs11/generic_mapping
+        mapfile = file:///etc/pam_pkcs11/generic_mapping;
         # Decide if use getpwent() to map login
         use_getpwent = false;
   }
