@@ -95,6 +95,12 @@ pam_pkcs11 {
     cert_policy = ca,signature;
   }
 
+  # NSS (Network Security Service) config
+  pkcs11_module nss {
+    nss_dir = /etc/ssl/nssdb;
+    crl_policy = none;
+  }
+
   # Default pkcs11 module
   pkcs11_module default {
     module = /usr/lib/pam_pkcs11/pkcs11_module.so;
