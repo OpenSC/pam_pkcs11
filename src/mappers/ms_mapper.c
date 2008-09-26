@@ -52,6 +52,7 @@
 static int ignorecase = 0;
 static int ignoredomain =0;
 static const char *domainname="";
+static const char *domainnickname="";
 static int debug =0;
 
 /* check syntax and domain match on provided string */
@@ -72,6 +73,16 @@ static char *check_upn(char *str) {
 	if (!strcmp(domainname,domain)) {
 	    DBG2("Domain '%s' doesn't match UPN domain '%s'",domainname,domain);
 	    return NULL;
+	}
+	if (domainnickname && domainnickname[0]) {
+		char *tmp;
+		size_t tmp_len;
+		DBG1("Adding domain nick name '%s'",domainnickname);
+		tmp_len = strlen(str) + strlen(domainnickname) + 2;
+		tmp = malloc(tmp_len);
+		snprintf(tmp, tmp_len, "%s\\%s", domainnickname, str);
+		free(str);
+		str = tmp;
 	}
 	return str;
 }
@@ -179,6 +190,7 @@ mapper_module * ms_mapper_module_init(scconf_block *blk,const char *mapper_name)
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	ignoredomain = scconf_get_bool(blk,"ignoredomain",ignoredomain);
 	domainname = scconf_get_str(blk,"domainname",domainname);
+	domainnickname = scconf_get_str(blk,"domainnickname",domainnickname);
 	} else {
 		DBG1("No block declaration for mapper '%s'",mapper_name);
 	}
