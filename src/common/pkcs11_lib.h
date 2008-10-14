@@ -31,7 +31,7 @@ typedef struct pkcs11_handle_str pkcs11_handle_t;
 PKCS11_EXTERN int crypto_init(cert_policy *policy);
 PKCS11_EXTERN int load_pkcs11_module(char *module, pkcs11_handle_t **h);
 PKCS11_EXTERN int init_pkcs11_module(pkcs11_handle_t *h,int flag);
-PKCS11_EXTERN int find_slot_by_number(pkcs11_handle_t *h,int slot_num,
+PKCS11_EXTERN int find_slot_by_number(pkcs11_handle_t *h,unsigned int slot_num,
                                       unsigned int *slot);
 PKCS11_EXTERN int find_slot_by_number_and_label(pkcs11_handle_t *h,
                                       int slot_num, const char *slot_label,

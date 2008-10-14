@@ -1136,7 +1136,7 @@ void release_pkcs11_module(pkcs11_handle_t *h)
   free(h);
 }
 
-int find_slot_by_number(pkcs11_handle_t *h, int slot_num, unsigned int *slot)
+int find_slot_by_number(pkcs11_handle_t *h, unsigned int slot_num, unsigned int *slot)
 {
    /* zero means find the best slot */
    if (slot_num == 0) {
