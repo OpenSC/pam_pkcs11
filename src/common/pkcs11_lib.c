@@ -1209,7 +1209,7 @@ int
 find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
     unsigned int *slot_num)
 {
-  unsigned long index;
+  unsigned long idx;
   size_t len;
 
   if (slot_num == NULL || wanted_slot_label == NULL ||
@@ -1217,19 +1217,19 @@ find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
     return (-1);
 
   if (strcmp(wanted_slot_label, "none") == 0) {
-    for (index = 0; index < h->slot_count; index++) {
-      if (h->slots[index].token_present) {
-	*slot_num = index;
+    for (idx = 0; idx < h->slot_count; idx++) {
+      if (h->slots[idx].token_present) {
+	*slot_num = idx;
 	return (0);
       }
     }
   } else {
     /* Look up the slot by it's slotDescription */
     len = strlen(wanted_slot_label);
-    for (index = 0; index < h->slot_count; index++) {
-      if (memcmp_pad_max(h->slots[index].slotDescription, 64,
+    for (idx = 0; idx < h->slot_count; idx++) {
+      if (memcmp_pad_max(h->slots[idx].slotDescription, 64,
 	  (void *)wanted_slot_label, len, 64) == 0) {
-	*slot_num = index;
+	*slot_num = idx;
 	return (0);
       }
     }
