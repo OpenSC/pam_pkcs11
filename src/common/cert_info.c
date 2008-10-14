@@ -822,7 +822,7 @@ static char **cert_info_serial_number(X509 *x509) {
 	static char *entries[2] = { NULL,NULL };
 	ASN1_INTEGER *serial = X509_get_serialNumber(x509);
 	int len;
-	char *buffer = NULL, *tmp_ptr;
+	unsigned char *buffer = NULL, *tmp_ptr;
 
 	len = i2c_ASN1_INTEGER(serial, NULL);
 	
