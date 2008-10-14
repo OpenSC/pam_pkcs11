@@ -277,7 +277,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		continue;
 	   }
 	   if (strstr(argv[i],"slot_description=") ) {
-		res=sscanf(argv[i],"slot_description=%255s",&configuration.slot_description);
+		res=sscanf(argv[i],"slot_description=%255s",configuration.slot_description);
 		continue;
 	   }
 
@@ -327,7 +327,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	   }
 
 	   if (strstr(argv[i],"token_type=") ) {
-		res=sscanf(argv[i],"token_type=%255s",&configuration.token_type);
+		res=sscanf(argv[i],"token_type=%255s",configuration.token_type);
 		continue;
 	   }
 
