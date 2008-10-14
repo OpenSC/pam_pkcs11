@@ -42,6 +42,7 @@ struct configuration_st {
 	int slot_num;
 	int support_threads;
 	cert_policy policy;
+	char *token_type;
 	char *username; /* provided user name */
 };
 

@@ -28,6 +28,8 @@
 #include "pam_config.h"
 #include "mapper_mgr.h"
 
+#define N_(string) (string)
+
 /*
 * configuration related functions
 */
@@ -58,6 +60,7 @@ struct configuration_st configuration = {
 		CONFDIR "/nssdb",
 		OCSP_NONE
 	},
+	N_("Smart card"),			/* token_type */
 	NULL				/* char *username */
 };
 
@@ -189,6 +192,9 @@ static void parse_config_file(void) {
 	        }
 		policy_list= policy_list->next;
 	    }
+
+		configuration.token_type = (char *)
+			scconf_get_str(pkcs11_mblk,"token_type",configuration.token_type);
 	}
 	screen_saver_list = scconf_find_list(root,"screen_savers");
 	if (screen_saver_list) {
@@ -319,6 +325,12 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		}
 		continue;
 	   }
+
+	   if (strstr(argv[i],"token_type=") ) {
+		res=sscanf(argv[i],"token_type=%255s",&configuration.token_type);
+		continue;
+	   }
+
 	   if (strstr(argv[i],"config_file=") ) {
 		/* already parsed, skip */
 		continue;

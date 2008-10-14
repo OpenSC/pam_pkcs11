@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pam_pkcs11 0.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-05-22 10:27+0200\n"
+"POT-Creation-Date: 2008-10-14 09:29+0200\n"
 "PO-Revision-Date: 2007-06-14 21:55+0200\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -14,32 +14,43 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/pam_pkcs11/pam_pkcs11.c:278 src/pam_pkcs11/pam_pkcs11.c:354
-msgid "Please insert your smart card or enter your username."
+#: src/pam_pkcs11/pam_pkcs11.c:284 src/pam_pkcs11/pam_pkcs11.c:375
+#, fuzzy, c-format
+msgid "Please insert your %s or enter your username."
 msgstr "Proszê w³o¿yæ w³asn± kartê procesorow± lub wpisaæ nazwê u¿ytkownika."
 
-#: src/pam_pkcs11/pam_pkcs11.c:333
+#: src/pam_pkcs11/pam_pkcs11.c:347
 #, c-format
 msgid "Please insert your smart card called \"%.32s\"."
 msgstr "Proszê w³o¿yæ w³asn± kartê procesorow± o nazwie \"%.32s\"."
 
-#: src/pam_pkcs11/pam_pkcs11.c:338
+#: src/pam_pkcs11/pam_pkcs11.c:352
 msgid "Please insert your smart card."
 msgstr "Proszê w³o¿yæ w³asn± kartê procesorow±."
 
-#: src/pam_pkcs11/pam_pkcs11.c:367
-msgid "Smart card inserted. "
-msgstr "Karta w³o¿ona."
+#: src/pam_pkcs11/pam_pkcs11.c:396
+#, c-format
+msgid "Found the %s."
+msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:378
+#: src/pam_pkcs11/pam_pkcs11.c:409
 #, c-format
 msgid "Welcome %.32s!"
 msgstr "Witaj %.32s!"
 
-#: src/pam_pkcs11/pam_pkcs11.c:383 src/pam_pkcs11/pam_pkcs11.c:386
-msgid "Smart card password: "
-msgstr "Has³o do karty: "
+#: src/pam_pkcs11/pam_pkcs11.c:411
+#, c-format
+msgid "%s PIN: "
+msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:680
+#: src/pam_pkcs11/pam_pkcs11.c:711
 msgid "Cannot change the password on your smart card."
 msgstr "Nie mo¿na zmieniæ has³a na tej karcie procesorowej."
+
+#: src/pam_pkcs11/pam_config.c:63
+#, fuzzy
+msgid "Smart card"
+msgstr "Karta w³o¿ona."
+
+#~ msgid "Smart card password: "
+#~ msgstr "Has³o do karty: "
