@@ -306,7 +306,7 @@ struct SlotStatusStr *slotStatus = NULL;
 int slotCount = 0;
 int maxEntries = 0;
 
-int
+static int
 do_expand_slot_status(void)
 {
 #define ENTRY_STEP 10
@@ -322,7 +322,7 @@ do_expand_slot_status(void)
     return 1;
 }
 
-struct SlotStatusStr *
+static struct SlotStatusStr *
 get_token_status(CK_SLOT_ID slotID)
 {
     /* linear search is ok for modules with few slots, if we have modules with
