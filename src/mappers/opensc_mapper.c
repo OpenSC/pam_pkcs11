@@ -72,13 +72,13 @@ static char ** opensc_mapper_find_entries(X509 *x509, void *context) {
 * returns -1, 0 or 1 ( error, no match, or match)
 */
 static int opensc_mapper_match_certs(X509 *x509, const char *home) {
-        char filename[PATH_MAX];
-        X509 **certs;
-        int ncerts, i, rc;
 #ifdef HAVE_NSS
 	/* still need to genericize the BIO functions here */
 	return -1;
 #else
+        char filename[PATH_MAX];
+        X509 **certs;
+        int ncerts, i, rc;
 #include <openssl/pem.h>
         BIO *in;
 
