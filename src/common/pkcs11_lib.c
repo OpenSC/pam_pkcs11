@@ -350,7 +350,7 @@ int find_slot_by_number(pkcs11_handle_t *h, unsigned int slot_num, unsigned int 
   }
   /* we're configured for a specific module and token, see if it's present */
   slot_num--;
-  if (slot_num >= 0 && slot_num < module->slotCount && module->slots &&
+  if (slot_num < module->slotCount && module->slots &&
       module->slots[slot_num] && PK11_IsPresent(module->slots[slot_num])) {
     h->slot = PK11_ReferenceSlot(module->slots[slot_num]);
     *slotID = PK11_GetSlotID(h->slot);
