@@ -164,7 +164,7 @@ struct pkcs11_handle_str {
 static int app_has_NSS = 0;
 
 
-char *
+static char *
 password_passthrough(PK11SlotInfo *slot, PRBool retry, void *arg)
 {
   /* give up if 1) no password was supplied, or 2) the password has already
