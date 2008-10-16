@@ -292,7 +292,7 @@ int init_pkcs11_module(pkcs11_handle_t *h, int flag)
   return 0; /* NSS initialized the module on load */
 }
 
-int find_slot_by_number(pkcs11_handle_t *h, int slot_num, unsigned int *slotID)
+int find_slot_by_number(pkcs11_handle_t *h, unsigned int slot_num, unsigned int *slotID)
 {
   SECMODModule *module = h->module;
   int i;
