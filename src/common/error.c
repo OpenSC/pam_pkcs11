@@ -17,6 +17,7 @@
 
 #include "error.h"
 #include <string.h>
+#include <stdio.h>
 
 #define __ERROR_C_
 

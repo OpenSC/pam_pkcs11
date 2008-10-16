@@ -38,6 +38,7 @@
 #define LDAP_DEPRECATED 1
 #include <ldap.h>
 #include <pwd.h>
+#include <openssl/x509.h>
 
 #include "../common/cert_st.h"
 #include "../common/debug.h"

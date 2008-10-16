@@ -19,7 +19,9 @@
 
 #ifdef HAVE_NSS
 
+#include <cryptohi.h>
 #include "cert.h"
+#include "secutil.h"
 
 int verify_certificate(X509 * x509, cert_policy *policy)
 {

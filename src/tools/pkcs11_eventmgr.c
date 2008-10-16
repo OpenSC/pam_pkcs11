@@ -33,6 +33,8 @@
 
 #ifdef HAVE_NSS
 #include <secmod.h>
+#include <nss.h>
+#include <pk11pub.h>
 #endif
 
 #define DEF_POLLING 1    /* 1 second timeout */
