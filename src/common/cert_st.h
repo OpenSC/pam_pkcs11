@@ -32,10 +32,12 @@ typedef SECOidTag ALGORITHM_TYPE;
 #define ALGORITHM_NULL  SEC_OID_UNKNOWN
 /* we really should make a neutral define for this */
 #define X509 CERTCertificate
+#define CERT_cmp CERT_CompareCerts
 #else
 #include <openssl/x509.h>
 typedef const char *ALGORITHM_TYPE;
 #define ALGORITHM_NULL  NULL
+#define CERT_cmp X509_cmp
 #endif
 
 

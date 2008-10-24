@@ -871,7 +871,7 @@ static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) 
 	} else {
 		/* TODO: maybe compare public keys instead of hashes */
 		while( i<certcnt && !match_found ) {
-			if ( 0 == X509_cmp(x509, ldap_x509[i])) {
+			if ( 0 == CERT_cmp(x509, ldap_x509[i])) {
 				DBG1("Certificate %d is matching", i);
 				match_found = 1;
 			} else { 
