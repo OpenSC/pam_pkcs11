@@ -751,6 +751,11 @@ static int ldap_get_certificate(const char *login) {
 		DBG1("number auf usercertificates = %d", certcnt);
 	
 		ldap_x509 = malloc(sizeof(X509*) * certcnt );
+		if (NULL == ldap_x509)
+		{
+			DBG("not enough memory");
+			return(-7);
+		}
 		
 		rv = 0;
 		while(rv < certcnt )
