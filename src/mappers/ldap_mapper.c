@@ -762,10 +762,28 @@ static int ldap_get_certificate(const char *login) {
 		{
 			/* SaW: not nifty, but otherwise gcc doesn't optimize */
 			bv_val = &bvals[rv]->bv_val;
+#ifdef HAVE_NSS
+			{
+				SECItem derdata;
+				derdata.data = bv_val;
+				derdata.len = bvals[rv]->bv_len;
+
+				ldap_x509[rv] = CERT_NewTempCertificate(CERT_GetDefaultCertDB(),
+					&derdata, NULL, 0, 1);
+			}
+#else
 			ldap_x509[rv] = d2i_X509(NULL, ((const unsigned char **) bv_val), bvals[rv]->bv_len);
+#endif
 			if (NULL == ldap_x509[rv]) {
 				DBG1("d2i_X509() failed for certificate %d", rv);
 				free(ldap_x509);
+#ifdef HAVE_NSS
+				{
+					for (rv=0; rv<certcnt; rv++)
+						if (ldap_x509[rv])
+							CERT_DestroyCertificate(ldap_x509[rv]);
+				}
+#endif
 				certcnt=0;
 				ldap_msgfree(res);
 				ldap_unbind_s(ldap_connection);
@@ -889,7 +907,16 @@ static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) 
 			i++;
 		}
 		if (certcnt)
+		{
+#ifdef HAVE_NSS
+			int rv;
+
+			for (rv=0; rv<certcnt; rv++)
+				if (ldap_x509[rv])
+					CERT_DestroyCertificate(ldap_x509[rv]);
+#endif
 			free(ldap_x509);
+		}
 		certcnt=0;
 	}
 	return match_found;
