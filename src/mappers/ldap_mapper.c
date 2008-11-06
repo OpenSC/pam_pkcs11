@@ -763,7 +763,7 @@ static int ldap_get_certificate(const char *login) {
 			/* SaW: not nifty, but otherwise gcc doesn't optimize */
 			bv_val = &bvals[rv]->bv_val;
 			ldap_x509[rv] = d2i_X509(NULL, ((const unsigned char **) bv_val), bvals[rv]->bv_len);
-			if (NULL == ldap_x509) {
+			if (NULL == ldap_x509[rv]) {
 				DBG1("d2i_X509() failed for certificate %d", rv);
 				free(ldap_x509);				
 				certcnt=0;
