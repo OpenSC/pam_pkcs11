@@ -26,10 +26,10 @@
 #include "error.h"
 #include "strings.h"
 
-static const char *valid_urls[]= 
+static const char *valid_urls[]=
 		{"file:///","http://","https://","ftp://","ldap://",NULL};
-/* 
-comodity functions 
+/*
+comodity functions
 Analize provided pathname and check type
 Returns 1 on true, 0 on false, -1 on error
 */

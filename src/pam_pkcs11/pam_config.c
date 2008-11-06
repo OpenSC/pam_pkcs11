@@ -113,21 +113,21 @@ static void parse_config_file(void) {
            DBG1("pam_pkcs11 block not found in config: %s",configuration.config_file);
 	   return;
 	}
-	configuration.nullok = 
+	configuration.nullok =
 	    scconf_get_bool(root,"nullok",configuration.nullok);
-	configuration.debug = 
+	configuration.debug =
 	    scconf_get_bool(root,"debug",configuration.debug);
 	/*if (configuration.debug) set_debug_level(1);
 	else set_debug_level(0); */
-	configuration.use_first_pass = 
+	configuration.use_first_pass =
 	    scconf_get_bool(root,"use_first_pass",configuration.use_first_pass);
-	configuration.try_first_pass = 
+	configuration.try_first_pass =
 	    scconf_get_bool(root,"try_first_pass",configuration.try_first_pass);
-	configuration.use_authok = 
+	configuration.use_authok =
 	    scconf_get_bool(root,"use_authok",configuration.use_authok);
-	configuration.card_only = 
+	configuration.card_only =
 	    scconf_get_bool(root,"card_only",configuration.card_only);
-	configuration.wait_for_card = 
+	configuration.wait_for_card =
 	    scconf_get_bool(root,"wait_for_card",configuration.wait_for_card);
 	configuration.pkcs11_module = ( char * )
 	    scconf_get_str(root,"use_pkcs11_module",configuration.pkcs11_module);
@@ -152,7 +152,7 @@ static void parse_config_file(void) {
 		configuration.slot_description = (char *)
 			scconf_get_str(pkcs11_mblk,"slot_description",configuration.slot_description);
 
-	    configuration.slot_num = 
+	    configuration.slot_num =
 	        scconf_get_int(pkcs11_mblk,"slot_num",configuration.slot_num);
 
 	    if (configuration.slot_description != NULL && configuration.slot_num != -1) {
@@ -165,7 +165,7 @@ static void parse_config_file(void) {
 	            return;
 	    }
 
-	    configuration.support_threads = 
+	    configuration.support_threads =
 	        scconf_get_bool(pkcs11_mblk,"support_threads",configuration.support_threads);
 	    policy_list= scconf_find_list(pkcs11_mblk,"cert_policy");
 	    while(policy_list) {
@@ -201,7 +201,7 @@ static void parse_config_file(void) {
 	   int count,i;
 	   for (count=0, tmp=screen_saver_list; tmp ; tmp=tmp->next, count++);
 
-	   configuration.screen_savers = 
+	   configuration.screen_savers =
 				(char **) malloc((count+1)*sizeof(char *));
 	   for (i=0, tmp=screen_saver_list; tmp; tmp=tmp->next, i++) {
 		configuration.screen_savers[i] = (char *)tmp->data;

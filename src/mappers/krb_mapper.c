@@ -36,7 +36,7 @@
 #include "krb_mapper.h"
 
 /*
-* This mapper uses (if available) the optional Kerberos Principal Name 
+* This mapper uses (if available) the optional Kerberos Principal Name
 * entry on the certificate to find user name.
 */
 

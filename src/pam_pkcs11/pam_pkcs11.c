@@ -102,7 +102,7 @@ static int pam_prompt(pam_handle_t *pamh, int style, char **response, char *text
   return PAM_SUCCESS;
 }
 
-static void 
+static void
 pam_syslog(pam_handle_t *pamh, int priority, const char *fmt, ...)
 {
     va_list ap;
@@ -221,7 +221,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	  if (display && (display[0] != ':') && (display[0] != '\0'))
 	  {
 		ERR1("Remote login (from %s) is not (yet) supported", display);
-		pam_syslog(pamh, LOG_ERR, 
+		pam_syslog(pamh, LOG_ERR,
                         "Remote login (from %s) is not (yet) supported",
 			display);
 		return PAM_AUTHINFO_UNAVAIL;
@@ -233,7 +233,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   bindtextdomain(PACKAGE, "/usr/share/locale");
   textdomain(PACKAGE);
 #endif
-  
+
   /* init openssl */
   rv = crypto_init(&configuration->policy);
   if (rv != 0) {
@@ -253,7 +253,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
    *  1) nothing if card_only isn't set
    *  2) if logged in, block in pam conversation until the token used for login
    *     is inserted
-   *  3) if not logged in, block until a token that could be used for logging in 
+   *  3) if not logged in, block until a token that could be used for logging in
    *     is inserted
    * right now, logged in means PKC11_LOGIN_TOKEN_NAME is set,
    * but we could something else later (like set some per-user state in
@@ -273,12 +273,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	}
 
 	pkcs11_pam_fail = PAM_CRED_INSUFFICIENT;
-        
+
 	/* look to see if username is already set */
     	rv = pam_get_item(pamh, PAM_USER, (const void **) &user);
 	if (user) {
 	    DBG1("explicit username = [%s]", user);
-	} 
+	}
   } else {
 	sprintf(password_prompt,
 		_("Please insert your %s or enter your username."),
@@ -288,7 +288,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	rv = pam_get_user(pamh, &user, NULL);
 
 	if (rv != PAM_SUCCESS) {
-	  pam_syslog(pamh, LOG_ERR, 
+	  pam_syslog(pamh, LOG_ERR,
                      "pam_get_user() failed %s", pam_strerror(pamh, rv));
 	  return PAM_USER_UNKNOWN;
 	}
@@ -419,7 +419,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
   if (rv != PAM_SUCCESS) {
     release_pkcs11_module(ph);
-    pam_syslog(pamh, LOG_ERR, 
+    pam_syslog(pamh, LOG_ERR,
                "pam_get_pwd() failed: %s", pam_strerror(pamh, rv));
     return pkcs11_pam_fail;
   }
@@ -432,18 +432,18 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     release_pkcs11_module(ph);
     memset(password, 0, strlen(password));
     free(password);
-    pam_syslog(pamh, LOG_ERR, 
+    pam_syslog(pamh, LOG_ERR,
          "password length is zero but the 'nullok' argument was not defined.");
     return PAM_AUTH_ERR;
   }
 
-  /* call pkcs#11 login to ensure that the user is the real owner of the card 
+  /* call pkcs#11 login to ensure that the user is the real owner of the card
    * we need to do thise before get_certificate_list because some tokens
    * can not read their certificates until the token is authenticated */
   rv = pkcs11_login(ph, password);
   /* erase and free in-memory password data asap */
   memset(password, 0, strlen(password));
-  free(password); 
+  free(password);
   if (rv != 0) {
     ERR1("open_pkcs11_login() failed: %s", get_error());
     pam_syslog(pamh, LOG_ERR, "open_pkcs11_login() failed: %s", get_error());
@@ -470,7 +470,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       rv = verify_certificate(x509,&configuration->policy);
       if (rv < 0) {
         ERR1("verify_certificate() failed: %s", get_error());
-        pam_syslog(pamh, LOG_ERR, 
+        pam_syslog(pamh, LOG_ERR,
                    "verify_certificate() failed: %s", get_error());
 	goto auth_failed_nopw;
       } else if (rv != 1) {
@@ -481,7 +481,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     /* CA and CRL verified, now check/find user */
 
     if ( is_spaced_str(user) ) {
-      /* 
+      /*
 	if provided user is null or empty extract and set user
 	name from certificate
       */
@@ -498,7 +498,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   	  rv = pam_set_item(pamh, PAM_USER,(const void *)user);
 	  if (rv != PAM_SUCCESS) {
 	    ERR1("pam_set_item() failed %s", pam_strerror(pamh, rv));
-	    pam_syslog(pamh, LOG_ERR, 
+	    pam_syslog(pamh, LOG_ERR,
                        "pam_set_item() failed %s", pam_strerror(pamh, rv));
 	    goto auth_failed_nopw;
 	}
@@ -527,7 +527,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   /* now myCert points to our found certificate or null if no user found */
   if (!chosen_cert) {
     ERR("no valid certificate which meets all requirements found");
-    pam_syslog(pamh, LOG_ERR, 
+    pam_syslog(pamh, LOG_ERR,
                "no valid certificate which meets all requirements found");
     goto auth_failed_nopw;
   }
@@ -540,7 +540,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     rv = get_private_key(ph);
     if (rv != 0) {
       ERR1("get_private_key() failed: %s", get_error());
-      pam_syslog(pamh, LOG_ERR, 
+      pam_syslog(pamh, LOG_ERR,
                  "get_private_key() failed: %s", get_error());
       goto auth_failed_nopw;
     }
@@ -556,7 +556,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
     /* sign random value */
     signature = NULL;
-    rv = sign_value(ph, chosen_cert, random_value, sizeof(random_value), 
+    rv = sign_value(ph, chosen_cert, random_value, sizeof(random_value),
 		    &signature, &signature_length);
     if (rv != 0) {
       ERR1("sign_value() failed: %s", get_error());
@@ -587,23 +587,23 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
    * fill in the environment variables.
    */
   snprintf(env_temp, sizeof(env_temp) - 1,
-	   "PKCS11_LOGIN_TOKEN_NAME=%.*s", 
+	   "PKCS11_LOGIN_TOKEN_NAME=%.*s",
 	   (sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_TOKEN_NAME="),
 	   get_slot_tokenlabel(ph));
   rv = pam_putenv(pamh, env_temp);
 
   if (rv != PAM_SUCCESS) {
     ERR1("could not put token name in environment: %s",
-         pam_strerror(pamh, rv)); 
+         pam_strerror(pamh, rv));
     pam_syslog(pamh, LOG_ERR, "could not put token name in environment: %s",
-           pam_strerror(pamh, rv)); 
+           pam_strerror(pamh, rv));
   }
 
   issuer = cert_info((X509 *)get_X509_certificate(chosen_cert), CERT_ISSUER,
                      ALGORITHM_NULL);
   if (issuer) {
     snprintf(env_temp, sizeof(env_temp) - 1,
-	   "PKCS11_LOGIN_CERT_ISSUER=%.*s", 
+	   "PKCS11_LOGIN_CERT_ISSUER=%.*s",
 	   (sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_ISSUER="),
 	   issuer[0]);
     rv = pam_putenv(pamh, env_temp);
@@ -614,16 +614,16 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
   if (rv != PAM_SUCCESS) {
     ERR1("could not put cert issuer in environment: %s",
-         pam_strerror(pamh, rv)); 
+         pam_strerror(pamh, rv));
     pam_syslog(pamh, LOG_ERR, "could not put cert issuer in environment: %s",
-           pam_strerror(pamh, rv)); 
+           pam_strerror(pamh, rv));
   }
 
   serial = cert_info((X509 *)get_X509_certificate(chosen_cert), CERT_SERIAL,
                      ALGORITHM_NULL);
   if (serial) {
     snprintf(env_temp, sizeof(env_temp) - 1,
-	   "PKCS11_LOGIN_CERT_SERIAL=%.*s", 
+	   "PKCS11_LOGIN_CERT_SERIAL=%.*s",
 	   (sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_SERIAL="),
 	   serial[0]);
     rv = pam_putenv(pamh, env_temp);
@@ -634,9 +634,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
   if (rv != PAM_SUCCESS) {
     ERR1("could not put cert serial in environment: %s",
-         pam_strerror(pamh, rv)); 
+         pam_strerror(pamh, rv));
     pam_syslog(pamh, LOG_ERR, "could not put cert serial in environment: %s",
-           pam_strerror(pamh, rv)); 
+           pam_strerror(pamh, rv));
   }
 
   /* close pkcs #11 session */
@@ -676,7 +676,7 @@ PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const cha
 PAM_EXTERN int pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
   ERR("Warning: Function pm_sm_acct_mgmt() is not implemented in this module");
-  pam_syslog(pamh, LOG_WARNING, 
+  pam_syslog(pamh, LOG_WARNING,
              "Function pm_sm_acct_mgmt() is not implemented in this module");
   return PAM_SERVICE_ERR;
 }
@@ -684,7 +684,7 @@ PAM_EXTERN int pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const c
 PAM_EXTERN int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
   ERR("Warning: Function pam_sm_open_session() is not implemented in this module");
-  pam_syslog(pamh, LOG_WARNING, 
+  pam_syslog(pamh, LOG_WARNING,
              "Function pm_sm_open_session() is not implemented in this module");
   return PAM_SERVICE_ERR;
 }
@@ -692,7 +692,7 @@ PAM_EXTERN int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, cons
 PAM_EXTERN int pam_sm_close_session(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
   ERR("Warning: Function pam_sm_close_session() is not implemented in this module");
-  pam_syslog(pamh, LOG_WARNING, 
+  pam_syslog(pamh, LOG_WARNING,
            "Function pm_sm_close_session() is not implemented in this module");
   return PAM_SERVICE_ERR;
 }
@@ -702,7 +702,7 @@ PAM_EXTERN int pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const c
   char *login_token_name;
 
   ERR("Warning: Function pam_sm_chauthtok() is not implemented in this module");
-  pam_syslog(pamh, LOG_WARNING, 
+  pam_syslog(pamh, LOG_WARNING,
              "Function pam_sm_chauthtok() is not implemented in this module");
 
   login_token_name = getenv("PKCS11_LOGIN_TOKEN_NAME");

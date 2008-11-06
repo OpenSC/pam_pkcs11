@@ -42,6 +42,6 @@ OPENSSH_EXTERN mapper_module * openssh_mapper_module_init(scconf_block *blk,cons
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of openssh_mapper.h */
 #endif

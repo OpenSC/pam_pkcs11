@@ -42,6 +42,6 @@ GENERIC_EXTERN mapper_module * generic_mapper_module_init(scconf_block *blk,cons
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of generic_mapper.h */
 #endif

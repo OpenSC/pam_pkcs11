@@ -42,6 +42,6 @@ NULL_EXTERN mapper_module * null_mapper_module_init(scconf_block *blk,const char
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of null_mapper.h */
 #endif

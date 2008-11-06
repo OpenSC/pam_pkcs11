@@ -63,14 +63,14 @@ static const int LDAP_CONFIG_URI_MAX = 10;
 
 
 /*
- * TODO: 
+ * TODO:
  * - Support for SASL-AUTH not included yet, I can't test it
- *  
+ *
  * - ldap_unbind (*ld) crash if you connect to a SSL port but have set TLS intead SSL
  *   - no idea why!?
  *   - you got no error-massage from your application
  *   - believe skip ldap_unbind (*ld) for a bind handle isn't a good solution
- * 
+ *
  * - implement searchtimeout
  * - implement ignorecase
  */
@@ -87,7 +87,7 @@ typedef enum ldap_ssl_options ldap_ssl_options_t;
 
 #ifndef LDAPS_PORT
 #define LDAPS_PORT 636
-#endif 
+#endif
 
 
 /*** Internal vars *****************************************************/
@@ -116,19 +116,19 @@ static const char *tls_cacertfile="";
 static const char *tls_cacertdir="";
 static int tls_checkpeer=-1;
 static const char *tls_ciphers="";
-static const char *tls_cert=""; 
+static const char *tls_cert="";
 static const char *tls_key="";
 #endif
 
-static int ldapVersion = 3;	 	
+static int ldapVersion = 3;
 #ifdef HAVE_LDAP_SET_OPTION
 static int timeout = 8;			/* 8 seconds */
 #endif
 static int bind_timelimit = 2; 	/* Timelimit for BIND */
 
 static const int sscope[] = {
-	LDAP_SCOPE_BASE, 
-	LDAP_SCOPE_ONELEVEL, 
+	LDAP_SCOPE_BASE,
+	LDAP_SCOPE_ONELEVEL,
 	LDAP_SCOPE_SUBTREE};
 
 /*** Internal funcs ****************************************************/
@@ -140,7 +140,7 @@ static int do_init (LDAP ** ld, const char *uri, int ldapdefport)
 	int ldaps;
 	char uribuf[512];
 	char *p;
-	
+
 	DBG("do_init():");
 
 	ldaps = (strncasecmp (uri, "ldaps://", sizeof ("ldaps://") - 1) == 0);
@@ -173,15 +173,15 @@ static int do_init (LDAP ** ld, const char *uri, int ldapdefport)
 	if (p != NULL)
     {
 		size_t urilen = (p - uri);
-		
+
 		if (urilen >= sizeof (uribuf))
 		{
 			return LDAP_UNAVAILABLE;
 		}
-		
+
 		memcpy (uribuf, uri, urilen);
 		uribuf[urilen] = '\0';
-		
+
 		ldapdefport = atoi (p + 1);
 		uri = uribuf;
 	}
@@ -204,7 +204,7 @@ static int do_init (LDAP ** ld, const char *uri, int ldapdefport)
 
 
 #if defined HAVE_LDAP_START_TLS_S || (defined(HAVE_LDAP_SET_OPTION) && defined(LDAP_OPT_X_TLS))
-/* 
+/*
  * Set the ssl option
  */
 static int do_ssl_options (LDAP *ldap_connection)
@@ -279,7 +279,7 @@ static int do_ssl_options (LDAP *ldap_connection)
 	/* where is the requiered cert */
 	if (strncmp(tls_cert,"",1))
     {
-	    rc = ldap_set_option (NULL, LDAP_OPT_X_TLS_CERTFILE, 
+	    rc = ldap_set_option (NULL, LDAP_OPT_X_TLS_CERTFILE,
 	    	tls_cert);
 	    if (rc != LDAP_SUCCESS)
 		{
@@ -291,7 +291,7 @@ static int do_ssl_options (LDAP *ldap_connection)
 	/* where is the key */
 	if (strncmp(tls_key,"",1))
 	{
-		rc = ldap_set_option (NULL, LDAP_OPT_X_TLS_KEYFILE, 
+		rc = ldap_set_option (NULL, LDAP_OPT_X_TLS_KEYFILE,
 			tls_key);
 		if (rc != LDAP_SUCCESS)
 		{
@@ -313,7 +313,7 @@ do_bind (LDAP * ldap_connection, int timelimit)
 	LDAPMessage *result;
 
 	/*
-	 * set timelimit in ld for select() call in ldap_pvt_connect() 
+	 * set timelimit in ld for select() call in ldap_pvt_connect()
 	 * function implemented in libldap2's os-ip.c
 	 */
   	tv.tv_sec = timelimit;
@@ -321,7 +321,7 @@ do_bind (LDAP * ldap_connection, int timelimit)
 
 DBG2("do_bind(): bind DN=\"%s\" pass=\"%s\"",binddn,passwd);
 
-  	/* LDAPv3 doesn't need bind at all, 
+  	/* LDAPv3 doesn't need bind at all,
   	 * nevertheless, if no binddn is given than bind anonymous */
  	if ( ! strncmp(binddn,"",1) ) {
  		rv = ldap_simple_bind(ldap_connection, NULL, NULL);
@@ -332,7 +332,7 @@ DBG2("do_bind(): bind DN=\"%s\" pass=\"%s\"",binddn,passwd);
 	if (rv < 0)
 	{
 DBG("do_bind: rv < 0");
-		
+
 #if defined(HAVE_LDAP_GET_OPTION) && defined(LDAP_OPT_ERROR_NUMBER)
 		if (ldap_get_option (ldap_connection, LDAP_OPT_ERROR_NUMBER, &rc) !=
             LDAP_SUCCESS)
@@ -361,7 +361,7 @@ DBG1("do_bind rc=%d", rc);
 	if (rc == 0)
 	{
 DBG("do_bind rc=0");
-		
+
 		ldap_abandon (ldap_connection, rv);
 	}
 
@@ -375,19 +375,19 @@ DBG("do_bind return -1");
  */
 static int do_open (LDAP **ld, const char* uri, int defport, ldap_ssl_options_t ssl_on_local)
 {
-	
-#if defined(LDAP_OPT_NETWORK_TIMEOUT) || defined(HAVE_LDAP_START_TLS)	
+
+#if defined(LDAP_OPT_NETWORK_TIMEOUT) || defined(HAVE_LDAP_START_TLS)
 	struct timeval tv;
 #endif
 #ifdef HAVE_LDAP_START_TLS
 	struct timeval *tvp;
 	LDAPMessage *res = NULL;
 	int msgid;
-#endif	
+#endif
 	int rc;
 
 	rc = do_init (ld, uri, defport);
-	
+
 	if (rc != LDAP_SUCCESS)
 	{
 		DBG("do_open(): do_init failed");
@@ -532,9 +532,9 @@ static int do_open (LDAP **ld, const char* uri, int defport, ldap_ssl_options_t 
 			DBG("do_open(): SSL setup failed");
 			return LDAP_UNAVAILABLE;
 		}
-#endif		
+#endif
     }
-	
+
 	rc = do_bind (*ld, bind_timelimit);
 	if (rc != LDAP_SUCCESS)
 	{
@@ -618,10 +618,10 @@ static int ldap_get_certificate(const char *login) {
 	DBG1("ldap_get_certificate(): begin login = %s", login);
 
 	/* Put the login to the %s in Filterstring */
-	snprintf(filter_str, sizeof(filter_str), filter, login); 
+	snprintf(filter_str, sizeof(filter_str), filter, login);
 
 	DBG1("ldap_get_certificate(): filter_str = %s", filter_str);
-	
+
 	/* parse and split URI config entry */
 	buffer = uribuf;
 	buflen = sizeof (uribuf);
@@ -636,12 +636,12 @@ static int ldap_get_certificate(const char *login) {
 			char *q = strchr (p, ' ');
 			if (q != NULL)
 				*q = '\0';
-			
+
 			if( strlen(p) > 1 ) /* SAW: don't add spaces */
 				rv = ldap_add_uri (uris, p, &buffer, &buflen);
-			
+
 			p = (q != NULL) ? ++q : NULL;
-			
+
 			if (rv)
 				break;
 		}
@@ -662,7 +662,7 @@ static int ldap_get_certificate(const char *login) {
 	if( strlen(ldaphost) > 1 )
 	{
 		/* No port specified in URI and non-default port specified */
-		snprintf (uri, sizeof (uri), "%s%s:%d", 
+		snprintf (uri, sizeof (uri), "%s%s:%d",
 		       ssl_on == SSL_LDAPS ? "ldaps://" : "ldap://",
 		       ldaphost, ldapport);
 		rv = ldap_add_uri (uris, uri, &buffer, &buflen);
@@ -673,7 +673,7 @@ static int ldap_get_certificate(const char *login) {
 		DBG("ldap_get_certificate(): Nor URI or useable Host entry found");
 		return(-1);
     }
-	
+
 	/* Attempt to connect to specified URI in order until do_open succeed */
 	start_uri = current_uri;
 	do
@@ -685,12 +685,12 @@ static int ldap_get_certificate(const char *login) {
 		if (rv != LDAP_UNAVAILABLE && rv != LDAP_SERVER_DOWN)
 			break;
 		current_uri++;
-		
+
 		if (uris[current_uri] == NULL)
 			current_uri = 0;
 	}
 	while (current_uri != start_uri);
-	
+
 	if( rv != LDAP_SUCCESS )
 	{
 		DBG("ldap_get_certificate(): do_open failed");
@@ -705,12 +705,12 @@ static int ldap_get_certificate(const char *login) {
     */
 
 	rv = ldap_search_s(
-				ldap_connection, 
-				base, 
-				sscope[scope], 
-				filter_str, 
-				attrs, 
-				0, 
+				ldap_connection,
+				base,
+				sscope[scope],
+				filter_str,
+				attrs,
+				0,
 				&res);
 	if ( rv != LDAP_SUCCESS ) {
 		DBG1("ldap_search_s() failed: %s", ldap_err2string(rv));
@@ -721,14 +721,14 @@ static int ldap_get_certificate(const char *login) {
 		DBG1("ldap_get_certificate(): entries = %d", entries);
 
 		if( entries > 1 ) {
-			DBG("!  Warning, more than one entry found. Please choose \"filter\" and"); 
+			DBG("!  Warning, more than one entry found. Please choose \"filter\" and");
 			DBG("!  \"attribute\" in ldap mapper config section of your config,");
 			DBG("!  that only one entry with one attribute is matched");
 			DBG("!  Maybe there is an other problem in ldap with not unique user");
 			DBG("!  entries in your LDAP server.");
 		}
-				
-		/* Only first entry is used. "filter" and "attribute" 
+
+		/* Only first entry is used. "filter" and "attribute"
 		 *  should be choosen, so that only one entry with
 		 * one attribute is returned */
 		if ( NULL == (entry = ldap_first_entry(ldap_connection, res))){
@@ -749,14 +749,14 @@ static int ldap_get_certificate(const char *login) {
 		certcnt = ldap_count_values_len(bvals);
 
 		DBG1("number of user certificates = %d", certcnt);
-	
+
 		ldap_x509 = malloc(sizeof(X509*) * certcnt );
 		if (NULL == ldap_x509)
 		{
 			DBG("not enough memory");
 			return(-7);
 		}
-		
+
 		rv = 0;
 		while(rv < certcnt )
 		{
@@ -765,7 +765,7 @@ static int ldap_get_certificate(const char *login) {
 			ldap_x509[rv] = d2i_X509(NULL, ((const unsigned char **) bv_val), bvals[rv]->bv_len);
 			if (NULL == ldap_x509[rv]) {
 				DBG1("d2i_X509() failed for certificate %d", rv);
-				free(ldap_x509);				
+				free(ldap_x509);
 				certcnt=0;
 				ldap_msgfree(res);
 				ldap_unbind_s(ldap_connection);
@@ -806,13 +806,13 @@ static int read_config(scconf_block *blk) {
 	searchtimeout = scconf_get_int(blk,"searchtimeout",searchtimeout);
 
 	ssltls =  scconf_get_str(blk,"ssl","off");
-	if (! strncasecmp (ssltls, "tls", 3)) 
+	if (! strncasecmp (ssltls, "tls", 3))
 		ssl_on = SSL_START_TLS;
 	else if( ! strncasecmp (ssltls, "on", 2))
 		ssl_on = SSL_LDAPS;
 	else if( ! strncasecmp (ssltls, "ssl", 3))
 		ssl_on = SSL_LDAPS;
-		
+
 #if defined HAVE_LDAP_START_TLS_S || (defined(HAVE_LDAP_SET_OPTION) && defined(LDAP_OPT_X_TLS))
 	/* TLS specific options */
 	tls_randfile = scconf_get_str(blk,"tls_randfile",tls_randfile);
@@ -820,7 +820,7 @@ static int read_config(scconf_block *blk) {
 	tls_cacertdir = scconf_get_str(blk,"tls_cacertdir",tls_cacertdir);
 	tls_checkpeer=scconf_get_int(blk,"tls_checkpeer",tls_checkpeer);
 	tls_ciphers = scconf_get_str(blk,"tls_ciphers",tls_ciphers);
-	tls_cert = scconf_get_str(blk,"tls_cert",tls_cert); 
+	tls_cert = scconf_get_str(blk,"tls_cert",tls_cert);
 	tls_key = scconf_get_str(blk,"tls_key",tls_key);
 #endif
 
@@ -848,8 +848,8 @@ DBG1("test ssltls = %s", ssltls);
 	DBG1("tls_cacertdir = %s", tls_cacertdir);
 	DBG1("tls_checkpeer = %d", tls_checkpeer);
 	DBG1("tls_ciphers   = %s", tls_ciphers);
-	DBG1("tls_cert      = %s", tls_cert); 
-	DBG1("tls_key       = %s", tls_key);	
+	DBG1("tls_cert      = %s", tls_cert);
+	DBG1("tls_key       = %s", tls_key);
 #endif
 	return 1;
 
@@ -883,12 +883,12 @@ static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) 
 #endif
 				DBG1("Certificate %d is matching", i);
 				match_found = 1;
-			} else { 
+			} else {
 				DBG1("Certificate %d is NOT matching", i);
 			}
 			i++;
 		}
-		if (certcnt) 
+		if (certcnt)
 			free(ldap_x509);
 		certcnt=0;
 	}
@@ -914,7 +914,7 @@ static char * ldap_mapper_find_user(X509 *x509, void *context) {
 	endpwent();
 
 #ifdef false
-	int res;	
+	int res;
 	res= ldap_mapper_match_user(x509,"wefel",context);
 	if (res) {
 			DBG("Certificate maps to user wefel");
@@ -923,7 +923,7 @@ static char * ldap_mapper_find_user(X509 *x509, void *context) {
 			DBG("Certificate map to user wefel failed");
 	}
 #endif
-	
+
 	return found;
 }
 

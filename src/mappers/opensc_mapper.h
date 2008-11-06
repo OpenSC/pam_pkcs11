@@ -42,6 +42,6 @@ OPENSC_EXTERN mapper_module * opensc_mapper_module_init(scconf_block *blk,const 
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of opensc_mapper.h */
 #endif

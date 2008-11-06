@@ -36,13 +36,13 @@
 #include "ms_mapper.h"
 
 /*
-* This mapper uses (if available) the optional MS's Universal Principal Name 
+* This mapper uses (if available) the optional MS's Universal Principal Name
 * entry on the certificate to find user name.
 * According with MS documentation, UPN has following structure:
 * OID: 1.3.6.1.4.1.311.20.2.3
 * UPN OtherName: user@domain.com
 * UPN encoding:ASN1 UTF8
-* 
+*
 * As UPN has in-built login and domain, No mapping file is used: login
 * is implicit.
 * A "checkdomain" flag is tested to compare domain if set.
@@ -145,7 +145,7 @@ static int ms_mapper_match_user(X509 *x509, const char *user, void *context) {
         }
         /* parse list of uids until match */
         for (str=*entries; str && (match_found==0); str=*++entries) {
-	    char *login; 
+	    char *login;
 	    if (ignorecase) login= check_upn(tolower_str(str));
 	    else            login= check_upn(clone_str(str));
 	    if ( compare_name(login,user) ) {

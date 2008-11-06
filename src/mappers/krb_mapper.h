@@ -42,6 +42,6 @@ KRB_EXTERN mapper_module * krb_mapper_module_init(scconf_block *blk,const char *
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of krb_mapper.h */
 #endif

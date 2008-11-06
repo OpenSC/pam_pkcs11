@@ -42,6 +42,6 @@ MAIL_EXTERN mapper_module * mail_mapper_module_init(scconf_block *blk,const char
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of mail_mapper.h */
 #endif

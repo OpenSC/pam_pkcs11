@@ -42,6 +42,6 @@ LDAP_EXTERN mapper_module * ldap_mapper_module_init(scconf_block *blk,const char
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of ldap_mapper.h */
 #endif

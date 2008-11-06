@@ -40,6 +40,6 @@ typedef struct mapper_list_st {
 #ifndef __MAPPERLIST_C_
 extern mapper_list static_mapper_list[];
 #endif
-	
+
 /* End of mapperlist.h */
 #endif

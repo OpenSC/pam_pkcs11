@@ -51,7 +51,7 @@ static char **generic_mapper_find_entries(X509 *x509, void *context) {
                 DBG("NULL certificate provided");
                 return NULL;
         }
-	return cert_info(x509, id_type, ALGORITHM_NULL); 
+	return cert_info(x509, id_type, ALGORITHM_NULL);
 }
 
 static char **get_mapped_entries(char **entries) {
@@ -130,9 +130,9 @@ static int generic_mapper_match_user(X509 *x509, const char *login, void *contex
 	    if (str || is_empty_str(str) ) continue;
 	    DBG2("Trying to match generic_mapped entry '%s' with login '%s'",str,login);
 	    if (ignorecase) {
-		if (! strcasecmp(str,login) ) return 1; 
+		if (! strcasecmp(str,login) ) return 1;
 	    } else {
-		if (! strcmp(str,login) ) return 1; 
+		if (! strcmp(str,login) ) return 1;
 	    }
 	}
 	/* arriving here means no map found */
@@ -166,13 +166,13 @@ mapper_module * generic_mapper_module_init(scconf_block *blk,const char *name) {
 #endif
 	mapper_module *pt;
 	const char *item="cn";
-	if (blk) { 
+	if (blk) {
 	debug = scconf_get_bool( blk,"debug",0);
 	ignorecase = scconf_get_bool( blk,"ignorecase",0);
 	usepwent = scconf_get_bool( blk,"use_getpwent",0);
 	mapfile= scconf_get_str(blk,"mapfile",mapfile);
 	item= scconf_get_str(blk,"cert_item","cn");
-	} else { 
+	} else {
 		/* should not occurs, but... */
 		DBG1("No block declaration for mapper '%s'",name);
 	}

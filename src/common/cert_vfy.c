@@ -70,7 +70,7 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   return (rv == SECSuccess)? 0 : 1;
 }
 
-#else 
+#else
 
 #define __CERT_VFY_C_
 
@@ -254,7 +254,7 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
           if (name != NULL && name->type == GEN_URI) {
             DBG1("downloading crl from %s", name->d.ia5->data);
             crl = download_crl((const char *)name->d.ia5->data);
-	    
+
             /*crl = download_crl("file:///home/mario/projects/pkcs11_login/tests/ca_crl_0.pem"); */
             /*crl = download_crl("http://www-t.zhwin.ch/ca/root_ca.crl"); */
             /*crl = download_crl("http://www.zhwin.ch/~sri/"); */
@@ -393,7 +393,7 @@ add_store_error:
 }
 
 /*
-* @return -1 on error, 0 on verify failed, 1 on verify sucess 
+* @return -1 on error, 0 on verify failed, 1 on verify sucess
 */
 int verify_certificate(X509 * x509, cert_policy *policy)
 {
@@ -428,9 +428,9 @@ int verify_certificate(X509 * x509, cert_policy *policy)
   rv = X509_verify_cert(ctx);
   if (rv != 1) {
     X509_STORE_CTX_free(ctx);
-    X509_STORE_free(store); 
+    X509_STORE_free(store);
     set_error("certificate is invalid: %s", X509_verify_cert_error_string(ctx->error));
-    return 0;  
+    return 0;
   } else {
     DBG("certificate is valid");
   }

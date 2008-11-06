@@ -52,9 +52,9 @@
 #include "mapper.h"
 #include "openssh_mapper.h"
 
-/* TODO 
+/* TODO
 Not sure on usage of authorized keys map file...
-So the first version, will use getpwent() to navigate across all users 
+So the first version, will use getpwent() to navigate across all users
 and parsing ${userhome}/.ssh/authorized_keys
 */
 static const char *keyfile=CONFDIR "/authorized_keys";
@@ -172,7 +172,7 @@ static EVP_PKEY *ssh2_line_to_key(char *line) {
 	i += 4;
 
 	/* now: key_from_blob */
-	if (strncmp((char *)&decoded[i], "ssh-rsa", 7) != 0) return NULL; 
+	if (strncmp((char *)&decoded[i], "ssh-rsa", 7) != 0) return NULL;
 	i += len;
 
 	key = EVP_PKEY_new();
@@ -316,7 +316,7 @@ static int openssh_mapper_match_user(X509 *x509, const char *user, void *context
 }
 
 /*
-parses the certificate and return the _first_ user that matches public key 
+parses the certificate and return the _first_ user that matches public key
 */
 static char * openssh_mapper_find_user(X509 *x509, void *context) {
         int n = 0;

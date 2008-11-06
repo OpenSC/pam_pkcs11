@@ -50,7 +50,7 @@
 
 /**
 * This mapper try to locate user by comparing authorized certificates
-* from each $HOME/.eid/authorized_certificates user entry, 
+* from each $HOME/.eid/authorized_certificates user entry,
 * as stored by OpenSC package
 */
 

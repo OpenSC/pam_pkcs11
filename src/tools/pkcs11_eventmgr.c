@@ -83,7 +83,7 @@ struct pkcs11_handle_str {
   int key_count;
   int current_slot;
 };
- 
+
 #endif
 
 static void thats_all_folks(void) {
@@ -106,7 +106,7 @@ static void thats_all_folks(void) {
       DBG1("close_pkcs11_session() failed: %s", get_error());
       return;
     }
- 
+
     /* release pkcs #11 module */
     DBG("releasing pkcs #11 module...");
     release_pkcs11_module(ph);
@@ -165,16 +165,16 @@ static int execute_event (const char *action) {
 	if (!actionlist) {
 	        DBG1("No action list for event '%s'",action);
 		return 0;
-	} 
+	}
 	DBG1("Onerror is set to: '%s'",onerrorstr);
 	while (actionlist) {
 		int res;
 		char *action_cmd= actionlist->data;
 		DBG1("Executiong action: '%s'",action_cmd);
 		/*
-		there are some security issues on using system() in 
+		there are some security issues on using system() in
 		setuid/setgid programs. so we will use an alternate function
-                */ 
+                */
 		/* res=system(action_cmd); */
 		res = my_system(action_cmd);
 		actionlist=actionlist->next;
@@ -185,9 +185,9 @@ static int execute_event (const char *action) {
 		    case ONERROR_IGNORE: continue;
 		    case ONERROR_RETURN: return 0;
 		    case ONERROR_QUIT: 	thats_all_folks();
-					exit(0); 
+					exit(0);
 		    default: 		DBG("Invalid onerror value");
-			     		return -1;		   
+			     		return -1;
 		}
 	}
 	return 0;
@@ -312,7 +312,7 @@ do_expand_slot_status(void)
 #define ENTRY_STEP 10
     struct SlotStatusStr *tmp;
     tmp = (struct SlotStatusStr *)
-	    realloc(slotStatus, 
+	    realloc(slotStatus,
 		(maxEntries+ENTRY_STEP)*sizeof(struct SlotStatusStr));
     if (!tmp) {
 	return 0;
@@ -390,19 +390,19 @@ int main(int argc, char *argv[]) {
 	return 1;
     }
 
-    /* acquire the module before we daemonize so we can return an error 
+    /* acquire the module before we daemonize so we can return an error
      * to the user if it fails */
     DBG("loading the module ...");
     if (pkcs11_module) {
 #define SPEC_TEMPLATE "library=\"%s\" name=\"SmartCard\""
-	char *moduleSpec = 
+	char *moduleSpec =
 		(char *)malloc(sizeof(SPEC_TEMPLATE) + strlen(pkcs11_module));
 	if (!moduleSpec) {
 	    DBG1("Malloc failed when allocating module spec", strerror(errno));
 	    return 1;
 	}
 	sprintf(moduleSpec,SPEC_TEMPLATE, pkcs11_module);
-	DBG2("loading Module explictly, moduleSpec=<%s> module=%s\n", 
+	DBG2("loading Module explictly, moduleSpec=<%s> module=%s\n",
 						moduleSpec, pkcs11_module);
 	module = SECMOD_LoadUserModule(moduleSpec, NULL, 0);
 	free(moduleSpec);
@@ -414,11 +414,11 @@ int main(int argc, char *argv[]) {
 	    return 1;
 	}
     } else {
-    	/* no module specified? look for one in the our of NSS's 
+    	/* no module specified? look for one in the our of NSS's
          * secmod.db */
 	SECMODModuleList *modList = SECMOD_GetDefaultModuleList();
 
-	/* threaded applications should also acquire the 
+	/* threaded applications should also acquire the
 	 * DefaultModuleListLock */
 	DBG("Looking up new module\n");
 	for ( ; modList; modList->next) {
@@ -446,7 +446,7 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    /* 
+    /*
      * Wait endlessly for all events in the list of readers
      * We only stop in case of an error
      *
@@ -456,7 +456,7 @@ int main(int argc, char *argv[]) {
 	/* wait for any token uses C_WaitForSlotEvent if the token supports it.
 	 * otherwise it polls by hand*/
 	struct SlotStatusStr *slotStatus;
-	PK11SlotInfo *slot = SECMOD_WaitForAnyTokenEvent(module, 0, 
+	PK11SlotInfo *slot = SECMOD_WaitForAnyTokenEvent(module, 0,
 			PR_SecondsToInterval(polling_time));
 
 	/* exit on an error */
@@ -474,7 +474,7 @@ int main(int argc, char *argv[]) {
 	   /* skip spurious insert events */
 	   if (series != slotStatus->series) {
 #ifdef notdef
-		/* if one was already present, remove it 
+		/* if one was already present, remove it
 		 * This can happen if you pull the token and insert it
 		 * before the PK11_IsPresent call above */
 		if (slotStatus->present) {
@@ -541,7 +541,7 @@ int main(int argc, char *argv[]) {
     }
     ph->should_finalize = 1;
 
-    /* 
+    /*
      * Wait endlessly for all events in the list of readers
      * We only stop in case of an error
      *
@@ -583,10 +583,10 @@ int main(int argc, char *argv[]) {
                if (new_state == CARD_NOT_PRESENT) {
                     DBG("Card removed, ");
 		    execute_event("card_remove");
-		/* 
+		/*
 		some pkcs11's fails on reinsert card. To avoid this
-		re-initialize library on card removal 
-		*/    	
+		re-initialize library on card removal
+		*/    
     		DBG("Re-initialising pkcs #11 module...");
     		rv = ph->fl->C_Finalize(NULL);
     		rv = ph->fl->C_Initialize(NULL);

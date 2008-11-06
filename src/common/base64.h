@@ -1,5 +1,5 @@
 /*
- * BASE64 Encoding funtions 
+ * BASE64 Encoding funtions
  * Copyright (C) 2001, 2002  Juha Yrj\uffffl\uffff <juha.yrjola@iki.fi>
  * Copyright (C) 2003-2004 Mario Strasser <mast@gmx.net>
  * Copyright (C) 2005 Juan Antonio Martinez <jonsito@teleline.es>

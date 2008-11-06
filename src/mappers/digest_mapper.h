@@ -42,6 +42,6 @@ DIGEST_EXTERN mapper_module * digest_mapper_module_init(scconf_block *blk,const 
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of digest_mapper.h */
 #endif

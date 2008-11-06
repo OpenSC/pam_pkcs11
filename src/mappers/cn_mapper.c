@@ -41,7 +41,7 @@ static int debug=0;
 
 /*
 * This mapper uses the common name (CN) entry on the certificate to
-* find user name. 
+* find user name.
 * When a mapfile is specified, try to map CN entry to a user login
 */
 

@@ -7,10 +7,10 @@
 
  * License is also granted to make and use derivative works provided that
  * such works are identified as "derived from the RSA Security Inc. PKCS #11
- * Cryptographic Token Interface (Cryptoki)" in all material mentioning or 
+ * Cryptographic Token Interface (Cryptoki)" in all material mentioning or
  * referencing the derived work.
 
- * RSA Security Inc. makes no representations concerning either the 
+ * RSA Security Inc. makes no representations concerning either the
  * merchantability of this software or the suitability of this software for
  * any particular purpose. It is provided "as is" without express or implied
  * warranty of any kind.
@@ -170,7 +170,7 @@ typedef struct CK_TOKEN_INFO {
 } CK_TOKEN_INFO;
 
 /* The flags parameter is defined as follows:
- *      Bit Flag                    Mask        Meaning 
+ *      Bit Flag                    Mask        Meaning
  */
 #define CKF_RNG                     0x00000001  /* has random #
                                                  * generator */
@@ -206,19 +206,19 @@ typedef struct CK_TOKEN_INFO {
 #define CKF_DUAL_CRYPTO_OPERATIONS  0x00000200
 
 /* CKF_TOKEN_INITIALIZED if new for v2.10. If it is true, the
- * token has been initialized using C_InitializeToken or an 
+ * token has been initialized using C_InitializeToken or an
  * equivalent mechanism outside the scope of PKCS #11.
- * Calling C_InitializeToken when this flag is set will cause 
+ * Calling C_InitializeToken when this flag is set will cause
  * the token to be reinitialized. */
 #define CKF_TOKEN_INITIALIZED       0x00000400
 
-/* CKF_SECONDARY_AUTHENTICATION if new for v2.10. If it is 
- * true, the token supports secondary authentication for 
+/* CKF_SECONDARY_AUTHENTICATION if new for v2.10. If it is
+ * true, the token supports secondary authentication for
  * private key objects. */
 #define CKF_SECONDARY_AUTHENTICATION  0x00000800
 
-/* CKF_USER_PIN_COUNT_LOW if new for v2.10. If it is true, an 
- * incorrect user login PIN has been entered at least once 
+/* CKF_USER_PIN_COUNT_LOW if new for v2.10. If it is true, an
+ * incorrect user login PIN has been entered at least once
  * since the last successful authentication. */
 #define CKF_USER_PIN_COUNT_LOW       0x00010000
 
@@ -226,19 +226,19 @@ typedef struct CK_TOKEN_INFO {
  * supplying an incorrect user PIN will it to become locked. */
 #define CKF_USER_PIN_FINAL_TRY       0x00020000
 
-/* CKF_USER_PIN_LOCKED if new for v2.10. If it is true, the 
- * user PIN has been locked. User login to the token is not 
+/* CKF_USER_PIN_LOCKED if new for v2.10. If it is true, the
+ * user PIN has been locked. User login to the token is not
  * possible. */
 #define CKF_USER_PIN_LOCKED          0x00040000
 
-/* CKF_USER_PIN_TO_BE_CHANGED if new for v2.10. If it is true, 
- * the user PIN value is the default value set by token 
+/* CKF_USER_PIN_TO_BE_CHANGED if new for v2.10. If it is true,
+ * the user PIN value is the default value set by token
  * initialization or manufacturing, or the PIN has been
  * expired by the card. */
 #define CKF_USER_PIN_TO_BE_CHANGED   0x00080000
 
-/* CKF_SO_PIN_COUNT_LOW if new for v2.10. If it is true, an 
- * incorrect SO login PIN has been entered at least once since 
+/* CKF_SO_PIN_COUNT_LOW if new for v2.10. If it is true, an
+ * incorrect SO login PIN has been entered at least once since
  * the last successful authentication. */
 #define CKF_SO_PIN_COUNT_LOW         0x00100000
 
@@ -246,13 +246,13 @@ typedef struct CK_TOKEN_INFO {
  * supplying an incorrect SO PIN will it to become locked. */
 #define CKF_SO_PIN_FINAL_TRY         0x00200000
 
-/* CKF_SO_PIN_LOCKED if new for v2.10. If it is true, the SO 
+/* CKF_SO_PIN_LOCKED if new for v2.10. If it is true, the SO
  * PIN has been locked. SO login to the token is not possible.
  */
 #define CKF_SO_PIN_LOCKED            0x00400000
 
-/* CKF_SO_PIN_TO_BE_CHANGED if new for v2.10. If it is true, 
- * the SO PIN value is the default value set by token 
+/* CKF_SO_PIN_TO_BE_CHANGED if new for v2.10. If it is true,
+ * the SO PIN value is the default value set by token
  * initialization or manufacturing, or the PIN has been
  * expired by the card. */
 #define CKF_SO_PIN_TO_BE_CHANGED     0x00800000
@@ -420,7 +420,7 @@ typedef CK_ULONG CK_ATTRIBUTE_TYPE;
 #define CKA_ISSUER             0x00000081
 #define CKA_SERIAL_NUMBER      0x00000082
 
-/* CKA_AC_ISSUER, CKA_OWNER, and CKA_ATTR_TYPES are new 
+/* CKA_AC_ISSUER, CKA_OWNER, and CKA_ATTR_TYPES are new
  * for v2.10 */
 #define CKA_AC_ISSUER          0x00000083
 #define CKA_OWNER              0x00000084
@@ -486,7 +486,7 @@ typedef CK_ULONG CK_ATTRIBUTE_TYPE;
 
 #define CKA_EC_POINT           0x00000181
 
-/* CKA_SECONDARY_AUTH, CKA_AUTH_PIN_FLAGS, 
+/* CKA_SECONDARY_AUTH, CKA_AUTH_PIN_FLAGS,
  * CKA_HW_FEATURE_TYPE, CKA_RESET_ON_INIT, and CKA_HAS_RESET
  * are new for v2.10 */
 #define CKA_SECONDARY_AUTH     0x00000200
@@ -621,7 +621,7 @@ typedef CK_ULONG CK_MECHANISM_TYPE;
 #define CKM_SHA_1_HMAC                 0x00000221
 #define CKM_SHA_1_HMAC_GENERAL         0x00000222
 
-/* CKM_RIPEMD128, CKM_RIPEMD128_HMAC, 
+/* CKM_RIPEMD128, CKM_RIPEMD128_HMAC,
  * CKM_RIPEMD128_HMAC_GENERAL, CKM_RIPEMD160, CKM_RIPEMD160_HMAC,
  * and CKM_RIPEMD160_HMAC_GENERAL are new for v2.10 */
 #define CKM_RIPEMD128                  0x00000230
@@ -1039,10 +1039,10 @@ typedef CK_C_INITIALIZE_ARGS CK_PTR CK_C_INITIALIZE_ARGS_PTR;
 /* CKF_DONT_BLOCK is for the function C_WaitForSlotEvent */
 #define CKF_DONT_BLOCK     1
 
-/* CK_RSA_PKCS_OAEP_MGF_TYPE is new for v2.10. 
- * CK_RSA_PKCS_OAEP_MGF_TYPE  is used to indicate the Message 
- * Generation Function (MGF) applied to a message block when 
- * formatting a message block for the PKCS #1 OAEP encryption 
+/* CK_RSA_PKCS_OAEP_MGF_TYPE is new for v2.10.
+ * CK_RSA_PKCS_OAEP_MGF_TYPE  is used to indicate the Message
+ * Generation Function (MGF) applied to a message block when
+ * formatting a message block for the PKCS #1 OAEP encryption
  * scheme. */
 typedef CK_ULONG CK_RSA_PKCS_MGF_TYPE;
 
@@ -1051,9 +1051,9 @@ typedef CK_RSA_PKCS_MGF_TYPE CK_PTR CK_RSA_PKCS_MGF_TYPE_PTR;
 /* The following MGFs are defined */
 #define CKG_MGF1_SHA1         0x00000001
 
-/* CK_RSA_PKCS_OAEP_SOURCE_TYPE is new for v2.10. 
+/* CK_RSA_PKCS_OAEP_SOURCE_TYPE is new for v2.10.
  * CK_RSA_PKCS_OAEP_SOURCE_TYPE  is used to indicate the source
- * of the encoding parameter when formatting a message block 
+ * of the encoding parameter when formatting a message block
  * for the PKCS #1 OAEP encryption scheme. */
 typedef CK_ULONG CK_RSA_PKCS_OAEP_SOURCE_TYPE;
 
@@ -1063,7 +1063,7 @@ typedef CK_RSA_PKCS_OAEP_SOURCE_TYPE CK_PTR CK_RSA_PKCS_OAEP_SOURCE_TYPE_PTR;
 #define CKZ_DATA_SPECIFIED    0x00000001
 
 /* CK_RSA_PKCS_OAEP_PARAMS is new for v2.10.
- * CK_RSA_PKCS_OAEP_PARAMS provides the parameters to the 
+ * CK_RSA_PKCS_OAEP_PARAMS provides the parameters to the
  * CKM_RSA_PKCS_OAEP mechanism. */
 typedef struct CK_RSA_PKCS_OAEP_PARAMS {
   CK_MECHANISM_TYPE hashAlg;
@@ -1126,7 +1126,7 @@ typedef struct CK_ECDH2_DERIVE_PARAMS {
 
 typedef CK_ECDH2_DERIVE_PARAMS CK_PTR CK_ECDH2_DERIVE_PARAMS_PTR;
 
-/* Typedefs and defines for the CKM_X9_42_DH_KEY_PAIR_GEN and the 
+/* Typedefs and defines for the CKM_X9_42_DH_KEY_PAIR_GEN and the
  * CKM_X9_42_DH_PARAMETER_GEN mechanisms (new for PKCS #11 v2.11) */
 typedef CK_ULONG CK_X9_42_DH_KDF_TYPE;
 typedef CK_X9_42_DH_KDF_TYPE CK_PTR CK_X9_42_DH_KDF_TYPE_PTR;
@@ -1137,7 +1137,7 @@ typedef CK_X9_42_DH_KDF_TYPE CK_PTR CK_X9_42_DH_KDF_TYPE_PTR;
 #define CKD_SHA1_KDF_CONCATENATE 0x00000004
 
 /* CK_X9_42_DH1_DERIVE_PARAMS is new for v2.11.
- * CK_X9_42_DH1_DERIVE_PARAMS provides the parameters to the 
+ * CK_X9_42_DH1_DERIVE_PARAMS provides the parameters to the
  * CKM_X9_42_DH_DERIVE key derivation mechanism, where each party
  * contributes one key pair */
 typedef struct CK_X9_42_DH1_DERIVE_PARAMS {
@@ -1151,7 +1151,7 @@ typedef struct CK_X9_42_DH1_DERIVE_PARAMS {
 typedef struct CK_X9_42_DH1_DERIVE_PARAMS CK_PTR CK_X9_42_DH1_DERIVE_PARAMS_PTR;
 
 /* CK_X9_42_DH2_DERIVE_PARAMS is new for v2.11.
- * CK_X9_42_DH2_DERIVE_PARAMS provides the parameters to the 
+ * CK_X9_42_DH2_DERIVE_PARAMS provides the parameters to the
  * CKM_X9_42_DH_HYBRID_DERIVE and CKM_X9_42_MQV_DERIVE key derivation
  * mechanisms, where each party contributes two key pairs */
 typedef struct CK_X9_42_DH2_DERIVE_PARAMS {
@@ -1385,8 +1385,8 @@ typedef CK_ULONG CK_EXTRACT_PARAMS;
 typedef CK_EXTRACT_PARAMS CK_PTR CK_EXTRACT_PARAMS_PTR;
 
 /* CK_PKCS5_PBKD2_PSEUDO_RANDOM_FUNCTION_TYPE is new for v2.10.
- * CK_PKCS5_PBKD2_PSEUDO_RANDOM_FUNCTION_TYPE is used to 
- * indicate the Pseudo-Random Function (PRF) used to generate 
+ * CK_PKCS5_PBKD2_PSEUDO_RANDOM_FUNCTION_TYPE is used to
+ * indicate the Pseudo-Random Function (PRF) used to generate
  * key bits using PKCS #5 PBKDF2. */
 typedef CK_ULONG CK_PKCS5_PBKD2_PSEUDO_RANDOM_FUNCTION_TYPE;
 
@@ -1398,8 +1398,8 @@ typedef CK_PKCS5_PBKD2_PSEUDO_RANDOM_FUNCTION_TYPE CK_PTR
 
 
 /* CK_PKCS5_PBKDF2_SALT_SOURCE_TYPE is new for v2.10.
- * CK_PKCS5_PBKDF2_SALT_SOURCE_TYPE is used to indicate the 
- * source of the salt value when deriving a key using PKCS #5 
+ * CK_PKCS5_PBKDF2_SALT_SOURCE_TYPE is used to indicate the
+ * source of the salt value when deriving a key using PKCS #5
  * PBKDF2. */
 typedef CK_ULONG CK_PKCS5_PBKDF2_SALT_SOURCE_TYPE;
 
@@ -1409,7 +1409,7 @@ typedef CK_PKCS5_PBKDF2_SALT_SOURCE_TYPE CK_PTR CK_PKCS5_PBKDF2_SALT_SOURCE_TYPE
 #define CKZ_SALT_SPECIFIED        0x00000001
 
 /* CK_PKCS5_PBKD2_PARAMS is new for v2.10.
- * CK_PKCS5_PBKD2_PARAMS is a structure that provides the 
+ * CK_PKCS5_PBKD2_PARAMS is a structure that provides the
  * parameters to the CKM_PKCS5_PBKD2 mechanism. */
 typedef struct CK_PKCS5_PBKD2_PARAMS {
   CK_PKCS5_PBKDF2_SALT_SOURCE_TYPE saltSource;

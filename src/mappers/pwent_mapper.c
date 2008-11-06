@@ -40,7 +40,7 @@
 /*
 * This mapper search the common name (CN) of the certificate in
 * getpwent() passwd entries by trying to match login or gecos fields
-* 
+*
 * note: nss implementations use /etc/nsswitch.conf as indicator to
 * where to retrieve pw entries ( see man 5 nsswitch.conf )
 */
@@ -97,7 +97,7 @@ static char * pwent_mapper_find_user(X509 *x509,void *context) {
 */
 static int pwent_mapper_match_user(X509 *x509, const char *login, void *context) {
         char *str;
-	struct passwd *pw = getpwnam(login); 
+	struct passwd *pw = getpwnam(login);
         char **entries  = cert_info(x509,CERT_CN,ALGORITHM_NULL);
         if (!entries) {
             DBG("get_common_name() failed");

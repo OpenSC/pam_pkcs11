@@ -87,7 +87,7 @@ int main(int argc, const char **argv) {
   /* open pkcs #11 session */
   if (configuration->slot_description != NULL) {
     rv = find_slot_by_slotlabel(ph,configuration->slot_description, &slot_num);
-  } else { 
+  } else {
     rv = find_slot_by_number(ph,configuration->slot_num, &slot_num);
   }
   if (rv != 0) {

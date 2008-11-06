@@ -42,6 +42,6 @@ UID_EXTERN mapper_module * uid_mapper_module_init(scconf_block *blk,const char *
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of uid_mapper.h */
 #endif

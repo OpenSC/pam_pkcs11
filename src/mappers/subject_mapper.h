@@ -42,6 +42,6 @@ SUBJECT_EXTERN mapper_module * subject_mapper_module_init(scconf_block *blk,cons
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of subject_mapper.h */
 #endif

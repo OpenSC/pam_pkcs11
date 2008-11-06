@@ -27,7 +27,7 @@
 #ifdef HAVE_NSS
 ALGORITHM_TYPE Alg_get_alg_from_string(const char *hashString)
 {
-    /* sigh, we don't have any string to out conversion 
+    /* sigh, we don't have any string to out conversion
      * it would be nice to at least search the oid table by
      * description */
     SECOidTag hashOIDTag;

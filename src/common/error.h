@@ -30,7 +30,7 @@
 #include <errno.h>
 
 /** Default error message buffer size */
-#define ERROR_BUFFER_SIZE 512 
+#define ERROR_BUFFER_SIZE 512
 
 #ifndef __ERROR_C_
 #define ERROR_EXTERN extern

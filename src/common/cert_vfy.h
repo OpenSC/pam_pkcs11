@@ -29,20 +29,20 @@ Several routines to:
 
 #include "cert_st.h"
 
-typedef enum { 
+typedef enum {
 	/** Do not perform any CRL verification */
-	CRLP_NONE, 
+	CRLP_NONE,
 	/** Retrieve CRL from CA site */
-	CRLP_ONLINE, 
+	CRLP_ONLINE,
 	/** Retrieve CRL from local filesystem */
 	CRLP_OFFLINE,
 	/** Try CRL check online, else ofline, else fail */
-	CRLP_AUTO 
+	CRLP_AUTO
 	} crl_policy_t;
 
-typedef enum { 
-	OCSP_NONE, 
-	OCSP_ON 
+typedef enum {
+	OCSP_NONE,
+	OCSP_ON
 	} ocsp_policy_t;
 
 struct cert_policy_st {

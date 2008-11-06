@@ -128,16 +128,16 @@ static int execute_event (const char *action) {
 	if (!actionlist) {
 	        DBG1("No action list for event '%s'",action);
 		return 0;
-	} 
+	}
 	DBG1("Onerror is set to: '%s'",onerrorstr);
 	while (actionlist) {
 		int res;
 		char *action_cmd= actionlist->data;
 		DBG1("Executiong action: '%s'",action_cmd);
 		/*
-		there are some security issues on using system() in 
+		there are some security issues on using system() in
 		setuid/setgid programs. so we will use an alternate function
-                */ 
+                */
 		/* res=system(action_cmd); */
 		res = my_system(action_cmd);
 		actionlist=actionlist->next;
@@ -148,9 +148,9 @@ static int execute_event (const char *action) {
 		    case ONERROR_IGNORE: continue;
 		    case ONERROR_RETURN: return 0;
 		    case ONERROR_QUIT: 	thats_all_folks();
-					exit(0); 
+					exit(0);
 		    default: 		DBG("Invalid onerror value");
-			     		return -1;		   
+			     		return -1;
 		}
 	}
 	return 0;
@@ -346,7 +346,7 @@ int main(int argc, char *argv[]) {
 	if (ctx) scconf_free(ctx);
         return 1;
     }
-    
+
     /* put my self into background if flag is set */
     if (daemonize) {
 	DBG("Going to be daemon...");

@@ -42,6 +42,6 @@ PWENT_EXTERN mapper_module * pwent_mapper_module_init(scconf_block *blk,const ch
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of pwent_mapper.h */
 #endif

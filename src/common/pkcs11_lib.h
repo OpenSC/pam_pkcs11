@@ -24,7 +24,7 @@ typedef struct pkcs11_handle_str pkcs11_handle_t;
 
 #ifndef __PKCS11_LIB_C__
 #define PKCS11_EXTERN extern
-#else 
+#else
 #define PKCS11_EXTERN
 #endif
 
@@ -38,7 +38,7 @@ PKCS11_EXTERN int find_slot_by_number_and_label(pkcs11_handle_t *h,
                                       unsigned int *slot);
 PKCS11_EXTERN const char *get_slot_tokenlabel(pkcs11_handle_t *h);
 PKCS11_EXTERN int wait_for_token(pkcs11_handle_t *h,
-                                 int wanted_slot_num, 
+                                 int wanted_slot_num,
                                  const char *wanted_token_label,
                                  unsigned int *slot);
 PKCS11_EXTERN int find_slot_by_slotlabel(pkcs11_handle_t *h,
@@ -49,7 +49,7 @@ PKCS11_EXTERN int find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
                                  const char *wanted_token_label,
                                  unsigned int *slot);
 PKCS11_EXTERN int wait_for_token_by_slotlabel(pkcs11_handle_t *h,
-                                 const char *wanted_slot_label, 
+                                 const char *wanted_slot_label,
                                  const char *wanted_token_label,
                                  unsigned int *slot);
 PKCS11_EXTERN const X509 *get_X509_certificate(cert_object_t *cert);
@@ -58,7 +58,7 @@ PKCS11_EXTERN int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot);
 PKCS11_EXTERN int close_pkcs11_session(pkcs11_handle_t *h);
 PKCS11_EXTERN int pkcs11_login(pkcs11_handle_t *h, char *password);
 PKCS11_EXTERN int pkcs11_pass_login(pkcs11_handle_t *h, int nullok);
-PKCS11_EXTERN cert_object_t **get_certificate_list(pkcs11_handle_t *h, 
+PKCS11_EXTERN cert_object_t **get_certificate_list(pkcs11_handle_t *h,
                                                   int *ncert);
 PKCS11_EXTERN int get_private_key(pkcs11_handle_t *h, cert_object_t *);
 PKCS11_EXTERN int sign_value(pkcs11_handle_t *h, cert_object_t *,

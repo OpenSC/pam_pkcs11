@@ -37,7 +37,7 @@
 #include "mail_mapper.h"
 
 /*
-* This mapper uses (if available) the optional email entry on the certificate 
+* This mapper uses (if available) the optional email entry on the certificate
 * to find user name.
 */
 

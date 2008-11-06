@@ -147,7 +147,7 @@ ER3(SEC_ERROR_EXTENSION_NOT_FOUND,		(SEC_ERROR_BASE + 35),
 
 ER3(SEC_ERROR_CA_CERT_INVALID,			(SEC_ERROR_BASE + 36),
 "Issuer certificate is invalid.")
-   
+
 ER3(SEC_ERROR_PATH_LEN_CONSTRAINT_INVALID,	(SEC_ERROR_BASE + 37),
 "Certificate path length constraint is invalid.")
 
@@ -375,7 +375,7 @@ ER3(SEC_ERROR_JS_DEL_MOD_FAILURE, 		(SEC_ERROR_BASE + 109),
 
 ER3(SEC_ERROR_OLD_KRL,	     			(SEC_ERROR_BASE + 110),
 "New KRL is not later than the current one.")
- 
+
 ER3(SEC_ERROR_CKL_CONFLICT,	     		(SEC_ERROR_BASE + 111),
 "New CKL has different issuer than current CKL.  Delete current CKL.")
 

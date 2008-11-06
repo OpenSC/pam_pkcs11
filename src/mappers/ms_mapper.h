@@ -42,6 +42,6 @@ MS_EXTERN mapper_module * ms_mapper_module_init(scconf_block *blk,const char *ma
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of ms_mapper.h */
 #endif

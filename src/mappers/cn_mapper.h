@@ -42,6 +42,6 @@ CN_EXTERN mapper_module * cn_mapper_module_init(scconf_block *blk,const char *ma
 
 /* end of static (if any) declarations */
 #endif
-	
+
 /* End of cn_mapper.h */
 #endif

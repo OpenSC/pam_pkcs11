@@ -212,7 +212,7 @@ int crypto_init(cert_policy *policy) {
 }
 
 
-static SECMODModule *find_module_by_library(char *pkcs11_module) 
+static SECMODModule *find_module_by_library(char *pkcs11_module)
 {
   SECMODModule *module = NULL;
   SECMODModuleList *modList = SECMOD_GetDefaultModuleList();
@@ -235,7 +235,7 @@ static SECMODModule *find_module_by_library(char *pkcs11_module)
 /*
  * NSS allows you to load a specific module. If the user specified a module
  * to load, load it, otherwize select on of the standard modules from the
- * secmod.db list. 
+ * secmod.db list.
  */
 int load_pkcs11_module(char *pkcs11_module, pkcs11_handle_t **hp)
 {
@@ -260,7 +260,7 @@ int load_pkcs11_module(char *pkcs11_module, pkcs11_handle_t **hp)
     return 0;
   }
 
-  /* specified module is not already loaded, load it now */	
+  /* specified module is not already loaded, load it now */
   moduleSpec = (char *)malloc(sizeof(SPEC_TEMPLATE) + strlen(pkcs11_module));
   if (!moduleSpec) {
     DBG1("Malloc failed when allocating module spec", strerror(errno));
@@ -297,7 +297,7 @@ int find_slot_by_number(pkcs11_handle_t *h, unsigned int slot_num, unsigned int 
   SECMODModule *module = h->module;
   int i;
 
-  /* if module is null, 
+  /* if module is null,
    * any of the PKCS #11 modules specified in the system config
    * is available, find one */
   if (module == NULL) {
@@ -363,7 +363,7 @@ int find_slot_by_number(pkcs11_handle_t *h, unsigned int slot_num, unsigned int 
  * find a slot by it's slot number or label. If slot number is '0' any
  * slot is ok.
  */
-int find_slot_by_number_and_label(pkcs11_handle_t *h, 
+int find_slot_by_number_and_label(pkcs11_handle_t *h,
 				  int wanted_slot_id,
 				  const char *wanted_token_label,
                                   unsigned int *slot_num)
@@ -384,7 +384,7 @@ int find_slot_by_number_and_label(pkcs11_handle_t *h,
     /* verify it's the label we want */
     token_label = PK11_GetTokenName(h->slot);
 
-    if ((token_label != NULL) && 
+    if ((token_label != NULL) &&
         (strcmp (wanted_token_label, token_label) == 0)) {
       return 0;
     }
@@ -412,7 +412,7 @@ int find_slot_by_number_and_label(pkcs11_handle_t *h,
   return 0;
 }
 
-int wait_for_token(pkcs11_handle_t *h, 
+int wait_for_token(pkcs11_handle_t *h,
                    int wanted_slot_id,
                    const char *wanted_token_label,
                    unsigned int *slot_num)
@@ -449,11 +449,11 @@ int wait_for_token(pkcs11_handle_t *h,
   return rv;
 }
 
-/* 
+/*
  * This function will search the slot list to find a slot based on the slot
  * label.  If the wanted_slot_label is "none", then we will return the first
  * slot with the token presented.
- * 
+ *
  * This function return 0 if it found a matching slot; otherwise, it returns
  * -1.
  */
@@ -480,7 +480,7 @@ find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
         const char *slot_label;
 
 	slot = PK11_ReferenceSlot(module->slots[i]);
-	slot_label = PK11_GetSlotName(slot);	
+	slot_label = PK11_GetSlotName(slot);
 	if (memcmp_pad_max((void *)slot_label, strlen(slot_label),
 	    (void *)wanted_slot_label, strlen(wanted_slot_label), 64) == 0) {
 	  h->slot = slot;
@@ -508,13 +508,13 @@ find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
   if (slot_num == NULL || module == NULL)
     return (-1);
 
-  if (wanted_token_label == NULL){ 
+  if (wanted_token_label == NULL){
     rv = find_slot_by_slotlabel(h, wanted_slot_label, slot_num);
     return (rv);
   }
 
   /* wanted_token_label != NULL */
-  if (strcmp(wanted_slot_label, "none") == 0) { 
+  if (strcmp(wanted_slot_label, "none") == 0) {
     for (i = 0; i < module->slotCount; i++) {
       if (module->slots[i] && PK11_IsPresent(module->slots[i])) {
 	const char *token_label;
@@ -553,7 +553,7 @@ find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
   }
 }
 
-int wait_for_token_by_slotlabel(pkcs11_handle_t *h, 
+int wait_for_token_by_slotlabel(pkcs11_handle_t *h,
                    const char *wanted_slot_label,
                    const char *wanted_token_label,
                    unsigned int *slot_num)
@@ -565,7 +565,7 @@ int wait_for_token_by_slotlabel(pkcs11_handle_t *h,
     /* see if the card we're looking for is inserted */
     rv = find_slot_by_slotlabel_and_tokenlabel (h, wanted_slot_label,
 	wanted_token_label, slot_num);
-  
+
     if (rv !=  0) {
       PK11SlotInfo *slot;
       PRIntervalTime slot_poll_interval; /* only for legacy hardware */
@@ -592,7 +592,7 @@ int wait_for_token_by_slotlabel(pkcs11_handle_t *h,
 }
 
 
-void release_pkcs11_module(pkcs11_handle_t *h) 
+void release_pkcs11_module(pkcs11_handle_t *h)
 {
   SECStatus rv;
   close_pkcs11_session(h);
@@ -714,7 +714,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *count)
   rv = CERT_FilterCertListByUsage(certList,  certUsageSSLClient, PR_FALSE);
   if (rv != SECSuccess) {
       CERT_DestroyCertList(certList);
-      DBG1("Couldn't filter out email certs: %s", 
+      DBG1("Couldn't filter out email certs: %s",
 				SECU_Strerror(PR_GetError()));
       return NULL;
   }
@@ -728,7 +728,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *count)
   }
 
   /* convert the link list from NSS to the array used by pam_pkcs11 */
-  for (node = CERT_LIST_HEAD(certList); !CERT_LIST_END(node,certList); 
+  for (node = CERT_LIST_HEAD(certList); !CERT_LIST_END(node,certList);
 						node = CERT_LIST_NEXT(node)) {
 	if (node->cert) {
 	    DBG3("cert %d: found (%s), \"%s\"", certCount,
@@ -748,7 +748,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *count)
     return NULL;
   }
 
-  for (node = CERT_LIST_HEAD(certList); !CERT_LIST_END(node,certList); 
+  for (node = CERT_LIST_HEAD(certList); !CERT_LIST_END(node,certList);
                                          node = CERT_LIST_NEXT(node)) {
     if (node->cert) {
       certs[certIndex++] = (cert_object_t *)CERT_DupCertificate(node->cert);
@@ -811,7 +811,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
   return 0;
 }
 
-int get_random_value(unsigned char *data, int length) 
+int get_random_value(unsigned char *data, int length)
 {
   SECStatus rv = PK11_GenerateRandom(data,length);
   if (rv != SECSuccess) {
@@ -847,7 +847,7 @@ const PRInt32 numStrings = sizeof(errStrings) / sizeof(tuple_str);
  * Returns NULL of errNum is unknown.
  */
 const char *
-SECU_Strerror(PRErrorCode errNum) 
+SECU_Strerror(PRErrorCode errNum)
 {
   PRInt32 low  = 0;
   PRInt32 high = numStrings - 1;
@@ -863,12 +863,12 @@ SECU_Strerror(PRErrorCode errNum)
     for (i = low; i <= high; ++i) {
       num = errStrings[i].errNum;
       if (num <= lastNum) {
-        fprintf(stderr, 
+        fprintf(stderr,
                 "sequence error in error strings at item %d\n"
                 "error %d (%s)\n"
                 "should come after \n"
                 "error %d (%s)\n",
-                i, lastNum, errStrings[i-1].errString, 
+                i, lastNum, errStrings[i-1].errString,
                 num, errStrings[i].errString);
       }
       lastNum = num;
@@ -880,11 +880,11 @@ SECU_Strerror(PRErrorCode errNum)
   while (low + 1 < high) {
     i = (low + high) / 2;
     num = errStrings[i].errNum;
-    if (errNum == num) 
+    if (errNum == num)
       return errStrings[i].errString;
     if (errNum < num)
       high = i;
-    else 
+    else
       low = i;
   }
   if (errNum == errStrings[low].errNum)
@@ -948,7 +948,7 @@ int load_pkcs11_module(char *module, pkcs11_handle_t **hp)
 
   DBG1("PKCS #11 module = [%s]", module);
   /* reset pkcs #11 handle */
-  
+
   h = (pkcs11_handle_t *)calloc(sizeof(pkcs11_handle_t), 1);
   if (h == NULL) {
     set_error("pkcs11_handle_t malloc failed: %s", strerror(errno));
@@ -1048,8 +1048,8 @@ int init_pkcs11_module(pkcs11_handle_t *h,int flag)
   CK_SLOT_ID_PTR slots;
   CK_INFO info;
   CK_C_INITIALIZE_ARGS initArgs;
-  /* 
-   Set up arguments to allow native threads 
+  /*
+   Set up arguments to allow native threads
    According with pkcs#11v2.20, must set all pointers to null
    and flags CKF_OS_LOCKING_OK
   */
@@ -1140,7 +1140,7 @@ int find_slot_by_number(pkcs11_handle_t *h, unsigned int slot_num, unsigned int 
 {
    /* zero means find the best slot */
    if (slot_num == 0) {
-	for (slot_num = 0; slot_num < h->slot_count && 
+	for (slot_num = 0; slot_num < h->slot_count &&
 				!h->slots[slot_num].token_present; slot_num++);
    } else {
 	/* otherwize it's an index into the slot table  (it is *NOT* the slot
@@ -1153,8 +1153,8 @@ int find_slot_by_number(pkcs11_handle_t *h, unsigned int slot_num, unsigned int 
    *slot = slot_num;
    return 0;
 }
-	
-int find_slot_by_number_and_label(pkcs11_handle_t *h, 
+
+int find_slot_by_number_and_label(pkcs11_handle_t *h,
 				  int wanted_slot_id,
 				  const char *wanted_token_label,
                                   unsigned int *slot_num)
@@ -1175,7 +1175,7 @@ int find_slot_by_number_and_label(pkcs11_handle_t *h,
     /* verify it's the label we want */
     token_label = h->slots[*slot_num].label;
 
-    if ((token_label != NULL) && 
+    if ((token_label != NULL) &&
         (strcmp (wanted_token_label, token_label) == 0)) {
       return 0;
     }
@@ -1186,7 +1186,7 @@ int find_slot_by_number_and_label(pkcs11_handle_t *h,
   for (slot_index = 0; slot_index < h->slot_count; slot_index++) {
     if (h->slots[slot_index].token_present) {
       token_label = h->slots[slot_index].label;
-      if ((token_label != NULL) && 
+      if ((token_label != NULL) &&
           (strcmp (wanted_token_label, token_label) == 0)) {
         *slot_num = slot_index;
         return 0;
@@ -1197,11 +1197,11 @@ int find_slot_by_number_and_label(pkcs11_handle_t *h,
 }
 
 
-/* 
+/*
  * This function will search the slot list to find a slot based on the slot
  * label.  If the wanted_slot_label is "none", then we will return the first
  * slot with the token presented.
- * 
+ *
  * This function return 0 if it found a matching slot; otherwise, it returns
  * -1.
  */
@@ -1256,7 +1256,7 @@ find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
   }
 
   /* wanted_token_label != NULL */
-  if (strcmp(wanted_slot_label, "none") == 0) { 
+  if (strcmp(wanted_slot_label, "none") == 0) {
     for (i= 0; i < h->slot_count; i++) {
       if (h->slots[i].token_present &&
 	  strcmp(wanted_token_label, h->slots[i].label) == 0) {
@@ -1285,7 +1285,7 @@ find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
   }
 }
 
-int wait_for_token_by_slotlabel(pkcs11_handle_t *h, 
+int wait_for_token_by_slotlabel(pkcs11_handle_t *h,
                    const char *wanted_slot_label,
                    const char *wanted_token_label,
                    unsigned int *slot_num)
@@ -1308,7 +1308,7 @@ int wait_for_token_by_slotlabel(pkcs11_handle_t *h,
   return rv;
 }
 
-int wait_for_token(pkcs11_handle_t *h, 
+int wait_for_token(pkcs11_handle_t *h,
                    int wanted_slot_id,
                    const char *wanted_token_label,
                    unsigned int *slot_num)
@@ -1339,7 +1339,7 @@ int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot)
   if (slot >= h->slot_count) {
     set_error("invalid slot number %d", slot);
     return -1;
-  } 
+  }
   /* open a readonly user-session */
   rv = h->fl->C_OpenSession(h->slots[slot].id, CKF_SERIAL_SESSION, NULL, NULL, &h->session);
   if (rv != CKR_OK) {
@@ -1407,7 +1407,7 @@ int close_pkcs11_session(pkcs11_handle_t *h)
 }
 
 /* get a list of certificates */
-cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts) 
+cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
 {
   CK_BYTE *id_value;
   CK_BYTE *cert_value;
@@ -1416,7 +1416,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
   X509 *x509;
   cert_object_t **certs = NULL;
   int rv;
-  
+
   CK_OBJECT_CLASS cert_class = CKO_CERTIFICATE;
   CK_CERTIFICATE_TYPE cert_type = CKC_X_509;
   CK_ATTRIBUTE cert_template[] = {
@@ -1639,7 +1639,7 @@ const X509 *get_X509_certificate(cert_object_t *cert)
   return cert->x509;
 }
 
-int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data, 
+int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
 	CK_ULONG length, CK_BYTE **signature, CK_ULONG *signature_length)
 {
   int rv;
@@ -1651,7 +1651,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
   if (get_private_key(h, cert) == -1) {
     set_error("Couldn't find private key for certificate");
     return -1;
-  } 
+  }
 
   /* set mechanism */
   switch (cert->key_type) {

@@ -46,7 +46,7 @@
 * Creates a mapfile entry
 * load url and store into mapfile
 * returns struct or NULL on error
-*/ 
+*/
 struct mapfile *set_mapent(const char *url) {
 	int res;
 	struct mapfile *mfile = malloc(sizeof(struct mapfile));
@@ -126,7 +126,7 @@ try_again:
 void end_mapent(struct mapfile *mfile) {
 	if (!mfile) return;
 	/* don't free uri: is a scconf provided "const char *" */;
-	/* free (mfile->uri); */ 
+	/* free (mfile->uri); */
 	/* don't free key/value: they are pointers to somewhere in buffer */
 	/* free (mfile->value); */
 	/* free (mfile->key); */

@@ -68,7 +68,7 @@ extern SECStatus SEC_AddPermCertificate(CERTCertDBHandle *handle,
 
 
 #ifdef SECUTIL_NEW
-typedef int (*SECU_PPFunc)(PRFileDesc *out, SECItem *item, 
+typedef int (*SECU_PPFunc)(PRFileDesc *out, SECItem *item,
                            char *msg, int level);
 #else
 typedef int (*SECU_PPFunc)(FILE *out, SECItem *item, char *msg, int level);
@@ -101,7 +101,7 @@ SECStatus SECU_ChangePW(PK11SlotInfo *slot, char *passwd, char *pwFile);
 extern PRBool SEC_CheckPassword(char *password);
 
 /*
-** Blind check of a password. Complement to SEC_CheckPassword which 
+** Blind check of a password. Complement to SEC_CheckPassword which
 ** ignores length and content type, just retuning DSTrue is the password
 ** exists, DSFalse if NULL
 */
@@ -143,14 +143,14 @@ char *SECU_AppendFilenameToDir(char *dir, char *filename);
 extern char *SECU_DefaultSSLDir(void);
 
 /*
-** Should be called once during initialization to set the default 
+** Should be called once during initialization to set the default
 **    directory for looking for cert.db, key.db, and cert-nameidx.db files
-** Removes trailing '/' in 'base' 
+** Removes trailing '/' in 'base'
 ** If 'base' is NULL, defaults to set to .netscape in home directory.
 */
 extern char *SECU_ConfigDirectory(const char* base);
 
-/* 
+/*
 ** Basic callback function for SSL_GetClientAuthDataHook
 */
 extern int
@@ -170,8 +170,8 @@ extern const char * SECU_Strerror(PRErrorCode errNum);
 
 /* print information about cert verification failure */
 extern void
-SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle, 
-	CERTCertificate *cert, PRBool checksig, 
+SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle,
+	CERTCertificate *cert, PRBool checksig,
 	SECCertificateUsage certUsage, void *pinArg, PRBool verbose);
 
 /* Read the contents of a file into a SECItem */
@@ -179,7 +179,7 @@ extern SECStatus SECU_FileToItem(SECItem *dst, PRFileDesc *src);
 extern SECStatus SECU_TextFileToItem(SECItem *dst, PRFileDesc *src);
 
 /* Read in a DER from a file, may be ascii  */
-extern SECStatus 
+extern SECStatus
 SECU_ReadDERFromFile(SECItem *der, PRFileDesc *inFile, PRBool ascii);
 
 /* Indent based on "level" */
@@ -228,7 +228,7 @@ extern SECStatus SECU_PrintCertNickname(CERTCertListNode* cert, void *data);
 
 /* Dump all certificate nicknames in a database */
 extern SECStatus
-SECU_PrintCertificateNames(CERTCertDBHandle *handle, PRFileDesc* out, 
+SECU_PrintCertificateNames(CERTCertDBHandle *handle, PRFileDesc* out,
                            PRBool sortByName, PRBool sortByTrust);
 
 /* See if nickname already in database. Return 1 true, 0 false, -1 error */
@@ -257,7 +257,7 @@ extern int SECU_PrintFingerprints(FILE *out, SECItem *derCert, char *m,
                                   int level);
 
 /* Pretty-print any PKCS7 thing */
-extern int SECU_PrintPKCS7ContentInfo(FILE *out, SECItem *der, char *m, 
+extern int SECU_PrintPKCS7ContentInfo(FILE *out, SECItem *der, char *m,
 				      int level);
 
 /* Init PKCS11 stuff */
@@ -318,7 +318,7 @@ extern SECStatus SECU_StoreCRL(PK11SlotInfo *slot, SECItem *derCrl,
 ** using SEC_SignData, then wraps it with an CERTSignedData and then der
 ** encodes the result.
 **	"arena" is the memory arena to use to allocate data from
-**      "sd" returned CERTSignedData 
+**      "sd" returned CERTSignedData
 ** 	"result" the final der encoded data (memory is allocated)
 ** 	"buf" the input data to sign
 ** 	"len" the amount of data to sign
@@ -364,15 +364,15 @@ typedef SECStatus (* EXTEN_EXT_VALUE_ENCODER) (PRArenaPool *extHandleArena,
                                                void *value, SECItem *encodedValue);
 
 /* Encodes and adds extensions to the CRL or CRL entries. */
-SECStatus 
-SECU_EncodeAndAddExtensionValue(PRArenaPool *arena, void *extHandle, 
-                                void *value, PRBool criticality, int extenType, 
+SECStatus
+SECU_EncodeAndAddExtensionValue(PRArenaPool *arena, void *extHandle,
+                                void *value, PRBool criticality, int extenType,
                                 EXTEN_EXT_VALUE_ENCODER EncodeValueFn);
 
 
 /*
  *
- *  Utilities for parsing security tools command lines 
+ *  Utilities for parsing security tools command lines
  *
  */
 
@@ -395,7 +395,7 @@ typedef struct
 } secuCommand;
 
 /*  fill the "arg" and "activated" fields for each flag  */
-SECStatus 
+SECStatus
 SECU_ParseCommandLine(int argc, char **argv, char *progName, secuCommand *cmd);
 char *
 SECU_GetOptionArg(secuCommand *cmd, int optionNum);

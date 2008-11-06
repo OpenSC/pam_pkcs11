@@ -66,7 +66,7 @@ static int scconf_replace_str_list(scconf_block * block, const char *option, con
     scconf_item *item;
     char *lstitem = NULL;
     char *next;
-    
+
     while (value != NULL) {
         if ((next=strchr(value, ',')) != NULL) {
             lstitem = strndup(value, next-value);
@@ -81,7 +81,7 @@ static int scconf_replace_str_list(scconf_block * block, const char *option, con
         value = next;
         free(lstitem);
     }
-        
+
     item = scconf_item_add(NULL, block, NULL, SCCONF_ITEM_TYPE_VALUE, option, list);
 
     /* now clear out the item list */
@@ -120,7 +120,7 @@ static int list_modules(void)
     /* list only those smart cards which are actually installed */
     for (i=0; pkcs11_blocks[i]; i++) {
     	void *libhandle;
-    	const char *path = 
+    	const char *path =
     		scconf_get_str(pkcs11_blocks[i], "module", NULL);
     	/* check to see if the module exists on the system */
     	if (!path || *path == 0) {
@@ -135,10 +135,10 @@ static int list_modules(void)
     	    }
     	}
     }
-    
+
     result = 0;
 
-bail: 
+bail:
     if (ctx) {
     	scconf_free(ctx);
     }
@@ -168,7 +168,7 @@ static int print_default_module(void)
     printf("%s\n", scconf_get_str(pam_pkcs11, "use_pkcs11_module", ""));
     result = 0;
 
-    bail: 
+    bail:
     if (ctx) {
         scconf_free(ctx);
     }
@@ -230,7 +230,7 @@ static int set_default_module(const char *mod)
 	scconf_replace_str(pkcs11_eventmgr, "pkcs11_module", lib);
 	result = scconf_write(ectx, NULL);
 
-bail: 
+bail:
 	if (modules) {
 		free(modules);
 	}
@@ -240,7 +240,7 @@ bail:
 	if (ectx) {
 		scconf_free(ectx);
 	}
-	
+
 	return result;
 }
 
@@ -266,7 +266,7 @@ static int print_card_insert_action(void)
 	if (!pkcs11_eventmgr) {
 		goto bail;
 	}
-	event_blocks = scconf_find_blocks(ctx, pkcs11_eventmgr, "event", 
+	event_blocks = scconf_find_blocks(ctx, pkcs11_eventmgr, "event",
 						"card_insert");
 	if (!event_blocks || !event_blocks[0]) {
 		goto bail;
@@ -314,7 +314,7 @@ static int set_card_insert_action(const char *act)
 	if (!pkcs11_eventmgr) {
 		goto bail;
 	}
-	insert_blocks = scconf_find_blocks(ctx, pkcs11_eventmgr, 
+	insert_blocks = scconf_find_blocks(ctx, pkcs11_eventmgr,
 						"event", "card_insert");
 	if (!insert_blocks || !insert_blocks[0]) {
 		goto bail;
@@ -356,7 +356,7 @@ static int print_card_remove_action(void)
 	if (!pkcs11_eventmgr) {
 		goto bail;
 	}
-	event_blocks = scconf_find_blocks(ctx, pkcs11_eventmgr, "event", 
+	event_blocks = scconf_find_blocks(ctx, pkcs11_eventmgr, "event",
 						"card_remove");
 	if (!event_blocks || !event_blocks[0]) {
 		goto bail;
@@ -404,7 +404,7 @@ static int set_card_remove_action(const char *act)
 	if (!pkcs11_eventmgr) {
 		goto bail;
 	}
-	insert_blocks = scconf_find_blocks(ctx, pkcs11_eventmgr, 
+	insert_blocks = scconf_find_blocks(ctx, pkcs11_eventmgr,
 						"event", "card_remove");
 	if (!insert_blocks || !insert_blocks[0]) {
 		goto bail;
@@ -429,9 +429,9 @@ int main(int argc, const char **argv)
     int i;
     unsigned int pname;
     const char *params[NUM_PARAMS];
-    
+
     memset(params, '\0', sizeof(params));
-    
+
     for (i = 1; i < argc; i++) {
     	for (pname = 0; pname < NUM_PARAMS; pname++) {
     	    if (param_names[pname][pn_sizes[pname]-2] == '=') {
@@ -447,26 +447,26 @@ int main(int argc, const char **argv)
         	    if (strcmp(argv[i], param_names[pname]) == 0) {
         	        params[pname] = (void *)1;
         	    }
-        	} 
+        	}
         }
     }
-    
+
     for (pname = 0; pname < NUM_PARAMS; pname++) {
 	    if (params[pname] != NULL)
 	        break;
     }
-    
+
     if (pname == NUM_PARAMS) {
 	DBG("No correct parameter specified");
 	printf("usage: pkcs11_setup [list_modules] [use_module[=<module_name>]]\n"
 	       "                    [ins_action[=<executable,executable,...>]]\n"
 	       "                    [rm_action[=<executable,executable,...>]]\n");
     }
-    
+
     if (params[LIST_MODULES] != NULL) {
         DBG("List modules:");
         return list_modules();
-    } 
+    }
     else {
         if (params[USE_MODULE] == (void *)1) {
             DBG("Print default module:");
@@ -490,7 +490,7 @@ int main(int argc, const char **argv)
                 return i;
             }
             return 0;
-        }       
+        }
         else if (params[INS_ACTION] != NULL) {
             DBG1("Set card insert action: %s", params[INS_ACTION]);
             if ((i=set_card_insert_action(params[INS_ACTION])) != 0) {
@@ -505,14 +505,14 @@ int main(int argc, const char **argv)
                 return i;
             }
             return 0;
-        }        
+        }
         else if (params[RM_ACTION] != NULL) {
             DBG1("Set card remove action: %s", params[RM_ACTION]);
             if ((i=set_card_remove_action(params[RM_ACTION])) != 0) {
                 DBG1("Set card remove action failed with: %d", i);
                 return i;
             }
-        }        
+        }
     }
     DBG("Process completed");
     return 0;

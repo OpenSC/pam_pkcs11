@@ -1,4 +1,4 @@
-/* 
+/*
  * PKCS #11 PAM Login Module
  * Copyright (C) 2003 Mario Strasser <mast@gmx.net>,
  *
@@ -59,7 +59,7 @@ void debug_print(int level, const char *file, int line, const char *format, ...)
       va_start(ap, format);
       vsnprintf(buf, sizeof(buf), format, ap);
       va_end(ap);
-      
+
       syslog(LOG_INFO, buf);
     }
   }

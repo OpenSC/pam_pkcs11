@@ -61,59 +61,59 @@ ER2( PR_CONNECT_TIMEOUT_ERROR, 	"Connection attempt timed out." )
 ER2( PR_NOT_CONNECTED_ERROR, 	"Network file descriptor is not connected." )
 ER2( PR_LOAD_LIBRARY_ERROR, 	"Failure to load dynamic library." )
 ER2( PR_UNLOAD_LIBRARY_ERROR, 	"Failure to unload dynamic library." )
-ER2( PR_FIND_SYMBOL_ERROR, 	
+ER2( PR_FIND_SYMBOL_ERROR, 
 "Symbol not found in any of the loaded dynamic libraries." )
 ER2( PR_INSUFFICIENT_RESOURCES_ERROR, "Insufficient system resources." )
-ER2( PR_DIRECTORY_LOOKUP_ERROR, 	
+ER2( PR_DIRECTORY_LOOKUP_ERROR, 
 "A directory lookup on a network address has failed." )
-ER2( PR_TPD_RANGE_ERROR, 		
+ER2( PR_TPD_RANGE_ERROR, 
 "Attempt to access a TPD key that is out of range." )
 ER2( PR_PROC_DESC_TABLE_FULL_ERROR, "Process open FD table is full." )
 ER2( PR_SYS_DESC_TABLE_FULL_ERROR, "System open FD table is full." )
-ER2( PR_NOT_SOCKET_ERROR, 	
+ER2( PR_NOT_SOCKET_ERROR, 
 "Network operation attempted on non-network file descriptor." )
-ER2( PR_NOT_TCP_SOCKET_ERROR, 	
+ER2( PR_NOT_TCP_SOCKET_ERROR, 
 "TCP-specific function attempted on a non-TCP file descriptor." )
 ER2( PR_SOCKET_ADDRESS_IS_BOUND_ERROR, "TCP file descriptor is already bound." )
 ER2( PR_NO_ACCESS_RIGHTS_ERROR, "Access Denied." )
-ER2( PR_OPERATION_NOT_SUPPORTED_ERROR, 
+ER2( PR_OPERATION_NOT_SUPPORTED_ERROR,
 "The requested operation is not supported by the platform." )
-ER2( PR_PROTOCOL_NOT_SUPPORTED_ERROR, 
+ER2( PR_PROTOCOL_NOT_SUPPORTED_ERROR,
 "The host operating system does not support the protocol requested." )
 ER2( PR_REMOTE_FILE_ERROR, 	"Access to the remote file has been severed." )
-ER2( PR_BUFFER_OVERFLOW_ERROR, 	
+ER2( PR_BUFFER_OVERFLOW_ERROR, 
 "The value requested is too large to be stored in the data buffer provided." )
 ER2( PR_CONNECT_RESET_ERROR, 	"TCP connection reset by peer." )
 ER2( PR_RANGE_ERROR, 		"Unused." )
 ER2( PR_DEADLOCK_ERROR, 	"The operation would have deadlocked." )
 ER2( PR_FILE_IS_LOCKED_ERROR, 	"The file is already locked." )
-ER2( PR_FILE_TOO_BIG_ERROR, 	
+ER2( PR_FILE_TOO_BIG_ERROR, 
 "Write would result in file larger than the system allows." )
 ER2( PR_NO_DEVICE_SPACE_ERROR, 	"The device for storing the file is full." )
 ER2( PR_PIPE_ERROR, 		"Unused." )
 ER2( PR_NO_SEEK_DEVICE_ERROR, 	"Unused." )
-ER2( PR_IS_DIRECTORY_ERROR, 	
+ER2( PR_IS_DIRECTORY_ERROR, 
 "Cannot perform a normal file operation on a directory." )
 ER2( PR_LOOP_ERROR, 		"Symbolic link loop." )
 ER2( PR_NAME_TOO_LONG_ERROR, 	"File name is too long." )
 ER2( PR_FILE_NOT_FOUND_ERROR, 	"File not found." )
-ER2( PR_NOT_DIRECTORY_ERROR, 	
+ER2( PR_NOT_DIRECTORY_ERROR, 
 "Cannot perform directory operation on a normal file." )
-ER2( PR_READ_ONLY_FILESYSTEM_ERROR, 
+ER2( PR_READ_ONLY_FILESYSTEM_ERROR,
 "Cannot write to a read-only file system." )
-ER2( PR_DIRECTORY_NOT_EMPTY_ERROR, 
+ER2( PR_DIRECTORY_NOT_EMPTY_ERROR,
 "Cannot delete a directory that is not empty." )
-ER2( PR_FILESYSTEM_MOUNTED_ERROR, 
+ER2( PR_FILESYSTEM_MOUNTED_ERROR,
 "Cannot delete or rename a file object while the file system is busy." )
-ER2( PR_NOT_SAME_DEVICE_ERROR, 	
+ER2( PR_NOT_SAME_DEVICE_ERROR, 
 "Cannot rename a file to a file system on another device." )
-ER2( PR_DIRECTORY_CORRUPTED_ERROR, 
+ER2( PR_DIRECTORY_CORRUPTED_ERROR,
 "The directory object in the file system is corrupted." )
-ER2( PR_FILE_EXISTS_ERROR, 	
+ER2( PR_FILE_EXISTS_ERROR, 
 "Cannot create or rename a filename that already exists." )
-ER2( PR_MAX_DIRECTORY_ENTRIES_ERROR, 
+ER2( PR_MAX_DIRECTORY_ENTRIES_ERROR,
 "Directory is full.  No additional filenames may be added." )
-ER2( PR_INVALID_DEVICE_STATE_ERROR, 
+ER2( PR_INVALID_DEVICE_STATE_ERROR,
 "The required device was in an invalid state." )
 ER2( PR_DEVICE_IS_LOCKED_ERROR, "The device is locked." )
 ER2( PR_NO_MORE_FILES_ERROR, 	"No more entries in the directory." )

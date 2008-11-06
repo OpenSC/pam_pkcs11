@@ -85,7 +85,7 @@ int main(int argc, const char **argv) {
   /* open pkcs #11 session */
   if (configuration->slot_description != NULL) {
     rv = find_slot_by_slotlabel(ph,configuration->slot_description, &slot_num);
-  } else { 
+  } else {
     rv = find_slot_by_number(ph,configuration->slot_num, &slot_num);
   }
 
@@ -123,7 +123,7 @@ int main(int argc, const char **argv) {
   for(i =0; i< ncerts;i++) {
     char **name;
     X509 *cert=get_X509_certificate(certs[i]);
-    
+
     DBG1("Certificate #%d:", i+1);
     name = cert_info(cert, CERT_SUBJECT, ALGORITHM_NULL);
     DBG1("- Subject:   %s", name[0]); free(name[0]);

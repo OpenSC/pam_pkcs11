@@ -62,7 +62,7 @@
 
 #ifndef __DEBUG_C_
 #define DEBUG_EXTERN extern
-#else 
+#else
 #define DEBUG_EXTERN
 #endif
 
@@ -79,11 +79,11 @@ DEBUG_EXTERN void set_debug_level(int level);
 DEBUG_EXTERN int get_debug_level(void);
 
 /**
- * debug_print() prints the given message 
+ * debug_print() prints the given message
 
- * if the current debug-level 
+ * if the current debug-level
  * is greater or equal to the defined level. The format string as well as all
- * further arguments are interpreted as by the printf() function. 
+ * further arguments are interpreted as by the printf() function.
  *@param level Debug level of message
  *@param file Name of the file where message is generated
  *@param line Line number where message is generated

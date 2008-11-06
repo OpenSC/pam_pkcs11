@@ -22,25 +22,25 @@
 #include "cert_st.h"
 
 /** Certificate Common Name */
-#define CERT_CN		1	
+#define CERT_CN		1
 /** Certificate subject */
 #define CERT_SUBJECT	2
 /** Kerberos principal name */
-#define CERT_KPN	3	
+#define CERT_KPN	3
 /** Certificate e-mail */
-#define CERT_EMAIL	4	
+#define CERT_EMAIL	4
 /** Microsoft's Universal Principal Name */
-#define CERT_UPN	5	
+#define CERT_UPN	5
 /** Certificate Unique Identifier */
-#define CERT_UID	6	
+#define CERT_UID	6
 /** Certificate Public Key (PEM Format)*/
-#define CERT_PUK	7	
+#define CERT_PUK	7
 /** Certificate Digest */
-#define CERT_DIGEST	8	
+#define CERT_DIGEST	8
 /** Certificate Public key in OpenSSH format */
-#define CERT_SSHPUK	9	
+#define CERT_SSHPUK	9
 /** Certificate in PEM format */
-#define CERT_PEM	10	
+#define CERT_PEM	10
 /** Certificate issuer */
 #define CERT_ISSUER	11
 /** Certificate serial number */
@@ -51,7 +51,7 @@
 /** Max size of returned certificate content array */
 #define CERT_INFO_SIZE 16
 /** Max number of entries to find from certificate */
-#define CERT_INFO_MAX_ENTRIES ( CERT_INFO_SIZE - 1 ) 
+#define CERT_INFO_MAX_ENTRIES ( CERT_INFO_SIZE - 1 )
 
 #ifndef __CERT_INFO_C_
 #define CERTINFO_EXTERN extern

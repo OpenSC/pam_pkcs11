@@ -35,25 +35,25 @@
 #include "../scconf/scconf.h"
 
 /**
-* Structure to be filled on mapper module initialization 
+* Structure to be filled on mapper module initialization
 */
 typedef struct mapper_module_st {
     /** mapper name */
-    const char *name; 	
+    const char *name; 
     /** mapper configuration block */
-    scconf_block *block; 
+    scconf_block *block;
     /** debug level to set before call entry points */
-    int  dbg_level; 	
+    int  dbg_level; 
     /** pointer to mapper local data */
-    void *context; 	
+    void *context; 
     /** cert. entries enumerator */
-    char **(*entries)(X509 *x509, void *context); 
+    char **(*entries)(X509 *x509, void *context);
     /** cert. login finder */
-    char *(*finder)(X509 *x509, void *context); 
+    char *(*finder)(X509 *x509, void *context);
     /** cert-to-login matcher*/
-    int (*matcher)(X509 *x509, const char *login, void *context); 
+    int (*matcher)(X509 *x509, const char *login, void *context);
     /** module de-initialization */
-    void (*deinit)( void *context); 	
+    void (*deinit)( void *context); 
 } mapper_module;
 
 /**
@@ -64,15 +64,15 @@ struct mapfile {
 	/** URL of mapfile */
 	const char *uri;
 	/** buffer to content of mapfile */
-	char *buffer;	
+	char *buffer;
 	/** lenght of buffer */
-	size_t length;  
+	size_t length;
 	/** pointer to last readed entry in buffer */
-	char *pt;	
+	char *pt;
 	/** key entry in current buffer */
-	char *key;	
+	char *key;
 	/** value assigned to key */
-	char *value;    
+	char *value;
 };
 
 /* ------------------------------------------------------- */
@@ -123,7 +123,7 @@ MAPPER_EXTERN void   end_mapent(struct mapfile *mfile);
 /**
 * Try to map "key" to provided mapfile
 *@param file URL of map file
-*@param key String to be mapped 
+*@param key String to be mapped
 *@param ignorecase Flag to indicate upper/lowercase ignore in string compare
 *@return key on no match, else a clone_str()'d of found mapping
 */
@@ -181,7 +181,7 @@ static char ** mapper_find_entries(X509 *x509, void *context) {		\
 * Should not be used except for debugging, as allways returns "nobody"
 *@param x509 X509 Certificate
 *@param context Mapper context
-*@return Found user, or NULL 
+*@return Found user, or NULL
 */
 #define _DEFAULT_MAPPER_FIND_USER					\
 static char * mapper_find_user(X509 *x509,void *context) {		\
@@ -209,7 +209,7 @@ static int mapper_match_user(X509 *x509, const char *login, void *context) { \
 	return 0; /* no match */					\
 }
 
-/** 
+/**
 * Macro for de-initialization routine
 *@param context Mapper context
 */

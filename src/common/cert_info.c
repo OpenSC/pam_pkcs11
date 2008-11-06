@@ -35,7 +35,7 @@
 
 /*
  * NSS dynamic oid support.
- *  NSS is able to understand new oid tags provided by the application, 
+ *  NSS is able to understand new oid tags provided by the application,
  *  including
  *  understanding new cert extensions that NSS previously did not understand.
  *  This code adds the oids for the Kerberos Principle and the Microsoft UPN
@@ -45,17 +45,17 @@
 /* kerberois oid: 1.3.6.1.5.2.2 */
 SECOidTag CERT_KerberosPN_OID = SEC_OID_UNKNOWN;
 static const unsigned char kerberosOID[] =  { 0x2b, 0x6, 0x1, 0x5, 0x2, 0x2 };
-static const SECOidData kerberosPN_Entry = 
-       { TO_ITEM(kerberosOID), SEC_OID_UNKNOWN, 
+static const SECOidData kerberosPN_Entry =
+       { TO_ITEM(kerberosOID), SEC_OID_UNKNOWN,
        "Kerberos Priniciple", CKM_INVALID_MECHANISM, INVALID_CERT_EXTENSION };
 
 SECOidTag CERT_MicrosoftUPN_OID = SEC_OID_UNKNOWN;
 /* { 1.3.6.1.4.1.311 } */
-static const unsigned char microsoftUPNOID[] =  
+static const unsigned char microsoftUPNOID[] =
         { 0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x14, 0x2, 0x3 };
-static const SECOidData microsoftUPN_Entry = 
-        { TO_ITEM(microsoftUPNOID), SEC_OID_UNKNOWN, 
-        "Microsoft Universal Priniciple", CKM_INVALID_MECHANISM, 
+static const SECOidData microsoftUPN_Entry =
+        { TO_ITEM(microsoftUPNOID), SEC_OID_UNKNOWN,
+        "Microsoft Universal Priniciple", CKM_INVALID_MECHANISM,
         INVALID_CERT_EXTENSION };
 
 /* register the oid if we haven't already */
@@ -147,7 +147,7 @@ cert_info_upn (X509 *x509)
         DBG("Not found");
         goto no_upn;
     }
-    
+
     arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
     if (!arena) {
         DBG("Could not allocate arena");
@@ -251,7 +251,7 @@ char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm ) {
     case CERT_DIGEST  : /* Certificate Signature Digest */
       if ( !algorithm ) {
         DBG("Must specify digest algorithm");
-        return NULL;		
+        return NULL;
       }
       return cert_info_digest(x509,algorithm);
     case CERT_KEY_ALG     :
@@ -430,7 +430,7 @@ static char **cert_info_kpn(X509 *x509) {
             if ( name && name->type==GEN_OTHERNAME ) {  /* test for UPN */
                 if (OBJ_cmp(name->d.otherName->type_id, krb5PrincipalName)) continue; /* object is not a UPN */
 		else {
-		    /* NOTE: 
+		    /* NOTE:
 		    from PKINIT RFC, I deduce that stored format for kerberos
 		    Principal Name is ASN1_STRING, but not sure at 100%
 		    Any help will be granted
@@ -612,7 +612,7 @@ static char **cert_info_puk(X509 *x509) {
 	    return NULL;
 	}
 	pt=key2pem(pubk);
-	if (!pt) { 
+	if (!pt) {
 	    DBG("key2pem() failed");
 	    EVP_PKEY_free(pubk);
 	    return NULL;
@@ -629,7 +629,7 @@ static int int_append(unsigned char *pt, int n) {
 	*pt++= (n&0x00ff0000) >>16;
 	*pt++= (n&0x0000ff00) >>8;
 	*pt++= (n&0x000000ff) >>0;
-	return 4;	
+	return 4;
 }
 
 /* store an string into buffer */
@@ -695,13 +695,13 @@ static char **cert_info_sshpuk(X509 *x509) {
                 	res= BN_append(pt, pubk->pkey.dsa->g); pt+=res;
                 	res= BN_append(pt, pubk->pkey.dsa->pub_key); pt+=res;
 			break;
-		case EVP_PKEY_RSA: 
+		case EVP_PKEY_RSA:
 			if (!pubk->pkey.rsa) {
 				DBG("No data for public RSA key");
 				goto sshpuk_fail;
 			}
 		        /* dump key into a byte array */
-			type="ssh-rsa"; 
+			type="ssh-rsa";
 			res= int_append(pt,strlen(type)); pt+=res;
 		        res= str_append(pt,type,strlen(type)); pt+=res;
                 	res= BN_append(pt, pubk->pkey.rsa->e); pt+=res;
@@ -825,7 +825,7 @@ static char **cert_info_serial_number(X509 *x509) {
 	unsigned char *buffer = NULL, *tmp_ptr;
 
 	len = i2c_ASN1_INTEGER(serial, NULL);
-	
+
 	if (len < 0) {
 		return NULL;
 	}
@@ -882,7 +882,7 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 	    case CERT_DIGEST  : /* Certificate Signature Digest */
 		if ( !algorithm ) {
 		    DBG("Must specify digest algorithm");
-		    return NULL;		
+		    return NULL;
 		}
 		return cert_info_digest(x509,algorithm);
 	    case CERT_KEY_ALG     : /* certificate signature algorithm */

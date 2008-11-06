@@ -83,7 +83,7 @@ M_EXTERN char *bin2hex(const unsigned char *binstr,const int len);
 M_EXTERN unsigned char *hex2bin(const char *hexstr);
 
 /**
- * Convert a colon-separated hexadecimal data into a byte array, 
+ * Convert a colon-separated hexadecimal data into a byte array,
  * store result into a previously allocated space
  *@param str String to be parsed
  *@param res Pointer to pre-allocated user space
@@ -107,7 +107,7 @@ M_EXTERN char **split(const char *str,char sep, int nelems);
  * Splits a string to an array of nelems by using sep as character separator,
  * using dest as pre-allocated destination memory for the resulting array
  *
- * To free() memory used by this call, just call free result pointer 
+ * To free() memory used by this call, just call free result pointer
  *@param str String to be parsed
  *@param sep Character to be used as separator
  *@param nelems Number of elements of resulting array
@@ -117,7 +117,7 @@ M_EXTERN char **split(const char *str,char sep, int nelems);
 M_EXTERN char **split_static(const char *str,char sep, int nelems,char *dst);
 
 /**
- * Remove all extra spaces from a string. 
+ * Remove all extra spaces from a string.
  * a char is considered space if trues isspace()
  *
  *@param str String to be trimmed

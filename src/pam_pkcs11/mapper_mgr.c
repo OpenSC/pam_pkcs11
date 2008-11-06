@@ -86,7 +86,7 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 		/* save dbg level of mapper and restore previous one */
 		res->dbg_level=get_debug_level();
 		set_debug_level(old_level);
-	    } 
+	    }
 	    if ( !mapper_init ) {
 		DBG1("Static mapper '%s' not found",name);
 		return NULL;
@@ -98,7 +98,7 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 		DBG3("dlopen failed for module:  %s path: %s Error: %s",name,libname,dlerror());
 		return NULL;
 	    }
-	    mapper_init = ( mapper_module * (*)(scconf_block *blk, const char *mapper_name) ) 
+	    mapper_init = ( mapper_module * (*)(scconf_block *blk, const char *mapper_name) )
 		dlsym(handler,"mapper_module_init");
 	    if ( !mapper_init) {
 		dlclose(handler);
@@ -130,7 +130,7 @@ struct mapper_instance *load_module(scconf_context *ctx, const char * name) {
 }
 
 void unload_module( struct mapper_instance *module ) {
-	if (!module) { 
+	if (!module) {
 		DBG("Trying to unmap empty module");
 		return;
 	}
@@ -141,7 +141,7 @@ void unload_module( struct mapper_instance *module ) {
 		(*module->module_data->deinit)(module->module_data->context);
 		set_debug_level(old_level);
 	}
-	if (module->module_handler) { 
+	if (module->module_handler) {
 		DBG1("unloading module %s",module->module_name);
 		dlclose(module->module_handler);
 	} else {/* static mapper module */
@@ -185,7 +185,7 @@ struct mapper_listitem *load_mappers( scconf_context *ctx ) {
 	    char *name = module_list->data;
 	    struct mapper_instance *module = load_module(ctx,name);
 	    if (module) {
-	    	struct mapper_listitem *item= 
+	    	struct mapper_listitem *item=
 	    	    (struct mapper_listitem *) malloc(sizeof(struct mapper_listitem));
 		if (!item) {
 			DBG1("Error allocating modulelist entry: %s",name);
@@ -200,7 +200,7 @@ struct mapper_listitem *load_mappers( scconf_context *ctx ) {
 			root_mapper_list = item;
 	    	} else { /* insert at end of list */
 			last->next= item;
-			last = item;	
+			last = item;
 		}
 	    }
 	    module_list = module_list->next;
@@ -243,7 +243,7 @@ void inspect_certificate(X509 *x509) {
 	    	DBG1("Cannot find cert data for mapper %s",item->module->module_name);
 	        item=item->next;
 		continue;
-	    } 
+	    }
 	    printf("Printing data for mapper %s:\n",item->module->module_name);
 	    for (str=*data; str; str=*++data)
 		    fprintf(stdout,"%s\n",str);
