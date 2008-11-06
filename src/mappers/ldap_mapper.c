@@ -748,7 +748,7 @@ static int ldap_get_certificate(const char *login) {
 		bvals = ldap_get_values_len(ldap_connection, entry, name);
 		certcnt = ldap_count_values_len(bvals);
 
-		DBG1("number auf usercertificates = %d", certcnt);
+		DBG1("number of user certificates = %d", certcnt);
 	
 		ldap_x509 = malloc(sizeof(X509*) * certcnt );
 		if (NULL == ldap_x509)
