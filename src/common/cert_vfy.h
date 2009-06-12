@@ -64,8 +64,6 @@ struct cert_policy_st {
 /**
 * Verify provided certificate, and if needed, CRL
 *@param x509 Certificate to check
-*@param ca_dir HashDir to retrieve CA Certificates
-*@param crl_dir HashDir to retrieve CRL's
 *@param policy CRL verify policy
 *@return 1 on cert vfy sucess, 0 on fail, -1 on process error
 */
@@ -75,7 +73,7 @@ CERTVFY_EXTERN int verify_certificate(X509 * x509, cert_policy *policy);
 * Verify signature of provided data
 *@param x509 Certificate to be used
 *@param data Byte array of data to check
-*@param data_len Lenght of provided byte array
+*@param data_length Lenght of provided byte array
 *@param signature Byte array of signature to check
 *@param signature_length Length of signature byte array
 *@return 1 on signature vfy sucess, 0 on vfy fail, -1 on process error

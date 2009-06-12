@@ -77,7 +77,7 @@ M_EXTERN char *bin2hex(const unsigned char *binstr,const int len);
 
 /**
  * Convert a colon-separated hexadecimal data into a byte array
- *@param str String to be parsed
+ *@param hexstr String to be parsed
  *@return Pointer to resulting byte array, or null if no memory available
  */
 M_EXTERN unsigned char *hex2bin(const char *hexstr);
@@ -85,9 +85,9 @@ M_EXTERN unsigned char *hex2bin(const char *hexstr);
 /**
  * Convert a colon-separated hexadecimal data into a byte array,
  * store result into a previously allocated space
- *@param str String to be parsed
+ *@param hexstr String to be parsed
  *@param res Pointer to pre-allocated user space
- *@paran size Pointer to store lenght of data parsed
+ *@param size Pointer to store lenght of data parsed
  *@return Pointer to resulting byte array, or null on parse error
  */
 M_EXTERN unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size);

@@ -16,7 +16,7 @@
  */
 
 /**
-*@def DEBUG
+*@brief
 * This module contains macros for generate debugging messages
 * Will be compiled an linked only when -DDEBUG CFLAG is used
 */
@@ -68,7 +68,7 @@
 
 /**
  * set_debug_level() Sets the current debug level.
- *@param level. New debug level
+ *@param level New debug level
  */
 DEBUG_EXTERN void set_debug_level(int level);
 
