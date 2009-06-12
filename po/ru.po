@@ -2,13 +2,13 @@
 # This file is put in the public domain.
 # sergio <mailbox@sergio.spb.ru>, 2007.
 # , fuzzy
-# 
-# 
+#
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-14 09:29+0200\n"
+"POT-Creation-Date: 2009-06-11 11:42+0200\n"
 "PO-Revision-Date: 2007-09-10 14:14+0400\n"
 "Last-Translator: sergio <mailbox@sergio.spb.ru>\n"
 "Language-Team: Russian\n"
