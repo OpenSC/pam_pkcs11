@@ -728,7 +728,7 @@ static char **cert_info_sshpuk(X509 *x509) {
 	maillist= cert_info_email(x509);
 	res=0;
 	if (maillist && maillist[0]) res= strlen(maillist[0]);
-	buf=malloc(1+res+strlen(type)+data_len);
+	buf=malloc(3+res+strlen(type)+data_len);
 	if (!buf) {
 		DBG("No memory to store public key dump");
 		goto sshpuk_fail;
