@@ -1,7 +1,7 @@
 .TH "pkcs11_eventmgr" "1" "0.4.4" "Juan Antonio Martinez" "PAM-pkcs11 tools"
 .SH "NAME"
 .LP 
-SmartCard PKCS#11 Event Manager
+pkcs11_eventmgr \- SmartCard PKCS#11 Event Manager
 .SH "SYNTAX"
 .LP 
 pkcs11_eventmgr [\fI[no]debug\fP] [\fI[no]daemon\fP] [\fIpolling_time=<secs>\fP ] [\fIexpire_time=<secs>\fP] [\fIpkcs11_module=<module>\fP ] [\fIconfig_file=<filename>\fP]
