@@ -114,8 +114,8 @@ static void thats_all_folks(void) {
     return;
 }
 
+extern char **environ;
 static int my_system(char *command) {
-	extern char **environ;
 	int pid, status;
 	   if (!command) return 1;
            pid = fork();
