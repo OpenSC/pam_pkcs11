@@ -28,7 +28,7 @@ msgstr "Начата аутентификация по токену"
 #: src/pam_pkcs11/pam_pkcs11.c:324 src/pam_pkcs11/pam_pkcs11.c:433
 #, c-format
 msgid "Please insert your %s or enter your username."
-msgstr "Вставьте %s или введите имя пользователя."
+msgstr "Пожалуйста, вставьте %s или введите имя пользователя."
 
 #: src/pam_pkcs11/pam_pkcs11.c:354
 msgid "Error 2302: PKCS#11 module failed loading"
@@ -45,11 +45,11 @@ msgstr "Ошибка 2306: нет подходящего токена"
 #: src/pam_pkcs11/pam_pkcs11.c:401
 #, c-format
 msgid "Please insert your smart card called \"%.32s\"."
-msgstr "Вставьте токен с пометкой \"%.32s\"."
+msgstr "Пожалуйста, вставьте токен с пометкой \"%.32s\"."
 
 #: src/pam_pkcs11/pam_pkcs11.c:405
 msgid "Please insert your smart card."
-msgstr "Вставьте токен."
+msgstr "Пожалуйста, вставьте токен."
 
 #: src/pam_pkcs11/pam_pkcs11.c:422
 msgid "Error 2308: No smartcard found"
@@ -62,7 +62,7 @@ msgstr "Ошибка 2310: не найден токен"
 #: src/pam_pkcs11/pam_pkcs11.c:459
 #, c-format
 msgid "%s found."
-msgstr ""
+msgstr "Найден %s."
 
 #: src/pam_pkcs11/pam_pkcs11.c:466
 msgid "Error 2312: open PKCS#11 session failed"
@@ -153,7 +153,7 @@ msgstr "Ошибка 2342: не удалось проверить подпись
 
 #: src/pam_pkcs11/pam_pkcs11.c:886
 msgid "Cannot change the password on your smart card."
-msgstr "Не могу поменять пароль смарткарты."
+msgstr "Невозможно поменять пароль на токене."
 
 #: src/pam_pkcs11/pam_config.c:65
 msgid "Smart card"
