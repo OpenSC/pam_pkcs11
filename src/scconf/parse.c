@@ -149,9 +149,11 @@ scconf_item *scconf_item_add(scconf_context * config, scconf_block * block, scco
 	scconf_item_add_internal(&parser, type);
 	switch (parser.current_item->type) {
 	case SCCONF_ITEM_TYPE_COMMENT:
-		parser.current_item->value.comment = strdup((char *) data);
+		parser.current_item->value.comment = strdup((const char *) data);
 		break;
 	case SCCONF_ITEM_TYPE_BLOCK:
+		if (!dst)
+			return NULL;
 		dst->parent = parser.block;
 		parser.current_item->value.block = dst;
 		scconf_list_destroy(parser.name);
@@ -192,8 +194,11 @@ scconf_block *scconf_block_add(scconf_context * config, scconf_block * block, co
 {
 	scconf_parser parser;
 
+	if (!config)
+		return NULL;
+
 	memset(&parser, 0, sizeof(scconf_parser));
-	parser.config = config ? config : NULL;
+	parser.config = config;
 	parser.key = key ? strdup(key) : NULL;
 	parser.block = block ? block : config->root;
 	scconf_list_copy(name, &parser.name);
