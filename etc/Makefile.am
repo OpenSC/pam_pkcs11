@@ -10,4 +10,4 @@ EXTRA_DIST = pam_pkcs11.conf.example \
 	pkcs11_eventmgr.conf.example \
 	card_eventmgr.conf.example
 
-pkgdata_DATA = $(EXTRA_DIST)
+doc_DATA = $(EXTRA_DIST)
