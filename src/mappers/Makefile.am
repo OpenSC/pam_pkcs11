@@ -42,7 +42,7 @@ libmappers_la_SOURCES = mapper.c mapper.h \
 	null_mapper.c null_mapper.h \
 	mapperlist.c mapperlist.h
 
-libmappers_la_LDFLAGS = $(LIBSCCONF) $(LIBCOMMON)
+libmappers_la_LDFLAGS = ../scconf/libscconf.la ../common/libcommon.la
 
 # list of dynamic linked mappers
 if HAVE_LDAP

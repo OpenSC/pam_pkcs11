@@ -215,16 +215,6 @@ AM_CONDITIONAL(HAVE_DOCBOOK, test "x$with_docbook" != "xno")
 # Checks for libraries.
 AC_CHECK_LIB(pam, pam_get_item, , AC_MSG_ERROR(could not locate pam libraries))
 
-# add our compiled static libraries
-AC_SUBST(LIBSCCONF)
-LIBSCCONF="\${top_builddir}/src/scconf/libscconf.la"
-AC_SUBST(LIBCOMMON)
-LIBCOMMON="\${top_builddir}/src/common/libcommon.la"
-AC_SUBST(LIBMAPPERS)
-LIBMAPPERS="\${top_builddir}/src/mappers/libmappers.la"
-AC_SUBST(PAM_PKCS11)
-PAM_PKCS11="\${top_builddir}/src/pam_pkcs11/pam_pkcs11.la"
-
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([string.h syslog.h fcntl.h unistd.h error.h])
