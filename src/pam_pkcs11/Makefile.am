@@ -6,6 +6,9 @@ AM_CFLAGS = -Wall -fno-strict-aliasing $(CRYPTO_CFLAGS)
 AM_CPPFLAGS = -Wall -fno-strict-aliasing $(CRYPTO_CFLAGS)
 
 lib_LTLIBRARIES = pam_pkcs11.la
+noinst_LTLIBRARIES = libfinder.la
+
+libfinder_la_SOURCES = mapper_mgr.c pam_config.c
 
 pam_pkcs11_la_SOURCES =  pam_pkcs11.c  \
 			mapper_mgr.c mapper_mgr.h \
