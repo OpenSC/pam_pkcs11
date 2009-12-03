@@ -1364,6 +1364,19 @@ int pkcs11_login(pkcs11_handle_t *h, char *password)
   return 0;
 }
 
+int get_slot_login_required(pkcs11_handle_t *h)
+{
+  int rv;
+  CK_TOKEN_INFO tinfo;
+
+  rv = h->fl->C_GetTokenInfo(h->slots[h->current_slot].id, &tinfo);
+  if (rv != CKR_OK) {
+    set_error("C_GetTokenInfo() failed: 0x%08lX", rv);
+    return -1;
+  }
+  return tinfo.flags & CKF_LOGIN_REQUIRED;
+}
+
 static void free_certs(cert_object_t **certs, int cert_count)
 {
   int i;

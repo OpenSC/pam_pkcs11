@@ -58,6 +58,7 @@ PKCS11_EXTERN int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot);
 PKCS11_EXTERN int close_pkcs11_session(pkcs11_handle_t *h);
 PKCS11_EXTERN int pkcs11_login(pkcs11_handle_t *h, char *password);
 PKCS11_EXTERN int pkcs11_pass_login(pkcs11_handle_t *h, int nullok);
+PKCS11_EXTERN int get_slot_login_required(pkcs11_handle_t *h);
 PKCS11_EXTERN cert_object_t **get_certificate_list(pkcs11_handle_t *h,
                                                   int *ncert);
 PKCS11_EXTERN int get_private_key(pkcs11_handle_t *h, cert_object_t *);
