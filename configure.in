@@ -46,6 +46,12 @@ else
   with_debug=yes
 fi
 
+# check for dlopen() in libdl
+AC_SUBST(LIBDL)
+AC_CHECK_LIB(dl, dlopen,
+	[LIBDL="$LIBDL -ldl"],
+	[AC_MSG_ERROR(libdl not found)])
+
 # Add argument for using curl
 AC_ARG_WITH(curl,
   AC_HELP_STRING([--with-curl], [use curl (default=no)]))
