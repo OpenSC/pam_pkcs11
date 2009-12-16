@@ -432,6 +432,12 @@ int main(int argc, const char **argv)
 
     memset(params, '\0', sizeof(params));
 
+	/* first of all check whether debugging should be enabled */
+	for (i = 0; i < argc; i++)
+		if (strcmp("debug", argv[i]) == 0) {
+			set_debug_level(1);
+		}
+
     for (i = 1; i < argc; i++) {
     	for (pname = 0; pname < NUM_PARAMS; pname++) {
     	    if (param_names[pname][pn_sizes[pname]-2] == '=') {
