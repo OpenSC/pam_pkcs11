@@ -23,5 +23,5 @@ libcommon_la_SOURCES = algorithm.c cert_vfy.c cert_vfy.h \
 	strndup.c \
 	base64.c base64.h
 
-libcommon_la_LIBADD = $(CRYPTO_LIBS) $(PTHREAD_LIBS)
+libcommon_la_LIBADD = $(CRYPTO_LIBS) $(PTHREAD_LIBS) $(LIBDL)
 libcommon_la_CFLAGS = $(PTHREAD_CFLAGS)
