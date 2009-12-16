@@ -11,7 +11,8 @@ XMLFILES = pam_pkcs11.xml mappers_api.xml \
 
 MANSRC = \
 	pam_pkcs11.8 card_eventmgr.1 pklogin_finder.1 \
-	pkcs11_eventmgr.1 pkcs11_inspect.1
+	pkcs11_eventmgr.1 pkcs11_inspect.1 \
+	pkcs11_setup.1 pkcs11_listcerts.1 pkcs11_make_hash_link.1
 
 man_MANS = $(MANSRC)
 noinst_DATA = $(HTMLFILES) doxygen.conf

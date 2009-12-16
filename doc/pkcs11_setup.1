@@ -1,0 +1,31 @@
+.TH "pkcs11_setup" "1"
+.SH "NAME"
+.LP 
+pkcs11_setup \- SmartCard PKCS#11 setup
+.SH "SYNTAX"
+.LP 
+pkcs11_setup
+.RB [ list_modules ]
+.RB [ debug ]
+.RB [ use_module [\fI=<module_name>\fP]]
+.RB [ ins_action [\fI=<executable,executable,...>\fP]]
+.RB [ rm_action [\fI=<executable,executable,...>\fP]]
+.SH "DESCRIPTION"
+.LP 
+pkcs11_setup display all the certificates.
+.SH "OPTIONS"
+.LP 
+.TP 
+.B debug 
+Enable debugging output.
+.TP
+.B list_modules
+List the modules.
+.SH "AUTHORS"
+.LP 
+Juan Antonio Martinez <jonsito@teleline.es>
+.SH "SEE ALSO"
+.LP 
+pam_pkcs11(8)
+.br 
+PAM\-PKCS11 User Manual
