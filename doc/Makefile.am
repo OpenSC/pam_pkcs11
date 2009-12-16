@@ -35,6 +35,3 @@ endif
 
 api/index.html: doxygen.conf
 	sh $(srcdir)/generate-api.sh $(srcdir)
-
-%: %.in
-	sed -e "s#PKGVERSION#$(shell eval echo $(VERSION))#" < $^ > $@
