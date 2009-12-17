@@ -8,7 +8,19 @@ pkcs11_make_hash_link
 .SH "DESCRIPTION"
 .LP 
 pkcs11_make_hash_link creates a symbolic hash-link for each CA certificate
-and each CRL in the given directory
+and each CRL in the given directory.
+.SH "EXAMPLE"
+.nf
+$ cd /etc/pam_pkcs11/cacerts
+$ ls -l
+total 4
+-rw-r--r-- 1 root root 985 avr  4  2007 testCA-cacert.der
+$ sudo pkcs11_make_hash_link
+$ ls -l
+total 4
+lrwxrwxrwx 1 root root  17 déc 17 11:27 d0e0e6f3.0 -> testCA-cacert.der
+-rw-r--r-- 1 root root 985 avr  4  2007 testCA-cacert.der
+.fi
 .SH "AUTHORS"
 .LP 
 Juan Antonio Martinez <jonsito@teleline.es>
