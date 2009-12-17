@@ -477,7 +477,7 @@ int main(int argc, const char **argv)
         if (params[USE_MODULE] == (void *)1) {
             DBG("Print default module:");
             if ((i=print_default_module()) != 0) {
-                DBG1("Print default module failed with: %d", i);
+                ERR1("Print default module failed with: %d", i);
                 return i;
             }
             return 0;
@@ -485,14 +485,14 @@ int main(int argc, const char **argv)
         else if (params[USE_MODULE] != NULL) {
             DBG1("Set default module: %s", params[USE_MODULE]);
             if ((i=set_default_module(params[USE_MODULE])) != 0) {
-                DBG1("Set default module failed with: %d", i);
+                ERR1("Set default module failed with: %d", i);
                 return i;
             }
         }
         if (params[INS_ACTION] == (void *)1) {
             DBG("Print card insert action:");
             if ((i=print_card_insert_action()) != 0) {
-                DBG1("Print card insert action failed with: %d", i);
+                ERR1("Print card insert action failed with: %d", i);
                 return i;
             }
             return 0;
@@ -500,14 +500,14 @@ int main(int argc, const char **argv)
         else if (params[INS_ACTION] != NULL) {
             DBG1("Set card insert action: %s", params[INS_ACTION]);
             if ((i=set_card_insert_action(params[INS_ACTION])) != 0) {
-                DBG1("Set card insert action failed with: %d", i);
+                ERR1("Set card insert action failed with: %d", i);
                 return i;
             }
         }
         if (params[RM_ACTION] == (void *)1) {
             DBG("Print card remove action:");
             if ((i=print_card_remove_action()) != 0) {
-                DBG1("Set card remove action failed with: %d", i);
+                ERR1("Set card remove action failed with: %d", i);
                 return i;
             }
             return 0;
@@ -515,7 +515,7 @@ int main(int argc, const char **argv)
         else if (params[RM_ACTION] != NULL) {
             DBG1("Set card remove action: %s", params[RM_ACTION]);
             if ((i=set_card_remove_action(params[RM_ACTION])) != 0) {
-                DBG1("Set card remove action failed with: %d", i);
+                ERR1("Set card remove action failed with: %d", i);
                 return i;
             }
         }
