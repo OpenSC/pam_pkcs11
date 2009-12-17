@@ -119,29 +119,29 @@ int main(int argc, const char **argv) {
   }
 
   /* print some info on found certificates */
-  DBG1("Found '%d' certificate(s)", ncerts);
+  printf("Found '%d' certificate(s)\n", ncerts);
   for(i =0; i< ncerts;i++) {
     char **name;
     X509 *cert=get_X509_certificate(certs[i]);
 
-    DBG1("Certificate #%d:", i+1);
+    printf("Certificate #%d:\n", i+1);
     name = cert_info(cert, CERT_SUBJECT, ALGORITHM_NULL);
-    DBG1("- Subject:   %s", name[0]); free(name[0]);
+    printf("- Subject:   %s\n", name[0]); free(name[0]);
     name = cert_info(cert, CERT_ISSUER, ALGORITHM_NULL);
-    DBG1("- Issuer:    %s", name[0]); free(name[0]);
+    printf("- Issuer:    %s\n", name[0]); free(name[0]);
     name = cert_info(cert, CERT_KEY_ALG, ALGORITHM_NULL);
-    DBG1("- Algorithm: %s", name[0]); free(name[0]);
+    printf("- Algorithm: %s\n", name[0]); free(name[0]);
     rv = verify_certificate(cert,&configuration->policy);
     if (rv < 0) {
-        DBG1("verify_certificate() process error: %s", get_error());
+        printf("verify_certificate() process error: %s\n", get_error());
         goto auth_failed;
     } else if (rv != 1) {
-        DBG1("verify_certificate() failed: %s", get_error());
+        printf("verify_certificate() failed: %s\n", get_error());
         continue; /* try next certificate */
     }
     rv = get_private_key(ph, certs[i]);
     if (rv<0) {
-	DBG1("Certificate '%d'does not have associated private key",i+1);
+	printf("Certificate '%d'does not have associated private key\n",i+1);
     }
   } /* for */
 
