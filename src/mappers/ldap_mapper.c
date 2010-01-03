@@ -670,7 +670,7 @@ static int ldap_get_certificate(const char *login) {
 
   	if (uris[0] == NULL)
     {
-		DBG("ldap_get_certificate(): Nor URI or useable Host entry found");
+		DBG("ldap_get_certificate(): Nor URI or usable Host entry found");
 		return(-1);
     }
 
