@@ -724,7 +724,7 @@ static int ldap_get_certificate(const char *login) {
 			DBG("!  Warning, more than one entry found. Please choose \"filter\" and");
 			DBG("!  \"attribute\" in ldap mapper config section of your config,");
 			DBG("!  that only one entry with one attribute is matched");
-			DBG("!  Maybe there is an other problem in ldap with not unique user");
+			DBG("!  Maybe there is another problem in ldap with not unique user");
 			DBG("!  entries in your LDAP server.");
 		}
 
