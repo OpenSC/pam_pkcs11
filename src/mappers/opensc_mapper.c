@@ -76,6 +76,11 @@ static int opensc_mapper_match_certs(X509 *x509, const char *home) {
 	/* still need to genericize the BIO functions here */
 	return -1;
 #else
+#ifndef PATH_MAX
+/* PATH_MAX is not defined (unlimited) on Hurd */
+/* the correct solution would be to use a dynamic allocation */
+#define PATH_MAX 1024
+#endif
         char filename[PATH_MAX];
         X509 **certs;
         int ncerts, i, rc;
@@ -85,7 +90,7 @@ static int opensc_mapper_match_certs(X509 *x509, const char *home) {
         if (!x509) return -1;
         if (!home) return -1;
 
-        snprintf(filename, PATH_MAX, "%s/.eid/authorized_certificates", home);
+        snprintf(filename, sizeof(filename), "%s/.eid/authorized_certificates", home);
 
         in = BIO_new(BIO_s_file());
         if (!in) {
