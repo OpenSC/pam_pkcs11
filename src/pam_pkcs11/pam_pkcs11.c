@@ -280,17 +280,20 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	    DBG1("explicit username = [%s]", user);
 	}
   } else {
-	sprintf(password_prompt,
-		_("Please insert your %s or enter your username."),
-		_(configuration->token_type));
-	pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
-	/* get user name */
-	rv = pam_get_user(pamh, &user, NULL);
+	rv = pam_get_item(pamh, PAM_USER, (const void **) &user);
+	if (rv != PAM_SUCCESS || user == NULL || user[0] == '\0') {
+	  sprintf(password_prompt,
+		  _("Please insert your %s or enter your username."),
+		  _(configuration->token_type));
+	  pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
+	  /* get user name */
+	  rv = pam_get_user(pamh, &user, NULL);
 
-	if (rv != PAM_SUCCESS) {
-	  pam_syslog(pamh, LOG_ERR,
-                     "pam_get_user() failed %s", pam_strerror(pamh, rv));
-	  return PAM_USER_UNKNOWN;
+	  if (rv != PAM_SUCCESS) {
+		pam_syslog(pamh, LOG_ERR,
+			"pam_get_user() failed %s", pam_strerror(pamh, rv));
+		return PAM_USER_UNKNOWN;
+	  }
 	}
 	DBG1("username = [%s]", user);
   }
