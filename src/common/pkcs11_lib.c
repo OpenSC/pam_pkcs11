@@ -1047,18 +1047,19 @@ int init_pkcs11_module(pkcs11_handle_t *h,int flag)
   CK_ULONG i;
   CK_SLOT_ID_PTR slots;
   CK_INFO info;
-  CK_C_INITIALIZE_ARGS initArgs;
   /*
    Set up arguments to allow native threads
    According with pkcs#11v2.20, must set all pointers to null
    and flags CKF_OS_LOCKING_OK
   */
-  initArgs.CreateMutex = NULL;
-  initArgs.DestroyMutex = NULL;
-  initArgs.LockMutex = NULL;
-  initArgs.UnlockMutex = NULL;
-  initArgs.flags = CKF_OS_LOCKING_OK;
-  initArgs.CreateMutex = NULL;
+  CK_C_INITIALIZE_ARGS initArgs = {
+	.CreateMutex = NULL,
+	.DestroyMutex = NULL,
+	.LockMutex = NULL,
+	.UnlockMutex = NULL,
+	.flags = CKF_OS_LOCKING_OK,
+	.pReserved = NULL
+  };
 
   /* initialise the module */
   if (flag) rv = h->fl->C_Initialize((CK_VOID_PTR) &initArgs);
