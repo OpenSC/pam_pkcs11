@@ -108,7 +108,7 @@ pam_pkcs11 {
 
   # Default pkcs11 module
   pkcs11_module default {
-    module = /usr/lib/pam_pkcs11/pkcs11_module.so;
+    module = @libdir@/pam_pkcs11/pkcs11_module.so;
     description = "Default pkcs#11 module";
     slot_num = 0;
     support_threads = false;
@@ -144,13 +144,13 @@ pam_pkcs11 {
   # value as module search path
   # TODO:
   # This is not still functional: use absolute pathnames or LD_LIBRARY_PATH 
-  mapper_search_path = /usr/lib/pam_pkcs11;
+  mapper_search_path = @libdir@/pam_pkcs11;
 
   # 
   # Generic certificate contents mapper
   mapper generic {
         debug = true;
-        #module = /usr/lib/pam_pkcs11/generic_mapper.so;
+        #module = @libdir@/pam_pkcs11/generic_mapper.so;
         module = internal;
         # ignore letter case on match/compare
         ignorecase = false;
@@ -166,7 +166,7 @@ pam_pkcs11 {
   # provided file stores one or more "Subject -> login" lines
   mapper subject {
 	debug = false;
-	# module = /usr/lib/pam_pkcs11/subject_mapper.so;
+	# module = @libdir@/pam_pkcs11/subject_mapper.so;
 	module = internal;
 	ignorecase = false;
 	mapfile = file:///etc/pam_pkcs11/subject_mapping;
@@ -175,13 +175,13 @@ pam_pkcs11 {
   # Search public keys from $HOME/.ssh/authorized_keys to match users
   mapper openssh {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/openssh_mapper.so;
+	module = @libdir@/pam_pkcs11/openssh_mapper.so;
   }
 
   # Search certificates from $HOME/.eid/authorized_certificates to match users
   mapper opensc {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/opensc_mapper.so;
+	module = @libdir@/pam_pkcs11/opensc_mapper.so;
   }
 
   # Certificate Common Name ( CN ) to getpwent() mapper
@@ -189,13 +189,13 @@ pam_pkcs11 {
 	debug = false;
 	ignorecase = false;
 	module = internal;
-	# module = /usr/lib/pam_pkcs11/pwent_mapper.so;
+	# module = @libdir@/pam_pkcs11/pwent_mapper.so;
   }
 
   # Null ( no map ) mapper. when user as finder matchs to NULL or "nobody"
   mapper null {
 	debug = false;
-	# module = /usr/lib/pam_pkcs11/null_mapper.so;
+	# module = @libdir@/pam_pkcs11/null_mapper.so;
 	module = internal ;
 	# select behavior: always match, or always fail
 	default_match = false;
@@ -206,7 +206,7 @@ pam_pkcs11 {
   # Directory ( ldap style ) mapper
   mapper ldap {
 	debug = false;
-	module = /usr/lib/pam_pkcs11/ldap_mapper.so;
+	module = @libdir@/pam_pkcs11/ldap_mapper.so;
 	# hostname of ldap server (use LDAP-URI for more then one)
 	ldaphost = "";
 	# Port on ldap server to connect, this is also the default
@@ -253,7 +253,7 @@ pam_pkcs11 {
   mapper cn {
 	debug = false;
 	module = internal;
-	# module = /usr/lib/pam_pkcs11/cn_mapper.so;
+	# module = @libdir@/pam_pkcs11/cn_mapper.so;
 	ignorecase = true;
 	# mapfile = file:///etc/pam_pkcs11/cn_map;
 	mapfile = "none";
@@ -263,7 +263,7 @@ pam_pkcs11 {
   mapper mail {
 	debug = false;
 	module = internal;
-	# module = /usr/lib/pam_pkcs11/mail_mapper.so;
+	# module = @libdir@/pam_pkcs11/mail_mapper.so;
 	# Declare mapfile or
 	# leave empty "" or "none" to use no map 
 	mapfile = file:///etc/pam_pkcs11/mail_mapping;
@@ -280,7 +280,7 @@ pam_pkcs11 {
   mapper ms {
 	debug = false;
 	module = internal;
-	# module = /usr/lib/pam_pkcs11/ms_mapper.so;
+	# module = @libdir@/pam_pkcs11/ms_mapper.so;
 	ignorecase = false;
 	ignoredomain = false;
 	domain = "domain.com";
@@ -290,7 +290,7 @@ pam_pkcs11 {
   mapper krb {
 	debug = false;
 	module = internal;
-	# module = /usr/lib/pam_pkcs11/krb_mapper.so;
+	# module = @libdir@/pam_pkcs11/krb_mapper.so;
 	ignorecase = false;
 	mapfile = "none";
   }
@@ -299,7 +299,7 @@ pam_pkcs11 {
   mapper uid {
 	debug = false;
 	module = internal;
-	# module = /usr/lib/pam_pkcs11/uid_mapper.so;
+	# module = @libdir@/pam_pkcs11/uid_mapper.so;
 	ignorecase = false;
 	mapfile = "none";
   }
@@ -308,7 +308,7 @@ pam_pkcs11 {
   mapper digest {
 	debug = false;
 	module = internal;
-	# module = /usr/lib/pam_pkcs11/digest_mapper.so;
+	# module = @libdir@/pam_pkcs11/digest_mapper.so;
 	# algorithm used to evaluate certificate digest
         # Select one of:
 	# "null","md2","md4","md5","sha","sha1","dss","dss1","ripemd160"

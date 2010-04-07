@@ -254,6 +254,8 @@ doc/Makefile
 doc/pam_pkcs11.8
 doc/doxygen.conf
 etc/Makefile
+etc/pam.d_login.example
+etc/pam_pkcs11.conf.example
 src/Makefile
 src/scconf/Makefile
 src/common/Makefile
