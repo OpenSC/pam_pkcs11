@@ -60,7 +60,7 @@ void debug_print(int level, const char *file, int line, const char *format, ...)
       vsnprintf(buf, sizeof(buf), format, ap);
       va_end(ap);
 
-      syslog(LOG_INFO, buf);
+      syslog(LOG_INFO, "%s", buf);
     }
   }
 }
