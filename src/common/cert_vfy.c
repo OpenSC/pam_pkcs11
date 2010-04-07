@@ -86,7 +86,8 @@ static X509_CRL *download_crl(const char *uri)
 {
   int rv;
   unsigned int i, j;
-  unsigned char *data, *der, *p;
+  unsigned char *data, *der;
+  const unsigned char *p;
   size_t data_len, der_len;
   X509_CRL *crl;
 
