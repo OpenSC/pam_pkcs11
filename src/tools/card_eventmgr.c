@@ -55,7 +55,7 @@ int timeout_count;
 int timeout_limit;
 int daemonize;
 int debug;
-char *cfgfile;
+const char *cfgfile;
 scconf_context *ctx = NULL;
 const scconf_block *root;
 SCARDCONTEXT hContext;
