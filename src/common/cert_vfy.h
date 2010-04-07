@@ -49,9 +49,9 @@ struct cert_policy_st {
 	int ca_policy;
 	int crl_policy;
 	int signature_policy;
-	char *ca_dir;
-	char *crl_dir;
-	char *nss_dir;
+	const char *ca_dir;
+	const char *crl_dir;
+	const char *nss_dir;
 	int ocsp_policy;
 };
 

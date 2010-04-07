@@ -26,7 +26,7 @@
 #include "../common/cert_vfy.h"
 
 struct configuration_st {
-	char * config_file;
+	const char *config_file;
 	scconf_context *ctx;
 	int debug;
 	int nullok;
@@ -35,15 +35,15 @@ struct configuration_st {
 	int use_authok;
 	int card_only;
 	int wait_for_card;
-	char *pkcs11_module;
-	char *pkcs11_modulepath;
-	char **screen_savers;
-	char *slot_description;
+	const char *pkcs11_module;
+	const char *pkcs11_modulepath;
+	const char **screen_savers;
+	const char *slot_description;
 	int slot_num;
 	int support_threads;
 	cert_policy policy;
-	char *token_type;
-	char *username; /* provided user name */
+	const char *token_type;
+	const char *username; /* provided user name */
 };
 
 struct configuration_st *pk_configure( int argc, const char **argv );
