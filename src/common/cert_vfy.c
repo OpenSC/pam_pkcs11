@@ -292,7 +292,7 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
   return (rv == -1);
 }
 
-static int add_hash( X509_LOOKUP *lookup, char *dir) {
+static int add_hash( X509_LOOKUP *lookup, const char *dir) {
   int rv=0;
   rv = X509_LOOKUP_add_dir(lookup,dir, X509_FILETYPE_PEM);
   if (rv != 1) { /* load all hash links in PEM format */
@@ -307,7 +307,7 @@ static int add_hash( X509_LOOKUP *lookup, char *dir) {
   return 1;
 }
 
-static int add_file( X509_LOOKUP *lookup, char *file) {
+static int add_file( X509_LOOKUP *lookup, const char *file) {
   int rv=0;
   rv = X509_LOOKUP_load_file(lookup,file, X509_FILETYPE_PEM);
   if (rv == 1) return 1;
@@ -344,14 +344,14 @@ static X509_STORE * setup_store(cert_policy *policy) {
   }
   /* add needed hash dir pathname entries */
   if ( (policy->ca_policy) && (is_dir(policy->ca_dir)>0) ) {
-    char *pt=policy->ca_dir;
+    const char *pt=policy->ca_dir;
     if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
     DBG1("Adding hash dir '%s' to CACERT checks",policy->ca_dir);
     rv = add_hash( lookup, pt);
     if (rv<0) goto add_store_error;
   }
   if ( (policy->crl_policy!=CRLP_NONE) && (is_dir(policy->crl_dir)>0 ) ) {
-    char *pt=policy->crl_dir;
+    const char *pt=policy->crl_dir;
     if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
     DBG1("Adding hash dir '%s' to CRL checks",policy->crl_dir);
     rv = add_hash( lookup, pt);
@@ -370,14 +370,14 @@ static X509_STORE * setup_store(cert_policy *policy) {
   }
   /* and add file entries to lookup */
   if ( (policy->ca_policy) && (is_file(policy->ca_dir)>0) ) {
-    char *pt=policy->ca_dir;
+    const char *pt=policy->ca_dir;
     if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
     DBG1("Adding file '%s' to CACERT checks",policy->ca_dir);
     rv = add_file(lookup, pt);
     if (rv<0) goto add_store_error;
   }
   if ( (policy->crl_policy!=CRLP_NONE) && (is_file(policy->crl_dir)>0 ) ) {
-    char *pt=policy->crl_dir;
+    const char *pt=policy->crl_dir;
     if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
     DBG1("Adding file '%s' to CRL checks",policy->crl_dir);
     rv = add_file(lookup, pt);
