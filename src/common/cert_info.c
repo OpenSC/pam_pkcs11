@@ -633,7 +633,7 @@ static int int_append(unsigned char *pt, int n) {
 }
 
 /* store an string into buffer */
-static int str_append(unsigned char *pt,char *str,int len) {
+static int str_append(unsigned char *pt, const char *str, int len) {
 	memcpy(pt,str,len);
 	return len;
 }
