@@ -811,7 +811,7 @@ static char **cert_info_pem(X509 *x509) {
 */
 static char **cert_key_alg(X509 *x509) {
 	static char *entries[2] = { NULL,NULL };
-	char *alg = OBJ_nid2ln(
+	const char *alg = OBJ_nid2ln(
                     OBJ_obj2nid(x509->cert_info->key->algor->algorithm));
 	entries[0]=strdup(alg);
 	return entries;
