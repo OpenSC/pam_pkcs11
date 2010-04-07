@@ -69,7 +69,7 @@ ALGORITHM_TYPE Alg_get_alg_from_string(const char *hashString)
     return hashString;
 }
 
-ALGDIGEST *Alg_get_digest_by_name(ALGORITHM_TYPE hash)
+const ALGDIGEST *Alg_get_digest_by_name(ALGORITHM_TYPE hash)
 {
     return EVP_get_digestbyname((char *)hash);
 }

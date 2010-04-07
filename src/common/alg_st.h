@@ -47,6 +47,6 @@ typedef EVP_MD ALGDIGEST;
 
 ALGORITHM_TYPE Alg_get_alg_from_string(const char *);
 /* EVP_get_digestbyname */
-ALGDIGEST *Alg_get_digest_by_name(ALGORITHM_TYPE hash);
+const ALGDIGEST *Alg_get_digest_by_name(ALGORITHM_TYPE hash);
 
 #endif /* _ALG_ST_H */
