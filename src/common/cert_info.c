@@ -665,7 +665,8 @@ static int BN_append(unsigned char *pt, BIGNUM *bn) {
 */
 static char **cert_info_sshpuk(X509 *x509) {
 	char **maillist;
-	char *type,*buf;
+	const char *type;
+	char *buf;
 	unsigned char *blob,*pt,*data = NULL;
 	int data_len;
 	int res;
