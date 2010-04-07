@@ -54,7 +54,7 @@ int polling_time;
 int expire_time;
 int daemonize;
 int debug;
-char *cfgfile;
+const char *cfgfile;
 char *pkcs11_module = NULL;
 #ifdef HAVE_NSS
 char *nss_dir = NULL;
