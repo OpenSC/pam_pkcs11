@@ -44,6 +44,7 @@ struct configuration_st {
 	cert_policy policy;
 	const char *token_type;
 	const char *username; /* provided user name */
+	int quiet;
 };
 
 struct configuration_st *pk_configure( int argc, const char **argv );

@@ -63,7 +63,8 @@ struct configuration_st configuration = {
 		OCSP_NONE
 	},
 	N_("Smart card"),			/* token_type */
-	NULL				/* char *username */
+	NULL,				/* char *username */
+	0                               /* int quiet */
 };
 
 #ifdef DEBUG_CONFIG
@@ -119,6 +120,9 @@ static void parse_config_file(void) {
 	}
 	configuration.nullok =
 	    scconf_get_bool(root,"nullok",configuration.nullok);
+	configuration.quiet = scconf_get_bool(root,"quiet",configuration.quiet);
+	if (configuration.quiet)
+	    set_debug_level(-2);
 	configuration.debug =
 	    scconf_get_bool(root,"debug",configuration.debug);
 	/*if (configuration.debug) set_debug_level(1);
@@ -274,7 +278,15 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	   }
     	   if (strcmp("nodebug", argv[i]) == 0) {
       		configuration.debug = 0;
-		set_debug_level(0);
+		if (configuration.quiet)
+		    set_debug_level(-2);
+		else
+		    set_debug_level(0);
+		continue;
+	   }
+	   if (strcmp("quiet", argv[i]) == 0) {
+		configuration.quiet = 1;
+		set_debug_level(-2);
 		continue;
 	   }
 	   if (strstr(argv[i],"pkcs11_module=") ) {
