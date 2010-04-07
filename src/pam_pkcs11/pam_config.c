@@ -28,6 +28,8 @@
 #include "pam_config.h"
 #include "mapper_mgr.h"
 
+#undef DEBUG_CONFIG
+
 #define N_(string) (string)
 
 /*
@@ -64,7 +66,7 @@ struct configuration_st configuration = {
 	NULL				/* char *username */
 };
 
-#if 0
+#ifdef DEBUG_CONFIG
 static void display_config (void) {
         DBG1("debug %d",configuration.debug);
         DBG1("nullok %d",configuration.nullok);
@@ -74,6 +76,8 @@ static void display_config (void) {
         DBG1("card_only %d", configuration.card_only);
         DBG1("wait_for_card %d", configuration.wait_for_card);
         DBG1("pkcs11_module %s",configuration.pkcs11_module);
+        DBG1("pkcs11_modulepath %s",configuration.pkcs11_modulepath);
+        DBG1("slot_description %s",configuration.slot_description);
         DBG1("slot_num %d",configuration.slot_num);
         DBG1("ca_dir %s",configuration.policy.ca_dir);
         DBG1("crl_dir %s",configuration.policy.crl_dir);
@@ -237,7 +241,9 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	DBG1("Using config file %s",configuration.config_file);
 	/* parse configuration file */
 	parse_config_file();
-	/* display_config(); */
+#ifdef DEBUG_CONFIG
+	display_config();
+#endif
 	/* finally parse provided arguments */
 	/* dont skip argv[0] */
 	for (i = 1; i < argc; i++) {
@@ -338,5 +344,9 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
            syslog(LOG_ERR, "argument %s is not supported by this module", argv[i]);
            DBG1("argument %s is not supported by this module", argv[i]);
 	}
+#ifdef DEBUG_CONFIG
+	display_config();
+#endif
+
 	return &configuration;
 }
