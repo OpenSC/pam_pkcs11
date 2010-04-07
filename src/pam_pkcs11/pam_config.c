@@ -278,11 +278,11 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		continue;
 	   }
 	   if (strstr(argv[i],"pkcs11_module=") ) {
-		res=sscanf(argv[i],"pkcs11_module=%255s",configuration.pkcs11_module);
+		configuration.pkcs11_module = argv[i] + sizeof("pkcs11_module=")-1;
 		continue;
 	   }
 	   if (strstr(argv[i],"slot_description=") ) {
-		res=sscanf(argv[i],"slot_description=%255s",configuration.slot_description);
+		configuration.slot_description = argv[i] + sizeof("slot_description=")-1;
 		continue;
 	   }
 
@@ -292,15 +292,15 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	   }
 
 	   if (strstr(argv[i],"ca_dir=") ) {
-		res=sscanf(argv[i],"ca_dir=%255s",configuration.policy.ca_dir);
+		configuration.policy.ca_dir = argv[i] + sizeof("ca_dir=")-1;
 		continue;
 	   }
 	   if (strstr(argv[i],"crl_dir=") ) {
-		res=sscanf(argv[i],"crl_dir=%255s",configuration.policy.crl_dir);
+		configuration.policy.crl_dir = argv[i] + sizeof("crl_dir=")-1;
 		continue;
 	   }
 	   if (strstr(argv[i],"nss_dir=") ) {
-		res=sscanf(argv[i],"nss_dir=%255s",configuration.policy.nss_dir);
+		configuration.policy.nss_dir = argv[i] + sizeof("nss_dir=")-1;
 		continue;
 	   }
 	   if (strstr(argv[i],"cert_policy=") ) {
@@ -332,7 +332,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	   }
 
 	   if (strstr(argv[i],"token_type=") ) {
-		res=sscanf(argv[i],"token_type=%255s",configuration.token_type);
+		configuration.token_type = argv[i] + sizeof("token_type=")-1;
 		continue;
 	   }
 
