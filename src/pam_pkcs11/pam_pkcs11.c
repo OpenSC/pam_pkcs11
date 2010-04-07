@@ -309,8 +309,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   DBG("loading pkcs #11 module...");
   rv = load_pkcs11_module(configuration->pkcs11_modulepath, &ph);
   if (rv != 0) {
-    ERR1("load_pkcs11_module() failed: %s", get_error());
-    pam_syslog(pamh, LOG_ERR, "load_pkcs11_module() failed: %s", get_error());
+    ERR2("load_pkcs11_module() failed loading %s: %s",
+		configuration->pkcs11_modulepath, get_error());
+    pam_syslog(pamh, LOG_ERR, "load_pkcs11_module() failed loading %s: %s",
+		configuration->pkcs11_modulepath, get_error());
     return PAM_AUTHINFO_UNAVAIL;
   }
 
