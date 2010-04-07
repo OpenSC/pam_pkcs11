@@ -29,7 +29,7 @@ typedef struct pkcs11_handle_str pkcs11_handle_t;
 #endif
 
 PKCS11_EXTERN int crypto_init(cert_policy *policy);
-PKCS11_EXTERN int load_pkcs11_module(char *module, pkcs11_handle_t **h);
+PKCS11_EXTERN int load_pkcs11_module(const char *module, pkcs11_handle_t **h);
 PKCS11_EXTERN int init_pkcs11_module(pkcs11_handle_t *h,int flag);
 PKCS11_EXTERN int find_slot_by_number(pkcs11_handle_t *h,unsigned int slot_num,
                                       unsigned int *slot);

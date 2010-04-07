@@ -237,7 +237,7 @@ static SECMODModule *find_module_by_library(char *pkcs11_module)
  * to load, load it, otherwize select on of the standard modules from the
  * secmod.db list.
  */
-int load_pkcs11_module(char *pkcs11_module, pkcs11_handle_t **hp)
+int load_pkcs11_module(const char *pkcs11_module, pkcs11_handle_t **hp)
 {
   pkcs11_handle_t *h = (pkcs11_handle_t *)calloc(sizeof(pkcs11_handle_t),1);
   SECMODModule *module = NULL;
@@ -939,7 +939,7 @@ int crypto_init(cert_policy *policy)
   return 0;
 }
 
-int load_pkcs11_module(char *module, pkcs11_handle_t **hp)
+int load_pkcs11_module(const char *module, pkcs11_handle_t **hp)
 {
   int rv;
   struct stat module_stat;
