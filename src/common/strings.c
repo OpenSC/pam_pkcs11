@@ -48,7 +48,7 @@ int is_empty_str(const char *str) {
 /* returns a clone of provided string */
 char *clone_str(const char *str) {
 	size_t len= strlen(str);
-	char *dst= (char *) malloc(1+len);
+	char *dst= malloc(1+len);
 	if (!dst) return NULL;
 	strncpy(dst,str,len);
 	*(dst+len)='\0';
@@ -59,7 +59,7 @@ char *clone_str(const char *str) {
 char *toupper_str(const char *str) {
 	const char *from;
 	char *to;
-	char *dst= (char *) malloc(1+strlen(str));
+	char *dst= malloc(1+strlen(str));
 	if(!dst) return (char *) str; /* should I advise?? */
 	for (from=str,to=dst;*from; from++,to++) *to=toupper(*from);
 	*to='\0';
@@ -70,7 +70,7 @@ char *toupper_str(const char *str) {
 char *tolower_str(const char *str) {
 	const char *from;
 	char *to;
-	char *dst= (char *)malloc(1+strlen(str));
+	char *dst= malloc(1+strlen(str));
 	if(!dst) return (char *)str /* should I advise?? */;
 	for (from=str,to=dst;*from; from++,to++) *to=tolower(*from);
 	*to='\0';
@@ -81,7 +81,7 @@ char *tolower_str(const char *str) {
 char *bin2hex(const unsigned char *binstr,const int len) {
 	int i;
 	char *pt;
-	char *res= (char *) malloc(1+3*len);
+	char *res= malloc(1+3*len);
 	if (!res) return NULL;
 	if (len == 0) {
 	    *res = 0;

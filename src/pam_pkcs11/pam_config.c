@@ -201,8 +201,7 @@ static void parse_config_file(void) {
 	   int count,i;
 	   for (count=0, tmp=screen_saver_list; tmp ; tmp=tmp->next, count++);
 
-	   configuration.screen_savers =
-				(char **) malloc((count+1)*sizeof(char *));
+	   configuration.screen_savers = malloc((count+1)*sizeof(char *));
 	   for (i=0, tmp=screen_saver_list; tmp; tmp=tmp->next, i++) {
 		configuration.screen_savers[i] = (char *)tmp->data;
 	   }

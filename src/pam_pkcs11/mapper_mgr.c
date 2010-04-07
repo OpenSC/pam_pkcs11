@@ -185,8 +185,7 @@ struct mapper_listitem *load_mappers( scconf_context *ctx ) {
 	    char *name = module_list->data;
 	    struct mapper_instance *module = load_module(ctx,name);
 	    if (module) {
-	    	struct mapper_listitem *item=
-	    	    (struct mapper_listitem *) malloc(sizeof(struct mapper_listitem));
+	    	struct mapper_listitem *item = malloc(sizeof(struct mapper_listitem));
 		if (!item) {
 			DBG1("Error allocating modulelist entry: %s",name);
 			unload_module(module);

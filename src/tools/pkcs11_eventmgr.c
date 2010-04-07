@@ -395,8 +395,7 @@ int main(int argc, char *argv[]) {
     DBG("loading the module ...");
     if (pkcs11_module) {
 #define SPEC_TEMPLATE "library=\"%s\" name=\"SmartCard\""
-	char *moduleSpec =
-		(char *)malloc(sizeof(SPEC_TEMPLATE) + strlen(pkcs11_module));
+	char *moduleSpec = malloc(sizeof(SPEC_TEMPLATE) + strlen(pkcs11_module));
 	if (!moduleSpec) {
 	    DBG1("Malloc failed when allocating module spec", strerror(errno));
 	    return 1;

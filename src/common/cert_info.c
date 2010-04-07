@@ -91,7 +91,7 @@ cert_GetNameElements(CERTName *name, int wantedTag)
           results[i] = NULL;
           return results[0] ? results : NULL;
         }
-        buf = (char *)malloc(decodeItem->len + 1);
+        buf = malloc(decodeItem->len + 1);
         if ( buf ) {
           memcpy(buf, decodeItem->data, decodeItem->len);
           buf[decodeItem->len] = 0;

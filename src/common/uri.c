@@ -339,7 +339,7 @@ static int get_file(uri_t *uri, unsigned char **data, ssize_t * length)
     set_error("lseek() failed: %s", strerror(errno));
     return -1;
   }
-  *data = (unsigned char *)malloc(*length);
+  *data = malloc(*length);
   if (*data == NULL) {
     close(fd);
     set_error("not enough free memory available");
@@ -414,7 +414,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
   /* receive response */
   DBG("receiving...");
   bufsize = 128;
-  buf = (unsigned char *)malloc(bufsize);
+  buf = malloc(bufsize);
   if (buf == NULL) {
     close(sock);
     set_error("not enough free memory available");
@@ -504,7 +504,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
     set_error("no data received");
     return -1;
   }
-  *data = (unsigned char *)malloc(*length);
+  *data = malloc(*length);
   if (*data == NULL) {
     free(buf);
     set_error("not enough free memory available");
@@ -562,7 +562,7 @@ static int get_ldap(uri_t *uri, unsigned char **data, size_t *length)
   /* allocate memory and copy the item */
   DBG("copying data...");
   *length = (*vals)->bv_len;
-  *data = (unsigned char *)malloc(*length);
+  *data = malloc(*length);
   if (*data == NULL) {
     ldap_value_free_len(vals);
     ldap_msgfree(msg);

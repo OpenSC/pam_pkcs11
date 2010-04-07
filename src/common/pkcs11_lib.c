@@ -261,7 +261,7 @@ int load_pkcs11_module(char *pkcs11_module, pkcs11_handle_t **hp)
   }
 
   /* specified module is not already loaded, load it now */
-  moduleSpec = (char *)malloc(sizeof(SPEC_TEMPLATE) + strlen(pkcs11_module));
+  moduleSpec = malloc(sizeof(SPEC_TEMPLATE) + strlen(pkcs11_module));
   if (!moduleSpec) {
     DBG1("Malloc failed when allocating module spec", strerror(errno));
     free (h);
@@ -743,7 +743,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *count)
     return NULL;
   }
 
-  certs = (cert_object_t **)malloc(sizeof(cert_object_t *)*certCount);
+  certs = malloc(sizeof(cert_object_t *)*certCount);
   if (certs == NULL) {
     return NULL;
   }
