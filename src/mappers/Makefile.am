@@ -8,9 +8,9 @@ libdir = @libdir@/pam_pkcs11
 AM_CFLAGS = $(CRYPTO_CFLAGS)
 AM_CPPFLAGS = $(CRYPTO_CFLAGS)
 
-# Statically linked mapperis list
-# Uncomment to get refered mapper statically linked
-# DON'T FORGET update libmappers_la_SOURCES and lib_LTLIBRARIES entries below
+# Statically linked mappers list
+# Uncomment to get the referred mapper statically linked
+# DON'T FORGET to update libmappers_la_SOURCES and lib_LTLIBRARIES entries below
 # nor the corresponding "module = ..." in etc/pam_pkcs11.conf.example
 #
 AM_CFLAGS += -DSUBJECT_MAPPER_STATIC
