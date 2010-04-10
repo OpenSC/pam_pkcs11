@@ -33,7 +33,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <malloc.h>
+#include <stdlib.h>
 
 #ifndef __URI_C_
 #define URI_EXTERN extern
