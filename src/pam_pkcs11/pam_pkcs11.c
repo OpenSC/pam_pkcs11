@@ -618,7 +618,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
    */
   snprintf(env_temp, sizeof(env_temp) - 1,
 	   "PKCS11_LOGIN_TOKEN_NAME=%.*s",
-	   (sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_TOKEN_NAME="),
+	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_TOKEN_NAME=")),
 	   get_slot_tokenlabel(ph));
   rv = pam_putenv(pamh, env_temp);
 
@@ -635,7 +635,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   if (issuer) {
     snprintf(env_temp, sizeof(env_temp) - 1,
 	   "PKCS11_LOGIN_CERT_ISSUER=%.*s",
-	   (sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_ISSUER="),
+	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_ISSUER=")),
 	   issuer[0]);
     rv = pam_putenv(pamh, env_temp);
   } else {
@@ -657,7 +657,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   if (serial) {
     snprintf(env_temp, sizeof(env_temp) - 1,
 	   "PKCS11_LOGIN_CERT_SERIAL=%.*s",
-	   (sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_SERIAL="),
+	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_SERIAL=")),
 	   serial[0]);
     rv = pam_putenv(pamh, env_temp);
   } else {
