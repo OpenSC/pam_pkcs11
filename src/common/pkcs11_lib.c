@@ -662,6 +662,16 @@ int pkcs11_login(pkcs11_handle_t *h, char *password)
   return (rv == SECSuccess) ? 0 : -1;
 }
 
+int get_slot_login_required(pkcs11_handle_t *h)
+{
+  if (h->slot == NULL) {
+    DBG("Login failed: No Slot selected");
+    return -1;
+  }
+
+  return PK11_NeedLogin(h->slot);
+}
+
 int close_pkcs11_session(pkcs11_handle_t *h)
 {
   if (h->slot) {
