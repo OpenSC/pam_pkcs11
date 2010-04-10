@@ -43,7 +43,7 @@
 #include "pam_config.h"
 #include "mapper_mgr.h"
 
-#if ENABLE_NLS
+#ifdef ENABLE_NLS
 #include <libintl.h>
 #include <locale.h>
 #define _(string) gettext(string)
