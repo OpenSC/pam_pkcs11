@@ -175,7 +175,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   int i, rv;
   const char *user = NULL;
   char *password;
-  char password_prompt[70];
   unsigned int slot_num = 0;
   int is_a_screen_saver = 0;
   struct configuration_st *configuration;
@@ -283,10 +282,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   } else {
 	rv = pam_get_item(pamh, PAM_USER, (const void **) &user);
 	if (rv != PAM_SUCCESS || user == NULL || user[0] == '\0') {
-	  sprintf(password_prompt,
+	  pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 		  _("Please insert your %s or enter your username."),
 		  _(configuration->token_type));
-	  pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
 	  /* get user name */
 	  rv = pam_get_user(pamh, &user, NULL);
 
@@ -352,10 +350,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
      * or because we used one to log in */
     if (login_token_name || configuration->wait_for_card) {
       if (login_token_name) {
-        sprintf(password_prompt,
-                _("Please insert your smart card called \"%.32s\"."),
-                login_token_name);
-        pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
+        pam_prompt(pamh, PAM_TEXT_INFO, NULL,
+			_("Please insert your smart card called \"%.32s\"."),
+			login_token_name);
       } else {
         pam_prompt(pamh, PAM_TEXT_INFO, NULL,
                  _("Please insert your smart card."));
@@ -380,10 +377,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     } else {
       /* we haven't prompted for the user yet, get the user and see if
        * the smart card has been inserted in the mean time */
-      sprintf(password_prompt,
+      pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 	  	_("Please insert your %s or enter your username."),
 		_(configuration->token_type));
-      pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
       rv = pam_get_user(pamh, &user, NULL);
 
       /* check one last time for the smart card before bouncing to the next
@@ -402,9 +398,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       }
     }
   } else {
-      sprintf(password_prompt, _("Found the %s."),
+      pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("Found the %s."),
          _(configuration->token_type));
-      pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
   }
   rv = open_pkcs11_session(ph, slot_num);
   if (rv != 0) {
@@ -423,9 +418,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       pam_syslog(pamh, LOG_ERR, "get_slot_login_required() failed: %s", get_error());
     return pkcs11_pam_fail;
   } else if (rv) {
+	char password_prompt[70];
+
     /* get password */
-    sprintf(password_prompt, _("Welcome %.32s!"), get_slot_tokenlabel(ph));
-    pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
+    pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("Welcome %.32s!"),
+		get_slot_tokenlabel(ph));
     sprintf(password_prompt, _("%s PIN: "), _(configuration->token_type));
     if (configuration->use_first_pass) {
       rv = pam_get_pwd(pamh, &password, NULL, PAM_AUTHTOK, 0);
