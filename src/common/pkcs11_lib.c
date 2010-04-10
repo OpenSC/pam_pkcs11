@@ -934,6 +934,7 @@ struct pkcs11_handle_str {
 int crypto_init(cert_policy *policy)
 {
   /* arg is ignored for OPENSSL */
+  (void)policy;
   OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
   return 0;
