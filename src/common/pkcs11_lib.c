@@ -1517,7 +1517,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     /* Pass 3: store certificate */
 
     /* convert to X509 data structure */
-      x509 = d2i_X509(NULL, (CK_BYTE **)&cert_template[3].pValue, cert_template[3].ulValueLen);
+      x509 = d2i_X509(NULL, (const unsigned char **)&cert_template[3].pValue, cert_template[3].ulValueLen);
       if (x509 == NULL) {
         free(id_value);
         free(cert_value);
