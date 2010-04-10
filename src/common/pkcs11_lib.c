@@ -1261,7 +1261,7 @@ find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
   if (strcmp(wanted_slot_label, "none") == 0) {
     for (i= 0; i < h->slot_count; i++) {
       if (h->slots[i].token_present &&
-	  strcmp(wanted_token_label, h->slots[i].label) == 0) {
+	  strcmp(wanted_token_label, (char *)h->slots[i].label) == 0) {
 	*slot_num = i;
 	return (0);
       }
