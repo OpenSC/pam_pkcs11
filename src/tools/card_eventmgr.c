@@ -301,6 +301,7 @@ static void create_pidfile(char *filename)
 
 static void signal_trap(int sig)
 {
+    (void)sig;
     if (FALSE == AraKiri)
     {
 	DBG("Preparing to suicide");
