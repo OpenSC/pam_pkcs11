@@ -613,6 +613,7 @@ int get_from_uri(const char *str, unsigned char **data, size_t *length)
       set_error("Compiled without LDAP support");
 #endif
       break;
+	case unknown:
     default:
       set_error("unsupported protocol");
       rv = -1;
