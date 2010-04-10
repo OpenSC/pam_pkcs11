@@ -598,7 +598,7 @@ static int ldap_get_certificate(const char *login) {
 	char *name = NULL;
 	char filter_str[100];
 	char *attrs[2];
-	int rv;
+	int rv = LDAP_SUCCESS;
 	void *bv_val;
 
 	char uri[4096];
