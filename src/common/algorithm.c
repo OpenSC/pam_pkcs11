@@ -51,7 +51,7 @@ ALGORITHM_TYPE Alg_get_alg_from_string(const char *hashString)
     return hashOIDTag;
 }
 
-ALGDIGEST *Alg_get_digest_by_name(ALGORITHM_TYPE hash)
+const ALGDIGEST *Alg_get_digest_by_name(ALGORITHM_TYPE hash)
 {
     return HASH_GetHashObjectByOidTag(hash);
 }
