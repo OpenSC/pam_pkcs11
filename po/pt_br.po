@@ -1,0 +1,52 @@
+# Brazilian Portuguese Translation
+# This file is put in the public domain.
+# Anderson Goulart <global@codekab.com>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.6.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-04-10 16:56+0200\n"
+"PO-Revision-Date: 2010-04-19 14:02+-0300\n"
+"Last-Translator: Anderson Goulart <global@codekab.com>\n"
+"Language-Team: Independent Portuguese Team <global@codekab.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/pam_pkcs11/pam_pkcs11.c:286 src/pam_pkcs11/pam_pkcs11.c:381
+#, c-format
+msgid "Please insert your %s or enter your username."
+msgstr "Por favor insira seu %s ou entre com o nome do usuário."
+
+#: src/pam_pkcs11/pam_pkcs11.c:354
+#, c-format
+msgid "Please insert your smart card called \"%.32s\"."
+msgstr "Por favor insira seu smart card chamado \"%.32s\"."
+
+#: src/pam_pkcs11/pam_pkcs11.c:358
+msgid "Please insert your smart card."
+msgstr "Por favor insira seu smart card."
+
+#: src/pam_pkcs11/pam_pkcs11.c:401
+#, c-format
+msgid "Found the %s."
+msgstr "%s encontrado."
+
+#: src/pam_pkcs11/pam_pkcs11.c:424
+#, c-format
+msgid "Welcome %.32s!"
+msgstr "Bem vindo %.32s!"
+
+#: src/pam_pkcs11/pam_pkcs11.c:426
+#, c-format
+msgid "%s PIN: "
+msgstr "%s PIN: "
+
+#: src/pam_pkcs11/pam_pkcs11.c:744
+msgid "Cannot change the password on your smart card."
+msgstr "Não foi possível alterar a senha no seu smart card."
+
+#: src/pam_pkcs11/pam_config.c:65
+msgid "Smart card"
+msgstr "Smart card"
