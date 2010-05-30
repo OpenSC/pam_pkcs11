@@ -16,7 +16,7 @@ AM_GNU_GETTEXT_VERSION([0.17])
 AM_GNU_GETTEXT([external])
 
 dnl Add the languages which your application supports here.
-ALL_LINGUAS="fr pl ru de pt_br"
+ALL_LINGUAS="de fr nl pl pt_br ru"
 
 # Checks for programs.
 AC_PROG_CC
