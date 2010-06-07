@@ -423,42 +423,58 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     /* get password */
     pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("Welcome %.32s!"),
 		get_slot_tokenlabel(ph));
-    sprintf(password_prompt, _("%s PIN: "), _(configuration->token_type));
-    if (configuration->use_first_pass) {
-      rv = pam_get_pwd(pamh, &password, NULL, PAM_AUTHTOK, 0);
-    } else if (configuration->try_first_pass) {
-      rv = pam_get_pwd(pamh, &password, password_prompt, PAM_AUTHTOK,
-        PAM_AUTHTOK);
-    } else {
-      rv = pam_get_pwd(pamh, &password, password_prompt, 0, PAM_AUTHTOK);
-    }
-    if (rv != PAM_SUCCESS) {
-      release_pkcs11_module(ph);
-      pam_syslog(pamh, LOG_ERR,
-        "pam_get_pwd() failed: %s", pam_strerror(pamh, rv));
-      return pkcs11_pam_fail;
-    }
+
+	/* no CKF_PROTECTED_AUTHENTICATION_PATH */
+	rv = get_slot_protected_authentication_path(ph);
+	if ((-1 == rv) || (0 == rv))
+	{
+		sprintf(password_prompt, _("%s PIN: "), _(configuration->token_type));
+		if (configuration->use_first_pass) {
+			rv = pam_get_pwd(pamh, &password, NULL, PAM_AUTHTOK, 0);
+		} else if (configuration->try_first_pass) {
+			rv = pam_get_pwd(pamh, &password, password_prompt, PAM_AUTHTOK,
+					PAM_AUTHTOK);
+		} else {
+			rv = pam_get_pwd(pamh, &password, password_prompt, 0, PAM_AUTHTOK);
+		}
+		if (rv != PAM_SUCCESS) {
+			release_pkcs11_module(ph);
+			pam_syslog(pamh, LOG_ERR,
+					"pam_get_pwd() failed: %s", pam_strerror(pamh, rv));
+			return pkcs11_pam_fail;
+		}
 #ifndef DEBUG_HIDE_PASSWORD
-    DBG1("password = [%s]", password);
+		DBG1("password = [%s]", password);
 #endif
 
-    /* check password length */
-    if (!configuration->nullok && strlen(password) == 0) {
-      release_pkcs11_module(ph);
-      memset(password, 0, strlen(password));
-      free(password);
-      pam_syslog(pamh, LOG_ERR,
-        "password length is zero but the 'nullok' argument was not defined.");
-      return PAM_AUTH_ERR;
-    }
+		/* check password length */
+		if (!configuration->nullok && strlen(password) == 0) {
+			release_pkcs11_module(ph);
+			memset(password, 0, strlen(password));
+			free(password);
+			pam_syslog(pamh, LOG_ERR,
+					"password length is zero but the 'nullok' argument was not defined.");
+			return PAM_AUTH_ERR;
+		}
+	}
+	else
+	{
+		pam_prompt(pamh, PAM_TEXT_INFO, NULL,
+			_("Enter your %s PIN on the pinpad"), _(configuration->token_type));
+		/* use pin pad */
+		password = NULL;
+	}
 
     /* call pkcs#11 login to ensure that the user is the real owner of the card
      * we need to do thise before get_certificate_list because some tokens
      * can not read their certificates until the token is authenticated */
     rv = pkcs11_login(ph, password);
     /* erase and free in-memory password data asap */
-    memset(password, 0, strlen(password));
-    free(password);
+	if (password)
+	{
+		memset(password, 0, strlen(password));
+		free(password);
+	}
     if (rv != 0) {
       ERR1("open_pkcs11_login() failed: %s", get_error());
       if (!configuration->quiet)

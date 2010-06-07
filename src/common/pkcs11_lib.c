@@ -672,6 +672,16 @@ int get_slot_login_required(pkcs11_handle_t *h)
   return PK11_NeedLogin(h->slot);
 }
 
+int get_slot_protected_authentication_path(pkcs11_handle_t *h)
+{
+  if (h->slot == NULL) {
+    DBG("Login failed: No Slot selected");
+    return -1;
+  }
+
+  return PK11_ProtectedAuthenticationPath(h->slot);
+}
+
 int close_pkcs11_session(pkcs11_handle_t *h)
 {
   if (h->slot) {
@@ -1368,7 +1378,10 @@ int pkcs11_login(pkcs11_handle_t *h, char *password)
   int rv;
 
   DBG("login as user CKU_USER");
-  rv = h->fl->C_Login(h->session, CKU_USER, (unsigned char*)password, strlen(password));
+  if (password)
+	  rv = h->fl->C_Login(h->session, CKU_USER, (unsigned char*)password, strlen(password));
+  else
+	  rv = h->fl->C_Login(h->session, CKU_USER, NULL, 0);
   if (rv != CKR_OK) {
     set_error("C_Login() failed: 0x%08lX", rv);
     return -1;
@@ -1387,6 +1400,19 @@ int get_slot_login_required(pkcs11_handle_t *h)
     return -1;
   }
   return tinfo.flags & CKF_LOGIN_REQUIRED;
+}
+
+int get_slot_protected_authentication_path(pkcs11_handle_t *h)
+{
+  int rv;
+  CK_TOKEN_INFO tinfo;
+
+  rv = h->fl->C_GetTokenInfo(h->slots[h->current_slot].id, &tinfo);
+  if (rv != CKR_OK) {
+    set_error("C_GetTokenInfo() failed: 0x%08lX", rv);
+    return -1;
+  }
+  return tinfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH;
 }
 
 static void free_certs(cert_object_t **certs, int cert_count)
