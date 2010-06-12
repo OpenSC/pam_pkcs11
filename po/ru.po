@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-10 16:56+0200\n"
+"POT-Creation-Date: 2010-06-12 17:28+0200\n"
 "PO-Revision-Date: 2007-09-10 14:14+0400\n"
 "Last-Translator: sergio <mailbox@sergio.spb.ru>\n"
 "Language-Team: Russian\n"
@@ -16,36 +16,41 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/pam_pkcs11/pam_pkcs11.c:286 src/pam_pkcs11/pam_pkcs11.c:381
+#: src/pam_pkcs11/pam_pkcs11.c:289 src/pam_pkcs11/pam_pkcs11.c:386
 #, fuzzy, c-format
 msgid "Please insert your %s or enter your username."
 msgstr "Пожалуйста, вставьте смарткарту или введите имя пользователя."
 
-#: src/pam_pkcs11/pam_pkcs11.c:354
+#: src/pam_pkcs11/pam_pkcs11.c:358
 #, c-format
 msgid "Please insert your smart card called \"%.32s\"."
 msgstr "Пожалуйста, вставьте смарткарту, которая называется \"%.32s\"."
 
-#: src/pam_pkcs11/pam_pkcs11.c:358
+#: src/pam_pkcs11/pam_pkcs11.c:363
 msgid "Please insert your smart card."
 msgstr "Пожалуйста, вставьте смарткарту."
 
-#: src/pam_pkcs11/pam_pkcs11.c:401
+#: src/pam_pkcs11/pam_pkcs11.c:408
 #, c-format
 msgid "Found the %s."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:424
+#: src/pam_pkcs11/pam_pkcs11.c:430
 #, c-format
 msgid "Welcome %.32s!"
 msgstr "Добро пожаловать %.32s!"
 
-#: src/pam_pkcs11/pam_pkcs11.c:426
+#: src/pam_pkcs11/pam_pkcs11.c:437
 #, c-format
 msgid "%s PIN: "
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:744
+#: src/pam_pkcs11/pam_pkcs11.c:469
+#, c-format
+msgid "Enter your %s PIN on the pinpad"
+msgstr ""
+
+#: src/pam_pkcs11/pam_pkcs11.c:766
 msgid "Cannot change the password on your smart card."
 msgstr "Не могу поменять пароль смарткарты."
 
