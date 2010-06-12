@@ -46,7 +46,7 @@ msgstr "PIN du/de la %s : "
 #: src/pam_pkcs11/pam_pkcs11.c:469
 #, c-format
 msgid "Enter your %s PIN on the pinpad"
-msgstr ""
+msgstr "Entrez le PIN %s sur le pinpad"
 
 #: src/pam_pkcs11/pam_pkcs11.c:766
 msgid "Cannot change the password on your smart card."
