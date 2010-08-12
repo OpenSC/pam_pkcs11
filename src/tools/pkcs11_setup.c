@@ -30,6 +30,7 @@
 #include "../scconf/scconf.h"
 #include "../common/debug.h"
 #include "../common/error.h"
+#include "../common/strndup.h"
 
 #define PAM_PKCS11_CONF CONFDIR "/pam_pkcs11.conf"
 #define EVENTMGR_CONF CONFDIR "/pkcs11_eventmgr.conf"
