@@ -236,7 +236,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	int i;
 	int res;
 	/* try to find a configuration file entry */
-	for (i = 1; i < argc; i++) {
+	for (i = 0; i < argc; i++) {
 	    if (strstr(argv[i],"config_file=") ) {
 		configuration.config_file=1+strchr(argv[i],'=');
 		break;
@@ -250,7 +250,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 #endif
 	/* finally parse provided arguments */
 	/* dont skip argv[0] */
-	for (i = 1; i < argc; i++) {
+	for (i = 0; i < argc; i++) {
 	   if (strcmp("nullok", argv[i]) == 0) {
 		configuration.nullok = 1;
 		continue;

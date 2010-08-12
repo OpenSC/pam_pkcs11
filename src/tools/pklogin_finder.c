@@ -49,7 +49,7 @@ int main(int argc, const char **argv) {
     }
 
   /* call configure routines */
-  configuration = pk_configure(argc,argv);
+  configuration = pk_configure(argc - 1, argv + 1);
   if (!configuration ) {
 	DBG("Error setting configuration parameters");
 	return 1;
