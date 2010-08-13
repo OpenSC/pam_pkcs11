@@ -465,8 +465,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	}
 	else
 	{
-		pam_prompt(pamh, PAM_TEXT_INFO, NULL,
+		snprintf(password_prompt, sizeof(password_prompt),
 			_("Enter your %s PIN on the pinpad"), _(configuration->token_type));
+		pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
 		/* use pin pad */
 		password = NULL;
 	}
