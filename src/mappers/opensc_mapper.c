@@ -135,7 +135,7 @@ static int opensc_mapper_match_user(X509 *x509, const char *user, void *context)
 parses the certificate and return the _first_ user that has it in
 their ${HOME}/.eid/authorized_certificates
 */
-static char * opensc_mapper_find_user(X509 *x509, void *context) {
+static char * opensc_mapper_find_user(X509 *x509, void *context, int *match) {
 	int n = 0;
 	struct passwd *pw = NULL;
 	char *res = NULL;
@@ -155,8 +155,9 @@ static char * opensc_mapper_find_user(X509 *x509, void *context) {
 	    }
 	    /* arriving here means user found */
             DBG1("Certificate match found for user '%s'",pw->pw_name);
-	    res= clone_str(pw->pw_name);
-		    endpwent();
+	    res = clone_str(pw->pw_name);
+	    endpwent();
+	    *match = 1;
 	    return res;
         } /* next login */
 	/* no user found that contains cert in their directory */

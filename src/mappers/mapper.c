@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <pwd.h>
+#include <regex.h>
 #include "../common/debug.h"
 #include "../common/error.h"
 #include "../common/uri.h"
@@ -140,11 +141,11 @@ void end_mapent(struct mapfile *mfile) {
 * @param file FileName
 * @param key  Key to search in mapfile
 * @param icase ignore case
+* @param match Set to 1 for mapped string return, unmodified for key return
 * @return mapped string on match, key on no match, NULL on error
 */
-char *mapfile_find(const char *file, char *key, int icase) {
+char *mapfile_find(const char *file, char *key, int icase, int *match) {
 	struct mapfile *mfile;
-	int done=0;
 	if ( (!key) || is_empty_str(key) ) {
 		DBG("key to map is null or empty");
 		return NULL;
@@ -161,12 +162,26 @@ char *mapfile_find(const char *file, char *key, int icase) {
                 return NULL;
 	}
 	while (get_mapent(mfile)) {
-            if ( (icase) && (!strcasecmp(key,mfile->key)) ) done=1;
-            if ( (!icase) && (!strcmp(key,mfile->key)) ) done=1;
+	    int done = 0;
+	    if (mfile->key[0]=='^' && mfile->key[strlen(mfile->key)-1]=='$') {
+		regex_t re;
+		DBG2("Trying RE '%s' match on '%s'",mfile->key,key);
+		if (regcomp(&re,mfile->key,(icase ? REG_ICASE : 0)|REG_NEWLINE)) {
+		    DBG2("RE '%s' in mapfile '%s' is invalid",mfile->key,file);
+		} else {
+		    done = !regexec(&re,key,0,NULL,0);
+		    regfree(&re);
+		}
+	    } else if (icase)
+	    	done = !strcasecmp(key, mfile->key);
+	    else
+	    	done = !strcmp(key, mfile->key);
+
             if (done) {
                 char *res=clone_str(mfile->value);
                 DBG2("Found mapfile match '%s' -> '%s'",key,mfile->value);
                 end_mapent(mfile);
+		*match = 1;
                 return res;
             }
 	}
@@ -186,7 +201,8 @@ char *mapfile_find(const char *file, char *key, int icase) {
 */
 int mapfile_match(const char *file, char *key, const char *value, int icase) {
 	int res;
-	char *str=mapfile_find(file,key,icase);
+	int match = 0;
+	char *str=mapfile_find(file,key,icase,&match);
 	if (!str) return -1;
 	if (icase) res= (!strcasecmp(str,value))? 1:0;
 	else       res= (!strcmp(str,value))? 1:0;

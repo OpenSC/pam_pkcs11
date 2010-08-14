@@ -145,8 +145,8 @@ int main(int argc, const char **argv) {
       DBG("Trying to deduce login from certificate");
       user=find_user(x509);
       if (!user) {
-          DBG1("find_user() failed: %s", get_error());
-	  break;
+          DBG2("find_user() failed for certificate #%d: %s", i + 1, get_error());
+	  continue;	/* with next certificate */
       } else {
           DBG1("Certificate is valid and maps to user %s",user);
 	  printf("%s\n",user);

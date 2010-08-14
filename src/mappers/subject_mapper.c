@@ -56,13 +56,13 @@ static char ** subject_mapper_find_entries(X509 *x509, void *context) {
 /*
 parses the certificate and return the first Subject entry found, or NULL
 */
-static char * subject_mapper_find_user(X509 *x509, void *context) {
+static char * subject_mapper_find_user(X509 *x509, void *context, int *match) {
 	char **entries = cert_info(x509,CERT_SUBJECT,ALGORITHM_NULL);
 	if (!entries) {
 		DBG("X509_get_subject_name failed");
 		return NULL;
 	}
-	return mapfile_find(filename,entries[0],ignorecase);
+	return mapfile_find(filename,entries[0],ignorecase,match);
 }
 
 /*

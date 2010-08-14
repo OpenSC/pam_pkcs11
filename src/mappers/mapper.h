@@ -49,7 +49,7 @@ typedef struct mapper_module_st {
     /** cert. entries enumerator */
     char **(*entries)(X509 *x509, void *context);
     /** cert. login finder */
-    char *(*finder)(X509 *x509, void *context);
+    char *(*finder)(X509 *x509, void *context, int *match);
     /** cert-to-login matcher*/
     int (*matcher)(X509 *x509, const char *login, void *context);
     /** module de-initialization */
@@ -125,9 +125,10 @@ MAPPER_EXTERN void   end_mapent(struct mapfile *mfile);
 *@param file URL of map file
 *@param key String to be mapped
 *@param ignorecase Flag to indicate upper/lowercase ignore in string compare
+*@param match Set to 1 for mapped string return, unmodified for key return
 *@return key on no match, else a clone_str()'d of found mapping
 */
-MAPPER_EXTERN char *mapfile_find(const char *file,char *key,int ignorecase);
+MAPPER_EXTERN char *mapfile_find(const char *file,char *key,int ignorecase,int *match);
 
 /**
 * Try to match provided key to provided name by mean of a mapfile
@@ -184,8 +185,9 @@ static char ** mapper_find_entries(X509 *x509, void *context) {		\
 *@return Found user, or NULL
 */
 #define _DEFAULT_MAPPER_FIND_USER					\
-static char * mapper_find_user(X509 *x509,void *context) {		\
+static char * mapper_find_user(X509 *x509,void *context,int *match) {		\
         if ( !x509 ) return NULL;					\
+	*match = 1;							\
         return "nobody";						\
 }
 
@@ -201,7 +203,8 @@ static char * mapper_find_user(X509 *x509,void *context) {		\
 */
 #define _DEFAULT_MAPPER_MATCH_USER 					\
 static int mapper_match_user(X509 *x509, const char *login, void *context) { \
-	char *username= mapper_find_user(x509,context); 			\
+	int match = 0;							\
+	char *username= mapper_find_user(x509,context,&match); 		\
 	if (!x509) return -1;						\
 	if (!login) return -1;						\
 	if (!username) return 0; /*user not found*/			\

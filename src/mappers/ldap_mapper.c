@@ -922,7 +922,7 @@ static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) 
 	return match_found;
 }
 
-static char * ldap_mapper_find_user(X509 *x509, void *context) {
+static char * ldap_mapper_find_user(X509 *x509, void *context, int *match) {
 	struct passwd *pw = NULL;
 	char *found=NULL;
 	setpwent();
@@ -933,6 +933,7 @@ static char * ldap_mapper_find_user(X509 *x509, void *context) {
 	    if (res) {
 		DBG1("Certificate maps to user '%s'",pw->pw_name);
 		found= clone_str(pw->pw_name);
+		*match = 1;
 		break;
 	    } else {
 		DBG1("Certificate map to user '%s' failed",pw->pw_name);

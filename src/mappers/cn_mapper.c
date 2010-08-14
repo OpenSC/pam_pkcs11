@@ -60,7 +60,7 @@ static char ** cn_mapper_find_entries(X509 *x509, void *context) {
 /*
 parses the certificate and return the first CN entry found, or NULL
 */
-static char * cn_mapper_find_user(X509 *x509, void *context) {
+static char * cn_mapper_find_user(X509 *x509, void *context, int *match) {
         char *res;
         char **entries= cert_info(x509,CERT_CN,ALGORITHM_NULL);
         if (!entries) {
@@ -68,7 +68,7 @@ static char * cn_mapper_find_user(X509 *x509, void *context) {
             return NULL;
         }
         DBG1("trying to map CN entry '%s'",entries[0]);
-        res = mapfile_find(mapfile,entries[0],ignorecase);
+        res = mapfile_find(mapfile,entries[0],ignorecase,match);
         if (!res) {
             DBG("Error in map process");
             return NULL;

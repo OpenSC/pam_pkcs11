@@ -108,7 +108,7 @@ static char ** ms_mapper_find_entries(X509 *x509, void *context) {
 /*
 parses the certificate and return the first valid UPN entry found, or NULL
 */
-static char * ms_mapper_find_user(X509 *x509, void *context) {
+static char * ms_mapper_find_user(X509 *x509, void *context, int *match) {
 	char *str;
         char **entries  = cert_info(x509,CERT_UPN,ALGORITHM_NULL);
         if (!entries) {
@@ -122,6 +122,7 @@ static char * ms_mapper_find_user(X509 *x509, void *context) {
 	     res= check_upn(item);
 	     if (res) {
 	        DBG2("Found valid UPN: '%s' maps to '%s' ",str,res);
+		*match = 1;
 		return clone_str(res);
 	     } else {
 		DBG1("Invalid UPN found '%s'",str);

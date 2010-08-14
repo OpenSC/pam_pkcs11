@@ -55,6 +55,7 @@ static char **generic_mapper_find_entries(X509 *x509, void *context) {
 }
 
 static char **get_mapped_entries(char **entries) {
+	int match = 0;
 	char *entry;
 	int n=0;
 	char *res=NULL;
@@ -64,7 +65,7 @@ static char **get_mapped_entries(char **entries) {
 	} else {
 	    DBG1("Using map file '%s'",mapfile);
 	    for(n=0, entry=entries[n]; entry; entry=entries[++n]) {
-		res = mapfile_find(mapfile,entry,ignorecase);
+		res = mapfile_find(mapfile,entry,ignorecase,&match);
 		if (res) entries[n]=res;
 	    }
 	}
@@ -82,7 +83,7 @@ static char **get_mapped_entries(char **entries) {
 	return entries;
 }
 
-static char *generic_mapper_find_user(X509 *x509, void *context) {
+static char *generic_mapper_find_user(X509 *x509, void *context, int *match) {
 	char **entries;
 	int n;
         if (!x509) {
@@ -100,7 +101,10 @@ static char *generic_mapper_find_user(X509 *x509, void *context) {
 	/* and now return first nonzero item */
 	for (n=0;n<CERT_INFO_SIZE;n++) {
 	    char *str=entries[n];
-	    if (!str && !is_empty_str(str) ) return clone_str(str);
+	    if (!str && !is_empty_str(str) ) {
+		*match = 1;
+	    	return clone_str(str);
+	    }
 	}
 	/* arriving here means no map found */
 	return NULL;

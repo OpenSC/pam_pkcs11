@@ -43,9 +43,13 @@ static const char *default_user = "nobody";
 static int match=0;
 static int debug=0;
 
-static char * mapper_find_user(X509 *x509,void *context) {
+static char * mapper_find_user(X509 *x509,void *context,int *mp) {
 	if ( !x509 ) return NULL;
-	return (match)?clone_str((char *)default_user):NULL;
+	if (match) {
+	    *mp = 1;
+	    return clone_str((char *)default_user);
+	}
+	return NULL;
 }
 
 /* not used */

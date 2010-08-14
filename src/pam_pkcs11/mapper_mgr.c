@@ -264,10 +264,17 @@ char * find_user(X509 *x509) {
 	    if(! item->module->module_data->finder) {
 	    	DBG1("Mapper '%s' has no find() function",item->module->module_name);
 	    } else {
-		set_debug_level(item->module->module_data->dbg_level);
-	        login = (*item->module->module_data->finder)(x509,item->module->module_data->context);
+			int match = 0;
+
+			set_debug_level(item->module->module_data->dbg_level);
+	        login = (*item->module->module_data->finder)(x509,item->module->module_data->context, &match);
 		set_debug_level(old_level);
-	        if (login) return login;
+	    	DBG3("Mapper '%s' found %s, matched %d", item->module->module_name,login, match);
+			if (login) {
+				if (match)
+					return login;
+				free(login);
+			}
 	    }
 	    item=item->next;
 	}

@@ -57,7 +57,7 @@ static char ** digest_mapper_find_entries(X509 *x509, void *context) {
 	return entries;
 }
 
-static char * digest_mapper_find_user(X509 *x509, void *context) {
+static char * digest_mapper_find_user(X509 *x509, void *context, int *match) {
 	char **entries;
 	if ( !x509 ) {
                 DBG("NULL certificate provided");
@@ -65,7 +65,7 @@ static char * digest_mapper_find_user(X509 *x509, void *context) {
 	}
 	entries = cert_info(x509,CERT_DIGEST,algorithm);
 	DBG1("find() Found digest '%s'",entries[0]);
-        return mapfile_find(mapfile,entries[0],1);
+        return mapfile_find(mapfile,entries[0],1,match);
 }
 
 /*

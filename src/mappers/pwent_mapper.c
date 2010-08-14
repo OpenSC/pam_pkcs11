@@ -63,7 +63,7 @@ static char ** pwent_mapper_find_entries(X509 *x509, void *context) {
 /*
 parses the certificate and return the _first_ CN entry found, or NULL
 */
-static char * pwent_mapper_find_user(X509 *x509,void *context) {
+static char * pwent_mapper_find_user(X509 *x509,void *context, int *match) {
         char *str;
 	char *found_user = NULL;
         char **entries  = cert_info(x509,CERT_CN,ALGORITHM_NULL);
@@ -80,6 +80,8 @@ static char * pwent_mapper_find_user(X509 *x509,void *context) {
                 continue;
             } else {
                 DBG1("Found CN in pw database for user '%s'",found_user);
+		*match = 1;
+		/* WJG: Usually allocated mem is returned - memleak/problem? */
 		return found_user;
 	    }
         }

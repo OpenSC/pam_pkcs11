@@ -106,14 +106,14 @@ static int compare_email(char *email, const char *user) {
 /*
 parses the certificate and return the email entry found, or NULL
 */
-static char * mail_mapper_find_user(X509 *x509, void *context) {
+static char * mail_mapper_find_user(X509 *x509, void *context, int *match) {
         char **entries= cert_info(x509,CERT_EMAIL,ALGORITHM_NULL);
         if (!entries) {
                 DBG("get_email() failed");
                 return NULL;
         }
 	/* TODO: What's on ignoredomain flag ?*/
-	return mapfile_find(mapfile,entries[0],ignorecase);
+	return mapfile_find(mapfile,entries[0],ignorecase,match);
 }
 
 /*
@@ -121,6 +121,7 @@ static char * mail_mapper_find_user(X509 *x509, void *context) {
 * with provided user
 */
 static int mail_mapper_match_user(X509 *x509, const char *login, void *context) {
+	int match = 0;
 	char *item;
 	char *str;
         char **entries= cert_info(x509,CERT_EMAIL,ALGORITHM_NULL);
@@ -131,7 +132,7 @@ static int mail_mapper_match_user(X509 *x509, const char *login, void *context) 
 	DBG1("Trying to find match for user '%s'",login);
 	for (item=*entries;item;item=*++entries) {
 	    DBG1("Trying to match email entry '%s'",item);
-	    str= mapfile_find(mapfile,item,ignorecase);
+	    str= mapfile_find(mapfile,item,ignorecase,&match);
 	    if (!str) {
 		DBG("Mapping process failed");
 		return -1; /* TODO: perhaps should try to continue... */
