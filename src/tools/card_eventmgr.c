@@ -312,7 +312,7 @@ static void signal_trap(int sig)
 int main(int argc, char *argv[]) {
     int current_reader;
     LONG rv;
-    SCARD_READERSTATE_A *rgReaderStates_t = NULL;
+    SCARD_READERSTATE *rgReaderStates_t = NULL;
     DWORD dwReaders, dwReadersOld;
     LPSTR mszReaders = NULL;
     char *ptr, **readers = NULL;
