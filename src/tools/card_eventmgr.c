@@ -341,13 +341,6 @@ int main(int argc, char *argv[]) {
 	return 0;
     }
 
-    rv = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hContext);
-    if (rv != SCARD_S_SUCCESS) {
-        DBG1("SCardEstablishContext: Cannot Connect to Resource Manager %lX", rv);
-	if (ctx) scconf_free(ctx);
-        return 1;
-    }
-
     /* put my self into background if flag is set */
     if (daemonize) {
 	DBG("Going to be daemon...");
@@ -357,6 +350,15 @@ int main(int argc, char *argv[]) {
 	}
     }
 
+    /* establish pc/sc handle _after_ possible fork */ 
+    rv = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hContext);
+    if (rv != SCARD_S_SUCCESS) {
+        DBG1("SCardEstablishContext: Cannot Connect to Resource Manager %lX", rv);
+	if (ctx)
+	    scconf_free(ctx);
+        return 1;
+    }
+    
     signal(SIGINT, signal_trap);
     signal(SIGQUIT, signal_trap);
     signal(SIGTERM, signal_trap);
