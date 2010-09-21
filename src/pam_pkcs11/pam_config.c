@@ -125,8 +125,8 @@ static void parse_config_file(void) {
 	    set_debug_level(-2);
 	configuration.debug =
 	    scconf_get_bool(root,"debug",configuration.debug);
-	/*if (configuration.debug) set_debug_level(1);
-	else set_debug_level(0); */
+	if (configuration.debug)
+	    set_debug_level(1);
 	configuration.use_first_pass =
 	    scconf_get_bool(root,"use_first_pass",configuration.use_first_pass);
 	configuration.try_first_pass =
