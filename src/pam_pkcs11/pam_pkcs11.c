@@ -449,7 +449,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 					"pam_get_pwd() failed: %s", pam_strerror(pamh, rv));
 			return pkcs11_pam_fail;
 		}
-#ifndef DEBUG_HIDE_PASSWORD
+#ifdef DEBUG_SHOW_PASSWORD
 		DBG1("password = [%s]", password);
 #endif
 

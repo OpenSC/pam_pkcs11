@@ -44,7 +44,7 @@ int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
 
   /* get password */
   pin =getpass("PIN for token: ");
-#ifndef DEBUG_HIDE_PASSWORD
+#ifdef DEBUG_SHOW_PASSWORD
   DBG1("PIN = [%s]", pin);
 #endif
   /* for safety reasons, clean PIN string from memory asap */
