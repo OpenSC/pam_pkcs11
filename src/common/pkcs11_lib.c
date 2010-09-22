@@ -51,7 +51,6 @@ int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
 
   /* check password length */
   if (!nullok && strlen(pin) == 0) {
-    memset(pin, 0, strlen(pin));
     free(pin);
     set_error("Empty passwords not allowed");
     return -1;
