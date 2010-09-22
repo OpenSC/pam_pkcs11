@@ -47,6 +47,12 @@ int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
 #ifdef DEBUG_SHOW_PASSWORD
   DBG1("PIN = [%s]", pin);
 #endif
+
+  if (NULL == pin) {
+    set_error("Error encountered while reading PIN");
+    return -1;
+  }
+
   /* for safety reasons, clean PIN string from memory asap */
 
   /* check password length */
