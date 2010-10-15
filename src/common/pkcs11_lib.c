@@ -203,7 +203,7 @@ int crypto_init(cert_policy *policy) {
   }
 
   if (rv != SECSuccess) {
-    DBG1("NSS_Initialize faile: %s", SECU_Strerror(PR_GetError()));
+    DBG1("NSS_Initialize failed: %s", SECU_Strerror(PR_GetError()));
     return -1;
   }
   /* register a callback */
