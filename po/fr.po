@@ -31,7 +31,7 @@ msgstr "Veuillez insérer votre carte à puce."
 #: src/pam_pkcs11/pam_pkcs11.c:408
 #, c-format
 msgid "%s found."
-msgstr ""
+msgstr "%s trouvé(e)."
 
 #: src/pam_pkcs11/pam_pkcs11.c:430
 #, c-format
