@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pam_pkcs11 0.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-12 17:28+0200\n"
+"POT-Creation-Date: 2010-10-16 15:20+0200\n"
 "PO-Revision-Date: 2007-06-14 21:55+0200\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -30,7 +30,7 @@ msgstr "Proszê w³o¿yæ w³asn± kartê procesorow±."
 
 #: src/pam_pkcs11/pam_pkcs11.c:408
 #, c-format
-msgid "Found the %s."
+msgid "%s found."
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:430
@@ -48,7 +48,7 @@ msgstr ""
 msgid "Enter your %s PIN on the pinpad"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:766
+#: src/pam_pkcs11/pam_pkcs11.c:767
 msgid "Cannot change the password on your smart card."
 msgstr "Nie mo¿na zmieniæ has³a na tej karcie procesorowej."
 

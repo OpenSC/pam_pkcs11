@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.6.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-12 17:28+0200\n"
+"POT-Creation-Date: 2010-10-16 15:20+0200\n"
 "PO-Revision-Date: 2010-04-19 14:02+-0300\n"
 "Last-Translator: Anderson Goulart <global@codekab.com>\n"
 "Language-Team: Independent Portuguese Team <global@codekab.com>\n"
@@ -30,8 +30,8 @@ msgstr "Por favor insira seu smart card."
 
 #: src/pam_pkcs11/pam_pkcs11.c:408
 #, c-format
-msgid "Found the %s."
-msgstr "%s encontrado."
+msgid "%s found."
+msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:430
 #, c-format
@@ -48,10 +48,13 @@ msgstr "%s PIN: "
 msgid "Enter your %s PIN on the pinpad"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:766
+#: src/pam_pkcs11/pam_pkcs11.c:767
 msgid "Cannot change the password on your smart card."
 msgstr "Não foi possível alterar a senha no seu smart card."
 
 #: src/pam_pkcs11/pam_config.c:65
 msgid "Smart card"
 msgstr "Smart card"
+
+#~ msgid "Found the %s."
+#~ msgstr "%s encontrado."

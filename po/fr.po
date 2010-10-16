@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pam_pkcs11 0.5.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-12 17:28+0200\n"
+"POT-Creation-Date: 2010-10-16 15:20+0200\n"
 "PO-Revision-Date: 2007-05-22 10:27+0200\n"
 "Last-Translator: Ludovic Rousseau <ludovic.rousseau@free.fr>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -30,8 +30,8 @@ msgstr "Veuillez insérer votre carte à puce."
 
 #: src/pam_pkcs11/pam_pkcs11.c:408
 #, c-format
-msgid "Found the %s."
-msgstr "%s trouvé(e)."
+msgid "%s found."
+msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:430
 #, c-format
@@ -48,13 +48,16 @@ msgstr "PIN du/de la %s : "
 msgid "Enter your %s PIN on the pinpad"
 msgstr "Entrez le PIN %s sur le pinpad"
 
-#: src/pam_pkcs11/pam_pkcs11.c:766
+#: src/pam_pkcs11/pam_pkcs11.c:767
 msgid "Cannot change the password on your smart card."
 msgstr "Ne peut pas changer le mot de passe de la carte à puce."
 
 #: src/pam_pkcs11/pam_config.c:65
 msgid "Smart card"
 msgstr "Carte à puce"
+
+#~ msgid "Found the %s."
+#~ msgstr "%s trouvé(e)."
 
 #~ msgid "Smart card password: "
 #~ msgstr "Mot de passe de la carte à puce : "
