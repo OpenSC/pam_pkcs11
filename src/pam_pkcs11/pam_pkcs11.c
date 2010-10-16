@@ -405,7 +405,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     }
   } else {
       snprintf(password_prompt, sizeof(password_prompt),
-		  _("Found the %s."), _(configuration->token_type));
+		  _("%s found."), _(configuration->token_type));
       pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
   }
   rv = open_pkcs11_session(ph, slot_num);
