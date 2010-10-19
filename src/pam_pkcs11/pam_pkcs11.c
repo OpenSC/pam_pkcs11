@@ -694,6 +694,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
            pam_strerror(pamh, rv));
   }
 
+  /* unload mapper modules */
+  unload_mappers();
+
   /* close pkcs #11 session */
   rv = close_pkcs11_session(ph);
   if (rv != 0) {
