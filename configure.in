@@ -50,7 +50,7 @@ fi
 AC_SUBST(LIBDL)
 AC_CHECK_LIB(dl, dlopen,
 	[LIBDL="$LIBDL -ldl"],
-	[AC_MSG_ERROR(libdl not found)])
+	[AC_CHECK_FUNCS(dlopen,, [AC_MSG_ERROR(dlopen() not found)])])
 
 # Add argument for using curl
 AC_ARG_WITH(curl,
