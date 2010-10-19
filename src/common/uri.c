@@ -398,7 +398,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
     return -1;
   }
   /* send http 1.0 request */
-  request = malloc(21 + strlen(uri->http->path) + strlen(uri->http->host));
+  request = malloc(32 + strlen(uri->http->path) + strlen(uri->http->host));
   if (request == NULL) {
     close(sock);
     set_error("not enough free memory available");
