@@ -387,6 +387,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
   if (sock == -1) {
     freeaddrinfo(info);
     set_error("socket() failed: %s", strerror(errno));
+    return -1;
   }
   DBG("connecting...");
   rv = connect(sock, info->ai_addr, info->ai_addrlen);
