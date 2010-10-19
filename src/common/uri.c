@@ -405,9 +405,10 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
     return -1;
   }
   sprintf(request, "GET %s HTTP/1.0\nHost: %s\n\n\n", uri->http->path, uri->http->host);
-  rv = send(sock, request, strlen(request), 0);
+  len = strlen(request);
+  rv = send(sock, request, len, 0);
   free(request);
-  if (rv <= 0) {
+  if (rv != len) {
     close(sock);
     set_error("send() failed: %s", strerror(errno));
     return -1;
