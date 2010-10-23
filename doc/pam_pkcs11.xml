@@ -420,12 +420,12 @@ So the process to setup ca and crl entries is:
 	the ca_dir directory</listitem>
 
 	<listitem> Create hash links to CA certificates with provided
-	<application>make_hash_link.sh</application>. Note that
+	<application>pkcs11_make_hash_link</application>. Note that
 	<application>OpenSSL</application> must be installed 
 
 <screen>
 <userinput>cd /etc/pam_pkcs11/cacerts
-/usr/bin/make_hash_link.sh</userinput>
+/usr/bin/pkcs11_make_hash_link</userinput>
 </screen>
         </listitem>
 	<listitem> Repeat above procedure for CRL entries (if used)</listitem>
@@ -589,7 +589,7 @@ class='directory'>/etc/pam_pkcs11/cacerts/</filename>.
 </para>
 <para>
 <application>Pam-pkcs11</application> provides a utility:
-<filename>make_hash_link.sh</filename> that can be used to create hash
+<filename>pkcs11_make_hash_link</filename> that can be used to create hash
 links to certificate files. Hashes are used to check certification
 validity and revocation.
 </para>
@@ -1180,7 +1180,7 @@ any user.
 <userinput>cp testCA-cacert.der /etc/pam_pkcs11/cacerts/
 cd /etc/pam_pkcs11/cacerts
 chmod a+r *
-make_hash_link.sh</userinput>
+pkcs11_make_hash_link</userinput>
 </screen>
 </para>
 </sect2>
