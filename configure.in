@@ -166,7 +166,7 @@ AC_SUBST(CRYPTO_LIBS)
 
 # Check for PCSC-Lite
 AC_ARG_WITH(pcsclite,
-  AC_HELP_STRING([--with-pcsclite], [Use pcsc-lite (default=yes)]),
+  AC_HELP_STRING([--without-pcsclite], [Do not use pcsc-lite (default=yes)]),
   [ with_pcsclite=no ])
 
 if test "$with_pcsclite" != "no"; then
