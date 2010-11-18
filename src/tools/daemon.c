@@ -30,7 +30,7 @@
 
 /* OPENBSD ORIGINAL: lib/libc/gen/daemon.c */
 
-#include "includes.h"
+#include "config.h"
 
 #ifndef HAVE_DAEMON
 
@@ -46,6 +46,10 @@
 
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
+#endif
+
+#ifndef _PATH_DEVNULL
+# define _PATH_DEVNULL "/dev/null"
 #endif
 
 int
