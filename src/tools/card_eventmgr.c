@@ -38,6 +38,10 @@
 #include "../common/debug.h"
 #include "../common/error.h"
 
+#ifndef HAVE_DAEMON
+int daemon(int nochdir, int noclose);
+#endif
+
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
