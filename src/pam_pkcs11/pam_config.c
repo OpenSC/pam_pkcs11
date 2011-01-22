@@ -234,7 +234,6 @@ static void parse_config_file(void) {
 */
 struct configuration_st *pk_configure( int argc, const char **argv ) {
 	int i;
-	int res;
 	/* try to find a configuration file entry */
 	for (i = 0; i < argc; i++) {
 	    if (strstr(argv[i],"config_file=") ) {
@@ -299,7 +298,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	   }
 
 	   if (strstr(argv[i],"slot_num=") ) {
-		res=sscanf(argv[i],"slot_num=%d",&configuration.slot_num);
+		sscanf(argv[i],"slot_num=%d",&configuration.slot_num);
 		continue;
 	   }
 
