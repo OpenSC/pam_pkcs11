@@ -590,7 +590,7 @@ static int ldap_add_uri (char **uris, const char *a_uri, char **buffer, size_t *
 */
 static int ldap_get_certificate(const char *login) {
 	LDAP *ldap_connection;
-	int ret, entries;
+	int entries;
 	LDAPMessage *res;
 	LDAPMessage *entry;
 	struct berval **bvals = NULL;
@@ -665,7 +665,7 @@ static int ldap_get_certificate(const char *login) {
 		snprintf (uri, sizeof (uri), "%s%s:%d",
 		       ssl_on == SSL_LDAPS ? "ldaps://" : "ldap://",
 		       ldaphost, ldapport);
-		rv = ldap_add_uri (uris, uri, &buffer, &buflen);
+		ldap_add_uri (uris, uri, &buffer, &buflen);
 	}
 
   	if (uris[0] == NULL)
@@ -797,7 +797,7 @@ static int ldap_get_certificate(const char *login) {
 		/* TODO: this leads to a segfault, but the doc said ... */
 		/* ldap_value_free_len(bvals); */
 	}
-	if ( 0 != (ret = ldap_unbind_s(ldap_connection))) {
+	if ( 0 != ldap_unbind_s(ldap_connection)) {
 		DBG("ldap_unbind_s() failed.");
 		ldap_perror(ldap_connection, "ldap_unbind_s() failed.");
 		return(-1);
