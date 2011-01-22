@@ -628,7 +628,7 @@ static int int_append(unsigned char *pt, int n) {
 	*pt++= (n&0xff000000) >>24;
 	*pt++= (n&0x00ff0000) >>16;
 	*pt++= (n&0x0000ff00) >>8;
-	*pt++= (n&0x000000ff) >>0;
+	*pt  = (n&0x000000ff) >>0;
 	return 4;
 }
 
