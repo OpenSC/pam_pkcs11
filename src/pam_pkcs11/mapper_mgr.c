@@ -194,7 +194,7 @@ struct mapper_listitem *load_mappers( scconf_context *ctx ) {
 		item->module = module;
 		item->next = NULL;
 		DBG1("Inserting mapper [%s] into list",name);
-	    	if (!root_mapper_list) { /* empty list */
+	    	if (!last) { /* empty list */
 			last = item;
 			root_mapper_list = item;
 	    	} else { /* insert at end of list */
