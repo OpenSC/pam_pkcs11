@@ -1320,7 +1320,6 @@ int wait_for_token_by_slotlabel(pkcs11_handle_t *h,
 {
   int rv;
 
-  rv = -1;
   do {
     /* see if the card we're looking for is inserted */
     rv = find_slot_by_slotlabel_and_tokenlabel (h, wanted_slot_label,
@@ -1343,7 +1342,6 @@ int wait_for_token(pkcs11_handle_t *h,
 {
   int rv;
 
-  rv = -1;
   do {
     /* see if the card we're looking for is inserted */
     rv = find_slot_by_number_and_label (h, wanted_slot_id,  wanted_token_label,
