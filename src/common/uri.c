@@ -171,13 +171,16 @@ typedef struct {
 
 static void free_uri(uri_t *uri) {
   /* remember that free() already checks for null */
-  if (!uri) {
-    if(!uri->file) free(uri->file->data);
+  if (uri) {
+    if(uri->file)
+      free(uri->file->data);
     free(uri->file);
-    if(!uri->http) free(uri->http->data);
+    if(uri->http)
+      free(uri->http->data);
     free(uri->http);
 #ifdef HAVE_LDAP
-    if(!uri->ldap) ldap_free_urldesc(uri->ldap);
+    if(uri->ldap)
+      ldap_free_urldesc(uri->ldap);
 #endif
     free(uri);
   }
