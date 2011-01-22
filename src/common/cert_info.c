@@ -646,12 +646,12 @@ static int BN_append(unsigned char *pt, BIGNUM *bn) {
 	int size= 1 + BN_num_bytes(bn);
 	unsigned char *buff;
 	if(BN_is_zero(bn)) {
-		res= int_append(pt,0);pt+=res;
+		res= int_append(pt,0);
 		return res;
 	}
 	buff=malloc(size);
 	*buff=0x00;
-	res=BN_bn2bin(bn,buff+1);
+	BN_bn2bin(bn,buff+1);
 	/* TODO: handle error condition */
 	extrabyte=( buff[1] & 0x80 )? 0:1;
 	res= int_append(pt,size-extrabyte); pt+=res;
