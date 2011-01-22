@@ -266,7 +266,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	char *service;
 	if (configuration->screen_savers) {
 	    DBG("Is it a screen saver?");
-    	    rv = pam_get_item(pamh, PAM_SERVICE, &service);
+    	    pam_get_item(pamh, PAM_SERVICE, &service);
 	    for (i=0; configuration->screen_savers[i]; i++) {
 		if (strcmp(configuration->screen_savers[i], service) == 0) {
 		    is_a_screen_saver = 1;
@@ -278,7 +278,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	pkcs11_pam_fail = PAM_CRED_INSUFFICIENT;
 
 	/* look to see if username is already set */
-    	rv = pam_get_item(pamh, PAM_USER, &user);
+    	pam_get_item(pamh, PAM_USER, &user);
 	if (user) {
 	    DBG1("explicit username = [%s]", user);
 	}
