@@ -1444,13 +1444,14 @@ int close_pkcs11_session(pkcs11_handle_t *h)
   /* close user-session */
   DBG("logout user");
   rv = h->fl->C_Logout(h->session);
-  if (rv != CKR_OK && rv != CKR_USER_NOT_LOGGED_IN) {
+  if (rv != CKR_OK && rv != CKR_USER_NOT_LOGGED_IN
+	  && rv != CKR_FUNCTION_NOT_SUPPORTED) {
     set_error("C_Logout() failed: 0x%08lX", rv);
     return -1;
   }
   DBG("closing the PKCS #11 session");
   rv = h->fl->C_CloseSession(h->session);
-  if (rv != CKR_OK) {
+  if (rv != CKR_OK && rv != CKR_FUNCTION_NOT_SUPPORTED) {
     set_error("C_CloseSession() failed: 0x%08lX", rv);
     return -1;
   }
