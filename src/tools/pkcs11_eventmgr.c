@@ -227,7 +227,6 @@ static int parse_config_file(void) {
 
 static int parse_args(int argc, char *argv[]) {
 	int i;
-	int res;
 	polling_time = DEF_POLLING;
 	expire_time = DEF_EXPIRE;
 	debug   = 0;
@@ -261,11 +260,11 @@ static int parse_args(int argc, char *argv[]) {
 	  	continue;
 	    }
             if (strstr(argv[i],"polling_time=") ) {
-                res=sscanf(argv[i],"polling_time=%d",&polling_time);
+                sscanf(argv[i],"polling_time=%d",&polling_time);
                 continue;
             }
             if (strstr(argv[i],"expire_time=") ) {
-                res=sscanf(argv[i],"expire_time=%d",&expire_time);
+                sscanf(argv[i],"expire_time=%d",&expire_time);
                 continue;
             }
             if (strstr(argv[i],"pkcs11_module=") ) {
@@ -565,8 +564,8 @@ int main(int argc, char *argv[]) {
 	   new_state = get_a_token();
 	   if (new_state == CARD_ERROR) {
     		DBG("Error trying to get a token");
-		rv = ph->fl->C_Finalize(NULL);
-		rv = ph->fl->C_Initialize(NULL);
+		ph->fl->C_Finalize(NULL);
+		ph->fl->C_Initialize(NULL);
     		break;
 	   }
 	   if (old_state == new_state ) { /* state unchanged */
@@ -591,8 +590,8 @@ int main(int argc, char *argv[]) {
 		re-initialize library on card removal
 		*/    
     		DBG("Re-initialising pkcs #11 module...");
-    		rv = ph->fl->C_Finalize(NULL);
-    		rv = ph->fl->C_Initialize(NULL);
+    		ph->fl->C_Finalize(NULL);
+    		ph->fl->C_Initialize(NULL);
                }
                if (new_state == CARD_PRESENT) {
                     DBG("Card inserted, ");
