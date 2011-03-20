@@ -83,6 +83,7 @@ static char * pwent_mapper_find_user(X509 *x509,void *context, int *match) {
 		    DBG1("Entry for %s not found (direct).", (const char *) str);
                 } else {
 			DBG1("Found CN in pw database for user %s (direct).", (const char *) str);
+			*match = 1;
 			return pw->pw_name;
 		}
 	}
