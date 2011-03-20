@@ -65,15 +65,31 @@ parses the certificate and return the _first_ CN entry found, or NULL
 */
 static char * pwent_mapper_find_user(X509 *x509,void *context, int *match) {
         char *str;
+	struct passwd *pw;
 	char *found_user = NULL;
         char **entries  = cert_info(x509,CERT_CN,ALGORITHM_NULL);
         if (!entries) {
             DBG("get_common_name() failed");
             return NULL;
         }
-        /* parse list of uids until match */
+	DBG1("trying to find pw_entry for cn '%s'",str);
+	/* First: direct try to avoid long searchtime or massive network traffic
+	 * for large amount of users in pw database.
+	 * (Think of 10000 or more users, mobile connection to ldap, etc.) 
+	 */
         for (str=*entries; str ; str=*++entries) {
-            DBG1("trying to find pw_entry for cn '%s'",str);
+		pw = getpwnam(str);
+                if (pw == NULL) {
+		    DBG1("Entry for %s not found (direct).", (const char *) str);
+                } else {
+			DBG1("Found CN in pw database for user %s (direct).", (const char *) str);
+			return pw->pw_name;
+		}
+	}
+
+	/* Second: search all entries (old behaviour) */
+	/* parse list of uids until match */
+	for (str=*entries; str ; str=*++entries) {
 	    found_user= search_pw_entry((const char *)str,ignorecase);
             if (!found_user) {
                 DBG1("CN entry '%s' not found in pw database. Trying next",str);
