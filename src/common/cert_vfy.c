@@ -431,7 +431,21 @@ int verify_certificate(X509 * x509, cert_policy *policy)
     X509_STORE_CTX_free(ctx);
     X509_STORE_free(store);
     set_error("certificate is invalid: %s", X509_verify_cert_error_string(ctx->error));
-    return 0;
+		switch (ctx->error) {
+			case X509_V_ERR_CERT_HAS_EXPIRED:
+				rv = -2;
+				break;
+			case X509_V_ERR_CERT_NOT_YET_VALID:
+				rv = -3;
+				break;
+			case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
+				rv = -4;
+				break;
+			default:
+				rv = 0;
+				break;
+		}
+		return rv;
   } else {
     DBG("certificate is valid");
   }

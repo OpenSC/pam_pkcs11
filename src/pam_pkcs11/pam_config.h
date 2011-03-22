@@ -45,6 +45,7 @@ struct configuration_st {
 	const char *token_type;
 	const char *username; /* provided user name */
 	int quiet;
+	int err_display_time;
 };
 
 struct configuration_st *pk_configure( int argc, const char **argv );

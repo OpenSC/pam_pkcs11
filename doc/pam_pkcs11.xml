@@ -506,6 +506,11 @@ The following options are recognized by
 </varlistentry>
 
 <varlistentry>
+<term><token>err_display_time</token></term>
+<listitem>Seconds to wait after error message is shown to give users a chance to read the message.</listitem>
+</varlistentry>
+
+<varlistentry>
 <term><token>config_file</token></term>
 <listitem>To specify up configuration file (default
 <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename>)

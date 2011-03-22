@@ -19,6 +19,7 @@ Andreas Jellinghaus <aj@dungeon.inka.de>
 
 Dominik Fischer <dom_fischer@web.de>
 	LDAP Mapper
+	Some improvements
 
 Ville Skyttä <vskytta@gmail.com>
 	Original pam_pkcs11.spec file

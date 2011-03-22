@@ -64,7 +64,8 @@ struct configuration_st configuration = {
 	},
 	N_("Smart card"),			/* token_type */
 	NULL,				/* char *username */
-	0                               /* int quiet */
+	0,                               /* int quiet */
+	0			/* err_display_time */
 };
 
 #ifdef DEBUG_CONFIG
@@ -88,6 +89,7 @@ static void display_config (void) {
         DBG1("crl_policy %d",configuration.policy.crl_policy);
         DBG1("signature_policy %d",configuration.policy.signature_policy);
         DBG1("ocsp_policy %d",configuration.policy.ocsp_policy);
+		DBG1("err_display_time %d", configuration.err_display_time);
 }
 #endif
 
@@ -118,6 +120,8 @@ static void parse_config_file(void) {
            DBG1("pam_pkcs11 block not found in config: %s",configuration.config_file);
 	   return;
 	}
+	configuration.err_display_time =
+		scconf_get_int(root,"err_display_time",configuration.err_display_time);
 	configuration.nullok =
 	    scconf_get_bool(root,"nullok",configuration.nullok);
 	configuration.quiet = scconf_get_bool(root,"quiet",configuration.quiet);
