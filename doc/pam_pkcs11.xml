@@ -437,10 +437,10 @@ So the process to setup ca and crl entries is:
 
 <para>
 <lineannotation>NOTE:</lineannotation>
-Due to OpenSSL library limitations, CA entries must reside in the local
-file system, and cannot be accessed from a remote server. So although
-user auth can be done in a remote way, certificate validation must be
-done locally.
+Due to OpenSSL library limitations, CA root certificate entries must
+reside in the local file system, and cannot be accessed from a remote
+server. So although user auth can be done in a remote way, certificate
+trust chain validation must be done locally.
 </para>
 
 </sect1>
