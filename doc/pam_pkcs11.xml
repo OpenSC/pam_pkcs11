@@ -241,7 +241,7 @@ rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-tools-X.Y-Z.i386.rpm</userinput>
 	class='directory'>/etc/pam_pkcs11/cacerts/</filename> directories
 	corresponding to the configuration file, and fill them with proper
 	data.  The <filename class='directory'>tools/</filename> directory
-	provides a tool <application>make_hash_link</application> that can
+	provides a tool <application>pkcs11_make_hash_link</application> that can
 	be used to create hash files on every valid Cert and CRL
 	file.</listitem>
 
