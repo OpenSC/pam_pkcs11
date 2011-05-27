@@ -283,7 +283,7 @@ pam_pkcs11 {
 	# module = @libdir@/pam_pkcs11/ms_mapper.so;
 	ignorecase = false;
 	ignoredomain = false;
-	domain = "domain.com";
+	domainname = "domain.com";
   }
 
   # krb  - Compare againts Kerberos Principal Name
