@@ -72,7 +72,7 @@ static char * pwent_mapper_find_user(X509 *x509,void *context, int *match) {
             DBG("get_common_name() failed");
             return NULL;
         }
-	DBG1("trying to find pw_entry for cn '%s'",str);
+	DBG1("trying to find pw_entry for cn '%s'", *entries);
 	/* First: direct try to avoid long searchtime or massive network traffic
 	 * for large amount of users in pw database.
 	 * (Think of 10000 or more users, mobile connection to ldap, etc.) 
