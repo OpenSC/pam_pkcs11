@@ -1643,7 +1643,7 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
   int rv;
 
   if (cert->private_key != CK_INVALID_HANDLE) {
-     /* we've alrady found the private key for this certificate */
+     /* we've already found the private key for this certificate */
      return 0;
   }
 
