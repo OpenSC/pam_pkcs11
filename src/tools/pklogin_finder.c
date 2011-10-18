@@ -128,7 +128,7 @@ int main(int argc, const char **argv) {
   for (i = 0; i < cert_count; i++) {
     X509 *x509 = get_X509_certificate(certs[i]);
     if (x509 != NULL) {
-      DBG1("verifing the certificate #%d", i + 1);
+      DBG1("verifying the certificate #%d", i + 1);
       /* verify certificate (date, signature, CRL, ...) */
       rv = verify_certificate(x509,&configuration->policy);
       if (rv < 0) {

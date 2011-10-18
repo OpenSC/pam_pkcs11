@@ -560,7 +560,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   for (i = 0; i < ncert; i++) {
     X509 *x509 = (X509 *)get_X509_certificate(cert_list[i]);
     if (!x509 ) continue; /* sanity check */
-    DBG1("verifing the certificate #%d", i + 1);
+    DBG1("verifying the certificate #%d", i + 1);
 	if (!configuration->quiet) {
 		snprintf(password_prompt, sizeof(password_prompt), _("verifying certificate"));
 		pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
