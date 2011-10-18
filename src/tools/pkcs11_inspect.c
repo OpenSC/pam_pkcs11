@@ -103,14 +103,12 @@ int main(int argc, const char **argv) {
     return 1;
   }
 
-#ifdef HAVE_NSS
   /* not really needed, but.... */
   rv = pkcs11_pass_login(ph,configuration->nullok);
   if (rv != 0) {
     ERR1("pkcs11_pass_login() failed: %s", get_error());
     return 2;
   }
-#endif
 
   /* get certificate list (cert space is owned by ph) */
   certs = get_certificate_list(ph, &cert_count);
