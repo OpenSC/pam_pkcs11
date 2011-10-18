@@ -1628,13 +1628,10 @@ getlist_error:
 int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
   CK_OBJECT_CLASS key_class = CKO_PRIVATE_KEY;
   CK_BBOOL key_sign = CK_TRUE;
-  CK_KEY_TYPE key_type = CKK_RSA; /* default, should be properly set */
   CK_ATTRIBUTE key_template[] = {
     {CKA_CLASS, &key_class, sizeof(key_class)}
     ,
     {CKA_SIGN, &key_sign, sizeof(key_sign)}
-    ,
-    {CKA_KEY_TYPE, &key_type, sizeof(key_type)}
     ,
     {CKA_ID, NULL, 0}
   };
@@ -1647,8 +1644,8 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
      return 0;
   }
 
-  key_template[3].pValue = cert->id;
-  key_template[3].ulValueLen = cert->id_length;
+  key_template[2].pValue = cert->id;
+  key_template[2].ulValueLen = cert->id_length;
   rv = h->fl->C_FindObjectsInit(h->session, key_template, 2);
   if (rv != CKR_OK) {
     set_error("C_FindObjectsInit() failed: 0x%08lX", rv);
