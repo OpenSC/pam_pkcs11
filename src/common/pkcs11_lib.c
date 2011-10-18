@@ -1644,9 +1644,14 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
      return 0;
   }
 
-  key_template[2].pValue = cert->id;
-  key_template[2].ulValueLen = cert->id_length;
-  rv = h->fl->C_FindObjectsInit(h->session, key_template, 2);
+  /* search for a specific ID is any */
+  if (cert->id && cert->id_length) {
+	  key_template[2].pValue = cert->id;
+	  key_template[2].ulValueLen = cert->id_length;
+	  rv = h->fl->C_FindObjectsInit(h->session, key_template, 3);
+  } else {
+	  rv = h->fl->C_FindObjectsInit(h->session, key_template, 2);
+  }
   if (rv != CKR_OK) {
     set_error("C_FindObjectsInit() failed: 0x%08lX", rv);
     return -1;
