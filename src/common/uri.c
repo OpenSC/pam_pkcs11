@@ -79,7 +79,7 @@ int is_symlink(const char *path){
 }
 
 
-#ifdef HAVE_CURL
+#ifdef HAVE_CURL_CURL_H
 
 #include <curl/curl.h>
 
