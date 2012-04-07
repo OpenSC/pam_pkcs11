@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.6.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-06 15:28+0200\n"
+"POT-Creation-Date: 2012-04-07 19:04+0200\n"
 "PO-Revision-Date: 2010-04-19 14:02+-0300\n"
 "Last-Translator: Anderson Goulart <global@codekab.com>\n"
 "Language-Team: Independent Portuguese Team <global@codekab.com>\n"
@@ -15,28 +15,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/pam_pkcs11/pam_pkcs11.c:197
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:202
 msgid "Smartcard authentification starts"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:293 src/pam_pkcs11/pam_pkcs11.c:409
+#: src/pam_pkcs11/pam_pkcs11.c:297 src/pam_pkcs11/pam_pkcs11.c:406
 #, c-format
 msgid "Please insert your %s or enter your username."
 msgstr "Por favor insira seu %s ou entre com o nome do usuário."
 
-#: src/pam_pkcs11/pam_pkcs11.c:324
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:327
 msgid "Error 2302: PKCS#11 module failed loading"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:339
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:341
 msgid "Error 2304: PKCS#11 module could not be initialized"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:359
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:360
 msgid "Error 2306: No suitable token available"
 msgstr ""
 
@@ -45,136 +41,111 @@ msgstr ""
 msgid "Please insert your smart card called \"%.32s\"."
 msgstr "Por favor insira seu smart card chamado \"%.32s\"."
 
-#: src/pam_pkcs11/pam_pkcs11.c:379
+#: src/pam_pkcs11/pam_pkcs11.c:378
 msgid "Please insert your smart card."
 msgstr "Por favor insira seu smart card."
 
-#: src/pam_pkcs11/pam_pkcs11.c:397
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:395
 msgid "Error 2308: No smartcard found"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:426
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:422
 msgid "Error 2310: No smartcard found"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:437
+#: src/pam_pkcs11/pam_pkcs11.c:432
 #, c-format
 msgid "%s found."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:445
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:439
 msgid "Error 2312: open PKCS#11 session failed"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:458
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:451
 msgid "Error 2314: Slot login failed"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:467
+#: src/pam_pkcs11/pam_pkcs11.c:459
 #, c-format
 msgid "Welcome %.32s!"
 msgstr "Bem vindo %.32s!"
 
-#: src/pam_pkcs11/pam_pkcs11.c:474
+#: src/pam_pkcs11/pam_pkcs11.c:467
 #, c-format
 msgid "%s PIN: "
 msgstr "%s PIN: "
 
-#: src/pam_pkcs11/pam_pkcs11.c:485
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:478
 msgid "Error 2316: password could not be read"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:506
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:498
 msgid "Error 2318: Empty smartcard PIN not allowed."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:516
+#: src/pam_pkcs11/pam_pkcs11.c:507
 #, c-format
 msgid "Enter your %s PIN on the pinpad"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:536
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:526
 msgid "Error 2320: Wrong smartcard PIN"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:549
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:538
 msgid "Error 2322: No certificate found"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:565
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:553
 msgid "verifying certificate"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:578
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:566
 msgid "Error 2324: Certificate has expired"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:581
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:570
 msgid "Error 2326: Certificate not yet valid"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:584
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:574
 msgid "Error 2328: Certificate signature invalid"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:587
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:578
 msgid "Error 2330: Certificate invalid"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:623
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:613
 msgid "Error 2332: setting PAM userentry failed"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:640
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:629
 msgid "Error 2334: No matching user"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:662
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:650
 msgid "Error 2336: No matching certificate found"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:672
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:659
 msgid "Checking signature"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:693
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:679
 msgid "Error 2338: Getting random value failed"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:708
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:693
 msgid "Error 2340: Signing failed"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:728
-#, c-format
+#: src/pam_pkcs11/pam_pkcs11.c:712
 msgid "Error 2342: Verifying signature failed"
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:810
-#, c-format
-msgid "Error 2344: Closing PKCS#11 session failed"
-msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:877
+#: src/pam_pkcs11/pam_pkcs11.c:859
 msgid "Cannot change the password on your smart card."
 msgstr "Não foi possível alterar a senha no seu smart card."
 
