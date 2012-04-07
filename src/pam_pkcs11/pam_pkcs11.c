@@ -270,7 +270,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	char *service;
 	if (configuration->screen_savers) {
 	    DBG("Is it a screen saver?");
-    	    pam_get_item(pamh, PAM_SERVICE, &service);
+		pam_get_item(pamh, PAM_SERVICE, &service);
 	    for (i=0; configuration->screen_savers[i]; i++) {
 		if (strcmp(configuration->screen_savers[i], service) == 0) {
 		    is_a_screen_saver = 1;
@@ -282,7 +282,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	pkcs11_pam_fail = PAM_CRED_INSUFFICIENT;
 
 	/* look to see if username is already set */
-    	pam_get_item(pamh, PAM_USER, &user);
+	pam_get_item(pamh, PAM_USER, &user);
 	if (user) {
 	    DBG1("explicit username = [%s]", user);
 	}
@@ -392,7 +392,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
         return pkcs11_pam_fail;
       }
     } else if (user) {
-	
 		if (!configuration->quiet) {
 			snprintf(password_prompt, sizeof(password_prompt), _("Error 2308: No smartcard found"));
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, password_prompt);
@@ -406,7 +405,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       /* we haven't prompted for the user yet, get the user and see if
        * the smart card has been inserted in the mean time */
       snprintf(password_prompt, sizeof(password_prompt),
-	  	_("Please insert your %s or enter your username."),
+	    _("Please insert your %s or enter your username."),
 		_(configuration->token_type));
       pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
       rv = pam_get_user(pamh, &user, NULL);
@@ -532,7 +531,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     if (rv != 0) {
       ERR1("open_pkcs11_login() failed: %s", get_error());
 		if (!configuration->quiet) {
-        	pam_syslog(pamh, LOG_ERR, "open_pkcs11_login() failed: %s", get_error());
+			pam_syslog(pamh, LOG_ERR, "open_pkcs11_login() failed: %s", get_error());
 			snprintf(password_prompt, sizeof(password_prompt), _("Error 2320: Wrong smartcard PIN"));
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, password_prompt);
 			sleep(configuration->err_display_time);
@@ -614,11 +613,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	} else {
           DBG1("certificate is valid and matches user %s",user);
 	  /* try to set up PAM user entry with evaluated value */
-  	  rv = pam_set_item(pamh, PAM_USER,(const void *)user);
+	  rv = pam_set_item(pamh, PAM_USER,(const void *)user);
 	  if (rv != PAM_SUCCESS) {
 	    ERR1("pam_set_item() failed %s", pam_strerror(pamh, rv));
             if (!configuration->quiet) {
-	      		pam_syslog(pamh, LOG_ERR,
+				pam_syslog(pamh, LOG_ERR,
                        "pam_set_item() failed %s", pam_strerror(pamh, rv));
 				snprintf(password_prompt, sizeof(password_prompt), _("Error 2332: setting PAM userentry failed"));
 				pam_prompt(pamh, PAM_ERROR_MSG , NULL, password_prompt);
@@ -693,7 +692,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			snprintf(password_prompt, sizeof(password_prompt), _("Error 2338: Getting random value failed"));
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, password_prompt);
 			sleep(configuration->err_display_time);
-	 	}
+		}
       goto auth_failed_nopw;
     }
 
