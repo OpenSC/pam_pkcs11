@@ -199,7 +199,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   char **issuer, **serial;
   const char *login_token_name = NULL;
 
-  pam_prompt(pamh, PAM_TEXT_INFO , NULL, _("Smartcard authentification starts"));
+  pam_prompt(pamh, PAM_TEXT_INFO , NULL, _("Smartcard authentication starts"));
 
   /* first of all check whether debugging should be enabled */
   for (i = 0; i < argc; i++)
