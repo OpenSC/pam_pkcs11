@@ -127,7 +127,7 @@ static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, in
   struct pam_message msg;
   struct pam_response *resp;
   /* struct pam_message *(msgp[1]) = { &msg}; */
-  struct pam_message *(msgp[1]);
+  const struct pam_message *(msgp[1]);
   msgp[0] = &msg;
 
   /* use stored password if variable oitem is set */
