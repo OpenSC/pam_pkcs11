@@ -182,7 +182,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   int i, rv;
   const char *user = NULL;
   char *password;
-  char password_prompt[128];
   unsigned int slot_num = 0;
   int is_a_screen_saver = 0;
   struct configuration_st *configuration;
@@ -294,10 +293,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   } else {
 	rv = pam_get_item(pamh, PAM_USER, &user);
 	if (rv != PAM_SUCCESS || user == NULL || user[0] == '\0') {
-	  snprintf(password_prompt, sizeof(password_prompt),
+	  pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 		  _("Please insert your %s or enter your username."),
 		  _(configuration->token_type));
-	  pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
 	  /* get user name */
 	  rv = pam_get_user(pamh, &user, NULL);
 
@@ -372,10 +370,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
      * or because we used one to log in */
     if (login_token_name || configuration->wait_for_card) {
       if (login_token_name) {
-        snprintf(password_prompt, sizeof(password_prompt),
+        pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 			_("Please insert your smart card called \"%.32s\"."),
 			login_token_name);
-        pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
       } else {
         pam_prompt(pamh, PAM_TEXT_INFO, NULL,
                  _("Please insert your smart card."));
@@ -405,10 +402,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     } else {
       /* we haven't prompted for the user yet, get the user and see if
        * the smart card has been inserted in the mean time */
-      snprintf(password_prompt, sizeof(password_prompt),
+      pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 	    _("Please insert your %s or enter your username."),
 		_(configuration->token_type));
-      pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
       rv = pam_get_user(pamh, &user, NULL);
 
       /* check one last time for the smart card before bouncing to the next
@@ -432,9 +428,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       }
     }
   } else {
-      snprintf(password_prompt, sizeof(password_prompt),
+      pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 		  _("%s found."), _(configuration->token_type));
-      pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
   }
   rv = open_pkcs11_session(ph, slot_num);
   if (rv != 0) {
@@ -460,14 +455,15 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     return pkcs11_pam_fail;
   } else if (rv) {
     /* get password */
-	snprintf(password_prompt, sizeof(password_prompt),
+	pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 		_("Welcome %.32s!"), get_slot_tokenlabel(ph));
-	pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
 
 	/* no CKF_PROTECTED_AUTHENTICATION_PATH */
 	rv = get_slot_protected_authentication_path(ph);
 	if ((-1 == rv) || (0 == rv))
 	{
+		char password_prompt[128];
+
 		snprintf(password_prompt,  sizeof(password_prompt), _("%s PIN: "), _(configuration->token_type));
 		if (configuration->use_first_pass) {
 			rv = pam_get_pwd(pamh, &password, NULL, PAM_AUTHTOK, 0);
@@ -507,9 +503,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	}
 	else
 	{
-		snprintf(password_prompt, sizeof(password_prompt),
+		pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 			_("Enter your %s PIN on the pinpad"), _(configuration->token_type));
-		pam_prompt(pamh, PAM_TEXT_INFO, NULL, password_prompt);
 		/* use pin pad */
 		password = NULL;
 	}
@@ -567,19 +562,22 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
                    "verify_certificate() failed: %s", get_error());
 			switch (rv) {
 				case -2: // X509_V_ERR_CERT_HAS_EXPIRED:
-					snprintf(password_prompt, sizeof(password_prompt), _("Error 2324: Certificate has expired"));
+					pam_prompt(pamh, PAM_ERROR_MSG , NULL,
+						_("Error 2324: Certificate has expired"));
 					break;
 				case -3: // X509_V_ERR_CERT_NOT_YET_VALID:
-					snprintf(password_prompt, sizeof(password_prompt), _("Error 2326: Certificate not yet valid"));
+					pam_prompt(pamh, PAM_ERROR_MSG , NULL,
+						_("Error 2326: Certificate not yet valid"));
 					break;
 				case -4: // X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
-					snprintf(password_prompt, sizeof(password_prompt), _("Error 2328: Certificate signature invalid"));
+					pam_prompt(pamh, PAM_ERROR_MSG , NULL,
+						_("Error 2328: Certificate signature invalid"));
 					break;
 				default:
-					snprintf(password_prompt, sizeof(password_prompt), _("Error 2330: Certificate invalid"));
+					pam_prompt(pamh, PAM_ERROR_MSG , NULL,
+						_("Error 2330: Certificate invalid"));
 					break;
 			}
-			pam_prompt(pamh, PAM_ERROR_MSG , NULL, password_prompt);
 			sleep(configuration->err_display_time);
 		}
 	goto auth_failed_nopw;
