@@ -993,7 +993,7 @@ int load_pkcs11_module(const char *module, pkcs11_handle_t **hp)
   if (module_stat.st_mode & S_IWGRP || module_stat.st_mode & S_IWOTH
       || module_stat.st_uid != 0) {
     set_error("the pkcs #11 module MUST be owned by root and MUST NOT "
-              "be writeable by the group or others");
+              "be writable by the group or others");
     free(h);
     return -1;
   }
