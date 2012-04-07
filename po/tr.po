@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pam_pkcs11 0.6.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-07 19:04+0200\n"
+"POT-Creation-Date: 2012-04-07 20:32+0200\n"
 "PO-Revision-Date: 2011-07-05 11:17:+0300\n"
 "Last-Translator: Ozan Çağlayan <ozan@pardus.org.tr>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/pam_pkcs11/pam_pkcs11.c:202
-msgid "Smartcard authentification starts"
+msgid "Smartcard authentication starts"
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:297 src/pam_pkcs11/pam_pkcs11.c:406

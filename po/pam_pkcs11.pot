@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: pam_pkcs11 0.6.7\n"
+"Project-Id-Version: pam_pkcs11 0.6.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-07 19:04+0200\n"
+"POT-Creation-Date: 2012-04-07 20:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/pam_pkcs11/pam_pkcs11.c:202
-msgid "Smartcard authentification starts"
+msgid "Smartcard authentication starts"
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:297 src/pam_pkcs11/pam_pkcs11.c:406
