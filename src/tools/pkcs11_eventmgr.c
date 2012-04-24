@@ -568,8 +568,16 @@ int main(int argc, char *argv[]) {
 	   new_state = get_a_token();
 	   if (new_state == CARD_ERROR) {
 	       DBG("Error trying to get a token");
-	       ph->fl->C_Finalize(NULL);
-	       ph->fl->C_Initialize(NULL);
+	       rv = ph->fl->C_Finalize(NULL);
+	       if (rv != CKR_OK) {
+		   DBG1("C_Finalize() failed: %x", rv);
+		   return CARD_ERROR;
+	       }
+	       rv = ph->fl->C_Initialize(NULL);
+	       if (rv != CKR_OK) {
+		   DBG1("C_Initialize() failed: %x", rv);
+		   return CARD_ERROR;
+	       }
 	       break;
 	   }
 	   if (old_state == new_state ) { /* state unchanged */
@@ -594,8 +602,16 @@ int main(int argc, char *argv[]) {
 		       re-initialize library on card removal
 		    */
 		    DBG("Re-initialising pkcs #11 module...");
-		    ph->fl->C_Finalize(NULL);
-		    ph->fl->C_Initialize(NULL);
+		    rv = ph->fl->C_Finalize(NULL);
+		    if (rv != CKR_OK) {
+			DBG1("C_Finalize() failed: %x", rv);
+			return CARD_ERROR;
+		    }
+		    rv = ph->fl->C_Initialize(NULL);
+		    if (rv != CKR_OK) {
+			DBG1("C_Initialize() failed: %x", rv);
+			return CARD_ERROR;
+		    }
                }
                if (new_state == CARD_PRESENT) {
                     DBG("Card inserted, ");
