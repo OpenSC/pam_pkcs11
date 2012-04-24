@@ -186,12 +186,16 @@ static int execute_event (const char *action) {
 		DBG2("Action '%s' returns %d",action_cmd, res);
 		if (!res) continue;
 		switch(onerr) {
-		    case ONERROR_IGNORE: continue;
-		    case ONERROR_RETURN: return 0;
-		    case ONERROR_QUIT: 	thats_all_folks();
-					exit(0);
-		    default: 		DBG("Invalid onerror value");
-			     		return -1;
+		    case ONERROR_IGNORE:
+			continue;
+		    case ONERROR_RETURN:
+			return 0;
+		    case ONERROR_QUIT:
+			thats_all_folks();
+			exit(0);
+		    default:
+			DBG("Invalid onerror value");
+			return -1;
 		}
 	}
 	return 0;
@@ -253,11 +257,11 @@ static int parse_args(int argc, char *argv[]) {
         for (i = 1; i < argc; i++) {
             if (strcmp("daemon", argv[i]) == 0) {
 		daemonize=1;
-	  	continue;
+		continue;
 	    }
             if (strcmp("nodaemon", argv[i]) == 0) {
 		daemonize=0;
-	  	continue;
+		continue;
 	    }
             if (strstr(argv[i],"polling_time=") ) {
                 sscanf(argv[i],"polling_time=%d",&polling_time);
@@ -416,7 +420,7 @@ int main(int argc, char *argv[]) {
 	    return 1;
 	}
     } else {
-    	/* no module specified? look for one in the our of NSS's
+	/* no module specified? look for one in the our of NSS's
          * secmod.db */
 	SECMODModuleList *modList = SECMOD_GetDefaultModuleList();
 
@@ -441,7 +445,7 @@ int main(int argc, char *argv[]) {
 	if ( daemon(0,debug)<0 ) {
 		DBG1("Error in daemon() call", strerror(errno));
 		SECMOD_DestroyModule(module);
-        	rv = NSS_Shutdown();
+		rv = NSS_Shutdown();
 		if (ctx) scconf_free(ctx);
 		return 1;
 	}
@@ -524,7 +528,7 @@ int main(int argc, char *argv[]) {
 	DBG("Going to be daemon...");
 	if ( daemon(0,debug)<0 ) {
 		DBG1("Error in daemon() call: %s", strerror(errno));
-        	release_pkcs11_module(ph);
+		release_pkcs11_module(ph);
 		if (ctx) scconf_free(ctx);
 		return 1;
 	}
@@ -563,21 +567,21 @@ int main(int argc, char *argv[]) {
 	   /* try to find an slot with available token(s) */
 	   new_state = get_a_token();
 	   if (new_state == CARD_ERROR) {
-    		DBG("Error trying to get a token");
-		ph->fl->C_Finalize(NULL);
-		ph->fl->C_Initialize(NULL);
-    		break;
+	       DBG("Error trying to get a token");
+	       ph->fl->C_Finalize(NULL);
+	       ph->fl->C_Initialize(NULL);
+	       break;
 	   }
 	   if (old_state == new_state ) { /* state unchanged */
-		/* on card not present, increase and check expire time */
-		if ( expire_time == 0 ) continue;
-		if ( new_state == CARD_PRESENT ) continue;
-		expire_count += polling_time;
-		if (expire_count >=expire_time) {
-                    DBG("Timeout on Card Removed ");
-		    execute_event("expire_time");
-		    expire_count=0; /*restart timer */
-		}
+	       /* on card not present, increase and check expire time */
+	       if ( expire_time == 0 ) continue;
+	       if ( new_state == CARD_PRESENT ) continue;
+	       expire_count += polling_time;
+	       if (expire_count >=expire_time) {
+		   DBG("Timeout on Card Removed ");
+		   execute_event("expire_time");
+		   expire_count=0; /*restart timer */
+	       }
            } else { /* state changed; parse event */
 	       old_state = new_state;
 	       expire_count=0;
@@ -585,13 +589,13 @@ int main(int argc, char *argv[]) {
                if (new_state == CARD_NOT_PRESENT) {
                     DBG("Card removed, ");
 		    execute_event("card_remove");
-		/*
-		some pkcs11's fails on reinsert card. To avoid this
-		re-initialize library on card removal
-		*/    
-    		DBG("Re-initialising pkcs #11 module...");
-    		ph->fl->C_Finalize(NULL);
-    		ph->fl->C_Initialize(NULL);
+		    /*
+		       some pkcs11's fails on reinsert card. To avoid this
+		       re-initialize library on card removal
+		    */
+		    DBG("Re-initialising pkcs #11 module...");
+		    ph->fl->C_Finalize(NULL);
+		    ph->fl->C_Initialize(NULL);
                }
                if (new_state == CARD_PRESENT) {
                     DBG("Card inserted, ");
