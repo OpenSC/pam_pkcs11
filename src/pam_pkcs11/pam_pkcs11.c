@@ -580,7 +580,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			}
 			sleep(configuration->err_display_time);
 		}
-	goto auth_failed_nopw;
+        continue; /* try next certificate */
       } else if (rv != 1) {
         ERR1("verify_certificate() failed: %s", get_error());
         continue; /* try next certificate */
