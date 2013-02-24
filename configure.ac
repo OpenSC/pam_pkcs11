@@ -6,7 +6,7 @@ AC_PREREQ(2.52)
 # Process this file with autoconf to produce a configure script.
 AC_INIT(pam_pkcs11, [0.6.8])
 AC_CONFIG_SRCDIR([src/pam_pkcs11/pam_pkcs11.c])
-AC_CANONICAL_TARGET([])
+AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([config.h])
 
