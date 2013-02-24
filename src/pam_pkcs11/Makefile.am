@@ -15,7 +15,8 @@ libfinder_la_SOURCES = mapper_mgr.c pam_config.c
 pam_pkcs11_la_SOURCES =  pam_pkcs11.c  \
 			mapper_mgr.c mapper_mgr.h \
 			pam_config.c pam_config.h
-pam_pkcs11_la_LDFLAGS = -module -avoid-version -shared
+pam_pkcs11_la_LDFLAGS = -module -avoid-version -shared \
+	-export-symbols-regex '^pam_'
 pam_pkcs11_la_LIBADD = ../mappers/libmappers.la $(CRYPTO_LIBS)
 
 format:
