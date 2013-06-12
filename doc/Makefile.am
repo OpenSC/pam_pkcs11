@@ -25,7 +25,7 @@ STYLESHEET = pam_pkcs11.xsl
 
 %.html: %.xml $(STYLESHEET)
 if HAVE_DOCBOOK
-	$(XSLTPROC) --path /usr/share/sgml/docbook/xsl-stylesheets/xhtml:/usr/share/xml/docbook/stylesheet/nwalsh/xhtml \
+	$(XSLTPROC) \
 	--stringparam  section.autolabel 1 \
 	--stringparam  section.label.includes.component.label 1 \
 	-o $@ $(STYLESHEET) $<
