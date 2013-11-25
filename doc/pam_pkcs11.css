@@ -1,0 +1,30 @@
+.screen {
+	background-color: #f0f0f0;
+  	cellspacing: 1;
+	cellpadding: 1;
+	margin: 1em;
+	padding: 1em;
+	border: 1px solid;
+}
+
+.prompt, .command {
+	background-color: #e0e0e0;
+}
+
+.token, .option {
+	font-family: monospace;
+	background-color: #ffe0e0;
+}
+
+.filename, .application {
+	font-family: monospace;
+	background-color: #ffffe0;
+}
+
+.code {
+	background-color: #e0ffe0;
+}
+
+a:hover {
+	background:#ff0;
+}
