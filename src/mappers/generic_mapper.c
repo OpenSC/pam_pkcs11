@@ -101,7 +101,7 @@ static char *generic_mapper_find_user(X509 *x509, void *context, int *match) {
 	/* and now return first nonzero item */
 	for (n=0;n<CERT_INFO_SIZE;n++) {
 	    char *str=entries[n];
-	    if (!str && !is_empty_str(str) ) {
+	    if (str && !is_empty_str(str) ) {
 		*match = 1;
 	    	return clone_str(str);
 	    }
