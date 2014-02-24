@@ -381,7 +381,7 @@ mapper_module * openssh_mapper_module_init(scconf_block *blk,const char *mapper_
         debug      = scconf_get_bool(blk,"debug",0);
         keyfile    = scconf_get_str(blk,"keyfile",keyfile);
 	} else {
-		DBG1("No block declaration for mapper '%'",mapper_name);
+		DBG1("No block declaration for mapper '%s'",mapper_name);
 	}
         set_debug_level(debug);
 	pt = init_mapper_st(blk,mapper_name);
