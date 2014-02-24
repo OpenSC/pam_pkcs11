@@ -74,7 +74,7 @@ static void thats_all_folks(void) {
     /* We try to leave things as clean as possible */
     rv = SCardReleaseContext(hContext);
     if (rv != SCARD_S_SUCCESS) {
-        DBG1("SCardReleaseContext: %lX", rv);
+        DBG1("SCardReleaseContext: %X", rv);
     }
 
     /* free configuration context */
