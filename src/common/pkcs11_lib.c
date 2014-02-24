@@ -1034,7 +1034,7 @@ refresh_slots(pkcs11_handle_t *h)
     CK_TOKEN_INFO tinfo;
     CK_RV rv;
 
-    DBG1("slot %d:", i + 1);
+    DBG1("slot %ld:", i + 1);
     rv = h->fl->C_GetSlotInfo(h->slots[i].id, &sinfo);
     if (rv != CKR_OK) {
       set_error("C_GetSlotInfo() failed: 0x%08lX", rv);
@@ -1115,7 +1115,7 @@ int init_pkcs11_module(pkcs11_handle_t *h,int flag)
     set_error("C_GetSlotList() failed: 0x%08lX", rv);
     return -1;
   }
-  DBG1("number of slots (a): %d", h->slot_count);
+  DBG1("number of slots (a): %ld", h->slot_count);
   if (h->slot_count == 0) {
     set_error("there are no slots available");
     return -1;
@@ -1138,7 +1138,7 @@ int init_pkcs11_module(pkcs11_handle_t *h,int flag)
     set_error("C_GetSlotList() failed: 0x%08lX", rv);
     return -1;
   }
-  DBG1("number of slots (b): %d", h->slot_count);
+  DBG1("number of slots (b): %ld", h->slot_count);
   /* show some information about the slots/tokens and setup slot info */
   for (i = 0; i < h->slot_count; i++) {
     h->slots[i].id = slots[i];
@@ -1576,7 +1576,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     h->certs=certs;
     DBG1("Saving Certificate #%d:", h->cert_count + 1);
     certs[h->cert_count] = NULL;
-    DBG1("- type: %02x", cert_type);
+    DBG1("- type: %02lx", cert_type);
     DBG1("- id:   %02x", id_value[0]);
     h->certs[h->cert_count] = (cert_object_t *)calloc(sizeof(cert_object_t),1);
     if (h->certs[h->cert_count] == NULL) {
@@ -1722,7 +1722,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
   }
   /* compute hash-value */
   SHA1(data, length, &hash[15]);
-  DBG5("hash[%d] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
+  DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
       hash[15], hash[16], hash[17], hash[sizeof(hash) - 1]);
   /* sign the token */
   rv = h->fl->C_SignInit(h->session, &mechanism, cert->private_key);
@@ -1744,7 +1744,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       free(*signature);
       *signature = NULL;
       *signature_length *= 2;
-      DBG1("increased signature buffer-length to %d", *signature_length);
+      DBG1("increased signature buffer-length to %ld", *signature_length);
     } else if (rv != CKR_OK) {
       free(*signature);
       *signature = NULL;
@@ -1752,7 +1752,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       return -1;
     }
   }
-  DBG5("signature[%d] = [%02x:%02x:%02x:...:%02x]", *signature_length,
+  DBG5("signature[%ld] = [%02x:%02x:%02x:...:%02x]", *signature_length,
       (*signature)[0], (*signature)[1], (*signature)[2], (*signature)[*signature_length - 1]);
   return 0;
 }
