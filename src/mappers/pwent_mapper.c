@@ -167,7 +167,7 @@ mapper_module * pwent_mapper_module_init(scconf_block *blk,const char *mapper_na
 		debug= scconf_get_bool(blk,"debug",0);
 	ignorecase= scconf_get_bool(blk,"ignorecase",ignorecase);
 	} else {
-		DBG1("No block declarartion for mapper '%'",mapper_name);
+		DBG1("No block declarartion for mapper '%s'",mapper_name);
 	}
 	set_debug_level(debug);
 	pt = init_mapper_st(blk,mapper_name);
