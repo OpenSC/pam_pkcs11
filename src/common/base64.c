@@ -89,7 +89,7 @@ int base64_encode(const unsigned char *in,  size_t len, unsigned char *out, size
    /* valid output size ? */
    len2 = 4 * ((len + 2) / 3);
    if (*outlen < len2 + 1) {
-	DBG3("Not enought space '%d' to process '%d': needed '%d' bytes",*outlen,len,len2+1);
+	DBG3("Not enought space '%zd' to process '%zd': needed '%zd' bytes",*outlen,len,len2+1);
 	return -1;
 		}
    p = out;
