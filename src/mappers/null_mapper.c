@@ -90,7 +90,7 @@ mapper_module * null_mapper_module_init(scconf_block *ctx,const char *mapper_nam
 	match = scconf_get_bool( ctx,"default_match",0);
 		debug = scconf_get_bool( ctx,"debug",0);
 	} else {
-		DBG1("No block declaration for mapper '%'", mapper_name);
+		DBG1("No block declaration for mapper '%s'", mapper_name);
 	}
 	set_debug_level(debug);
 	pt = init_mapper_st(ctx,mapper_name);
