@@ -90,7 +90,11 @@ DEBUG_EXTERN int get_debug_level(void);
  *@param format Message format
  *@param .... Optional arguments
  */
-DEBUG_EXTERN void debug_print(int level, const char *file, int line, const char *format, ...);
+DEBUG_EXTERN void debug_print(int level, const char *file, int line, const char *format, ...)
+#if defined __GNUC__
+	__attribute__((format(printf, 4, 5)))
+#endif
+	;
 
 #undef DEBUG_EXTERN
 
