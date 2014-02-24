@@ -436,7 +436,7 @@ static int get_a_token(void)
 		DBG1("C_GetSlotList() failed: %x", rv);
 		return CARD_ERROR;
 	}
-	DBG1("Found %d token(s)", num_tokens);
+	DBG1("Found %ld token(s)", num_tokens);
 	if (num_tokens > 0)
 		return CARD_PRESENT;
 	return CARD_NOT_PRESENT;
