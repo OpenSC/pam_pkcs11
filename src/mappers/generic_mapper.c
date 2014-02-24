@@ -101,7 +101,7 @@ static char *generic_mapper_find_user(X509 *x509, void *context, int *match) {
 	/* and now return first nonzero item */
 	for (n=0;n<CERT_INFO_SIZE;n++) {
 	    char *str=entries[n];
-	    if (!str && !is_empty_str(str) ) {
+	    if (str && !is_empty_str(str) ) {
 		*match = 1;
 	    	return clone_str(str);
 	    }
@@ -131,7 +131,7 @@ static int generic_mapper_match_user(X509 *x509, const char *login, void *contex
 	/* and now try to match entries with provided login  */
 	for (n=0;n<CERT_INFO_SIZE;n++) {
 	    char *str=entries[n];
-	    if (str || is_empty_str(str) ) continue;
+	    if (!str || is_empty_str(str) ) continue;
 	    DBG2("Trying to match generic_mapped entry '%s' with login '%s'",str,login);
 	    if (ignorecase) {
 		if (! strcasecmp(str,login) ) return 1;
@@ -191,7 +191,7 @@ mapper_module * generic_mapper_module_init(scconf_block *blk,const char *name) {
 	    DBG1("Invalid certificate item to search '%s'; using 'cn'",item);
 	}
 	pt = init_mapper_st(blk,name);
-	if (pt) DBG5("Generic mapper started. debug: %d, mapfile: '%s', ignorecase: %d usepwent: %d idType: '%s'",debug,mapfile,ignorecase,usepwent,id_type);
+	if (pt) DBG5("Generic mapper started. debug: %d, mapfile: '%s', ignorecase: %d usepwent: %d idType: '%d'",debug,mapfile,ignorecase,usepwent,id_type);
 	else DBG("Generic mapper initialization failed");
 	return pt;
 }
