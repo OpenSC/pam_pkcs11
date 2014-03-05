@@ -100,6 +100,16 @@ configuration file
   use_authtok
     Like try_first_pass, but fail if the new PAM_AUTHTOK has not been
     previously set (intended for stacking password modules only).
+    
+  card_only
+    Always try to get the userid from the certificate, don't prompt for the user name if 
+    the card is present, and if the token is present, then we must use it to authenticate.
+
+  wait_for_card
+    This option needs card_only to be set. This will make the system wait for the 
+    token to be inserted on login, or after login it will require the same token be 
+    inserted to unlock the system.
+
 
 Next options are pkcs11 module specific
 
