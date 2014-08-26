@@ -105,7 +105,6 @@ static const char *attribute="userCertificate";
 static const char *filter="(&(objectClass=posixAccount)(uid=%s)";
 static int searchtimeout=20;
 static int ignorecase=0;
-static const X509 **ldap_x509;
 static int certcnt=0;
 
 static ldap_ssl_options_t ssl_on = SSL_OFF;
@@ -738,7 +737,6 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 	LDAPMessage *entry;
 	struct berval **bvals = NULL;
 	BerElement *ber = NULL;
-	char *name = NULL;
 	char *filter_str;
 	char *attrs[2];
 	int rv = LDAP_SUCCESS;
@@ -887,65 +885,16 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 			return(-4);
 		}
 
-		/* Only first attribute is used. See comment above... */
-		if ( NULL == (name = ldap_first_attribute(ldap_connection, res, &ber))){
-			DBG("ldap_first_attribute() failed (rc=%d)");
-			ldap_unbind_s(ldap_connection);
-			return(-5);
-		}
-		DBG1("attribute name = %s", name);
-
-		bvals = ldap_get_values_len(ldap_connection, entry, name);
+		/* Count the number of certificates in the entry. */
+		DBG1("attribute name = %s", attribute);
+		bvals = ldap_get_values_len(ldap_connection, entry, attribute);
 		certcnt = ldap_count_values_len(bvals);
-
 		DBG1("number of user certificates = %d", certcnt);
-
-		ldap_x509 = malloc(sizeof(X509*) * certcnt );
-		if (NULL == ldap_x509)
-		{
-			DBG("not enough memory");
-			return(-7);
-		}
+		ldap_value_free_len(bvals);
 
 		rv = 0;
-		while(rv < certcnt )
-		{
-			/* SaW: not nifty, but otherwise gcc doesn't optimize */
-			bv_val = &bvals[rv]->bv_val;
-#ifdef HAVE_NSS
-			{
-				SECItem derdata;
-				derdata.data = bv_val;
-				derdata.len = bvals[rv]->bv_len;
 
-				ldap_x509[rv] = CERT_NewTempCertificate(CERT_GetDefaultCertDB(),
-					&derdata, NULL, 0, 1);
-			}
-#else
-			ldap_x509[rv] = d2i_X509(NULL, ((const unsigned char **) bv_val), bvals[rv]->bv_len);
-#endif
-			if (NULL == ldap_x509[rv]) {
-				DBG1("d2i_X509() failed for certificate %d", rv);
-				free(ldap_x509);
-#ifdef HAVE_NSS
-				{
-					for (rv=0; rv<certcnt; rv++)
-						if (ldap_x509[rv])
-							CERT_DestroyCertificate(ldap_x509[rv]);
-				}
-#endif
-				certcnt=0;
-				ldap_msgfree(res);
-				ldap_unbind_s(ldap_connection);
-				return(-6);
-			}else {
-				DBG1("d2i_X509(): success for certificate %d", rv);
-			}
-			rv++;
-		}
 		ldap_msgfree(res);
-		/* TODO: this leads to a segfault, but the doc said ... */
-		/* ldap_value_free_len(bvals); */
 	}
 	if ( 0 != ldap_unbind_s(ldap_connection)) {
 		DBG("ldap_unbind_s() failed.");
@@ -1045,17 +994,6 @@ static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) 
 		/* TODO: maybe compare public keys instead of hashes */
 		DBG1("Found matching entry for user: '%s'", login);
 		match_found = 1;
-		if (certcnt)
-		{
-#ifdef HAVE_NSS
-			int rv;
-
-			for (rv=0; rv<certcnt; rv++)
-				if (ldap_x509[rv])
-					CERT_DestroyCertificate(ldap_x509[rv]);
-#endif
-			free(ldap_x509);
-		}
 		certcnt=0;
 	}
 	return match_found;
