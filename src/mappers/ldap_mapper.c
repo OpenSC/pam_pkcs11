@@ -102,9 +102,11 @@ static const char *binddn="";
 static const char *passwd="";
 static const char *base="ou=People,o=example,c=com";
 static const char *attribute="userCertificate";
+static const char *uid_attribute;
 static const char *filter="(&(objectClass=posixAccount)(uid=%s)";
 static int searchtimeout=20;
 static int ignorecase=0;
+static char *uid_attribute_value;
 static int certcnt=0;
 
 static ldap_ssl_options_t ssl_on = SSL_OFF;
@@ -681,7 +683,12 @@ ldap_build_filter(const char *filter, const char *login, X509 *x509)
 	size_t buf_len, user_filter_len, der_len;
 	unsigned int i;
 
-	escaped = ldap_encode_escapes(login, strlen(login));
+	/* If no user name is specified, this is a search across all users. */
+	if (login != NULL) {
+		escaped = ldap_encode_escapes(login, strlen(login));
+	} else {
+		escaped = strdup("*");
+	}
 	if (escaped == NULL) {
 		DBG1("ldap_build_filter(): error escaping user name '%s'",
 		     login);
@@ -735,10 +742,10 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 	int entries;
 	LDAPMessage *res;
 	LDAPMessage *entry;
-	struct berval **bvals = NULL;
+	struct berval **bvals = NULL, *bv;
 	BerElement *ber = NULL;
 	char *filter_str;
-	char *attrs[2];
+	char *attrs[3];
 	int rv = LDAP_SUCCESS;
 	void *bv_val;
 
@@ -754,9 +761,17 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 	uris[0] = NULL;
 
 	attrs[0] = (char *)attribute;
-	attrs[1] = NULL;
+	attrs[1] = (char *)uid_attribute;
+	attrs[2] = NULL;
 
-	DBG1("ldap_get_certificate(): begin login = %s", login);
+	free((char *)uid_attribute_value);
+	uid_attribute_value = NULL;
+
+	if (login != NULL) {
+		DBG1("ldap_get_certificate(): begin login = %s", login);
+	} else {
+		DBG("ldap_get_certificate(): begin login unknown");
+	}
 
 	/* Put the login to the %s in Filterstring */
 	filter_str = ldap_build_filter(filter, login, x509);
@@ -892,6 +907,25 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 		DBG1("number of user certificates = %d", certcnt);
 		ldap_value_free_len(bvals);
 
+		if (uid_attribute != NULL) {
+			/* Try to retrieve the user's login name from the
+			 * specified attribute in the entry. */
+			bvals = ldap_get_values_len(ldap_connection, entry,
+						    uid_attribute);
+			DBG2("number of user names ('%s' values) = %d",
+			     uid_attribute, ldap_count_values_len(bvals));
+			if (ldap_count_values_len(bvals) == 1) {
+				bv = bvals[0];
+				uid_attribute_value = malloc(bv->bv_len + 1);
+				if (uid_attribute_value != NULL) {
+					memcpy(uid_attribute_value, bv->bv_val,
+					       bv->bv_len);
+					uid_attribute_value[bv->bv_len] = '\0';
+				}
+			}
+			ldap_value_free_len(bvals);
+		}
+
 		rv = 0;
 
 		ldap_msgfree(res);
@@ -918,6 +952,7 @@ static int read_config(scconf_block *blk) {
 	passwd = scconf_get_str(blk,"passwd",passwd);
 	base = scconf_get_str(blk,"base",base);
 	attribute = scconf_get_str(blk,"attribute",attribute);
+	uid_attribute = scconf_get_str(blk,"uid_attribute",uid_attribute);
 	filter = scconf_get_str(blk,"filter",filter);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	searchtimeout = scconf_get_int(blk,"searchtimeout",searchtimeout);
@@ -956,6 +991,7 @@ DBG1("test ssltls = %s", ssltls);
 	DBG1("passwd        = %s", passwd);
 	DBG1("base          = %s", base);
 	DBG1("attribute     = %s", attribute);
+	DBG1("uid_attribute = %s", uid_attribute);
 	DBG1("filter        = %s", filter);
 	DBG1("searchtimeout = %d", searchtimeout);
 	DBG1("ssl_on        = %d", ssl_on);
@@ -992,7 +1028,11 @@ static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) 
 		match_found = 0;
 	} else {
 		/* TODO: maybe compare public keys instead of hashes */
-		DBG1("Found matching entry for user: '%s'", login);
+		if (login != NULL) {
+			DBG1("Found matching entry for user: '%s'", login);
+		} else {
+			DBG("Found matching entry for user");
+		}
 		match_found = 1;
 		certcnt=0;
 	}
@@ -1002,6 +1042,16 @@ static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) 
 static char * ldap_mapper_find_user(X509 *x509, void *context, int *match) {
 	struct passwd *pw = NULL;
 	char *found=NULL;
+
+	if (uid_attribute != NULL) {
+		if ((1 == ldap_mapper_match_user(x509, NULL, context)) &&
+		    (uid_attribute_value != NULL)) {
+			found = clone_str(uid_attribute_value);
+			*match = 1;
+		}
+		return found;
+	}
+
 	setpwent();
 	while( (pw=getpwent()) !=NULL) {
 	    int res;

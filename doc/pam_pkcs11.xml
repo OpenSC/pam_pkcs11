@@ -1684,6 +1684,7 @@ ldap_mapper configuration file shows like:
         base = "ou=People,o=example,c=com";
         attribute = "userCertificate";
         filter = "<![CDATA[(&(objectClass=posixAccount)(uid=%s))]]>"
+        uid_attribute = "uid";
         # SSL/TLS-Settings
         ssl = tls
         # tls_randfile = ...
@@ -1762,6 +1763,19 @@ attribute. All certificates are utilized.
 </listitem>
 </varlistentry>
 
+<varlistentry>
+<term><token>uid_attribute</token></term>
+<listitem>The attribute in an LDAP entry which contains the
+user's login name.  When the module needs to determine the user's
+login name from the information in the certificate, if this
+option is set, the module can search for an LDAP entry which
+contains the certificate that was read from the card in the
+attribute named by the <![CDATA[attribute]]> setting and read the
+user's login name from this attribute.  If not, the module must
+iterate through all known users, checking for each user if the
+certificate on the card matches that user.
+</listitem>
+</varlistentry>
 
 <varlistentry>
 <term><token>filter</token></term>
