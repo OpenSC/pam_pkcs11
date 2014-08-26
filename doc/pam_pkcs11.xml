@@ -1685,6 +1685,7 @@ ldap_mapper configuration file shows like:
         attribute = "userCertificate";
         filter = "<![CDATA[(&(objectClass=posixAccount)(uid=%s))]]>"
         uid_attribute = "uid";
+        attribute_map = "<![CDATA[uid=uid&mail=email]]>", "<![CDATA[krbprincipalname=upn]]>";
         # SSL/TLS-Settings
         ssl = tls
         # tls_randfile = ...
@@ -1774,6 +1775,30 @@ attribute named by the <![CDATA[attribute]]> setting and read the
 user's login name from this attribute.  If not, the module must
 iterate through all known users, checking for each user if the
 certificate on the card matches that user.
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><token>attribute_map</token></term>
+<listitem>A list of sets of conditions which can specify how the
+module should locate an entry which corresponds to the user.
+Each list item consists of a set of one or more conditions
+consisting of an LDAP attribute and a certificate attribute, with
+conditions in the same set being separated by a <![CDATA[&]]>
+character.  An LDAP entry is considered to match a user if all of
+the conditions are met.  The recognized certificate attributes include
+<itemizedlist>
+<listitem>"<symbol>cn</symbol>" a commonName attribute value from the certificate's subject</listitem>
+<listitem>"<symbol>subject</symbol>" the certificate's entire subject name</listitem>
+<listitem>"<symbol>kpn</symbol>" a Kerberos principal name subjectAltName value</listitem>
+<listitem>"<symbol>email</symbol>" an rfc822Name subjectAltName value</listitem>
+<listitem>"<symbol>upn</symbol>" a Microsoft Universal Principal Name subjectAltName value</listitem>
+<listitem>"<symbol>uid</symbol>" a UID attribute value from the certificate's subject</listitem>
+<listitem>"<symbol>cert</symbol>" the entire certificate</listitem>
+</itemizedlist>
+If no <![CDATA[attribute_map]]> is specified, the default method
+is to search for entries which contain the card certificate in
+the attribute named by the <![CDATA[attribute]]> setting.
 </listitem>
 </varlistentry>
 

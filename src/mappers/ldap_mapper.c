@@ -679,7 +679,7 @@ ldap_build_default_cert_filter(X509 *x509)
 /* Build a subfilter for matching the passed-in certificate using the mapping
  * information, or against the configured attribute. */
 static char *
-ldap_build_cert_filter(const char *map, X509 *x509)
+ldap_build_partial_cert_filter(const char *map, X509 *x509)
 {
 	char *buf, *certs[2] = {NULL, NULL}, **values = NULL;
 	unsigned char *der;
@@ -687,55 +687,58 @@ ldap_build_cert_filter(const char *map, X509 *x509)
 	size_t buf_len, der_len, len, n;
 	int i;
 
-	if (map == NULL) {
-		DBG("ldap_build_cert_filter(): building default filter");
-		return ldap_build_default_cert_filter(x509);
-	}
 	p = strchr(map, '=');
 	if (p == NULL) {
+		DBG1("ldap_build_cert_filter(): error parsing filter '%s'",
+		     map);
 		return NULL;
 	}
-	if (strcmp(p + 1, "cn") == 0) {
+	q = p + strcspn(p, "&");
+	if (strncmp(p + 1, "cn", q - p - 1) == 0) {
 		values = cert_info(x509, CERT_CN, ALGORITHM_NULL);
 	} else
-	if (strcmp(p + 1, "subject") == 0) {
+	if (strncmp(p + 1, "subject", q - p - 1) == 0) {
 		values = cert_info(x509, CERT_SUBJECT, ALGORITHM_NULL);
 	} else
-	if (strcmp(p + 1, "kpn") == 0) {
+	if (strncmp(p + 1, "kpn", q - p - 1) == 0) {
 		values = cert_info(x509, CERT_KPN, ALGORITHM_NULL);
 	} else
-	if (strcmp(p + 1, "email") == 0) {
+	if (strncmp(p + 1, "email", q - p - 1) == 0) {
 		values = cert_info(x509, CERT_EMAIL, ALGORITHM_NULL);
 	} else
-	if (strcmp(p + 1, "upn") == 0) {
+	if (strncmp(p + 1, "upn", q - p - 1) == 0) {
 		values = cert_info(x509, CERT_UPN, ALGORITHM_NULL);
 	} else
-	if (strcmp(p + 1, "uid") == 0) {
+	if (strncmp(p + 1, "uid", q - p - 1) == 0) {
 		values = cert_info(x509, CERT_UID, ALGORITHM_NULL);
 	} else
-	if (strcmp(p + 1, "cert") == 0) {
+	if (strncmp(p + 1, "cert", q - p - 1) == 0) {
 		ldap_x509_as_binary(x509, &der, &der_len);
 		if (der == NULL) {
+			DBG("ldap_build_cert_filter(): error encoding "
+			    "certificate");
 			return NULL;
 		}
 		certs[0] = ldap_encode_escapes(der, der_len);
 		free(der);
 		if (certs[0] == NULL) {
+			DBG("ldap_build_cert_filter(): error escaping "
+			    "certificate");
 			return NULL;
 		}
 		values = certs;
 	} else {
-		DBG1("ldap_build_cert_filter(): unrecognized certificate "
-		     "attribute '%s'", p + 1);
+		DBG2("ldap_build_cert_filter(): unrecognized certificate "
+		     "attribute '%.*s'", q - p - 1, p + 1);
 		return NULL;
 	}
 	if (values == NULL) {
-		DBG1("ldap_build_cert_filter(): no values for certificate "
-		     "attribute '%s'", p + 1);
+		DBG2("ldap_build_cert_filter(): no values for certificate "
+		     "attribute '%.*s'", q - p - 1, p + 1);
 		return NULL;
 	}
-	DBG3("ldap_build_cert_filter(): building filter '%.*s'='%s'",
-	     p - map, map, p + 1);
+	DBG4("ldap_build_cert_filter(): building subfilter '%.*s'='%.*s'",
+	     p - map, map, q - p - 1, p + 1);
 	for (n = 0, buf_len = 0; values[n] != NULL; n++) {
 		buf_len++;
 		buf_len += (p - map);
@@ -770,6 +773,61 @@ ldap_build_cert_filter(const char *map, X509 *x509)
 	}
 	buf[i] = '\0';
 	free(certs[0]);
+	return buf;
+}
+
+/* Build a filter for matching the passed-in certificate using the mapping
+ * information, or against the configured attribute. */
+static char *
+ldap_build_cert_filter(const char *map, X509 *x509)
+{
+	char *buf = NULL, *tmp, *sub;
+	const char *p;
+	size_t length, n;
+
+	if (map == NULL) {
+		DBG("ldap_build_cert_filter(): building default filter");
+		return ldap_build_default_cert_filter(x509);
+	}
+	DBG1("ldap_build_cert_filter(): building filter '%s'", map);
+	p = map;
+	n = 0;
+	while (*p != '\0') {
+		sub = ldap_build_partial_cert_filter(p, x509);
+		if (sub == NULL) {
+			free(buf);
+			return NULL;
+		}
+		if (buf != NULL) {
+			length = strlen(buf) + strlen(sub) + 1;
+			tmp = malloc(length);
+			if (tmp == NULL) {
+				free(buf);
+				free(sub);
+				return NULL;
+			}
+			snprintf(tmp, length, "%s%s", buf, sub);
+			free(buf);
+			free(sub);
+			buf = tmp;
+		} else {
+			buf = sub;
+		}
+		n++;
+		p += strcspn(p, "&");
+		p += strspn(p, "&");
+	}
+	if (n > 1) {
+		length = strlen(buf) + 4;
+		tmp = malloc(length);
+		if (tmp == NULL) {
+			free(buf);
+			return NULL;
+		}
+		snprintf(tmp, length, "(&%s)", buf);
+		free(buf);
+		buf = tmp;
+	}
 	return buf;
 }
 
