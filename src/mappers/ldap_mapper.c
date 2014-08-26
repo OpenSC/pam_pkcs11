@@ -583,7 +583,15 @@ static int ldap_add_uri (char **uris, const char *a_uri, char **buffer, size_t *
   	return 0;
 }
 
+/* Build a filter suitable for locating the entry for the named user. */
+static char *
+ldap_build_filter(const char *filter, const char *login)
+{
+	char buf[100];
 
+	snprintf(buf, sizeof(buf), filter, login);
+	return strdup(buf);
+}
 
 /**
 * Get certificate from LDAP-Server.
@@ -596,7 +604,7 @@ static int ldap_get_certificate(const char *login) {
 	struct berval **bvals = NULL;
 	BerElement *ber = NULL;
 	char *name = NULL;
-	char filter_str[100];
+	char *filter_str;
 	char *attrs[2];
 	int rv = LDAP_SUCCESS;
 	void *bv_val;
@@ -618,7 +626,11 @@ static int ldap_get_certificate(const char *login) {
 	DBG1("ldap_get_certificate(): begin login = %s", login);
 
 	/* Put the login to the %s in Filterstring */
-	snprintf(filter_str, sizeof(filter_str), filter, login);
+	filter_str = ldap_build_filter(filter, login);
+	if (filter_str == NULL) {
+		DBG("ldap_get_certificate(): error building filter_str");
+		return(-8);
+	}
 
 	DBG1("ldap_get_certificate(): filter_str = %s", filter_str);
 
@@ -671,6 +683,7 @@ static int ldap_get_certificate(const char *login) {
   	if (uris[0] == NULL)
     {
 		DBG("ldap_get_certificate(): Nor URI or usable Host entry found");
+		free(filter_str);
 		return(-1);
     }
 
@@ -694,6 +707,7 @@ static int ldap_get_certificate(const char *login) {
 	if( rv != LDAP_SUCCESS )
 	{
 		DBG("ldap_get_certificate(): do_open failed");
+		free(filter_str);
 		return(-2);
 	}
 
@@ -712,6 +726,7 @@ static int ldap_get_certificate(const char *login) {
 				attrs,
 				0,
 				&res);
+	free(filter_str);
 	if ( rv != LDAP_SUCCESS ) {
 		DBG1("ldap_search_s() failed: %s", ldap_err2string(rv));
 		ldap_unbind_s(ldap_connection);
