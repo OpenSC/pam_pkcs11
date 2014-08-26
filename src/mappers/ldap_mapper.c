@@ -103,6 +103,7 @@ static const char *passwd="";
 static const char *base="ou=People,o=example,c=com";
 static const char *attribute="userCertificate";
 static const char *uid_attribute;
+static const scconf_list *attribute_map;
 static const char *filter="(&(objectClass=posixAccount)(uid=%s)";
 static int searchtimeout=20;
 static int ignorecase=0;
@@ -643,9 +644,10 @@ ldap_encode_escapes(const unsigned char *binary, size_t length)
 	return ret;
 }
 
-/* Build a subfilter for matching the passed-in certificate. */
+/* Build a subfilter for matching the passed-in certificate against the
+ * configured attribute. */
 static char *
-ldap_build_cert_filter(X509 *x509)
+ldap_build_default_cert_filter(X509 *x509)
 {
 	char *buf, *cert;
 	unsigned char *der;
@@ -674,9 +676,107 @@ ldap_build_cert_filter(X509 *x509)
 	return buf;
 }
 
+/* Build a subfilter for matching the passed-in certificate using the mapping
+ * information, or against the configured attribute. */
+static char *
+ldap_build_cert_filter(const char *map, X509 *x509)
+{
+	char *buf, *certs[2] = {NULL, NULL}, **values = NULL;
+	unsigned char *der;
+	const char *p, *q;
+	size_t buf_len, der_len, len, n;
+	int i;
+
+	if (map == NULL) {
+		DBG("ldap_build_cert_filter(): building default filter");
+		return ldap_build_default_cert_filter(x509);
+	}
+	p = strchr(map, '=');
+	if (p == NULL) {
+		return NULL;
+	}
+	if (strcmp(p + 1, "cn") == 0) {
+		values = cert_info(x509, CERT_CN, ALGORITHM_NULL);
+	} else
+	if (strcmp(p + 1, "subject") == 0) {
+		values = cert_info(x509, CERT_SUBJECT, ALGORITHM_NULL);
+	} else
+	if (strcmp(p + 1, "kpn") == 0) {
+		values = cert_info(x509, CERT_KPN, ALGORITHM_NULL);
+	} else
+	if (strcmp(p + 1, "email") == 0) {
+		values = cert_info(x509, CERT_EMAIL, ALGORITHM_NULL);
+	} else
+	if (strcmp(p + 1, "upn") == 0) {
+		values = cert_info(x509, CERT_UPN, ALGORITHM_NULL);
+	} else
+	if (strcmp(p + 1, "uid") == 0) {
+		values = cert_info(x509, CERT_UID, ALGORITHM_NULL);
+	} else
+	if (strcmp(p + 1, "cert") == 0) {
+		ldap_x509_as_binary(x509, &der, &der_len);
+		if (der == NULL) {
+			return NULL;
+		}
+		certs[0] = ldap_encode_escapes(der, der_len);
+		free(der);
+		if (certs[0] == NULL) {
+			return NULL;
+		}
+		values = certs;
+	} else {
+		DBG1("ldap_build_cert_filter(): unrecognized certificate "
+		     "attribute '%s'", p + 1);
+		return NULL;
+	}
+	if (values == NULL) {
+		DBG1("ldap_build_cert_filter(): no values for certificate "
+		     "attribute '%s'", p + 1);
+		return NULL;
+	}
+	DBG3("ldap_build_cert_filter(): building filter '%.*s'='%s'",
+	     p - map, map, p + 1);
+	for (n = 0, buf_len = 0; values[n] != NULL; n++) {
+		buf_len++;
+		buf_len += (p - map);
+		buf_len++;
+		buf_len += strlen(values[n]);
+		buf_len++;
+	}
+	buf_len += (n > 1) ? 4 : 1;
+	buf = malloc(buf_len);
+	if (buf == NULL) {
+		DBG("ldap_build_cert_filter(): out of memory");
+		free(certs[0]);
+		return NULL;
+	}
+	i = 0;
+	if (n > 1) {
+		strcpy(buf, "(|");
+		i += 2;
+	}
+	for (n = 0; values[n] != NULL; n++) {
+		buf[i++] = '(';
+		memcpy(buf + i, map, p - map);
+		i += (p - map);
+		buf[i++] = '=';
+		len = strlen(values[n]);
+		memcpy(buf + i, values[n], len);
+		i += len;
+		buf[i++] = ')';
+	}
+	if (n > 1) {
+		buf[i++] = ')';
+	}
+	buf[i] = '\0';
+	free(certs[0]);
+	return buf;
+}
+
 /* Build a filter suitable for locating the entry for the named user. */
 static char *
-ldap_build_filter(const char *filter, const char *login, X509 *x509)
+ldap_build_filter(const char *filter, const char *login, const char *map,
+		  X509 *x509)
 {
 	char *buf, *user_filter, *escaped, *cert_filter;
 	unsigned char *der;
@@ -707,7 +807,7 @@ ldap_build_filter(const char *filter, const char *login, X509 *x509)
 	free(escaped);
 
 	/* Build the part of the filter that's specific to the certificate. */
-	cert_filter = ldap_build_cert_filter(x509);
+	cert_filter = ldap_build_cert_filter(map, x509);
 	if (cert_filter == NULL) {
 		DBG("ldap_build_filter(): error building certificate filter");
 		free(user_filter);
@@ -754,6 +854,7 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 	char *uris[LDAP_CONFIG_URI_MAX + 1];
 	const char *p;
 	int current_uri = 0, start_uri = 0;
+	const scconf_list *mapping;
 
 	char *buffer;
 	size_t buflen;
@@ -772,15 +873,6 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 	} else {
 		DBG("ldap_get_certificate(): begin login unknown");
 	}
-
-	/* Put the login to the %s in Filterstring */
-	filter_str = ldap_build_filter(filter, login, x509);
-	if (filter_str == NULL) {
-		DBG("ldap_get_certificate(): error building filter_str");
-		return(-8);
-	}
-
-	DBG1("ldap_get_certificate(): filter_str = %s", filter_str);
 
 	/* parse and split URI config entry */
 	buffer = uribuf;
@@ -831,7 +923,6 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
   	if (uris[0] == NULL)
     {
 		DBG("ldap_get_certificate(): Nor URI or usable Host entry found");
-		free(filter_str);
 		return(-1);
     }
 
@@ -855,7 +946,6 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 	if( rv != LDAP_SUCCESS )
 	{
 		DBG("ldap_get_certificate(): do_open failed");
-		free(filter_str);
 		return(-2);
 	}
 
@@ -866,15 +956,52 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
     	     server again. Perhaps create a state file/smem/etc. ?
     */
 
-	rv = ldap_search_s(
-				ldap_connection,
-				base,
-				sscope[scope],
-				filter_str,
-				attrs,
-				0,
-				&res);
-	free(filter_str);
+	/* Search for matching entries. */
+	for (mapping = attribute_map;; mapping = mapping->next) {
+		/* Walk the list of mappings, and if we're out of those, let
+		 * the ldap_build_filter() function just build one that uses
+		 * the certificate. */
+		if (mapping != NULL) {
+			DBG1("ldap_get_certificate(): building filter_str "
+			     "from template '%s'", mapping->data);
+		} else {
+			DBG("ldap_get_certificate(): building default "
+			    "filter_str");
+		}
+		filter_str = ldap_build_filter(filter, login,
+					       mapping ? mapping->data : NULL,
+					       x509);
+		if (filter_str == NULL) {
+			DBG("ldap_get_certificate(): error building filter_str");
+			continue;
+		}
+		DBG1("ldap_get_certificate(): searching with filter_str = %s",
+		     filter_str);
+		rv = ldap_search_s(ldap_connection,
+				   base,
+				   sscope[scope],
+				   filter_str,
+				   attrs,
+				   0,
+				   &res);
+		free(filter_str);
+		/* The first successful search means we're done. */
+		if ((rv == LDAP_SUCCESS) &&
+		    (ldap_count_entries(ldap_connection, res) > 0)) {
+			DBG("ldap_get_certificate(): found an entry");
+			break;
+		}
+		DBG("ldap_get_certificate(): no matching entries");
+		/* If this was the fallback (cert-only) search, we're done. */
+		if (mapping == NULL) {
+			break;
+		}
+	}
+	if (filter_str == NULL) {
+		DBG("ldap_get_certificate(): unable to build any filter_str");
+		return(-8);
+	}
+
 	if ( rv != LDAP_SUCCESS ) {
 		DBG1("ldap_search_s() failed: %s", ldap_err2string(rv));
 		ldap_unbind_s(ldap_connection);
@@ -943,6 +1070,7 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 static int read_config(scconf_block *blk) {
 	int debug = scconf_get_bool(blk,"debug",0);
 	const char *ssltls;
+	const scconf_list *map;
 
 	ldaphost = scconf_get_str(blk,"ldaphost",ldaphost);
 	ldapport = scconf_get_int(blk,"ldapport",ldapport);
@@ -953,6 +1081,7 @@ static int read_config(scconf_block *blk) {
 	base = scconf_get_str(blk,"base",base);
 	attribute = scconf_get_str(blk,"attribute",attribute);
 	uid_attribute = scconf_get_str(blk,"uid_attribute",uid_attribute);
+	attribute_map = scconf_find_list(blk,"attribute_map");
 	filter = scconf_get_str(blk,"filter",filter);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	searchtimeout = scconf_get_int(blk,"searchtimeout",searchtimeout);
@@ -992,6 +1121,9 @@ DBG1("test ssltls = %s", ssltls);
 	DBG1("base          = %s", base);
 	DBG1("attribute     = %s", attribute);
 	DBG1("uid_attribute = %s", uid_attribute);
+	for (map = attribute_map; map != NULL; map = map->next) {
+		DBG1("attribute_map = %s", attribute_map->data);
+	}
 	DBG1("filter        = %s", filter);
 	DBG1("searchtimeout = %d", searchtimeout);
 	DBG1("ssl_on        = %d", ssl_on);

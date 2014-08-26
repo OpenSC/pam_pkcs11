@@ -29,6 +29,8 @@ pam_pkcs11.conf:
         filter = "(&(objectClass=posixAccount)(uid=%s))"
         # Attribute of user entry which contains the user's login name (optional)
         uid_attribute = "uid";
+        # List of sets of ldap attribute / cert attribute pairs (optional)
+        attribute_map = "mail=email", "krbprincipalname=upn", "userCertificate;binary=cert";
   }
 (...)
 
