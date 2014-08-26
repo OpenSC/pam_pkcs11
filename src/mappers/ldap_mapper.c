@@ -584,19 +584,154 @@ static int ldap_add_uri (char **uris, const char *a_uri, char **buffer, size_t *
 }
 
 /* Build a filter suitable for locating the entry for the named user. */
-static char *
-ldap_build_filter(const char *filter, const char *login)
+static void
+ldap_x509_as_binary(X509 *x509, unsigned char **der, size_t *der_len)
 {
-	char buf[100];
+#ifdef HAVE_NSS
+	*der_len = 0;
+	*der = malloc(x509->derCert.len);
+	if (*der != NULL) {
+		*der_len = x509->derCert.len;
+		memcpy(*der, x509->derCert.data, *der_len);
+	}
+#else
+	unsigned char *p = NULL, *q;
+	int len;
 
-	snprintf(buf, sizeof(buf), filter, login);
-	return strdup(buf);
+	*der_len = 0;
+	*der = NULL;
+	len = i2d_X509(x509, NULL);
+	if (len > 0) {
+		p = malloc(len);
+		if (p != NULL) {
+			q = p;
+			if (i2d_X509(x509, &p) == len) {
+				*der = q;
+				*der_len = p - q;
+			}
+		}
+	}
+#endif
+}
+
+/* Encode anything that isn't printable in the binary string as a hex escape,
+ * and return the result as a NUL-terminated string. */
+static char *
+ldap_encode_escapes(const unsigned char *binary, size_t length)
+{
+	char *ret;
+	unsigned int i, j;
+
+	ret = malloc(length * 3 + 1);
+	if (ret == NULL) {
+		DBG("ldap_encode_escapes(): out of memory");
+		return NULL;
+	}
+	for (i = 0, j = 0; i < length; i++) {
+		if (((binary[i] >= '0') && (binary[i] <= '9')) ||
+		    ((binary[i] >= 'a') && (binary[i] <= 'z')) ||
+		    ((binary[i] >= 'A') && (binary[i] <= 'Z'))) {
+			ret[j++] = binary[i];
+		} else {
+			ret[j++] = '\\';
+			ret[j++] = "0123456789abcdef"[(binary[i] >> 4) & 0x0f];
+			ret[j++] = "0123456789abcdef"[binary[i] & 0x0f];
+		}
+	}
+	ret[j] = '\0';
+	return ret;
+}
+
+/* Build a subfilter for matching the passed-in certificate. */
+static char *
+ldap_build_cert_filter(X509 *x509)
+{
+	char *buf, *cert;
+	unsigned char *der;
+	size_t buf_len, der_len;
+
+	ldap_x509_as_binary(x509, &der, &der_len);
+	if (der == NULL) {
+		DBG("ldap_build_cert_filter(): failed to encode certificate");
+		return NULL;
+	}
+	cert = ldap_encode_escapes(der, der_len);
+	free(der);
+	if (cert == NULL) {
+		DBG("ldap_build_cert_filter(): failed to escape certificate");
+		return NULL;
+	}
+	buf_len = 1 + strlen(attribute) + 1 + strlen(cert) + 2;
+	buf = malloc(buf_len);
+	if (buf == NULL) {
+		DBG("ldap_build_cert_filter(): out of memory");
+		free(cert);
+		return NULL;
+	}
+	snprintf(buf, buf_len, "(%s=%s)", attribute, cert);
+	free(cert);
+	return buf;
+}
+
+/* Build a filter suitable for locating the entry for the named user. */
+static char *
+ldap_build_filter(const char *filter, const char *login, X509 *x509)
+{
+	char *buf, *user_filter, *escaped, *cert_filter;
+	unsigned char *der;
+	size_t buf_len, user_filter_len, der_len;
+	unsigned int i;
+
+	escaped = ldap_encode_escapes(login, strlen(login));
+	if (escaped == NULL) {
+		DBG1("ldap_build_filter(): error escaping user name '%s'",
+		     login);
+		return NULL;
+	}
+
+	/* Build a user filter using the supplied filter and user name. */
+	user_filter_len = strlen(filter) + strlen(escaped) + 1;
+	user_filter = malloc(user_filter_len);
+	if (user_filter == NULL) {
+		DBG("ldap_build_filter(): out of memory for user filter");
+		free(escaped);
+		return NULL;
+	}
+	snprintf(user_filter, user_filter_len, filter, escaped);
+	free(escaped);
+
+	/* Build the part of the filter that's specific to the certificate. */
+	cert_filter = ldap_build_cert_filter(x509);
+	if (cert_filter == NULL) {
+		DBG("ldap_build_filter(): error building certificate filter");
+		free(user_filter);
+		return NULL;
+	}
+
+	/* Build a filter combining the user filter and the certificate. */
+	buf_len = 3 + strlen(user_filter) + 2 + 2 + strlen(cert_filter) + 2;
+	buf = malloc(buf_len);
+	if (buf != NULL) {
+		if (filter[0] == '(') {
+			snprintf(buf, buf_len, "(&%s%s)", user_filter,
+				 cert_filter);
+		} else {
+			snprintf(buf, buf_len, "(&(%s)%s)", user_filter,
+				 cert_filter);
+		}
+	} else {
+		DBG("ldap_build_filter(): out of memory");
+	}
+
+	free(user_filter);
+	free(cert_filter);
+	return buf;
 }
 
 /**
 * Get certificate from LDAP-Server.
 */
-static int ldap_get_certificate(const char *login) {
+static int ldap_get_certificate(const char *login, X509 *x509) {
 	LDAP *ldap_connection;
 	int entries;
 	LDAPMessage *res;
@@ -626,7 +761,7 @@ static int ldap_get_certificate(const char *login) {
 	DBG1("ldap_get_certificate(): begin login = %s", login);
 
 	/* Put the login to the %s in Filterstring */
-	filter_str = ldap_build_filter(filter, login);
+	filter_str = ldap_build_filter(filter, login, x509);
 	if (filter_str == NULL) {
 		DBG("ldap_get_certificate(): error building filter_str");
 		return(-8);
@@ -903,24 +1038,13 @@ static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) 
 	int match_found = 0;
 	int i=0;
 
-	if ( 1 != ldap_get_certificate(login)){
+	if ( 1 != ldap_get_certificate(login, x509)){
 		DBG("ldap_get_certificate() failed");
 		match_found = 0;
 	} else {
 		/* TODO: maybe compare public keys instead of hashes */
-		while( i<certcnt && !match_found ) {
-#ifdef HAVE_NSS
-			if ( x509 == ldap_x509[i]) {
-#else
-			if ( 0 == X509_cmp(x509, ldap_x509[i])) {
-#endif
-				DBG1("Certificate %d is matching", i);
-				match_found = 1;
-			} else {
-				DBG1("Certificate %d is NOT matching", i);
-			}
-			i++;
-		}
+		DBG1("Found matching entry for user: '%s'", login);
+		match_found = 1;
 		if (certcnt)
 		{
 #ifdef HAVE_NSS
