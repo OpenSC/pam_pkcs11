@@ -1207,7 +1207,6 @@ static char ** ldap_mapper_find_entries(X509 *x509, void *context) {
 
 static int ldap_mapper_match_user(X509 *x509, const char *login, void *context) {
 	int match_found = 0;
-	int i=0;
 
 	if ( 1 != ldap_get_certificate(login, x509)){
 		DBG("ldap_get_certificate() failed");
