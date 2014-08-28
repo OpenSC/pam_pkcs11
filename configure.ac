@@ -1,10 +1,10 @@
 # $Id$
 
 # Require autoconf 2.52
-AC_PREREQ(2.52)
+AC_PREREQ([2.69])
 
 # Process this file with autoconf to produce a configure script.
-AC_INIT(pam_pkcs11, [0.6.8])
+AC_INIT([pam_pkcs11],[0.6.8])
 AC_CONFIG_SRCDIR([src/pam_pkcs11/pam_pkcs11.c])
 AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE
@@ -24,7 +24,7 @@ ALL_LINGUAS="de fr it nl pl pt_br ru tr"
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-AM_PROG_LIBTOOL
+LT_INIT
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AM_PROG_LEX
@@ -39,7 +39,7 @@ CC="$PTHREAD_CC"
 
 # Argument for debuging
 AC_ARG_ENABLE(debug, 
-  AC_HELP_STRING([--enable-debug], [add debugging code (default=yes)]))
+  AS_HELP_STRING([--enable-debug],[add debugging code (default=yes)]))
 if test "$enable_debug" = "no" -o "$enable_debug" = "false"
 then
   AC_MSG_WARN([Debugging support is completely disabled!])
@@ -57,7 +57,7 @@ AC_CHECK_LIB(dl, dlopen,
 
 # Add argument for using curl
 AC_ARG_WITH(curl,
-  AC_HELP_STRING([--with-curl], [use curl (default=no)]))
+  AS_HELP_STRING([--with-curl],[use curl (default=no)]))
 if test "$with_curl" = "yes" -o "$with_curl" = "true"
 then
   AC_CHECK_LIB(curl, curl_easy_init, 
@@ -77,8 +77,7 @@ AM_CONDITIONAL(HAVE_CURL, test x$with_curl = xyes)
 
 # Add argument for defining configuration directory
 AC_ARG_WITH(confdir,
-AC_HELP_STRING([--with-confdir=DIR],
-	[directory containing pam_pkcs11.conf (default /etc/pam_pkcs11)]),
+AS_HELP_STRING([--with-confdir=DIR],[directory containing pam_pkcs11.conf (default /etc/pam_pkcs11)]),
 	[confdir="${with_confdir}"], [confdir=false])
 if test x${confdir} = xfalse ; then
 	confdir="/etc/pam_pkcs11"
@@ -88,7 +87,7 @@ AC_SUBST(confdir)
 
 # Add argument for using ldap
 AC_ARG_WITH(ldap,
-  AC_HELP_STRING([--with-ldap], [use ldap (default=yes)]))
+  AS_HELP_STRING([--with-ldap],[use ldap (default=yes)]))
 if test "$with_ldap" = "no" -o "$with_ldap" = "false"
 then
   with_ldap=no
@@ -113,7 +112,7 @@ AM_CONDITIONAL(HAVE_LDAP, test x$with_ldap = xyes)
 
 # Add argument for using libp11
 #AC_ARG_WITH(libp11,
-#  AC_HELP_STRING([--with-libp11], [use libp11 (default=yes)]))
+#  AS_HELP_STRING([--with-libp11],[use libp11 (default=yes)]))
 #if test "$with_libp11" = "no" -o "$with_libp11" = "false"
 #then
 #  with_libp11=no
@@ -135,7 +134,7 @@ PKG_PROG_PKG_CONFIG
 
 # Check and set crypto paths
 AC_ARG_WITH(nss,
-  AC_HELP_STRING([--with-nss], [use NSS instead of openSSL and raw PKCS 11 (default=no)]))
+  AS_HELP_STRING([--with-nss],[use NSS instead of openSSL and raw PKCS 11 (default=no)]))
 if test "$with_nss" = "yes" -o "$with_nss" = "true"
 then
   PKG_CHECK_MODULES(NSS, nss, [with_nss=yes],
@@ -169,7 +168,7 @@ AC_SUBST(CRYPTO_LIBS)
 
 # Check for PCSC-Lite
 AC_ARG_WITH(pcsclite,
-  AC_HELP_STRING([--without-pcsclite], [Do not use pcsc-lite (default=yes)]),
+  AS_HELP_STRING([--without-pcsclite],[Do not use pcsc-lite (default=yes)]),
   [], [ with_pcsclite=yes ])
 
 if test "$with_pcsclite" != "no"; then
@@ -203,7 +202,7 @@ AM_CONDITIONAL(HAVE_PCSC, test "x$with_pcsclite" = "xyes")
 
 # Check for SGML processor
 AC_ARG_WITH(docbook,
-  AC_HELP_STRING([--without-docbook], [do not generate html manual (needs docbook)]),
+  AS_HELP_STRING([--without-docbook],[do not generate html manual (needs docbook)]),
         with_docbook=$withval)
 if test "$with_docbook" = "no" -o "$with_docbook" = "false"
 then
