@@ -729,16 +729,16 @@ ldap_build_partial_cert_filter(const char *map, X509 *x509)
 		values = certs;
 	} else {
 		DBG2("ldap_build_cert_filter(): unrecognized certificate "
-		     "attribute '%.*s'", q - p - 1, p + 1);
+		     "attribute '%.*s'", (int)(q - p - 1), p + 1);
 		return NULL;
 	}
 	if (values == NULL) {
 		DBG2("ldap_build_cert_filter(): no values for certificate "
-		     "attribute '%.*s'", q - p - 1, p + 1);
+		     "attribute '%.*s'", (int)(q - p - 1), p + 1);
 		return NULL;
 	}
 	DBG4("ldap_build_cert_filter(): building subfilter '%.*s'='%.*s'",
-	     p - map, map, q - p - 1, p + 1);
+	     (int)(p - map), map, (int)(q - p - 1), p + 1);
 	for (n = 0, buf_len = 0; values[n] != NULL; n++) {
 		buf_len++;
 		buf_len += (p - map);
