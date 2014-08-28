@@ -899,11 +899,9 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 	LDAPMessage *res;
 	LDAPMessage *entry;
 	struct berval **bvals = NULL, *bv;
-	BerElement *ber = NULL;
 	char *filter_str;
 	char *attrs[3];
 	int rv = LDAP_SUCCESS;
-	void *bv_val;
 
 	char uri[4096];
 	char uribuf[4096];
