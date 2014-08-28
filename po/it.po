@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/pam_pkcs11/pam_pkcs11.c:202
-msgid "Smartcard authentification starts"
+msgid "Smartcard authentication starts"
 msgstr "Inizio autenticazione con smartcard"
 
 #: src/pam_pkcs11/pam_pkcs11.c:297 src/pam_pkcs11/pam_pkcs11.c:406
