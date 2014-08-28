@@ -35,7 +35,7 @@ AC_PROG_MAKE_SET
 AM_CONDITIONAL([AMDEP], [test "x$enable_dependency_tracking" != xno])
 
 # Special check for pthread support
-ACX_PTHREAD(, [ AC_MSG_ERROR([POSIX thread support required]) ])
+AX_PTHREAD(, [ AC_MSG_ERROR([POSIX thread support required]) ])
 CC="$PTHREAD_CC"
 
 # Argument for debuging
