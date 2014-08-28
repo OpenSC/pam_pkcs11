@@ -24,6 +24,7 @@ ALL_LINGUAS="de fr it nl pl pt_br ru tr"
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
+AM_PROG_AR
 LT_INIT
 AC_PROG_INSTALL
 AC_PROG_LN_S
