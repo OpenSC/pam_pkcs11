@@ -837,9 +837,7 @@ ldap_build_filter(const char *filter, const char *login, const char *map,
 		  X509 *x509)
 {
 	char *buf, *user_filter, *escaped, *cert_filter;
-	unsigned char *der;
-	size_t buf_len, user_filter_len, der_len;
-	unsigned int i;
+	size_t buf_len, user_filter_len;
 
 	/* If no user name is specified, this is a search across all users. */
 	if (login != NULL) {
