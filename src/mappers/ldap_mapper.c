@@ -1076,7 +1076,7 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 		 *  should be choosen, so that only one entry with
 		 * one attribute is returned */
 		if ( NULL == (entry = ldap_first_entry(ldap_connection, res))){
-			DBG("ldap_first_entry() failed: %s");
+			DBG("ldap_first_entry() failed");
 			ldap_unbind_s(ldap_connection);
 			return(-4);
 		}
