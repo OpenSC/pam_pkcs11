@@ -17,7 +17,7 @@ msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:202
 #, fuzzy
-msgid "Smartcard authentication starts"
+msgid "SmartCard authentication starts"
 msgstr "Rozpoczęcie uwierzytelniania kartą procesorową"
 
 #: src/pam_pkcs11/pam_pkcs11.c:297 src/pam_pkcs11/pam_pkcs11.c:406
@@ -39,19 +39,19 @@ msgstr "Błąd 2306: Brak odpowiedniego tokenu"
 
 #: src/pam_pkcs11/pam_pkcs11.c:374
 #, c-format
-msgid "Please insert your smart card called \"%.32s\"."
+msgid "Please insert your SmartCard called \"%.32s\"."
 msgstr "Proszę włożyć własną kartę procesorową o nazwie \"%.32s\"."
 
 #: src/pam_pkcs11/pam_pkcs11.c:378
-msgid "Please insert your smart card."
+msgid "Please insert your SmartCard."
 msgstr "Proszę włożyć własną kartę procesorową."
 
 #: src/pam_pkcs11/pam_pkcs11.c:395
-msgid "Error 2308: No smartcard found"
+msgid "Error 2308: No SmartCard found"
 msgstr "Błąd 2308: Nie znaleziono karty procesorowej"
 
 #: src/pam_pkcs11/pam_pkcs11.c:422
-msgid "Error 2310: No smartcard found"
+msgid "Error 2310: No SmartCard found"
 msgstr "Błąd 2310: Nie znaleziono karty procesorowej"
 
 #: src/pam_pkcs11/pam_pkcs11.c:432
@@ -82,7 +82,7 @@ msgid "Error 2316: password could not be read"
 msgstr "Błąd 2316: nie udało się odczytać hasła"
 
 #: src/pam_pkcs11/pam_pkcs11.c:498
-msgid "Error 2318: Empty smartcard PIN not allowed."
+msgid "Error 2318: Empty SmartCard PIN not allowed."
 msgstr "Błąd 2318: Pusty PIN karty procesorowej nie jest dozwolony."
 
 #: src/pam_pkcs11/pam_pkcs11.c:507
@@ -91,7 +91,7 @@ msgid "Enter your %s PIN on the pinpad"
 msgstr "Proszę wprowadzić PIN tokenu (%s) na klawiaturze czytnika"
 
 #: src/pam_pkcs11/pam_pkcs11.c:526
-msgid "Error 2320: Wrong smartcard PIN"
+msgid "Error 2320: Wrong SmartCard PIN"
 msgstr "Błąd 2320: Błędny PIN karty procesorowej"
 
 #: src/pam_pkcs11/pam_pkcs11.c:538
@@ -147,11 +147,11 @@ msgid "Error 2342: Verifying signature failed"
 msgstr "Błąd 2342: Sprawdzenie podpisu nie powiodło się"
 
 #: src/pam_pkcs11/pam_pkcs11.c:859
-msgid "Cannot change the password on your smart card."
+msgid "Cannot change the password on your SmartCard."
 msgstr "Nie można zmienić hasła na tej karcie procesorowej."
 
 #: src/pam_pkcs11/pam_config.c:65
-msgid "Smart card"
+msgid "SmartCard"
 msgstr "Karta procesorowa"
 
 #~ msgid "Error 2344: Closing PKCS#11 session failed"

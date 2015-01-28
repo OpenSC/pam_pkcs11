@@ -70,5 +70,8 @@ PKCS11_EXTERN int get_random_value(unsigned char *data, int length);
 
 #undef PKCS11_EXTERN
 
+//BE!!: Added for auto slot scan
+unsigned long int get_slot_count(pkcs11_handle_t *h);
+
 /* end of pkcs11_lib.h */
 #endif
