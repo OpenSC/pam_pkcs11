@@ -19,7 +19,7 @@ msgstr ""
 #: src/pam_pkcs11/pam_pkcs11.c:202
 #, fuzzy
 msgid "SmartCard authentication starts"
-msgstr "SmartCardauthentifizierung startet"
+msgstr "SmartCard Authentifizierung startet"
 
 #: src/pam_pkcs11/pam_pkcs11.c:297 src/pam_pkcs11/pam_pkcs11.c:406
 #, c-format
@@ -48,8 +48,8 @@ msgid "Please insert your SmartCard."
 msgstr "Bitte stecken Sie Ihre SmartCard ein."
 
 #: src/pam_pkcs11/pam_pkcs11.c:390
-msgid "Error 2306a: No suitable slot can be found! Please configure a SmartCard slot."
-msgstr "Fehler 2306a: Kein Slot für die SmartCard gefunden. Bitte konfigurieren Sie ein Slot-Nummer."
+msgid "Error 2307: No suitable SmartCard can be found."
+msgstr "Fehler 2307: Keine SmartCard gefunden."
 
 #: src/pam_pkcs11/pam_pkcs11.c:395
 msgid "Error 2308: No SmartCard found"

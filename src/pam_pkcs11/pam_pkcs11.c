@@ -384,11 +384,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
 		}
 		// pkcs11 breaks standard - nothing found!?
 		if (configuration->slot_num == -1) {
-			ERR("No suitable slot can be found! Please configure a SmartCard slot.");
+			ERR("No suitable SmartCard can be found.");
 			if (!configuration->quiet) {
 				pam_syslog(pamh, LOG_ERR, "no suitable token available");
 				pam_prompt(pamh, PAM_ERROR_MSG, NULL,
-						_("Error 2306a: No suitable slot can be found! Please configure a SmartCard slot."));
+						_("Error 2307: No suitable SmartCard can be found."));
 				sleep(configuration->err_display_time);
 			}
 			return PAM_AUTHINFO_UNAVAIL;
@@ -475,8 +475,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
 			}
 		}
 	} else {
-		pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("%s found."),
-				_(configuration->token_type));
+		if(!is_a_screen_saver && !configuration->quiet) {
+			pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("%s found."),
+					_(configuration->token_type));
+		}
 	}
 	rv = open_pkcs11_session(ph, slot_num);
 	if (rv != 0) {
@@ -506,7 +508,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc,
 		return pkcs11_pam_fail;
 	} else if (rv) {
 		/* get password */
-		if (!is_a_screen_saver)
+		if (!is_a_screen_saver && !configuration->quiet)
 			pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("Welcome %.32s!"),
 						get_slot_tokenlabel(ph));
 
