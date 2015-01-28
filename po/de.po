@@ -18,8 +18,8 @@ msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:202
 #, fuzzy
-msgid "Smartcard authentication starts"
-msgstr "Smartcardauthentifizierung startet"
+msgid "SmartCard authentication starts"
+msgstr "SmartCard Authentifizierung startet"
 
 #: src/pam_pkcs11/pam_pkcs11.c:297 src/pam_pkcs11/pam_pkcs11.c:406
 #, c-format
@@ -36,24 +36,28 @@ msgstr "Fehler 2304: PKCS11-Modul konnte nicht initialisiert werden."
 
 #: src/pam_pkcs11/pam_pkcs11.c:360
 msgid "Error 2306: No suitable token available"
-msgstr "Fehler 2306: Es wurde keine Smartcard gefunden."
+msgstr "Fehler 2306: Es wurde keine SmartCard gefunden."
 
 #: src/pam_pkcs11/pam_pkcs11.c:374
 #, c-format
-msgid "Please insert your smart card called \"%.32s\"."
-msgstr "Bitte stecken Sie Ihre Smart Card mit der Bezeichnung \"%.32s\" ein"
+msgid "Please insert your SmartCard called \"%.32s\"."
+msgstr "Bitte stecken Sie Ihre SmartCard mit der Bezeichnung \"%.32s\" ein"
 
 #: src/pam_pkcs11/pam_pkcs11.c:378
-msgid "Please insert your smart card."
-msgstr "Bitte stecken Sie Ihre Smart Card ein."
+msgid "Please insert your SmartCard."
+msgstr "Bitte stecken Sie Ihre SmartCard ein."
+
+#: src/pam_pkcs11/pam_pkcs11.c:390
+msgid "Error 2307: No suitable SmartCard can be found."
+msgstr "Fehler 2307: Keine SmartCard gefunden."
 
 #: src/pam_pkcs11/pam_pkcs11.c:395
-msgid "Error 2308: No smartcard found"
-msgstr "Fehler 2308: Es wurde keine Smartcard gefunden."
+msgid "Error 2308: No SmartCard found"
+msgstr "Fehler 2308: Es wurde keine SmartCard gefunden."
 
 #: src/pam_pkcs11/pam_pkcs11.c:422
-msgid "Error 2310: No smartcard found"
-msgstr "Fehler 2310: Es wurde keine Smartcard gefunden."
+msgid "Error 2310: No SmartCard found"
+msgstr "Fehler 2310: Es wurde keine SmartCard gefunden."
 
 #: src/pam_pkcs11/pam_pkcs11.c:432
 #, c-format
@@ -83,8 +87,8 @@ msgid "Error 2316: password could not be read"
 msgstr "Fehler 2316: Passwort konnte nicht eingelesen werden."
 
 #: src/pam_pkcs11/pam_pkcs11.c:498
-msgid "Error 2318: Empty smartcard PIN not allowed."
-msgstr "Fehler 2318: Smartcard PIN darf nicht leer sein."
+msgid "Error 2318: Empty SmartCard PIN not allowed."
+msgstr "Fehler 2318: SmartCard PIN darf nicht leer sein."
 
 #: src/pam_pkcs11/pam_pkcs11.c:507
 #, c-format
@@ -92,8 +96,8 @@ msgid "Enter your %s PIN on the pinpad"
 msgstr "Bitte geben Sie Ihre %s PIN auf dem Pinpad ein"
 
 #: src/pam_pkcs11/pam_pkcs11.c:526
-msgid "Error 2320: Wrong smartcard PIN"
-msgstr "Fehler 2320: Die eingegebene Smartcard PIN ist falsch."
+msgid "Error 2320: Wrong SmartCard PIN"
+msgstr "Fehler 2320: Die eingegebene SmartCard PIN ist falsch."
 
 #: src/pam_pkcs11/pam_pkcs11.c:538
 msgid "Error 2322: No certificate found"
@@ -148,12 +152,12 @@ msgid "Error 2342: Verifying signature failed"
 msgstr "Fehler 2342: Verifizierung der Signatur fehlgeschlagen."
 
 #: src/pam_pkcs11/pam_pkcs11.c:859
-msgid "Cannot change the password on your smart card."
-msgstr "Das Kennwort Ihrer Smart Card kann nicht geändert werden."
+msgid "Cannot change the password on your SmartCard."
+msgstr "Das Kennwort Ihrer SmartCard kann nicht geändert werden."
 
 #: src/pam_pkcs11/pam_config.c:65
-msgid "Smart card"
-msgstr "Smart Card"
+msgid "SmartCard"
+msgstr "SmartCard"
 
 #~ msgid "Error 2344: Closing PKCS#11 session failed"
 #~ msgstr "Fehler 2344: PKCS11 Session konnte nicht geschlossen werden."

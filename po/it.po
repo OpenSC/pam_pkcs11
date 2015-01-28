@@ -17,8 +17,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/pam_pkcs11/pam_pkcs11.c:202
-msgid "Smartcard authentication starts"
-msgstr "Inizio autenticazione con smartcard"
+msgid "SmartCard authentication starts"
+msgstr "Inizio autenticazione con SmartCard"
 
 #: src/pam_pkcs11/pam_pkcs11.c:297 src/pam_pkcs11/pam_pkcs11.c:406
 #, c-format
@@ -39,20 +39,20 @@ msgstr "Errore 2306: nesun token disponibile"
 
 #: src/pam_pkcs11/pam_pkcs11.c:374
 #, c-format
-msgid "Please insert your smart card called \"%.32s\"."
-msgstr "Inserire la smartcard con nome \"%.32s\"."
+msgid "Please insert your SmartCard called \"%.32s\"."
+msgstr "Inserire la SmartCard con nome \"%.32s\"."
 
 #: src/pam_pkcs11/pam_pkcs11.c:378
-msgid "Please insert your smart card."
-msgstr "Inserire la smartcard."
+msgid "Please insert your SmartCard."
+msgstr "Inserire la SmartCard."
 
 #: src/pam_pkcs11/pam_pkcs11.c:395
-msgid "Error 2308: No smartcard found"
-msgstr "Errore 2308: nessuna smartcard trovata"
+msgid "Error 2308: No SmartCard found"
+msgstr "Errore 2308: nessuna SmartCard trovata"
 
 #: src/pam_pkcs11/pam_pkcs11.c:422
-msgid "Error 2310: No smartcard found"
-msgstr "Errore 2310: Nessuna smartcard trovata"
+msgid "Error 2310: No SmartCard found"
+msgstr "Errore 2310: Nessuna SmartCard trovata"
 
 #: src/pam_pkcs11/pam_pkcs11.c:432
 #, c-format
@@ -82,8 +82,8 @@ msgid "Error 2316: password could not be read"
 msgstr "Errore 2316: impossibile leggere la password"
 
 #: src/pam_pkcs11/pam_pkcs11.c:498
-msgid "Error 2318: Empty smartcard PIN not allowed."
-msgstr "Error 2318: PIN vuoto non consentito per la smartcard."
+msgid "Error 2318: Empty SmartCard PIN not allowed."
+msgstr "Error 2318: PIN vuoto non consentito per la SmartCard."
 
 #: src/pam_pkcs11/pam_pkcs11.c:507
 #, c-format
@@ -91,7 +91,7 @@ msgid "Enter your %s PIN on the pinpad"
 msgstr "Inserire il PIN %s sul tastierino"
 
 #: src/pam_pkcs11/pam_pkcs11.c:526
-msgid "Error 2320: Wrong smartcard PIN"
+msgid "Error 2320: Wrong SmartCard PIN"
 msgstr "Errore 2320: PIN errato"
 
 #: src/pam_pkcs11/pam_pkcs11.c:538
@@ -147,9 +147,9 @@ msgid "Error 2342: Verifying signature failed"
 msgstr "Errore 2342: verifica firma fallita"
 
 #: src/pam_pkcs11/pam_pkcs11.c:859
-msgid "Cannot change the password on your smart card."
-msgstr "Impossibile modificare la password sulla smartcard."
+msgid "Cannot change the password on your SmartCard."
+msgstr "Impossibile modificare la password sulla SmartCard."
 
 #: src/pam_pkcs11/pam_config.c:65
-msgid "Smart card"
-msgstr "Smartcard"
+msgid "SmartCard"
+msgstr "SmartCard"

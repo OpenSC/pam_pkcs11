@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/pam_pkcs11/pam_pkcs11.c:202
-msgid "Smartcard authentication starts"
+msgid "SmartCard authentication starts"
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:297 src/pam_pkcs11/pam_pkcs11.c:406
@@ -38,19 +38,19 @@ msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:374
 #, c-format
-msgid "Please insert your smart card called \"%.32s\"."
+msgid "Please insert your SmartCard called \"%.32s\"."
 msgstr "Veuillez insérer la carte à puce appelée \"%.32s\"."
 
 #: src/pam_pkcs11/pam_pkcs11.c:378
-msgid "Please insert your smart card."
+msgid "Please insert your SmartCard."
 msgstr "Veuillez insérer votre carte à puce."
 
 #: src/pam_pkcs11/pam_pkcs11.c:395
-msgid "Error 2308: No smartcard found"
+msgid "Error 2308: No SmartCard found"
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:422
-msgid "Error 2310: No smartcard found"
+msgid "Error 2310: No SmartCard found"
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:432
@@ -81,7 +81,7 @@ msgid "Error 2316: password could not be read"
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:498
-msgid "Error 2318: Empty smartcard PIN not allowed."
+msgid "Error 2318: Empty SmartCard PIN not allowed."
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:507
@@ -90,7 +90,7 @@ msgid "Enter your %s PIN on the pinpad"
 msgstr "Entrez le PIN %s sur le pinpad"
 
 #: src/pam_pkcs11/pam_pkcs11.c:526
-msgid "Error 2320: Wrong smartcard PIN"
+msgid "Error 2320: Wrong SmartCard PIN"
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:538
@@ -146,15 +146,15 @@ msgid "Error 2342: Verifying signature failed"
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:859
-msgid "Cannot change the password on your smart card."
+msgid "Cannot change the password on your SmartCard."
 msgstr "Ne peut pas changer le mot de passe de la carte à puce."
 
 #: src/pam_pkcs11/pam_config.c:65
-msgid "Smart card"
+msgid "SmartCard"
 msgstr "Carte à puce"
 
 #~ msgid "Found the %s."
 #~ msgstr "%s trouvé(e)."
 
-#~ msgid "Smart card password: "
+#~ msgid "SmartCard password: "
 #~ msgstr "Mot de passe de la carte à puce : "

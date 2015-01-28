@@ -23,6 +23,21 @@ pam_pkcs11 {
   # previously set (intended for stacking password modules only).
   use_authtok = false;
 
+  # we using a graphical desktop!
+  quiet = true;
+  
+  # card_only means:
+  # 1) always get the userid from the certificate.
+  # 2) don't prompt for the user name if the card is present.
+  # 3) if the token is present, then we must use the cardAuth mechanism.
+  card_only = true;
+  
+  # also set wait for card if card_only == true
+  wait_for_card = true;
+
+  # Which screen save we are using
+  screen_savers = xscreensaver;
+
   # Filename of the PKCS #11 module. The default value is "default"
   use_pkcs11_module = opensc;
 
@@ -37,6 +52,8 @@ pam_pkcs11 {
     # only be used with those PKCS#11 implementations that guarantee
     # constant slot numbering.
     #
+    # If nothing defined, the module scans for the SmartCard - bestpractice
+    #
     #  slot_description = "xxxx"
     #      The slot is specified by the slot description, for example, 
     #      slot_description = "Sun Crypto Softtoken".  The default value is
@@ -47,7 +64,7 @@ pam_pkcs11 {
     #      The default value is zero which means to use the first slot with an
     #      available token.
     #
-    slot_description = "none";
+    # slot_description = "none";
 
     # Where are CA certificates stored?
     # You can setup this value to:
@@ -93,7 +110,9 @@ pam_pkcs11 {
   pkcs11_module etoken {
     module = /usr/local/lib/libetpkcs11.so
     description = "Aladdin eTokenPRO-32";
-    slot_num = 0;
+    # If no slot or value -1 defined, the module scans 
+    # for the SmartCard - bestpractice
+    slot_num = -1;
     support_threads = true;
     ca_dir = /etc/pam_pkcs11/cacerts;
     crl_dir = /etc/pam_pkcs11/crls;
@@ -110,7 +129,9 @@ pam_pkcs11 {
   pkcs11_module default {
     module = @libdir@/pam_pkcs11/pkcs11_module.so;
     description = "Default pkcs#11 module";
-    slot_num = 0;
+    # If no slot or value -1 defined, the module scans 
+    # for the SmartCard - bestpractice
+    slot_num = -1;
     support_threads = false;
     ca_dir = /etc/pam_pkcs11/cacerts;
     crl_dir = /etc/pam_pkcs11/crls;
