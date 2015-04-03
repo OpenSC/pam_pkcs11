@@ -564,19 +564,19 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 				case -2: // X509_V_ERR_CERT_HAS_EXPIRED:
 					pam_prompt(pamh, PAM_ERROR_MSG , NULL,
 						_("Error 2324: Certificate has expired"));
-					continue;
+					break;
 				case -3: // X509_V_ERR_CERT_NOT_YET_VALID:
 					pam_prompt(pamh, PAM_ERROR_MSG , NULL,
 						_("Error 2326: Certificate not yet valid"));
-					continue;
+					break;
 				case -4: // X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
 					pam_prompt(pamh, PAM_ERROR_MSG , NULL,
 						_("Error 2328: Certificate signature invalid"));
-					continue;
+					break;
 				default:
 					pam_prompt(pamh, PAM_ERROR_MSG , NULL,
 						_("Error 2330: Certificate invalid"));
-					continue;
+					break;
 			}
 			sleep(configuration->err_display_time);
 		}
