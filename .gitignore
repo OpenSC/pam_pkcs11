@@ -1,0 +1,50 @@
+# C-Outputs
+*.o
+*.lo
+*.la
+
+# gettext catalogs
+*.gmo
+po/POTFILES
+po/stamp-po
+
+# autoconf-related
+aclocal.m4
+aclocal/libtool.m4
+aclocal/ltoptions.m4
+aclocal/ltsugar.m4
+aclocal/ltversion.m4
+aclocal/lt~obsolete.m4
+ar-lib
+autom4te.cache/
+compile
+config.guess
+config.h*
+config.log
+config.status
+config.sub
+configure
+depcomp
+install-sh
+libtool
+ltmain.sh
+missing
+stamp-h1
+
+**/.deps
+**/.libs
+
+**/Makefile
+**/Makefile.in
+
+# output
+doc/doxygen.conf
+doc/pam_pkcs11.8
+etc/pam.d_login.example
+etc/pam_pkcs11.conf.example
+src/tools/card_eventmgr
+src/tools/pkcs11_eventmgr
+src/tools/pkcs11_inspect
+src/tools/pkcs11_listcerts
+src/tools/pkcs11_setup
+src/tools/pklogin_finder
