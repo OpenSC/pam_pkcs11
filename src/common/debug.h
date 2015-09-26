@@ -37,8 +37,13 @@
 #define DBG3
 #define DBG4
 #define DBG5
-#define set_debug_level(l, ...) {}
-#define debug(l, ...) {}
+
+#define ERR
+#define ERR1
+#define ERR2
+#define ERR3
+#define ERR4
+#define ERR5
 
 #else
 
