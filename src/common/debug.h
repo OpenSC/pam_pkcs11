@@ -31,6 +31,12 @@
 #ifndef DEBUG
 
 #warning "Debugging is completely disabled!"
+#define ERR
+#define ERR1
+#define ERR2
+#define ERR3
+#define ERR4
+#define ERR5
 #define DBG
 #define DBG1
 #define DBG2
@@ -38,6 +44,7 @@
 #define DBG4
 #define DBG5
 #define set_debug_level(l, ...) {}
+#define get_debug_level(...) 0
 #define debug(l, ...) {}
 
 #else
