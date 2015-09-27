@@ -9,12 +9,33 @@ po/POTFILES
 po/stamp-po
 
 # autoconf-related
-aclocal.m4
+aclocal/codeset.m4
+aclocal/glibc21.m4
+aclocal/glibc2.m4
+aclocal/intdiv0.m4
+aclocal/intldir.m4
+aclocal/intl.m4
+aclocal/intlmacosx.m4
+aclocal/intmax.m4
+aclocal/inttypes_h.m4
+aclocal/inttypes-pri.m4
+aclocal/lcmessage.m4
 aclocal/libtool.m4
+aclocal/lock.m4
+aclocal/longlong.m4
+aclocal/lt~obsolete.m4
 aclocal/ltoptions.m4
 aclocal/ltsugar.m4
 aclocal/ltversion.m4
-aclocal/lt~obsolete.m4
+aclocal.m4
+aclocal/printf-posix.m4
+aclocal/size_max.m4
+aclocal/stdint_h.m4
+aclocal/uintmax_t.m4
+aclocal/visibility.m4
+aclocal/wchar_t.m4
+aclocal/wint_t.m4
+aclocal/xsize.m4
 ar-lib
 autom4te.cache/
 compile
@@ -38,10 +59,17 @@ stamp-h1
 **/Makefile.in
 
 # output
+ABOUT-NLS
+ChangeLog.git
+doc/api
 doc/doxygen.conf
+doc/mappers_api.html
 doc/pam_pkcs11.8
+doc/pam_pkcs11.html
 etc/pam.d_login.example
 etc/pam_pkcs11.conf.example
+intl/
+m4/
 src/tools/card_eventmgr
 src/tools/pkcs11_eventmgr
 src/tools/pkcs11_inspect
