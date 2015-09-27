@@ -40,7 +40,7 @@ CC="$PTHREAD_CC"
 
 # Argument for debuging
 AC_ARG_ENABLE(debug, 
-  AS_HELP_STRING([--enable-debug],[add debugging code (default=yes)]))
+  AS_HELP_STRING([--disable-debug],[remove debugging code]))
 if test "$enable_debug" = "no" -o "$enable_debug" = "false"
 then
   AC_MSG_WARN([Debugging support is completely disabled!])
