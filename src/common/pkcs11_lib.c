@@ -1385,7 +1385,7 @@ int pkcs11_login(pkcs11_handle_t *h, char *password)
 	  rv = h->fl->C_Login(h->session, CKU_USER, (unsigned char*)password, strlen(password));
   else
 	  rv = h->fl->C_Login(h->session, CKU_USER, NULL, 0);
-  if (rv != CKR_OK) {
+  if ((rv != CKR_OK) && (rv != CKR_USER_ALREADY_LOGGED_IN)) {
     set_error("C_Login() failed: 0x%08lX", rv);
     return -1;
   }
