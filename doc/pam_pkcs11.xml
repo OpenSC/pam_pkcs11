@@ -2126,6 +2126,7 @@ Three arguments are needed:
     	<listitem>"<symbol>email</symbol>" To use Certificate Email</listitem>
     	<listitem>"<symbol>upn</symbol>" To use Microsoft Universal Principal Name</listitem>
     	<listitem>"<symbol>uid</symbol>" To use Certificate UniqueID</listitem>
+    	<listitem>"<symbol>serial</symbol>" To use Certificate SerialNumber</listitem>
     	</itemizedlist>
     </listitem>
     <listitem>
@@ -2157,7 +2158,7 @@ generic_mapper configuration file shows like:
         # module = /usr/lib/pam_pkcs11/generic_mapper.so;
 	# ignore letter case on match/compare
         ignorecase = false;
-	# Use one of "cn" , "subject" , "kpn" , "email" , "upn" or "uid"
+	# Use one of "cn" , "subject" , "kpn" , "email" , "upn" , "uid" or "serial"
 	cert_item  = cn;
 	# Declare mapfile if needed, else select "none"
 	mapfile = file:///etc/pam_pkcs11/generic_mapfile
