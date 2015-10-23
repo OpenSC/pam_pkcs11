@@ -187,6 +187,7 @@ mapper_module * generic_mapper_module_init(scconf_block *blk,const char *name) {
 	else if (!strcasecmp(item,"email") )  id_type=CERT_EMAIL;
 	else if (!strcasecmp(item,"upn") )    id_type=CERT_UPN;
 	else if (!strcasecmp(item,"uid") )    id_type=CERT_UID;
+	else if (!strcasecmp(item,"serial") ) id_type=CERT_SERIAL;
 	else {
 	    DBG1("Invalid certificate item to search '%s'; using 'cn'",item);
 	}
