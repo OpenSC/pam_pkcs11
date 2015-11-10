@@ -57,7 +57,6 @@ int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
 
   /* check password length */
   if (!nullok && strlen(pin) == 0) {
-    free(pin);
     set_error("Empty passwords not allowed");
     return -1;
   }
@@ -65,7 +64,6 @@ int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
   /* perform pkcs #11 login */
   rv = pkcs11_login(h, pin);
   memset(pin, 0, strlen(pin));
-  free(pin);
   if (rv != 0) {
     set_error("pkcs11_login() failed: %s", get_error());
     return -1;
