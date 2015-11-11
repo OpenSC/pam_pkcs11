@@ -1024,8 +1024,59 @@ int load_pkcs11_module(const char *module, pkcs11_handle_t **hp)
 static int
 refresh_slots(pkcs11_handle_t *h)
 {
-  CK_ULONG i;
+  CK_ULONG i, slot_count;
+  CK_SLOT_ID_PTR slots;
+  CK_RV rv;
   int j;
+
+  slot_count = -1;
+  slots = NULL;
+  rv = h->fl->C_GetSlotList(FALSE, NULL, &slot_count);
+  if (rv != CKR_OK) {
+    set_error("C_GetSlotList() failed: 0x%08lX", rv);
+    return -1;
+  }
+
+  /* number of slots has changed */
+  if (slot_count != h->slot_count) {
+    free(h->slots);
+
+    /* get a list of all slots */
+    rv = h->fl->C_GetSlotList(FALSE, NULL, &h->slot_count);
+    if (rv != CKR_OK) {
+    set_error("C_GetSlotList() failed: 0x%08lX", rv);
+    return -1;
+    }
+    DBG1("number of slots (a): %ld", h->slot_count);
+    if (h->slot_count == 0) {
+    set_error("there are no slots available");
+    return -1;
+    }
+    slots = malloc(h->slot_count * sizeof(CK_SLOT_ID));
+    if (slots == NULL) {
+    set_error("not enough free memory available");
+    return -1;
+    }
+    h->slots = malloc(h->slot_count * sizeof(slot_t));
+    if (h->slots == NULL) {
+    free(slots);
+    set_error("not enough free memory available");
+    return -1;
+    }
+    memset(h->slots, 0, h->slot_count * sizeof(slot_t));
+    rv = h->fl->C_GetSlotList(FALSE, slots, &h->slot_count);
+    if (rv != CKR_OK) {
+    free(slots);
+    set_error("C_GetSlotList() failed: 0x%08lX", rv);
+    return -1;
+    }
+    DBG1("number of slots (b): %ld", h->slot_count);
+    /* show some information about the slots/tokens and setup slot info */
+    for (i = 0; i < h->slot_count; i++) {
+    h->slots[i].id = slots[i];
+    }
+    free(slots);
+  }
 
   for (i = 0; i < h->slot_count; i++) {
     CK_SLOT_INFO sinfo;
@@ -1069,7 +1120,7 @@ int init_pkcs11_module(pkcs11_handle_t *h,int flag)
 {
   int rv;
   CK_ULONG i;
-  CK_SLOT_ID_PTR slots;
+  /* CK_SLOT_ID_PTR slots; */
   CK_INFO info;
   /*
    Set up arguments to allow native threads
@@ -1107,41 +1158,14 @@ int init_pkcs11_module(pkcs11_handle_t *h,int flag)
   DBG1("- flags: %04lx", info.flags);
   DBG1("- library description: %.32s", info.libraryDescription);
   DBG2("- library version: %hhd.%hhd", info.libraryVersion.major, info.libraryVersion.minor);
-  /* get a list of all slots */
-  rv = h->fl->C_GetSlotList(FALSE, NULL, &h->slot_count);
-  if (rv != CKR_OK) {
-    set_error("C_GetSlotList() failed: 0x%08lX", rv);
-    return -1;
-  }
-  DBG1("number of slots (a): %ld", h->slot_count);
-  if (h->slot_count == 0) {
-    set_error("there are no slots available");
-    return -1;
-  }
-  slots = malloc(h->slot_count * sizeof(CK_SLOT_ID));
-  if (slots == NULL) {
-    set_error("not enough free memory available");
-    return -1;
-  }
-  h->slots = malloc(h->slot_count * sizeof(slot_t));
-  if (h->slots == NULL) {
-    free(slots);
-    set_error("not enough free memory available");
-    return -1;
-  }
-  memset(h->slots, 0, h->slot_count * sizeof(slot_t));
-  rv = h->fl->C_GetSlotList(FALSE, slots, &h->slot_count);
-  if (rv != CKR_OK) {
-    free(slots);
-    set_error("C_GetSlotList() failed: 0x%08lX", rv);
-    return -1;
-  }
-  DBG1("number of slots (b): %ld", h->slot_count);
-  /* show some information about the slots/tokens and setup slot info */
-  for (i = 0; i < h->slot_count; i++) {
-    h->slots[i].id = slots[i];
-  }
-  free(slots);
+
+  /*
+   * As per PKCS#11 v2.2 we can call C_GetSlotList multiple times to check for
+   * added/removed slots
+   */
+  h->slot_count = -1;
+  h->slots = NULL;
+
   return refresh_slots(h);
 }
 
