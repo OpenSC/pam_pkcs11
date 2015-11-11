@@ -19,7 +19,7 @@ AM_GNU_GETTEXT_VERSION([0.17])
 AM_GNU_GETTEXT([external])
 
 dnl Add the languages which your application supports here.
-ALL_LINGUAS="de fr it nl pl pt_br ru tr"
+ALL_LINGUAS="de fr it nl pl pt_BR ru tr"
 
 # Checks for programs.
 AC_PROG_CC
@@ -40,7 +40,7 @@ CC="$PTHREAD_CC"
 
 # Argument for debuging
 AC_ARG_ENABLE(debug, 
-  AS_HELP_STRING([--enable-debug],[add debugging code (default=yes)]))
+  AS_HELP_STRING([--disable-debug],[remove debugging code]))
 if test "$enable_debug" = "no" -o "$enable_debug" = "false"
 then
   AC_MSG_WARN([Debugging support is completely disabled!])

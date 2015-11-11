@@ -226,6 +226,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   char **issuer, **serial;
   const char *login_token_name = NULL;
 
+#ifdef ENABLE_NLS
+  setlocale(LC_ALL, "");
+  bindtextdomain(PACKAGE, "/usr/share/locale");
+  textdomain(PACKAGE);
+#endif
+
   pam_prompt(pamh, PAM_TEXT_INFO , NULL, _("Smartcard authentication starts"));
 
   /* first of all check whether debugging should be enabled */
@@ -264,12 +270,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		  }
 	  }
   }
-
-#ifdef ENABLE_NLS
-  setlocale(LC_ALL, "");
-  bindtextdomain(PACKAGE, "/usr/share/locale");
-  textdomain(PACKAGE);
-#endif
 
   /* init openssl */
   rv = crypto_init(&configuration->policy);

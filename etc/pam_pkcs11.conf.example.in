@@ -154,7 +154,7 @@ pam_pkcs11 {
         module = internal;
         # ignore letter case on match/compare
         ignorecase = false;
-        # Use one of "cn" , "subject" , "kpn" , "email" , "upn" or "uid"
+        # Use one of "cn" , "subject" , "kpn" , "email" , "upn" , "uid" or "serial"
         cert_item  = cn;
         # Define mapfile if needed, else select "none"
         mapfile = file:///etc/pam_pkcs11/generic_mapping;

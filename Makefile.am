@@ -4,7 +4,7 @@ SUBDIRS = . po doc etc src tools
 DIST_SUBDIRS = . po doc etc src tools
 
 EXTRA_DIST = config.rpath ChangeLog COPYING INSTALL \
-	NEWS README TODO bootstrap pam_pkcs11.spec ChangeLog.svn
+	NEWS README TODO bootstrap pam_pkcs11.spec ChangeLog.git
 
 MAINTAINERCLEANFILES = \
 	Makefile.in config.h.in configure \
@@ -17,5 +17,5 @@ DEPCLEANFILES = config.log configure
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I aclocal
 
-ChangeLog.svn:
-	-svn2cl --group-by-day --stdout --include-rev > $@
+ChangeLog.git:
+	git log --stat --decorate=short > $@
