@@ -38,7 +38,7 @@ AM_CONDITIONAL([AMDEP], [test "x$enable_dependency_tracking" != xno])
 AX_PTHREAD(, [ AC_MSG_ERROR([POSIX thread support required]) ])
 CC="$PTHREAD_CC"
 
-# Argument for debuging
+# Argument for debugging
 AC_ARG_ENABLE(debug, 
   AS_HELP_STRING([--disable-debug],[remove debugging code]))
 if test "$enable_debug" = "no" -o "$enable_debug" = "false"
