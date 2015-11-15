@@ -17,7 +17,7 @@ pam_pkcs11_la_SOURCES =  pam_pkcs11.c  \
 			pam_config.c pam_config.h
 pam_pkcs11_la_LDFLAGS = -module -avoid-version -shared \
 	-export-symbols-regex '^pam_'
-pam_pkcs11_la_LIBADD = ../mappers/libmappers.la $(CRYPTO_LIBS)
+pam_pkcs11_la_LIBADD = ../mappers/libmappers.la @LTLIBINTL@ $(CRYPTO_LIBS)
 
 format:
 	indent *.c *.h

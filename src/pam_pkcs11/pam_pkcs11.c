@@ -29,6 +29,10 @@
 #ifdef HAVE_SECURITY_PAM_EXT_H
 #include <security/pam_ext.h>
 #endif
+/* OpenPAM used on *BSD and OS X */
+#ifdef OPENPAM
+#include <security/openpam.h>
+#endif
 #include <syslog.h>
 #include <ctype.h>
 #include <string.h>
@@ -68,7 +72,7 @@ static int is_spaced_str(const char *str) {
 	return 1;
 }
 
-#ifndef HAVE_SECURITY_PAM_EXT_H
+#if !defined(HAVE_SECURITY_PAM_EXT_H) && !defined(OPENPAM)
 /*
  * implement pam utilities for older versions of pam.
  */
@@ -108,7 +112,9 @@ static int pam_prompt(pam_handle_t *pamh, int style, char **response, char *fmt,
   free(&resp[0]);
   return PAM_SUCCESS;
 }
+#endif
 
+#if !defined(HAVE_SECURITY_PAM_EXT_H) || defined(OPENPAM)
 static void
 pam_syslog(pam_handle_t *pamh, int priority, const char *fmt, ...)
 {
@@ -117,6 +123,27 @@ pam_syslog(pam_handle_t *pamh, int priority, const char *fmt, ...)
     va_start(ap, fmt);
     vsyslog(priority, fmt, ap);
     va_end(ap);
+}
+
+/*
+ * With OpenPAM pam_prompt resp arg cannot be NULL, so this is just a wrapper.
+ */
+#undef pam_prompt
+#define pam_prompt(x, y, z, fmt, ...) pam_pkcs11_prompt((x), (y), (z), (fmt), ##__VA_ARGS__)
+
+static int pam_pkcs11_prompt(const pam_handle_t *pamh, int style, char **resp, const char *fmt, ...)
+{
+  char *response = NULL;
+  va_list va;
+  int ret = 0;
+
+  va_start(va, fmt);
+  ret = pam_vprompt(pamh, style, &response, fmt, va);
+  va_end(va);
+
+  free(response);
+
+  return ret;
 }
 #endif
 
