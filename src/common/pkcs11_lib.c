@@ -1042,40 +1042,40 @@ refresh_slots(pkcs11_handle_t *h)
     free(h->slots);
 
     /* get a list of all slots */
-    rv = h->fl->C_GetSlotList(FALSE, NULL, &h->slot_count);
-    if (rv != CKR_OK) {
-    set_error("C_GetSlotList() failed: 0x%08lX", rv);
-    return -1;
-    }
-    DBG1("number of slots (a): %ld", h->slot_count);
-    if (h->slot_count == 0) {
-    set_error("there are no slots available");
-    return -1;
-    }
-    slots = malloc(h->slot_count * sizeof(CK_SLOT_ID));
-    if (slots == NULL) {
-    set_error("not enough free memory available");
-    return -1;
-    }
-    h->slots = malloc(h->slot_count * sizeof(slot_t));
-    if (h->slots == NULL) {
-    free(slots);
-    set_error("not enough free memory available");
-    return -1;
-    }
-    memset(h->slots, 0, h->slot_count * sizeof(slot_t));
-    rv = h->fl->C_GetSlotList(FALSE, slots, &h->slot_count);
-    if (rv != CKR_OK) {
-    free(slots);
-    set_error("C_GetSlotList() failed: 0x%08lX", rv);
-    return -1;
-    }
-    DBG1("number of slots (b): %ld", h->slot_count);
-    /* show some information about the slots/tokens and setup slot info */
-    for (i = 0; i < h->slot_count; i++) {
-    h->slots[i].id = slots[i];
-    }
-    free(slots);
+	rv = h->fl->C_GetSlotList(FALSE, NULL, &h->slot_count);
+	if (rv != CKR_OK) {
+	  set_error("C_GetSlotList() failed: 0x%08lX", rv);
+	  return -1;
+	}
+	DBG1("number of slots (a): %ld", h->slot_count);
+	if (h->slot_count == 0) {
+	  set_error("there are no slots available");
+	  return -1;
+	}
+	slots = malloc(h->slot_count * sizeof(CK_SLOT_ID));
+	if (slots == NULL) {
+	  set_error("not enough free memory available");
+	  return -1;
+	}
+	h->slots = malloc(h->slot_count * sizeof(slot_t));
+	if (h->slots == NULL) {
+	  free(slots);
+	  set_error("not enough free memory available");
+	  return -1;
+	}
+	memset(h->slots, 0, h->slot_count * sizeof(slot_t));
+	rv = h->fl->C_GetSlotList(FALSE, slots, &h->slot_count);
+	if (rv != CKR_OK) {
+	  free(slots);
+	  set_error("C_GetSlotList() failed: 0x%08lX", rv);
+	  return -1;
+	}
+	DBG1("number of slots (b): %ld", h->slot_count);
+	/* show some information about the slots/tokens and setup slot info */
+	for (i = 0; i < h->slot_count; i++) {
+	  h->slots[i].id = slots[i];
+	}
+	free(slots);
   }
 
   for (i = 0; i < h->slot_count; i++) {
