@@ -39,6 +39,8 @@
 
 #include "../common/cert_st.h"
 #ifndef HAVE_NSS
+#include <openssl/opensslv.h>
+#include "../common/pam-pkcs11-ossl-compat.h"
 #include <openssl/evp.h>
 #include <openssl/bn.h>
 #endif
@@ -71,6 +73,7 @@ static int debug=0;
 static EVP_PKEY *ssh1_line_to_key(char *line) {
 	EVP_PKEY *key;
 	RSA *rsa;
+	BIGNUM *rsa_n, *rsa_e;
 	char *b, *e, *m, *c;
 
 	key = EVP_PKEY_new();
@@ -130,8 +133,9 @@ static EVP_PKEY *ssh1_line_to_key(char *line) {
 	/* ok, now we have b e m pointing to pure digit
 	 * null terminated strings and maybe c pointing to a comment */
 
-	BN_dec2bn(&rsa->e, e);
-	BN_dec2bn(&rsa->n, m);
+	BN_dec2bn(&rsa_e, e);
+	BN_dec2bn(&rsa_n, m);
+	RSA_set0_key(rsa, rsa_e, rsa_n,NULL);
 
 	EVP_PKEY_assign_RSA(key, rsa);
 	return key;
@@ -144,6 +148,7 @@ static EVP_PKEY *ssh1_line_to_key(char *line) {
 static EVP_PKEY *ssh2_line_to_key(char *line) {
 	EVP_PKEY *key;
 	RSA *rsa;
+	BIGNUM *rsa_e, *rsa_n;
 	unsigned char decoded[OPENSSH_LINE_MAX];
 	int len;
 
@@ -185,7 +190,7 @@ static EVP_PKEY *ssh2_line_to_key(char *line) {
 	i += 4;
 
 	/* get bignum */
-	rsa->e = BN_bin2bn(decoded + i, len, NULL);
+	rsa_e = BN_bin2bn(decoded + i, len, NULL);
 	i += len;
 
 	/* get integer from blob */
@@ -195,8 +200,9 @@ static EVP_PKEY *ssh2_line_to_key(char *line) {
 	i += 4;
 
 	/* get bignum */
-	rsa->n = BN_bin2bn(decoded + i, len, NULL);
+	rsa_n = BN_bin2bn(decoded + i, len, NULL);
 
+	RSA_set0_key(rsa, rsa_n, rsa_e, NULL);
 	EVP_PKEY_assign_RSA(key, rsa);
 	return key;
 }
@@ -281,12 +287,14 @@ static int openssh_mapper_match_keys(X509 *x509, const char *filename) {
 	fclose(fd);
         for (i = 0; i < nkeys; i++) {
                 RSA *authrsa, *rsa;
+		BIGNUM *authrsa_n, *authrsa_e;
+		BIGNUM *rsa_n, *rsa_e;
                 authrsa = EVP_PKEY_get1_RSA(authkey);
                 if (!authrsa) continue;       /* not RSA */
                 rsa = EVP_PKEY_get1_RSA(keys[i]);
                 if (!rsa) continue;       /* not RSA */
-                if (BN_cmp(rsa->e, authrsa->e) != 0) continue;
-                if (BN_cmp(rsa->n, authrsa->n) != 0) continue;
+                if (BN_cmp(rsa_e, authrsa_e) != 0) continue;
+                if (BN_cmp(rsa_n, authrsa_n) != 0) continue;
                 return 1;       /* FOUND */
         }
         DBG("User authorized_keys file doesn't match cert public key(s)");
