@@ -33,6 +33,7 @@ typedef SECOidTag ALGORITHM_TYPE;
 /* we really should make a neutral define for this */
 #define X509 CERTCertificate
 #else
+#include "../common/pam-pkcs11-ossl-compat.h"
 #include <openssl/x509.h>
 typedef const char *ALGORITHM_TYPE;
 #define ALGORITHM_NULL  NULL

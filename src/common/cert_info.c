@@ -273,6 +273,8 @@ char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm ) {
   return results;
 }
 #else
+#include "../common/pam-pkcs11-ossl-compat.h"
+#include <openssl/asn1.h>
 #include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/err.h>
@@ -639,7 +641,7 @@ static int str_append(unsigned char *pt, const char *str, int len) {
 }
 
 /* store a bignum into a buffer */
-static int BN_append(unsigned char *pt, BIGNUM *bn) {
+static int BN_append(unsigned char *pt, const BIGNUM *bn) {
 	unsigned char *old=pt;
 	int res=0;
 	int extrabyte=0;
@@ -671,6 +673,10 @@ static char **cert_info_sshpuk(X509 *x509) {
 	int data_len;
 	int res;
 	static char *entries[2] = { NULL,NULL };
+	const BIGNUM *dsa_p, *dsa_q, *dsa_g, *dsa_pub_key;
+	const BIGNUM *rsa_e, *rsa_n;
+	DSA *dsa;
+	RSA *rsa;
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
 	    DBG("Cannot extract public key");
@@ -682,32 +688,40 @@ static char **cert_info_sshpuk(X509 *x509) {
 	    goto sshpuk_fail;
 	}
 	pt=blob;
-	switch (pubk->type) {
+	switch (EVP_PKEY_base_id(pubk)) {
 		case EVP_PKEY_DSA:
-			if (!pubk->pkey.dsa) {
+			dsa = EVP_PKEY_get1_DSA(pubk);
+			if (dsa == NULL) {
 				DBG("No data for public DSA key");
 				goto sshpuk_fail;
 			}
 			type="ssh-dss";
 		        /* dump key into a byte array */
+			DSA_get0_key(dsa, &dsa_pub_key,NULL);
+			DSA_get0_pqg(dsa, &dsa_p, &dsa_q, &dsa_g);
+
 			res= int_append(pt,strlen(type)); pt+=res;
 		        res= str_append(pt,type,strlen(type)); pt+=res;
-                	res= BN_append(pt, pubk->pkey.dsa->p); pt+=res;
-                	res= BN_append(pt, pubk->pkey.dsa->q); pt+=res;
-                	res= BN_append(pt, pubk->pkey.dsa->g); pt+=res;
-                	res= BN_append(pt, pubk->pkey.dsa->pub_key); pt+=res;
+                	res= BN_append(pt, dsa_p); pt+=res;
+                	res= BN_append(pt, dsa_q); pt+=res;
+                	res= BN_append(pt, dsa_g); pt+=res;
+                	res= BN_append(pt, dsa_pub_key); pt+=res;
+			DSA_free(dsa);
 			break;
 		case EVP_PKEY_RSA:
-			if (!pubk->pkey.rsa) {
+			rsa = EVP_PKEY_get1_RSA(pubk);
+			if (rsa == NULL) {
 				DBG("No data for public RSA key");
 				goto sshpuk_fail;
 			}
 		        /* dump key into a byte array */
 			type="ssh-rsa";
+			RSA_get0_key(rsa, &rsa_n, &rsa_e, NULL);
 			res= int_append(pt,strlen(type)); pt+=res;
 		        res= str_append(pt,type,strlen(type)); pt+=res;
-                	res= BN_append(pt, pubk->pkey.rsa->e); pt+=res;
-                	res= BN_append(pt, pubk->pkey.rsa->n); pt+=res;
+                	res= BN_append(pt, rsa_e); pt+=res;
+                	res= BN_append(pt, rsa_n); pt+=res;
+			RSA_free(rsa);
 			break;
 		default: DBG("Unknown public key type");
 			goto sshpuk_fail;
@@ -811,8 +825,14 @@ static char **cert_info_pem(X509 *x509) {
 */
 static char **cert_key_alg(X509 *x509) {
 	static char *entries[2] = { NULL,NULL };
-	const char *alg = OBJ_nid2ln(
-                    OBJ_obj2nid(x509->cert_info->key->algor->algorithm));
+	X509_PUBKEY *pubkey = NULL;
+	X509_ALGOR * pa= NULL;
+	const char *alg;
+
+	pubkey  = X509_get_X509_PUBKEY(x509);
+	X509_PUBKEY_get0_param(NULL, NULL, NULL, &pa, pubkey);
+	alg = OBJ_nid2ln(
+		    OBJ_obj2nid(pa->algorithm));
 	entries[0]=strdup(alg);
 	return entries;
 }

@@ -75,9 +75,12 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
 #define __CERT_VFY_C_
 
 #include <string.h>
+#include "../common/pam-pkcs11-ossl-compat.h"
 #include <openssl/objects.h>
 #include <openssl/err.h>
 #include <openssl/x509v3.h>
+#include <openssl/x509_vfy.h>
+#include <openssl/evp.h>
 #include "error.h"
 #include "base64.h"
 #include "uri.h"
@@ -140,18 +143,21 @@ static X509_CRL *download_crl(const char *uri)
 static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 {
   int rv;
-  X509_OBJECT obj;
-  EVP_PKEY *pkey;
+  X509_OBJECT *obj = NULL;
+  EVP_PKEY *pkey = NULL;
+  X509 *issuer_cert;
 
   /* get issuer certificate */
-  rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), &obj);
+  rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), obj);
   if (rv <= 0) {
     set_error("getting the certificate of the crl-issuer failed");
     return -1;
   }
   /* extract public key and verify signature */
-  pkey = X509_get_pubkey(obj.data.x509);
-  X509_OBJECT_free_contents(&obj);
+  issuer_cert = X509_OBJECT_get0_X509(obj);
+  pkey = X509_get_pubkey(issuer_cert);
+  if (obj)
+	X509_OBJECT_free(obj);
   if (pkey == NULL) {
     set_error("getting the issuer's public key failed");
     return -1;
@@ -197,12 +203,13 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t policy)
 {
   int rv, i, j;
-  X509_OBJECT obj;
-  X509_REVOKED rev;
+  X509_OBJECT *obj = NULL;
+  X509_REVOKED *rev = NULL;
   STACK_OF(DIST_POINT) * dist_points;
   DIST_POINT *point;
   GENERAL_NAME *name;
   X509_CRL *crl;
+  X509 *x509_ca = NULL;
 
   DBG1("crl policy: %d", policy);
   if (policy == CRLP_NONE) {
@@ -220,26 +227,28 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
   } else if (policy == CRLP_OFFLINE) {
     /* OFFLINE */
     DBG("looking for an dedicated local crl");
-    rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), &obj);
+    rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), obj);
     if (rv <= 0) {
       set_error("no dedicated crl available");
       return -1;
     }
-    crl = X509_CRL_dup(obj.data.crl);
-    X509_OBJECT_free_contents(&obj);
+    crl = X509_OBJECT_get0_X509_CRL(obj);
+    if (obj)
+        X509_OBJECT_free(obj);
   } else if (policy == CRLP_ONLINE) {
     /* ONLINE */
     DBG("extracting crl distribution points");
     dist_points = X509_get_ext_d2i(x509, NID_crl_distribution_points, NULL, NULL);
     if (dist_points == NULL) {
       /* if there is not crl distribution point in the certificate hava a look at the ca certificate */
-      rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), &obj);
+      rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), obj);
       if (rv <= 0) {
         set_error("no dedicated ca certificate available");
         return -1;
       }
-      dist_points = X509_get_ext_d2i(obj.data.x509, NID_crl_distribution_points, NULL, NULL);
-      X509_OBJECT_free_contents(&obj);
+      x509_ca = X509_OBJECT_get0_X509(obj);
+      dist_points = X509_get_ext_d2i(x509_ca, NID_crl_distribution_points, NULL, NULL);
+      X509_OBJECT_free(obj);
       if (dist_points == NULL) {
         set_error("neither the user nor the ca certificate does contain a crl distribution point");
         return -1;
@@ -287,9 +296,9 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
   } else if (rv == 0) {
     return 0;
   }
-  rev.serialNumber = X509_get_serialNumber(x509);
-  rv = sk_X509_REVOKED_find(crl->crl->revoked, &rev);
+  rv = X509_CRL_get0_by_cert(crl, &rev, x509);
   X509_CRL_free(crl);
+  X509_REVOKED_free(rev);
   return (rv == -1);
 }
 
@@ -430,8 +439,8 @@ int verify_certificate(X509 * x509, cert_policy *policy)
   if (rv != 1) {
     X509_STORE_CTX_free(ctx);
     X509_STORE_free(store);
-    set_error("certificate is invalid: %s", X509_verify_cert_error_string(ctx->error));
-		switch (ctx->error) {
+    set_error("certificate is invalid: %s", X509_verify_cert_error_string(X509_STORE_CTX_get_error(ctx)));
+		switch (X509_STORE_CTX_get_error(ctx)) {
 			case X509_V_ERR_CERT_HAS_EXPIRED:
 				rv = -2;
 				break;
@@ -471,7 +480,7 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
 {
   int rv;
   EVP_PKEY *pubkey;
-  EVP_MD_CTX md_ctx;
+  EVP_MD_CTX *md_ctx = NULL;
 
   /* get the public-key */
   pubkey = X509_get_pubkey(x509);
@@ -479,11 +488,13 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
     set_error("X509_get_pubkey() failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
   }
+  md_ctx = EVP_MD_CTX_new();
   /* verify the signature */
-  EVP_VerifyInit(&md_ctx, EVP_sha1());
-  EVP_VerifyUpdate(&md_ctx, data, data_length);
-  rv = EVP_VerifyFinal(&md_ctx, signature, signature_length, pubkey);
+  EVP_VerifyInit(md_ctx, EVP_sha1());
+  EVP_VerifyUpdate(md_ctx, data, data_length);
+  rv = EVP_VerifyFinal(md_ctx, signature, signature_length, pubkey);
   EVP_PKEY_free(pubkey);
+  EVP_MD_CTX_free(md_ctx);
   if (rv != 1) {
     set_error("EVP_VerifyFinal() failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
