@@ -157,7 +157,7 @@ fi
 AM_CONDITIONAL(HAVE_NSS, test x$with_nss = xyes)
 if test "$with_nss" = "yes"
 then
-    CRYPTO_CFLAGS="${NSS_CFLAGS}-DHAVE_NSS"
+    CRYPTO_CFLAGS="${NSS_CFLAGS} -DHAVE_NSS"
     CRYPTO_LIBS=${NSS_LIBS}
 else
     CRYPTO_CFLAGS=${OPENSSL_CFLAGS}
