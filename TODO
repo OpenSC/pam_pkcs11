@@ -31,9 +31,6 @@ Expected things to be done in 0.6 release:
   * Compile as static all mappers that does not depend on extra
   libraries
 
-- Debian packaging
-  Sorry: I only know on RPM packaging. Any volunteer?
-
 0.7 is a try to real-life implementation: MS Active directory
 configuration, NSS aware configurations, LDAP settings,
 many samples and docs, general cleanups, etc. 
