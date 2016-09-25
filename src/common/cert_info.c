@@ -846,6 +846,7 @@ static char **cert_info_serial_number(X509 *x509) {
 	int len;
 	unsigned char *buffer = NULL, *tmp_ptr;
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	len = i2c_ASN1_INTEGER(serial, NULL);
 
 	if (len < 0) {
@@ -862,6 +863,33 @@ static char **cert_info_serial_number(X509 *x509) {
 	len = i2c_ASN1_INTEGER(serial, &tmp_ptr);
 	entries[0] = bin2hex(buffer,len);
 	free(buffer);
+#else
+	/* 
+	 * OpenSSL-1.1.0 does not support i2c_ASN1_INTEGER
+	 * we will use i2d_ASN1_INTEGER to get the asn1, then pickout the binary data 
+	 * Note: buffer is DER, and will have single tag byte and at least one length byte
+	 * we just need to skip the tag and length
+	 */
+
+	len = i2d_ASN1_INTEGER(serial, &buffer);
+
+	if (len < 0) {
+		return NULL;
+	}
+	if (buffer == NULL) {
+		return NULL;
+	}
+	if (buffer[1] & 0x80) {   /* extra length bytes? */
+	   len -=  2 - (buffer[1] & 0x7f);
+		tmp_ptr = buffer + 2 + (buffer[1] & 0x7f);
+	} else {
+		len -= 2;
+		tmp_ptr = buffer + 2;
+	}
+	entries[0] = bin2hex(tmp_ptr, len);
+	OPENSSL_free(buffer);
+#endif
+
 	return entries;
 }
 
