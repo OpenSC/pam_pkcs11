@@ -134,7 +134,7 @@ int main(int argc, const char **argv) {
     rv = verify_certificate(cert,&configuration->policy);
     if (rv < 0) {
         printf("verify_certificate() process error: %s\n", get_error());
-        goto auth_failed;
+        continue; /* try next certificate */
     } else if (rv != 1) {
         printf("verify_certificate() failed: %s\n", get_error());
         continue; /* try next certificate */
@@ -159,10 +159,4 @@ int main(int argc, const char **argv) {
 
   DBG("Process completed");
   return 0;
-
-auth_failed:
-  close_pkcs11_session(ph);
-  release_pkcs11_module(ph);
-  return 5;
-
 }
