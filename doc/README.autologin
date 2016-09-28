@@ -54,7 +54,7 @@ session    optional     pam_console.so
 IMPORTANT NOTES:
  
 For pam_set_item(PAM_USER) success, application using pam must have
-enought permissions. If this condition is not met, setting user process
+enough permissions. If this condition is not met, setting user process
 will fail and proper log message registered. So this feature is mainly
 provided for logging processes running as root.
 

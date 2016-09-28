@@ -1538,7 +1538,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
         set_error("CertID length: C_GetAttributeValue() failed: 0x%08lX", rv);
         goto getlist_error;
     }
-    /* allocate enought space */
+    /* allocate enough space */
     id_value = malloc(cert_template[2].ulValueLen);
     if (id_value == NULL) {
         set_error("CertID malloc(%d): not enough free memory available", cert_template[2].ulValueLen);
@@ -1562,7 +1562,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
         set_error("Cert Length: C_GetAttributeValue() failed: 0x%08lX", rv);
         goto getlist_error;
       }
-    /* allocate enought space */
+    /* allocate enough space */
       cert_value = malloc(cert_template[3].ulValueLen);
       if (cert_value == NULL) {
         set_error("Cert Length malloc(%d): not enough free memory available", cert_template[3].ulValueLen);

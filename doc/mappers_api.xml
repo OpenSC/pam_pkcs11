@@ -799,7 +799,7 @@ The <filename>string.h</filename> standard library is so powerfull. But lacks on
 </itemizedlist>
 </para>
 <para>
-A note on <function>split(), and split_static()</function> functions. To free allocated resources, is enought to call <function>free()</function> on the first element of the array
+A note on <function>split(), and split_static()</function> functions. To free allocated resources, is enough to call <function>free()</function> on the first element of the array
 </para>
 <para>
 Note that <function>trim()</function> function behaviour is different from Java or PHP counterparts, as remove ALL extra spaces, not only at the begining and at the end of string

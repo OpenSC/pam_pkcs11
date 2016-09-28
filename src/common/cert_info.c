@@ -529,7 +529,7 @@ static char **cert_info_upn(X509 *x509) {
 
 /*
 * Extract Certificate's Unique Identifier(s)
-* Array size is limited to CERT_INFO_MAX_ENTRIES UID's. expected to be enought...
+* Array size is limited to CERT_INFO_MAX_ENTRIES UID's. expected to be enough...
 */
 static char **cert_info_uid(X509 *x509) {
 	static char *results[CERT_INFO_SIZE];
