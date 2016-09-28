@@ -21,6 +21,7 @@ libcommon_la_SOURCES = algorithm.c cert_vfy.c cert_vfy.h \
 	uri.c uri.h strings.c strings.h \
 	pkcs11_lib.c \
 	strndup.c strndup.h \
+	pam-pkcs11-ossl-compat.h \
 	base64.c base64.h
 
 libcommon_la_LIBADD = $(CRYPTO_LIBS) $(PTHREAD_LIBS) $(LIBDL)
