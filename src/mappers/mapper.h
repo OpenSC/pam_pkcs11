@@ -179,7 +179,7 @@ static char ** mapper_find_entries(X509 *x509, void *context) {		\
 /**
 * Default macro for locating user
 *
-* Should not be used except for debugging, as allways returns "nobody"
+* Should not be used except for debugging, as always returns "nobody"
 *@param x509 X509 Certificate
 *@param context Mapper context
 *@return Found user, or NULL

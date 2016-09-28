@@ -680,7 +680,7 @@ Most of statically linked mappers share common configuration options:
 So if up to the system administrator, if agreed with default values, to ommit in the configuration file <filename>/etc/pam_pkcs11/pam_pkcs11.conf</filename> the mapper entry for this module. The module loader will look for proper mapper entry. If not found, assume that the module is static, and will try to load it and set up with default values. This behaviour is coded in the provided sample skeleton file for coding mappers
 </para>
 <para>
-Above note does not apply, of course, to dynamically loaded mappers, as they allways need at least the "<option>module</option>" entry to be specified
+Above note does not apply, of course, to dynamically loaded mappers, as they always need at least the "<option>module</option>" entry to be specified
 </para>
 <para>
 See PAM-PKCS#11 Manual to see specific notes on provided mappers

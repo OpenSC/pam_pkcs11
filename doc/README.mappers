@@ -146,13 +146,13 @@ uid    - Use Unique ID field (if found) as login name
 
 null   - blind access/deny mapper. 
 
-        If "allways_match" is set to true:
-        * When used as finder allways returns "nobody"
-        * When used as matcher allways returns OK
+        If "always_match" is set to true:
+        * When used as finder always returns "nobody"
+        * When used as matcher always returns OK
 
-        If "allways_match" is set to false:
-        * When used as finder allways returns NULL
-        * When used as matcher allways returns FAIL
+        If "always_match" is set to false:
+        * When used as finder always returns NULL
+        * When used as matcher always returns FAIL
 
 See the provided pam_pkcs11.conf.example file to see module flags
 

@@ -94,7 +94,7 @@ mapper_module * null_mapper_module_init(scconf_block *ctx,const char *mapper_nam
 	}
 	set_debug_level(debug);
 	pt = init_mapper_st(ctx,mapper_name);
-	if (pt) DBG1("Null mapper match set to '%s'",match?"allways":"never");
+	if (pt) DBG1("Null mapper match set to '%s'",match?"always":"never");
 	else DBG("Null mapper initialization failed");
 	return pt;
 }
