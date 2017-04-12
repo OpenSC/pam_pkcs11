@@ -53,6 +53,7 @@ struct cert_policy_st {
 	const char *crl_dir;
 	const char *nss_dir;
 	int ocsp_policy;
+	int eku_sc_logon_policy;
 };
 
 #ifndef __CERT_VFY_C
@@ -79,6 +80,8 @@ CERTVFY_EXTERN int verify_certificate(X509 * x509, cert_policy *policy);
 *@return 1 on signature vfy sucess, 0 on vfy fail, -1 on process error
 */
 CERTVFY_EXTERN int verify_signature(X509 * x509, unsigned char *data, int data_length, unsigned char *signature, int signature_length);
+
+CERTVFY_EXTERN int verify_eku_sc_logon(X509 * x509);
 
 #undef CERTVFY_EXTERN
 

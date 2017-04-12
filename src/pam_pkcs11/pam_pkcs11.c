@@ -579,7 +579,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	if (!configuration->quiet) {
 		pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("verifying certificate"));
 	}
-
+    if (configuration->policy.eku_sc_logon_policy) {
+      if (!verify_eku_sc_logon(x509)) {
+        DBG("Certificate does not contain EKU Smart Card Logon");
+        continue; /* try next certificate */
+      }
+    }
       /* verify certificate (date, signature, CRL, ...) */
       rv = verify_certificate(x509,&configuration->policy);
       if (rv < 0) {

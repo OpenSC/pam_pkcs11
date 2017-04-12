@@ -480,16 +480,28 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   int rv;
   EVP_PKEY *pubkey;
   EVP_MD_CTX *md_ctx = NULL;
-
+  const EVP_MD* md;
+  int nid;
   /* get the public-key */
   pubkey = X509_get_pubkey(x509);
   if (pubkey == NULL) {
     set_error("X509_get_pubkey() failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
   }
-  md_ctx = EVP_MD_CTX_new();
+
+  nid = OBJ_obj2nid(x509->cert_info->key->algor->algorithm);
+  if( NID_id_GostR3410_2001 == nid )
+    md = EVP_get_digestbyname("md_gost94");
+  else
+    md = EVP_sha1();
+  if (!md) {
+    set_error("unsupported key algorithm, nid: %d", nid);
+    return -1;
+  }
+
+  md_ctx = EVP_MD_CTX_create();
   /* verify the signature */
-  EVP_VerifyInit(md_ctx, EVP_sha1());
+  EVP_VerifyInit(md_ctx, md);
   EVP_VerifyUpdate(md_ctx, data, data_length);
   rv = EVP_VerifyFinal(md_ctx, signature, signature_length, pubkey);
   EVP_PKEY_free(pubkey);
@@ -501,4 +513,30 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   DBG("signature is valid");
   return 0;
 }
+
+int verify_eku_sc_logon(X509 * x509)
+{
+  static unsigned char id_kp_sc_logon[] = {0x2b, 6, 1, 4, 1, 0x82, 0x37, 20, 2, 2}; // 1.3.6.1.4.1.311.20.2.2
+  int rv = 0;
+  EXTENDED_KEY_USAGE* eku = X509_get_ext_d2i(x509, NID_ext_key_usage, NULL, NULL);
+  if( NULL != eku )
+  {
+    int i = 0, n = sk_ASN1_OBJECT_num(eku);
+    for( ; i < n; ++i )
+    {
+      ASN1_OBJECT* extobj = sk_ASN1_OBJECT_value( eku, i );
+      if( NULL == extobj )
+        continue;
+      if( sizeof(id_kp_sc_logon) == extobj->length
+          && 0 == memcmp(extobj->data, id_kp_sc_logon, sizeof(id_kp_sc_logon)) )
+      {
+        rv = 1;
+        break;
+      }
+    }
+    EXTENDED_KEY_USAGE_free(eku);
+  }
+  return rv;
+}
+
 #endif

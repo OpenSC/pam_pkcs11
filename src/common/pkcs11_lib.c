@@ -32,7 +32,7 @@
 #include "error.h"
 #include "cert_info.h"
 #include "pkcs11_lib.h"
-
+#include <openssl/conf.h>
 
 /*
  * this functions is completely common between both implementation.
@@ -985,6 +985,7 @@ int crypto_init(cert_policy *policy)
 {
   /* arg is ignored for OPENSSL */
   (void)policy;
+  OPENSSL_config(NULL);
   OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
   return 0;
@@ -1677,6 +1678,7 @@ getlist_error:
 int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
   CK_OBJECT_CLASS key_class = CKO_PRIVATE_KEY;
   CK_BBOOL key_sign = CK_TRUE;
+  CK_ATTRIBUTE attr;
   CK_ATTRIBUTE key_template[] = {
     {CKA_CLASS, &key_class, sizeof(key_class)}
     ,
@@ -1724,7 +1726,16 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
   }
 
   cert->private_key = object;
-  cert->key_type = CKK_RSA;
+  attr.type = CKA_KEY_TYPE;
+  attr.ulValueLen = sizeof(cert->key_type);
+  attr.pValue = &(cert->key_type);
+  rv = h->fl->C_GetAttributeValue(h->session, object, &attr,1);
+  if (rv != CKR_OK) {
+    set_error("C_GetAttributeValue() failed: 0x%08lX", rv);
+    return -1;
+  }
+
+  DBG1("C_GetAttributeValue keytype: %x",cert->key_type);
 
   return 0;
 
@@ -1765,29 +1776,38 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
     case CKK_RSA:
       mechanism.mechanism = CKM_RSA_PKCS;
       break;
+    case CKK_GOSTR3410:
+      mechanism.mechanism = CKM_GOSTR3410_WITH_GOSTR3411;
+      break;
     default:
       set_error("unsupported key type %d", cert->type);
       return -1;
   }
   /* compute hash-value */
-  SHA1(data, length, &hash[15]);
-  DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
-      hash[15], hash[16], hash[17], hash[sizeof(hash) - 1]);
+  if( CKK_RSA == cert->key_type ) {
+    SHA1(data, length, &hash[15]);
+    DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
+        hash[15], hash[16], hash[17], hash[sizeof(hash) - 1]);
+  }
   /* sign the token */
+  DBG2("C_SignInit: mech: %x, keytype: %x", mechanism.mechanism, cert->key_type);
   rv = h->fl->C_SignInit(h->session, &mechanism, cert->private_key);
   if (rv != CKR_OK) {
     set_error("C_SignInit() failed: 0x%08lX", rv);
     return -1;
   }
   *signature = NULL;
-  *signature_length = 128;
+  *signature_length = 256;
   while (*signature == NULL) {
     *signature = malloc(*signature_length);
     if (*signature == NULL) {
       set_error("not enough free memory available");
       return -1;
     }
-    rv = h->fl->C_Sign(h->session, hash, sizeof(hash), *signature, signature_length);
+    if( CKK_RSA == cert->key_type )
+      rv = h->fl->C_Sign(h->session, hash, sizeof(hash), *signature, signature_length);
+    else
+      rv = h->fl->C_Sign(h->session, data, length, *signature, signature_length);
     if (rv == CKR_BUFFER_TOO_SMALL) {
       /* increase signature length as long as it it to short */
       free(*signature);

@@ -90,6 +90,7 @@ static void display_config (void) {
         DBG1("signature_policy %d",configuration.policy.signature_policy);
         DBG1("ocsp_policy %d",configuration.policy.ocsp_policy);
 		DBG1("err_display_time %d", configuration.err_display_time);
+        DBG1("eku_sc_logon_policy %d",configuration.policy.eku_sc_logon_policy);
 }
 #endif
 
@@ -186,6 +187,7 @@ static void parse_config_file(void) {
 			configuration.policy.ocsp_policy=OCSP_NONE;
 			configuration.policy.ca_policy=0;
 			configuration.policy.signature_policy=0;
+			configuration.policy.eku_sc_logon_policy=0;
 			break;
 		} else if ( !strcmp(policy_list->data,"crl_auto") ) {
 			configuration.policy.crl_policy=CRLP_AUTO;
@@ -199,6 +201,8 @@ static void parse_config_file(void) {
 			configuration.policy.ca_policy=1;
 		} else if ( !strcmp(policy_list->data,"signature") ) {
 			configuration.policy.signature_policy=1;
+		} else if ( !strcmp(policy_list->data,"eku_sclogon") ) {
+			configuration.policy.eku_sc_logon_policy=1;
 		} else {
                    DBG1("Invalid CRL policy: %s",policy_list->data);
 	        }
@@ -324,6 +328,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 			configuration.policy.ca_policy=0;
 			configuration.policy.signature_policy=0;
 			configuration.policy.ocsp_policy=OCSP_NONE;
+			configuration.policy.eku_sc_logon_policy=0;
 		}
 		if (strstr(argv[i],"crl_online")) {
 			configuration.policy.crl_policy=CRLP_ONLINE;
@@ -342,6 +347,9 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		}
 		if (strstr(argv[i],"signature")) {
 			configuration.policy.signature_policy=1;
+		}
+		if (strstr(argv[i],"eku_sclogon")) {
+			configuration.policy.eku_sc_logon_policy=1;
 		}
 		continue;
 	   }
