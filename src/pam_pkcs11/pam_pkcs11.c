@@ -388,14 +388,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		sleep(configuration->err_display_time);
 	}
 
-    if (!configuration->card_only) {
+    if (!configuration->card_only || !login_token_name) {
       release_pkcs11_module(ph);
-      return PAM_AUTHINFO_UNAVAIL;
+	  /* Allow to pass to the next module if the auth isn't
+         restricted to card only. */
+      return PAM_IGNORE;
     }
 
-    /* we must have a smart card, either because we've configured it as such,
-     * or because we used one to log in */
-    if (login_token_name || configuration->wait_for_card) {
+    if (configuration->wait_for_card) {
       if (login_token_name) {
         pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 			_("Please insert your smart card called \"%.32s\"."),
