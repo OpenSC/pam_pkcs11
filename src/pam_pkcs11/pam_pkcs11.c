@@ -380,20 +380,24 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
                                      login_token_name, &slot_num);
   }
 
+  if (!configuration->card_only || !login_token_name) {
+	  /* Allow to pass to the next module if the auth isn't
+         restricted to card only. */
+      pkcs11_pam_fail = PAM_IGNORE;
+  }
+
   if (rv != 0) {
+    if (!configuration->card_only || !login_token_name) {
+      release_pkcs11_module(ph);
+      return pkcs11_pam_fail;
+    }
+
     ERR("no suitable token available");
     if (!configuration->quiet) {
 		pam_syslog(pamh, LOG_ERR, "no suitable token available");
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2306: No suitable token available"));
 		sleep(configuration->err_display_time);
 	}
-
-    if (!configuration->card_only || !login_token_name) {
-      release_pkcs11_module(ph);
-	  /* Allow to pass to the next module if the auth isn't
-         restricted to card only. */
-      return PAM_IGNORE;
-    }
 
     if (configuration->wait_for_card) {
       if (login_token_name) {
@@ -553,7 +557,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2320: Wrong smartcard PIN"));
 			sleep(configuration->err_display_time);
 		}
-      goto auth_failed_nopw;
+      goto auth_failed_wrongpw;
     }
   }
 
@@ -839,6 +843,12 @@ auth_failed_nopw:
     close_pkcs11_session(ph);
     release_pkcs11_module(ph);
     return pkcs11_pam_fail;
+
+auth_failed_wrongpw:
+    unload_mappers();
+    close_pkcs11_session(ph);
+    release_pkcs11_module(ph);
+    return PAM_CRED_INSUFFICIENT;
 }
 
 PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv)
