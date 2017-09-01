@@ -985,7 +985,6 @@ int crypto_init(cert_policy *policy)
 {
   /* arg is ignored for OPENSSL */
   (void)policy;
-  OPENSSL_config(NULL);
   OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
   return 0;
