@@ -387,7 +387,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
 
   if (rv != 0) {
-    if (!configuration->card_only || !login_token_name) {
+    if (!configuration->card_only) {
       release_pkcs11_module(ph);
       return pkcs11_pam_fail;
     }
