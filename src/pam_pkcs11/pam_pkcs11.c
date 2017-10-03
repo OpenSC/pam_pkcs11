@@ -374,10 +374,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
         return PAM_IGNORE;
     }
 
-    ERR("no suitable token available");
-    if (!configuration->quiet) {
-		pam_syslog(pamh, LOG_ERR, "no suitable token available");
-	}
+    if (!configuration->wait_for_card) {
+        ERR("no suitable token available");
+        if (!configuration->quiet) {
+            pam_syslog(pamh, LOG_ERR, "no suitable token available");
+        }
+    }
 
     if (configuration->wait_for_card) {
         if (login_token_name) {
