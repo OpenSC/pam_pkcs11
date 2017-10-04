@@ -848,7 +848,7 @@ auth_failed_wrongpw:
     unload_mappers();
     close_pkcs11_session(ph);
     release_pkcs11_module(ph);
-    return PAM_CRED_INSUFFICIENT;
+    return PAM_AUTH_ERR;
 }
 
 PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv)
