@@ -380,22 +380,22 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	}
 
     if (configuration->wait_for_card) {
-      if (login_token_name) {
-        pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-			_("Please insert your smart card called \"%.32s\"."),
-			login_token_name);
-      } else {
-        pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-                 _("Please insert your smart card."));
-      }
+        if (login_token_name) {
+            pam_prompt(pamh, PAM_TEXT_INFO, NULL,
+                       _("Please insert your smart card called \"%.32s\"."),
+                       login_token_name);
+        } else {
+            pam_prompt(pamh, PAM_TEXT_INFO, NULL,
+                       _("Please insert your smart card."));
+        }
 
-      if (configuration->slot_description != NULL) {
-          rv = wait_for_token_by_slotlabel(ph, configuration->slot_description,
+        if (configuration->slot_description != NULL) {
+            rv = wait_for_token_by_slotlabel(ph, configuration->slot_description,
                                            login_token_name, &slot_num);
-      } else if (configuration->slot_num != -1) {
-          rv = wait_for_token(ph, configuration->slot_num,
-                              login_token_name, &slot_num);
-      }
+        } else if (configuration->slot_num != -1) {
+            rv = wait_for_token(ph, configuration->slot_num,
+                                login_token_name, &slot_num);
+        }
     }
   }
 
