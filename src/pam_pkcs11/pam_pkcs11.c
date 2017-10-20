@@ -367,9 +367,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
   if (rv != 0) {
       /* No token found */
-    if (!configuration->card_only || (!login_token_name && !configuration->wait_for_card)) {
-        /* If the user isn't already card-authrized and we isn't restricted
-           to card-only login, then proceed to the next auth. module. */
+    if (!configuration->card_only) {
+        /* If the login isn't restricted to card-only, then proceed
+           to the next auth. module quietly. */
         release_pkcs11_module(ph);
         return PAM_IGNORE;
     }
