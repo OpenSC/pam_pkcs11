@@ -1067,6 +1067,7 @@ refresh_slots(pkcs11_handle_t *h)
   /* number of slots has changed */
   if (slot_count != h->slot_count) {
     free(h->slots);
+    h->slots = NULL;
 
     /* get a list of all slots */
 	rv = h->fl->C_GetSlotList(FALSE, NULL, &h->slot_count);
