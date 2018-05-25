@@ -131,6 +131,34 @@ memcmp_pad_max(void *d1, size_t d1_len, void *d2, size_t d2_len,
 	return (0);
 }
 
+int get_random_value(unsigned char *data, int length)
+{
+  static const char *random_device = "/dev/urandom";
+  int rv, fh, l;
+
+  DBG2("reading %d random bytes from %s", length, random_device);
+  fh = open(random_device, O_RDONLY);
+  if (fh == -1) {
+    set_error("open() failed: %s", strerror(errno));
+    return -1;
+  }
+
+  l = 0;
+  while (l < length) {
+    rv = read(fh, data + l, length - l);
+    if (rv <= 0) {
+      close(fh);
+      set_error("read() failed: %s", strerror(errno));
+      return -1;
+    }
+    l += rv;
+  }
+  close(fh);
+  DBG5("random-value[%d] = [%02x:%02x:%02x:...:%02x]", length, data[0],
+      data[1], data[2], data[length - 1]);
+  return 0;
+}
+
 
 #ifdef HAVE_NSS
 /*
@@ -833,16 +861,6 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
   *signature_length = result.len;
   return 0;
 }
-
-int get_random_value(unsigned char *data, int length)
-{
-  SECStatus rv = PK11_GenerateRandom(data,length);
-  if (rv != SECSuccess) {
-    DBG1("couldn't generate random number: %s", SECU_Strerror(PR_GetError()));
-  }
-  return (rv == SECSuccess) ? 0 : -1;
-}
-
 
 struct tuple_str {
     PRErrorCode	 errNum;
@@ -1776,34 +1794,6 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
   }
   DBG5("signature[%ld] = [%02x:%02x:%02x:...:%02x]", *signature_length,
       (*signature)[0], (*signature)[1], (*signature)[2], (*signature)[*signature_length - 1]);
-  return 0;
-}
-
-int get_random_value(unsigned char *data, int length)
-{
-  static const char *random_device = "/dev/urandom";
-  int rv, fh, l;
-
-  DBG2("reading %d random bytes from %s", length, random_device);
-  fh = open(random_device, O_RDONLY);
-  if (fh == -1) {
-    set_error("open() failed: %s", strerror(errno));
-    return -1;
-  }
-
-  l = 0;
-  while (l < length) {
-    rv = read(fh, data + l, length - l);
-    if (rv <= 0) {
-      close(fh);
-      set_error("read() failed: %s", strerror(errno));
-      return -1;
-    }
-    l += rv;
-  }
-  close(fh);
-  DBG5("random-value[%d] = [%02x:%02x:%02x:...:%02x]", length, data[0],
-      data[1], data[2], data[length - 1]);
   return 0;
 }
 #endif /* HAVE_NSS */
