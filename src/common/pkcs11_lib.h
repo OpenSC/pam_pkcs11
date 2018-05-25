@@ -67,6 +67,7 @@ PKCS11_EXTERN int sign_value(pkcs11_handle_t *h, cert_object_t *,
                unsigned char *data, unsigned long length,
                unsigned char **signature, unsigned long *signature_length);
 PKCS11_EXTERN int get_random_value(unsigned char *data, int length);
+PKCS11_EXTERN void cleanse(void *ptr, size_t len);
 
 #undef PKCS11_EXTERN
 

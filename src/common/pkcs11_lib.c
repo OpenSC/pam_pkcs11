@@ -63,7 +63,7 @@ int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
 
   /* perform pkcs #11 login */
   rv = pkcs11_login(h, pin);
-  memset(pin, 0, strlen(pin));
+  cleanse(pin, strlen(pin));
   if (rv != 0) {
     set_error("pkcs11_login() failed: %s", get_error());
     return -1;
@@ -157,6 +157,15 @@ int get_random_value(unsigned char *data, int length)
   DBG5("random-value[%d] = [%02x:%02x:%02x:...:%02x]", length, data[0],
       data[1], data[2], data[length - 1]);
   return 0;
+}
+
+void cleanse(void *ptr, size_t len)
+{
+#ifdef HAVE_OPENSSL
+  OPENSSL_cleanse(ptr, len);
+#else
+  memset(ptr, 0, len);
+#endif
 }
 
 
@@ -637,7 +646,7 @@ void release_pkcs11_module(pkcs11_handle_t *h)
   if (h->module) {
     SECMOD_DestroyModule(h->module);
   }
-  memset(h, 0, sizeof(pkcs11_handle_t));
+  cleanse(h, sizeof(pkcs11_handle_t));
   free(h);
 
   /* if we initialized NSS, then we need to shut it down */
@@ -1199,7 +1208,7 @@ void release_pkcs11_module(pkcs11_handle_t *h)
   /* release all allocated memory */
   if (h->slots != NULL)
     free(h->slots);
-  memset(h, 0, sizeof(pkcs11_handle_t));
+  cleanse(h, 0, sizeof(pkcs11_handle_t));
   free(h);
 }
 
