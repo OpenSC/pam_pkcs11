@@ -311,7 +311,7 @@ _DEFAULT_MAPPER_END
 */
 static int openssh_mapper_match_user(X509 *x509, const char *user, void *context) {
         struct passwd *pw;
-	char filename[512];
+	char filename[PATH_MAX];
         if (!x509) return -1;
         if (!user) return -1;
         pw = getpwnam(user);
@@ -333,7 +333,7 @@ static char * openssh_mapper_find_user(X509 *x509, void *context, int *match) {
         /* parse list of users until match */
         setpwent();
         while((pw=getpwent()) != NULL) {
-	    char filename[512];
+	    char filename[PATH_MAX];
             DBG1("Trying to match certificate with user: '%s'",pw->pw_name);
             if ( is_empty_str(pw->pw_dir) ) {
                 DBG1("User '%s' has no home directory",pw->pw_name);
