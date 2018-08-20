@@ -143,21 +143,20 @@ static X509_CRL *download_crl(const char *uri)
 static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 {
   int rv;
-  X509_OBJECT *obj = NULL;
+  X509_OBJECT obj;
   EVP_PKEY *pkey = NULL;
   X509 *issuer_cert;
 
   /* get issuer certificate */
-  rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), obj);
+  rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), &obj);
   if (rv <= 0) {
     set_error("getting the certificate of the crl-issuer failed");
     return -1;
   }
   /* extract public key and verify signature */
-  issuer_cert = X509_OBJECT_get0_X509(obj);
+  issuer_cert = X509_OBJECT_get0_X509((&obj));
   pkey = X509_get_pubkey(issuer_cert);
-  if (obj)
-	X509_OBJECT_free(obj);
+  X509_OBJECT_free_contents(&obj);
   if (pkey == NULL) {
     set_error("getting the issuer's public key failed");
     return -1;
@@ -203,13 +202,14 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t policy)
 {
   int rv, i, j;
-  X509_OBJECT *obj = NULL;
+  X509_OBJECT obj;
   X509_REVOKED *rev = NULL;
   STACK_OF(DIST_POINT) * dist_points;
   DIST_POINT *point;
   GENERAL_NAME *name;
   X509_CRL *crl;
   X509 *x509_ca = NULL;
+  EVP_PKEY crl_pkey;
 
   DBG1("crl policy: %d", policy);
   if (policy == CRLP_NONE) {
@@ -227,28 +227,27 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
   } else if (policy == CRLP_OFFLINE) {
     /* OFFLINE */
     DBG("looking for an dedicated local crl");
-    rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), obj);
+    rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), &obj);
     if (rv <= 0) {
       set_error("no dedicated crl available");
       return -1;
     }
-    crl = X509_OBJECT_get0_X509_CRL(obj);
-    if (obj)
-        X509_OBJECT_free(obj);
+    crl = X509_OBJECT_get0_X509_CRL((&obj));
+    X509_OBJECT_free_contents(&obj);
   } else if (policy == CRLP_ONLINE) {
     /* ONLINE */
     DBG("extracting crl distribution points");
     dist_points = X509_get_ext_d2i(x509, NID_crl_distribution_points, NULL, NULL);
     if (dist_points == NULL) {
       /* if there is not crl distribution point in the certificate hava a look at the ca certificate */
-      rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), obj);
+      rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), &obj);
       if (rv <= 0) {
         set_error("no dedicated ca certificate available");
         return -1;
       }
-      x509_ca = X509_OBJECT_get0_X509(obj);
+      x509_ca = X509_OBJECT_get0_X509((&obj));
       dist_points = X509_get_ext_d2i(x509_ca, NID_crl_distribution_points, NULL, NULL);
-      X509_OBJECT_free(obj);
+      X509_OBJECT_free_contents(&obj);
       if (dist_points == NULL) {
         set_error("neither the user nor the ca certificate does contain a crl distribution point");
         return -1;
@@ -296,10 +295,10 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
   } else if (rv == 0) {
     return 0;
   }
+  DBG("checking revocation");
   rv = X509_CRL_get0_by_cert(crl, &rev, x509);
   X509_CRL_free(crl);
-  X509_REVOKED_free(rev);
-  return (rv == -1);
+  return (rv == 0);
 }
 
 static int add_hash( X509_LOOKUP *lookup, const char *dir) {

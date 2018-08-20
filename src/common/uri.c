@@ -407,7 +407,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
     set_error("not enough free memory available");
     return -1;
   }
-  sprintf(request, "GET %s HTTP/1.0\nHost: %s\n\n\n", uri->http->path, uri->http->host);
+  sprintf(request, "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n", uri->http->path, uri->http->host);
   len = strlen(request);
   rv = send(sock, request, len, 0);
   free(request);
