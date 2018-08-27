@@ -23,13 +23,13 @@ Standard](https://docs.oasis-open.org/pkcs11/pkcs11-base/v2.40/os/pkcs11-base-v2
 
 PAM-PKCS\#11 package provides:
 
-* A PAM module able to:\
- * Use certificates to get user credentials
- * Deduce a login based on provided certificate
+* A PAM module able to:
+  * Use certificates to get user credentials
+  * Deduce a login based on provided certificate
 * Several tools:
- * Standalone cert-to-login finder tool
- * Certificate contents viewer
- * Card Event status monitor, to trigger actions on card insert/removal
+  * Standalone cert-to-login finder tool
+  * Certificate contents viewer
+  * Card Event status monitor, to trigger actions on card insert/removal
 
 You can read the online [PAM-PKCS\#11 User
 Manual](http://opensc.github.io/pam_pkcs11/doc/pam_pkcs11.html) to know
@@ -46,7 +46,7 @@ Laboratories.
 ### User Matching
 
 To map the ownership of a certificate into a user login, pam-pkcs11 uses
-the concept of <i>mapper</i> that is, a list of configurable, stackable
+the concept of *mapper* that is, a list of configurable, stackable
 list of dynamic modules, each one trying to do a specific cert-to-login
 maping. Several mappers are provided:
 
@@ -58,27 +58,6 @@ maping. Several mappers are provided:
 
 Many mappers may use also a *mapfile* to translate Certificate
 contents to a login name.
-
-License
--------
-
-* Copyright © 2003-2004 Mario Strasser \<mast\@gmx.net\>\
-* Copyright © 2005 Juan Antonio Martinez \<jonsito\@teleline.es\>\
-* Copyright © 2005-2012 Ludovic Rousseau \<ludovic.rousseau\@free.fr\>
-
-This library is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or (at
-your option) any later version.
-
-This library is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
-General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with this library; if not, write to the Free Software Foundation,
-Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 Download
 --------
@@ -95,11 +74,11 @@ Installation
 Unpack the archive, configure, compile and install it:
 
 ```sh
-$ tar xvzf pkcs11_login-X.Y.Z.tar.gz
-$ cd pkcs11_login-X.Y.Z
-$ ./configure
-$ make
-$ sudo make install
+tar xvzf pkcs11_login-X.Y.Z.tar.gz
+cd pkcs11_login-X.Y.Z
+./configure
+make
+sudo make install
 ```
 
 If you want to use [cURL](http://curl.haxx.se/libcurl/) instead of
@@ -110,7 +89,7 @@ thus CRL download might not work for all LDAP URIs.
 
 Next, you have to create the needed openssl-hash-links.
 
-```
+```sh
 make_hash_link.sh ${path to the directory with the CA certificates}
 make_hash_link.sh ${path to the directory with the CRLs}
 ```
@@ -133,7 +112,7 @@ Documentation
 * [PAM-PKCS\#11 User Manual](http://opensc.github.io/pam_pkcs11/doc/pam_pkcs11.html)
 * [PAM-PKCS\#11 Mappers API Reference](http://opensc.github.io/pam_pkcs11/doc/mappers_api.html)
 * [TODO](https://raw.github.com/OpenSC/pam_pkcs11/master/TODO) file (outdated)
-* Man pages\
+* Man pages
   * [`pam_pkcs11(8)`](https://linux.die.net/man/8/pam_pkcs11)
   * [`card_eventmgr(1)`](https://linux.die.net/man/1/card_eventmgr)
   * [`pkcs11_eventmgr(1)`](https://linux.die.net/man/1/pkcs11_eventmgr)
