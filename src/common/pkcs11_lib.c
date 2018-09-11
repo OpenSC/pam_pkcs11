@@ -1208,7 +1208,7 @@ void release_pkcs11_module(pkcs11_handle_t *h)
   /* release all allocated memory */
   if (h->slots != NULL)
     free(h->slots);
-  cleanse(h, 0, sizeof(pkcs11_handle_t));
+  cleanse(h, sizeof(pkcs11_handle_t));
   free(h);
 }
 
