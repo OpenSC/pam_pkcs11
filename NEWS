@@ -1,3 +1,13 @@
+12- Sep 2018
+    - Version 0.6.10 is out.
+	- Fixed some security issues (thx @frankmorgner):
+	  (https://www.x41-dsec.de/lab/advisories/x41-2018-003-pam_pkcs11/)
+	  -- fixed buffer overflow with long home directory;
+	  -- fixed wiping secrets (now using OpenSSL_cleanse());
+	  -- verify using a nonce from the system, not the card.
+
+... 0.6.9 ... 0.6.0 are yet undescribed.
+
 12- Sep 2005
 	- Finally pam_pkcs11-0.5.3 is out.
 	- New mapper API and Docs
