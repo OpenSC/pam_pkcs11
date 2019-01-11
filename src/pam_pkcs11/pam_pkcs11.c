@@ -402,6 +402,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
 
   if (rv != 0) {
+      release_pkcs11_module(ph);
       /* Still no card */
       if (pkcs11_pam_fail != PAM_IGNORE) {
           if (!configuration->quiet) {
@@ -412,8 +413,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       } else {
           pam_prompt(pamh, PAM_TEXT_INFO,
                      NULL, _("No smartcard found"));
+          goto exit_ignore;
       }
-      release_pkcs11_module(ph);
       return pkcs11_pam_fail;
   }
 
