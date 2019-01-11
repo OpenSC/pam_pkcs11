@@ -325,7 +325,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   /* if we are using a screen saver, and we didn't log in using the smart card
    * drop to the next pam module.  */
   if (is_a_screen_saver && !login_token_name) {
-    return PAM_IGNORE;
+	  goto exit_ignore;
   }
 
   /* load pkcs #11 module */
@@ -371,7 +371,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
         /* If the login isn't restricted to card-only, then proceed
            to the next auth. module quietly. */
         release_pkcs11_module(ph);
-        return PAM_IGNORE;
+        goto exit_ignore;
     }
 
     if (!configuration->wait_for_card) {
@@ -794,7 +794,11 @@ auth_failed_nopw:
         cleanse( password, strlen(password) );
         free( password );
     }
-    return pkcs11_pam_fail;
+
+	if (PAM_IGNORE == pkcs11_pam_fail)
+		goto exit_ignore;
+	else
+		return pkcs11_pam_fail;
 
 auth_failed_wrongpw:
     unload_mappers();
@@ -805,6 +809,11 @@ auth_failed_wrongpw:
         free( password );
     }
     return PAM_AUTH_ERR;
+
+ exit_ignore:
+	pam_prompt( pamh, PAM_TEXT_INFO, NULL,
+				_("Smartcard authentication cancelled") );
+	return PAM_IGNORE;
 }
 
 PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv)
