@@ -21,7 +21,7 @@ EXTRA_DIST = $(MANSRC) $(XMLFILES) $(HTMLFILES) doxygen.conf.in \
 	README.ldap_mapper export-wiki.sh generate-api.sh \
 	api/index.html $(shell ls api/*)
 
-STYLESHEET = pam_pkcs11.xsl
+STYLESHEET = $(srcdir)/pam_pkcs11.xsl
 
 %.html: %.xml $(STYLESHEET)
 if HAVE_DOCBOOK
