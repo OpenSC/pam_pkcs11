@@ -287,13 +287,19 @@ static int openssh_mapper_match_keys(X509 *x509, const char *filename) {
 	fclose(fd);
         for (i = 0; i < nkeys; i++) {
                 RSA *authrsa, *rsa;
-		BIGNUM *authrsa_n, *authrsa_e;
-		BIGNUM *rsa_n, *rsa_e;
+                BIGNUM *authrsa_n, *authrsa_e;
+                BIGNUM *rsa_n, *rsa_e;
                 authrsa = EVP_PKEY_get1_RSA(authkey);
                 if (!authrsa) continue;       /* not RSA */
                 rsa = EVP_PKEY_get1_RSA(keys[i]);
                 if (!rsa) continue;       /* not RSA */
+
+                authrsa_e = RSA_get0_e(authrsa);
+                rsa_e = RSA_get0_e(rsa);
                 if (BN_cmp(rsa_e, authrsa_e) != 0) continue;
+
+                authrsa_n = RSA_get0_n(authrsa);
+                rsa_n = RSA_get0_n(rsa);
                 if (BN_cmp(rsa_n, authrsa_n) != 0) continue;
                 return 1;       /* FOUND */
         }

@@ -96,6 +96,8 @@ extern "C" {
 #define X509_get0_tbs_sigalg(x)		(x->cert_info->key->algor)
 #define X509_OBJECT_get0_X509(x)	(x->data.x509)
 #define X509_OBJECT_get0_X509_CRL(x)	(x->data.crl)
+#define RSA_get0_e(x) (x->e)
+#define RSA_get0_n(x) (x->n)
 
 #define X509_OBJECT_free(x) ({ \
 	if (x) { \
