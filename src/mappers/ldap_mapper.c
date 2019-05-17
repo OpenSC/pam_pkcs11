@@ -841,7 +841,7 @@ ldap_build_filter(const char *filter, const char *login, const char *map,
 
 	/* If no user name is specified, this is a search across all users. */
 	if (login != NULL) {
-		escaped = ldap_encode_escapes(login, strlen(login));
+		escaped = ldap_encode_escapes((const unsigned char *)login, strlen(login));
 	} else {
 		escaped = strdup("*");
 	}
