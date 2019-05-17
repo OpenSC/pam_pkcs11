@@ -50,8 +50,7 @@ char *clone_str(const char *str) {
 	size_t len= strlen(str);
 	char *dst= malloc(1+len);
 	if (!dst) return NULL;
-	strncpy(dst,str,len);
-	*(dst+len)='\0';
+	memcpy(dst,str,len+1);
 	return dst;
 }
 
