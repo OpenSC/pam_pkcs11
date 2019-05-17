@@ -98,6 +98,8 @@ extern "C" {
 #define X509_OBJECT_get0_X509_CRL(x)	(x->data.crl)
 #define RSA_get0_e(x) (x->e)
 #define RSA_get0_n(x) (x->n)
+#define ECDSA_SIG_get0_r(x) (x->r)
+#define ECDSA_SIG_get0_s(x) (x->s)
 
 #define X509_OBJECT_free(x) ({ \
 	if (x) { \
