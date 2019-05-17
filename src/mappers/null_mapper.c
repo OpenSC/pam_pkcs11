@@ -40,12 +40,12 @@
 */
 
 static const char *default_user = "nobody";
-static int match=0;
+static int Match=0;
 static int debug=0;
 
 static char * mapper_find_user(X509 *x509,void *context,int *mp) {
 	if ( !x509 ) return NULL;
-	if (match) {
+	if (Match) {
 	    *mp = 1;
 	    return clone_str((char *)default_user);
 	}
@@ -87,14 +87,14 @@ mapper_module * null_mapper_module_init(scconf_block *ctx,const char *mapper_nam
 	mapper_module *pt= NULL;
 	if (ctx) {
 	default_user = scconf_get_str( ctx,"default_user",default_user);
-	match = scconf_get_bool( ctx,"default_match",0);
+	Match = scconf_get_bool( ctx,"default_match",0);
 		debug = scconf_get_bool( ctx,"debug",0);
 	} else {
 		DBG1("No block declaration for mapper '%s'", mapper_name);
 	}
 	set_debug_level(debug);
 	pt = init_mapper_st(ctx,mapper_name);
-	if (pt) DBG1("Null mapper match set to '%s'",match?"always":"never");
+	if (pt) DBG1("Null mapper match set to '%s'",Match?"always":"never");
 	else DBG("Null mapper initialization failed");
 	return pt;
 }
