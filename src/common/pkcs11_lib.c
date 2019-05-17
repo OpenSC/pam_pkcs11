@@ -1145,7 +1145,6 @@ refresh_slots(pkcs11_handle_t *h)
 int init_pkcs11_module(pkcs11_handle_t *h,int flag)
 {
   int rv;
-  CK_ULONG i;
   /* CK_SLOT_ID_PTR slots; */
   CK_INFO info;
   /*
