@@ -1811,7 +1811,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
     return -1;
   }
   *signature = NULL;
-  *signature_length = 128;
+  *signature_length = 64;
   while (*signature == NULL) {
     *signature = malloc(*signature_length);
     if (*signature == NULL) {
@@ -1823,7 +1823,6 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       /* increase signature length as long as it it to short */
       free(*signature);
       *signature = NULL;
-      *signature_length *= 2;
       DBG1("increased signature buffer-length to %ld", *signature_length);
     } else if (rv != CKR_OK) {
       free(*signature);
