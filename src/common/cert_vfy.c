@@ -499,11 +499,15 @@ int verify_certificate(X509 * x509, cert_policy *policy)
 }
 
 int verify_signature(X509 * x509, unsigned char *data, int data_length,
-                     unsigned char *signature, int signature_length)
+                     unsigned char **signature, int *signature_length)
 {
   int rv;
   EVP_PKEY *pubkey;
   EVP_MD_CTX *md_ctx = NULL;
+  ECDSA_SIG* ec_sig;
+  int sig_der_len;
+  int rs_len;
+  unsigned char *p = NULL;
 
   /* get the public-key */
   pubkey = X509_get_pubkey(x509);
@@ -511,11 +515,34 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
     set_error("X509_get_pubkey() failed: %s", ERR_error_string(ERR_get_error(), NULL));
     return -1;
   }
+
+  DBG1("public key type: 0x%08lx", EVP_PKEY_base_id(pubkey));
+  DBG1("public key bits: 0x%08lx", EVP_PKEY_bits(pubkey));
+
+  if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
+    rs_len = *signature_length / 2;
+    ec_sig = ECDSA_SIG_new();
+    BN_bin2bn(*signature, rs_len, ECDSA_SIG_get0_r(ec_sig));
+    BN_bin2bn(*signature + rs_len, rs_len, ECDSA_SIG_get0_s(ec_sig));
+    *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
+    free(*signature);
+    *signature = malloc(*signature_length);
+    p = *signature;
+    *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
+    ECDSA_SIG_free(ec_sig);
+  }
+
   md_ctx = EVP_MD_CTX_new();
   /* verify the signature */
+#ifdef USE_HASH_SHA1
+  DBG("hashing with SHA1");
   EVP_VerifyInit(md_ctx, EVP_sha1());
+#else
+  DBG("hashing with SHA256");
+  EVP_VerifyInit(md_ctx, EVP_sha256());
+#endif
   EVP_VerifyUpdate(md_ctx, data, data_length);
-  rv = EVP_VerifyFinal(md_ctx, signature, signature_length, pubkey);
+  rv = EVP_VerifyFinal(md_ctx, *signature, *signature_length, pubkey);
   EVP_PKEY_free(pubkey);
   EVP_MD_CTX_free(md_ctx);
   if (rv != 1) {

@@ -726,7 +726,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     /* verify the signature */
     DBG("verifying signature...");
     rv = verify_signature((X509 *)get_X509_certificate(chosen_cert),
-             random_value, sizeof(random_value), signature, signature_length);
+             random_value, sizeof(random_value), &signature, &signature_length);
     if (signature != NULL) {
       free(signature);
     }

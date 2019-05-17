@@ -1760,8 +1760,14 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
 	CK_ULONG length, CK_BYTE **signature, CK_ULONG *signature_length)
 {
   int rv;
+  int h_offset = 0;
+#ifdef USE_HASH_SHA1
   CK_BYTE hash[15 + SHA_DIGEST_LENGTH] =
       "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14";
+#else
+  CK_BYTE hash[19 + SHA256_DIGEST_LENGTH] =
+      "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20";
+#endif
   CK_MECHANISM mechanism = { 0, NULL, 0 };
 
 
@@ -1775,14 +1781,29 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
     case CKK_RSA:
       mechanism.mechanism = CKM_RSA_PKCS;
       break;
+    case CKK_ECDSA:
+      mechanism.mechanism = CKM_ECDSA;
+#ifdef USE_HASH_SHA1
+      h_offset = 15;
+#else
+      h_offset = 19;
+#endif
+      break;
     default:
       set_error("unsupported private key type 0x%08X", cert->key_type);
       return -1;
   }
   /* compute hash-value */
+#ifdef USE_HASH_SHA1
+  DBG("hashing with SHA1");
   SHA1(data, length, &hash[15]);
   DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
       hash[15], hash[16], hash[17], hash[sizeof(hash) - 1]);
+#else
+  SHA256(data, length, &hash[19]);
+  DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
+      hash[19], hash[20], hash[21], hash[sizeof(hash) - 1]);
+#endif
   /* sign the token */
   rv = h->fl->C_SignInit(h->session, &mechanism, cert->private_key);
   if (rv != CKR_OK) {
@@ -1797,7 +1818,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       set_error("not enough free memory available");
       return -1;
     }
-    rv = h->fl->C_Sign(h->session, hash, sizeof(hash), *signature, signature_length);
+    rv = h->fl->C_Sign(h->session, hash + h_offset, sizeof(hash) - h_offset, *signature, signature_length);
     if (rv == CKR_BUFFER_TOO_SMALL) {
       /* increase signature length as long as it it to short */
       free(*signature);
