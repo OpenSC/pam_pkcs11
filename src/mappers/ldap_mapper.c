@@ -833,7 +833,7 @@ ldap_build_cert_filter(const char *map, X509 *x509)
 
 /* Build a filter suitable for locating the entry for the named user. */
 static char *
-ldap_build_filter(const char *filter, const char *login, const char *map,
+ldap_build_filter(const char *filter_param, const char *login, const char *map,
 		  X509 *x509)
 {
 	char *buf, *user_filter, *escaped, *cert_filter;
@@ -852,14 +852,14 @@ ldap_build_filter(const char *filter, const char *login, const char *map,
 	}
 
 	/* Build a user filter using the supplied filter and user name. */
-	user_filter_len = strlen(filter) + strlen(escaped) + 1;
+	user_filter_len = strlen(filter_param) + strlen(escaped) + 1;
 	user_filter = malloc(user_filter_len);
 	if (user_filter == NULL) {
 		DBG("ldap_build_filter(): out of memory for user filter");
 		free(escaped);
 		return NULL;
 	}
-	snprintf(user_filter, user_filter_len, filter, escaped);
+	snprintf(user_filter, user_filter_len, filter_param, escaped);
 	free(escaped);
 
 	/* Build the part of the filter that's specific to the certificate. */
@@ -874,7 +874,7 @@ ldap_build_filter(const char *filter, const char *login, const char *map,
 	buf_len = 3 + strlen(user_filter) + 2 + 2 + strlen(cert_filter) + 2;
 	buf = malloc(buf_len);
 	if (buf != NULL) {
-		if (filter[0] == '(') {
+		if (filter_param[0] == '(') {
 			snprintf(buf, buf_len, "(&%s%s)", user_filter,
 				 cert_filter);
 		} else {
