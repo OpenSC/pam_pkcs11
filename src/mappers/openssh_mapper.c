@@ -287,8 +287,8 @@ static int openssh_mapper_match_keys(X509 *x509, const char *filename) {
 	fclose(fd);
         for (i = 0; i < nkeys; i++) {
                 RSA *authrsa, *rsa;
-                BIGNUM *authrsa_n, *authrsa_e;
-                BIGNUM *rsa_n, *rsa_e;
+                const BIGNUM *authrsa_n, *authrsa_e;
+                const BIGNUM *rsa_n, *rsa_e;
                 authrsa = EVP_PKEY_get1_RSA(authkey);
                 if (!authrsa) continue;       /* not RSA */
                 rsa = EVP_PKEY_get1_RSA(keys[i]);
