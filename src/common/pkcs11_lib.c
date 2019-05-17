@@ -1682,6 +1682,10 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
     ,
     {CKA_ID, NULL, 0}
   };
+  CK_KEY_TYPE key_type;
+  CK_ATTRIBUTE attr_template[] = {
+    {CKA_KEY_TYPE, &key_type, sizeof(key_type)}
+  };
   CK_OBJECT_HANDLE object;
   CK_ULONG object_count;
   int rv;
@@ -1721,8 +1725,16 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
     return -1;
   }
 
+  /* get private key type */
+  rv = h->fl->C_GetAttributeValue(h->session, object, attr_template, sizeof(attr_template) / sizeof(CK_ATTRIBUTE));
+  if (rv != CKR_OK) {
+    set_error("C_GetAttributeValue() failed! 0x%08lX", rv);
+    return -1;
+  }
+  DBG1("private key type: 0x%08lX", key_type);
+
   cert->private_key = object;
-  cert->key_type = CKK_RSA;
+  cert->key_type = key_type;
 
   return 0;
 
@@ -1764,7 +1776,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       mechanism.mechanism = CKM_RSA_PKCS;
       break;
     default:
-      set_error("unsupported key type %d", cert->type);
+      set_error("unsupported private key type 0x%08X", cert->key_type);
       return -1;
   }
   /* compute hash-value */
