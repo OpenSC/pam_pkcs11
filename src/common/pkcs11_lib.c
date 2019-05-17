@@ -1108,7 +1108,6 @@ refresh_slots(pkcs11_handle_t *h)
   for (i = 0; i < h->slot_count; i++) {
     CK_SLOT_INFO sinfo;
     CK_TOKEN_INFO tinfo;
-    CK_RV rv;
 
     DBG1("slot %ld:", i + 1);
     rv = h->fl->C_GetSlotInfo(h->slots[i].id, &sinfo);
