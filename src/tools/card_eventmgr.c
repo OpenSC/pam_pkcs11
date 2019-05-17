@@ -333,7 +333,7 @@ int main(int argc, char *argv[]) {
 	    pid_t pid = read_pidfile(pidfile);
 	    if (pid > 0)
 	    {
-		DBG1("Killing process: %ld", pid);
+		DBG1("Killing process: %ld", (long)pid);
 	    	kill(pid, SIGQUIT);
 	    }
 	    else
