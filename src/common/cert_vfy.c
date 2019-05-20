@@ -505,7 +505,6 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   EVP_PKEY *pubkey;
   EVP_MD_CTX *md_ctx = NULL;
   ECDSA_SIG* ec_sig;
-  int sig_der_len;
   int rs_len;
   unsigned char *p = NULL;
 
