@@ -42,7 +42,7 @@ int verify_certificate(X509 * x509, cert_policy *policy)
 }
 
 int verify_signature(X509 * x509, unsigned char *data, int data_length,
-                     unsigned char *signature, int signature_length)
+                     unsigned char **signature, int *signature_length)
 {
 
   SECKEYPublicKey *key;
@@ -60,8 +60,8 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   /* shouldn't the algorithm be passed in? */
   algid = SEC_GetSignatureAlgorithmOidTag(key->keyType, SEC_OID_SHA1);
 
-  sig.data = signature;
-  sig.len = signature_length;
+  sig.data = *signature;
+  sig.len = *signature_length;
   rv = VFY_VerifyData(data, data_length, key, &sig, algid, NULL);
   if (rv != SECSuccess) {
 	DBG1("Couldn't verify Signature: %s", SECU_Strerror(PR_GetError()));
