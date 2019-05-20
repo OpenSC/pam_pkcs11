@@ -42,7 +42,7 @@ int verify_certificate(X509 * x509, cert_policy *policy)
 }
 
 int verify_signature(X509 * x509, unsigned char *data, int data_length,
-                     unsigned char **signature, int *signature_length)
+                     unsigned char **signature, unsigned long *signature_length)
 {
 
   SECKEYPublicKey *key;
@@ -499,7 +499,7 @@ int verify_certificate(X509 * x509, cert_policy *policy)
 }
 
 int verify_signature(X509 * x509, unsigned char *data, int data_length,
-                     unsigned char **signature, int *signature_length)
+                     unsigned char **signature, unsigned long *signature_length)
 {
   int rv;
   EVP_PKEY *pubkey;

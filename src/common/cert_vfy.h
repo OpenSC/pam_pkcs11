@@ -78,7 +78,7 @@ CERTVFY_EXTERN int verify_certificate(X509 * x509, cert_policy *policy);
 *@param signature_length Length of signature byte array
 *@return 1 on signature vfy sucess, 0 on vfy fail, -1 on process error
 */
-CERTVFY_EXTERN int verify_signature(X509 * x509, unsigned char *data, int data_length, unsigned char **signature, int *signature_length);
+CERTVFY_EXTERN int verify_signature(X509 * x509, unsigned char *data, int data_length, unsigned char **signature, unsigned long *signature_length);
 
 #undef CERTVFY_EXTERN
 
