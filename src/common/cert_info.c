@@ -120,7 +120,7 @@ static char **cert_info_digest(X509 *x509, ALGORITHM_TYPE algorithm) {
 
   if (type == HASH_AlgNULL) {
     type = HASH_AlgSHA1;
-    DBG1("Invalid digest algorithm, using 'sha1'",algorithm);
+    DBG1("Invalid digest algorithm 0x%X, using 'sha1'",algorithm);
   }
   HASH_HashBuf(type, data, x509->derCert.data, x509->derCert.len);
   entries[0] = bin2hex(data,HASH_ResultLen(type));
