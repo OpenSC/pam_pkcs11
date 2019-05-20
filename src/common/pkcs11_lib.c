@@ -262,7 +262,7 @@ static SECMODModule *find_module_by_library(char *pkcs11_module)
   DBG("Looking up module in list");
   for ( ; modList; modList = modList->next) {
     char *dllName = modList->module->dllName;
-    DBG2("modList = 0x%x next = 0x%x\n", modList, modList->next);
+    DBG2("modList = %p next = %p\n", modList, modList->next);
     DBG1("dllName= %s \n", dllName ? dllName : "<null>");
     if (dllName && strcmp(dllName,pkcs11_module) == 0) {
         module = SECMOD_ReferenceModule(modList->module);
