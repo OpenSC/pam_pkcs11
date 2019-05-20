@@ -516,8 +516,8 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
     return -1;
   }
 
-  DBG1("public key type: 0x%08lx", EVP_PKEY_base_id(pubkey));
-  DBG1("public key bits: 0x%08lx", EVP_PKEY_bits(pubkey));
+  DBG1("public key type: 0x%08x", EVP_PKEY_base_id(pubkey));
+  DBG1("public key bits: 0x%08x", EVP_PKEY_bits(pubkey));
 
   if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
     rs_len = *signature_length / 2;
