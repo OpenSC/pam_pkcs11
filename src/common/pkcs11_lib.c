@@ -303,7 +303,7 @@ int load_pkcs11_module(const char *pkcs11_module, pkcs11_handle_t **hp)
   /* specified module is not already loaded, load it now */
   moduleSpec = malloc(sizeof(SPEC_TEMPLATE) + strlen(pkcs11_module));
   if (!moduleSpec) {
-    DBG1("Malloc failed when allocating module spec", strerror(errno));
+    DBG1("Malloc failed when allocating module spec: %s", strerror(errno));
     free (h);
     return -1;
   }
