@@ -507,7 +507,7 @@ int main(int argc, char *argv[])
 		/* threaded applications should also acquire the
 		 * DefaultModuleListLock */
 		DBG("Looking up new module\n");
-		for (; modList; modList->next)
+		for (; modList; modList = modList->next)
 		{
 			if (SECMOD_HasRemovableSlots(modList->module))
 			{
