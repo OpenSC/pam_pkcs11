@@ -252,7 +252,7 @@ int crypto_init(cert_policy *policy) {
 }
 
 
-static SECMODModule *find_module_by_library(char *pkcs11_module)
+static SECMODModule *find_module_by_library(const char *pkcs11_module)
 {
   SECMODModule *module = NULL;
   SECMODModuleList *modList = SECMOD_GetDefaultModuleList();
