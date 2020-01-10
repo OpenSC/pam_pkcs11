@@ -1812,8 +1812,9 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
     return -1;
   }
   *signature = NULL;
-  *signature_length = 64;
+  *signature_length = 1024;
   while (*signature == NULL) {
+    CK_ULONG current_signature_length = *signature_length;
     *signature = malloc(*signature_length);
     if (*signature == NULL) {
       set_error("not enough free memory available");
@@ -1824,6 +1825,11 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       /* increase signature length as long as it it to short */
       free(*signature);
       *signature = NULL;
+      if (current_signature_length >= *signature_length) {
+        /* workaround for buggy PKCS#11 implementation: it didn't change
+           or even lowered buffer size - forcing using larger (double size) buffer */
+        *signature_length = current_signature_length * 2;
+      }
       DBG1("increased signature buffer-length to %ld", *signature_length);
     } else if (rv != CKR_OK) {
       free(*signature);
