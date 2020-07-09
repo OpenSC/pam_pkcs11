@@ -482,6 +482,7 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   EVP_MD_CTX *md_ctx = NULL;
   const EVP_MD* md;
   int nid;
+  ASN1_OBJECT **algorithm;
   /* get the public-key */
   pubkey = X509_get_pubkey(x509);
   if (pubkey == NULL) {
@@ -489,7 +490,8 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
     return -1;
   }
 
-  nid = OBJ_obj2nid(x509->cert_info->key->algor->algorithm);
+  X509_PUBKEY_get0_param(&algorithm, NULL, NULL, NULL, X509_get_X509_PUBKEY(x509));
+  nid = OBJ_obj2nid(algorithm);
   if( NID_id_GostR3410_2001 == nid )
     md = EVP_get_digestbyname("md_gost94");
   else
@@ -527,8 +529,8 @@ int verify_eku_sc_logon(X509 * x509)
       ASN1_OBJECT* extobj = sk_ASN1_OBJECT_value( eku, i );
       if( NULL == extobj )
         continue;
-      if( sizeof(id_kp_sc_logon) == extobj->length
-          && 0 == memcmp(extobj->data, id_kp_sc_logon, sizeof(id_kp_sc_logon)) )
+      if( sizeof(id_kp_sc_logon) == OBJ_length(extobj)
+          && 0 == memcmp(OBJ_get0_data(extobj), id_kp_sc_logon, sizeof(id_kp_sc_logon)) )
       {
         rv = 1;
         break;
