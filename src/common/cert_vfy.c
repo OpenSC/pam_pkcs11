@@ -159,8 +159,13 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
     return -1;
   }
   /* extract public key and verify signature */
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
   issuer_cert = X509_OBJECT_get0_X509((&obj));
+#else
+  issuer_cert = X509_OBJECT_get0_X509(obj);
+#endif
   pkey = X509_get_pubkey(issuer_cert);
+
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
   X509_OBJECT_free_contents(&obj);
 #else
