@@ -1,7 +1,6 @@
 This is the README of the PKCS #11 PAM Login Module
 ======================================================================
 
-Release: 0.6.10
 Authors:  Mario Strasser <mast@gmx.net>
           Juan Antonio Martinez <jonsito@teleline.es>
           Ludovic Rouseau <ludovic.rousseau@free.fr>

@@ -120,7 +120,7 @@ static char **cert_info_digest(X509 *x509, ALGORITHM_TYPE algorithm) {
 
   if (type == HASH_AlgNULL) {
     type = HASH_AlgSHA1;
-    DBG1("Invalid digest algorithm, using 'sha1'",algorithm);
+    DBG1("Invalid digest algorithm 0x%X, using 'sha1'",algorithm);
   }
   HASH_HashBuf(type, data, x509->derCert.data, x509->derCert.len);
   entries[0] = bin2hex(data,HASH_ResultLen(type));
@@ -670,7 +670,7 @@ static char **cert_info_sshpuk(X509 *x509) {
 	const char *type;
 	char *buf;
 	unsigned char *blob,*pt,*data = NULL;
-	int data_len;
+	size_t data_len;
 	int res;
 	static char *entries[2] = { NULL,NULL };
 	const BIGNUM *dsa_p, *dsa_q, *dsa_g, *dsa_pub_key;
@@ -731,10 +731,10 @@ static char **cert_info_sshpuk(X509 *x509) {
 	/* data_len=8192; */
 	data=calloc(data_len,sizeof(unsigned char));
 	if(!data) {
-		DBG1("calloc() to uuencode buffer '%d'",data_len);
+		DBG1("calloc() to uuencode buffer '%ld'",data_len);
 		goto sshpuk_fail;
 	}
-	res= base64_encode(blob,pt-blob,data,(size_t *) &data_len);
+	res= base64_encode(blob,pt-blob,data, &data_len);
 	if (res<0) {
 		DBG("BASE64 Encode failed");
 		goto sshpuk_fail;
