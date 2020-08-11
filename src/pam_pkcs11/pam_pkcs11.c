@@ -726,7 +726,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     /* verify the signature */
     DBG("verifying signature...");
     rv = verify_signature((X509 *)get_X509_certificate(chosen_cert),
-             random_value, sizeof(random_value), signature, signature_length);
+             random_value, sizeof(random_value), &signature, &signature_length);
     if (signature != NULL) {
       free(signature);
     }
@@ -751,7 +751,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
    */
   snprintf(env_temp, sizeof(env_temp) - 1,
 	   "PKCS11_LOGIN_TOKEN_NAME=%.*s",
-	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_TOKEN_NAME=")),
+	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_TOKEN_NAME=") -1),
 	   get_slot_tokenlabel(ph));
   rv = pam_putenv(pamh, env_temp);
 
@@ -768,7 +768,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   if (issuer) {
     snprintf(env_temp, sizeof(env_temp) - 1,
 	   "PKCS11_LOGIN_CERT_ISSUER=%.*s",
-	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_ISSUER=")),
+	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_ISSUER=") -1),
 	   issuer[0]);
     rv = pam_putenv(pamh, env_temp);
   } else {
@@ -790,7 +790,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   if (serial) {
     snprintf(env_temp, sizeof(env_temp) - 1,
 	   "PKCS11_LOGIN_CERT_SERIAL=%.*s",
-	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_SERIAL=")),
+	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_SERIAL=") -1),
 	   serial[0]);
     rv = pam_putenv(pamh, env_temp);
   } else {

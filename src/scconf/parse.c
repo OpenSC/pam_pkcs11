@@ -387,6 +387,7 @@ int scconf_parse(scconf_context * config)
 		r = -1;
 	} else if (p.error) {
 		strncpy(buffer, p.emesg, sizeof(buffer)-1);
+		buffer[sizeof(buffer)-1] = '\0';
 		r = 0;
 	} else {
 		r = 1;
@@ -414,6 +415,7 @@ int scconf_parse_string(scconf_context * config, const char *string)
 		r = -1;
 	} else if (p.error) {
 		strncpy(buffer, p.emesg, sizeof(buffer)-1);
+		buffer[sizeof(buffer)-1] = '\0';
 		r = 0;
 	} else {
 		r = 1;

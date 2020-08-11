@@ -37,7 +37,7 @@ void debug_print(int level, const char *file, int line, const char *format, ...)
   if (debug_level >= level) {
     /* is stdout is a tty */
     if (isatty(1)) {
-      const char *t = "\033[34mDEBUG"; /* blue */
+      const char *t = "\033[32mDEBUG"; /* green */
 
       if (-1 == level)
         t = "\033[31mERROR"; /* red */

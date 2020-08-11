@@ -479,7 +479,7 @@ int main(int argc, char *argv[])
 			malloc(sizeof(SPEC_TEMPLATE) + strlen(pkcs11_module));
 		if (!moduleSpec)
 		{
-			DBG1("Malloc failed when allocating module spec",
+			DBG1("Malloc failed when allocating module spec: %s",
 				strerror(errno));
 			return 1;
 		}
@@ -507,7 +507,7 @@ int main(int argc, char *argv[])
 		/* threaded applications should also acquire the
 		 * DefaultModuleListLock */
 		DBG("Looking up new module\n");
-		for (; modList; modList->next)
+		for (; modList; modList = modList->next)
 		{
 			if (SECMOD_HasRemovableSlots(modList->module))
 			{
@@ -528,7 +528,7 @@ int main(int argc, char *argv[])
 		DBG("Going to be daemon...");
 		if (daemon(0, debug) < 0)
 		{
-			DBG1("Error in daemon() call", strerror(errno));
+			DBG1("Error in daemon() call: %s", strerror(errno));
 			SECMOD_DestroyModule(module);
 			rv = NSS_Shutdown();
 			if (ctx)

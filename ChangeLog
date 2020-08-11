@@ -1,3 +1,12 @@
+22- May 2019
+    - Version 0.6.11
+    - Support OpenSSL 1.1.0
+    - use green instead of blue text for logs on the console
+    - Solaris runs build process outside of srcdir
+    - Fix openssh_mapper_match_keys() for OpenSSL 1.0 & 1.1
+    - Fix 64-bit pkcs11_inspect(1) fails on SPARC with a SIBGUS due to misaligned access
+    - Add support of ECDSA signature in addition to RSA
+
 12- Sep 2018
     - Version 0.6.10 is out.
     - Fixed some security issues (thx @frankmorgner):
