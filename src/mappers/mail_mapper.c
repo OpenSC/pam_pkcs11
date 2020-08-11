@@ -97,7 +97,7 @@ static int compare_email(char *email, const char *user) {
 	DBG2("Mail domain name %s does not match with %s",1+at,hostname);
 	return 0;
     }
-    return (at - c_email) == strlen(c_user) && !strncmp(c_email, c_user, strlen(c_user));
+    return (at - c_email) == (int)strlen(c_user) && !strncmp(c_email, c_user, strlen(c_user));
   } else { /* no domain provide: just a strcmp */
     return !strcmp(c_email, c_user);
   }

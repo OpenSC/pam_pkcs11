@@ -42,7 +42,7 @@ int verify_certificate(X509 * x509, cert_policy *policy)
 }
 
 int verify_signature(X509 * x509, unsigned char *data, int data_length,
-                     unsigned char *signature, int signature_length)
+                     unsigned char **signature, unsigned long *signature_length)
 {
 
   SECKEYPublicKey *key;
@@ -60,8 +60,8 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   /* shouldn't the algorithm be passed in? */
   algid = SEC_GetSignatureAlgorithmOidTag(key->keyType, SEC_OID_SHA1);
 
-  sig.data = signature;
-  sig.len = signature_length;
+  sig.data = *signature;
+  sig.len = *signature_length;
   rv = VFY_VerifyData(data, data_length, key, &sig, algid, NULL);
   if (rv != SECSuccess) {
 	DBG1("Couldn't verify Signature: %s", SECU_Strerror(PR_GetError()));
@@ -143,12 +143,17 @@ static X509_CRL *download_crl(const char *uri)
 static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 {
   int rv;
-  X509_OBJECT obj;
   EVP_PKEY *pkey = NULL;
   X509 *issuer_cert;
 
   /* get issuer certificate */
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
+  X509_OBJECT obj;
   rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), &obj);
+#else
+  X509_OBJECT *obj = X509_OBJECT_new();
+  rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), obj);
+#endif
   if (rv <= 0) {
     set_error("getting the certificate of the crl-issuer failed");
     return -1;
@@ -156,7 +161,11 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
   /* extract public key and verify signature */
   issuer_cert = X509_OBJECT_get0_X509((&obj));
   pkey = X509_get_pubkey(issuer_cert);
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
   X509_OBJECT_free_contents(&obj);
+#else
+  X509_OBJECT_free(obj);
+#endif
   if (pkey == NULL) {
     set_error("getting the issuer's public key failed");
     return -1;
@@ -202,14 +211,17 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t policy)
 {
   int rv, i, j;
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
   X509_OBJECT obj;
+#else
+  X509_OBJECT *obj = X509_OBJECT_new();
+#endif
   X509_REVOKED *rev = NULL;
   STACK_OF(DIST_POINT) * dist_points;
   DIST_POINT *point;
   GENERAL_NAME *name;
   X509_CRL *crl;
   X509 *x509_ca = NULL;
-  EVP_PKEY crl_pkey;
 
   DBG1("crl policy: %d", policy);
   if (policy == CRLP_NONE) {
@@ -227,13 +239,21 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
   } else if (policy == CRLP_OFFLINE) {
     /* OFFLINE */
     DBG("looking for an dedicated local crl");
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
     rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), &obj);
+#else
+    rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), obj);
+#endif
     if (rv <= 0) {
       set_error("no dedicated crl available");
       return -1;
     }
     crl = X509_OBJECT_get0_X509_CRL((&obj));
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
     X509_OBJECT_free_contents(&obj);
+#else
+    X509_OBJECT_free(obj);
+#endif
   } else if (policy == CRLP_ONLINE) {
     /* ONLINE */
     DBG("extracting crl distribution points");
@@ -247,7 +267,11 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
       }
       x509_ca = X509_OBJECT_get0_X509((&obj));
       dist_points = X509_get_ext_d2i(x509_ca, NID_crl_distribution_points, NULL, NULL);
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
       X509_OBJECT_free_contents(&obj);
+#else
+      X509_OBJECT_free(obj);
+#endif
       if (dist_points == NULL) {
         set_error("neither the user nor the ca certificate does contain a crl distribution point");
         return -1;
@@ -475,14 +499,15 @@ int verify_certificate(X509 * x509, cert_policy *policy)
 }
 
 int verify_signature(X509 * x509, unsigned char *data, int data_length,
-                     unsigned char *signature, int signature_length)
+                     unsigned char **signature, unsigned long *signature_length)
 {
   int rv;
   EVP_PKEY *pubkey;
   EVP_MD_CTX *md_ctx = NULL;
-  const EVP_MD* md;
+  const EVP_MD* md = NULL;
   int nid;
   ASN1_OBJECT **algorithm;
+
   /* get the public-key */
   pubkey = X509_get_pubkey(x509);
   if (pubkey == NULL) {
@@ -490,22 +515,52 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
     return -1;
   }
 
+  DBG1("public key type: 0x%08x", EVP_PKEY_base_id(pubkey));
+  DBG1("public key bits: 0x%08x", EVP_PKEY_bits(pubkey));
+
   X509_PUBKEY_get0_param(&algorithm, NULL, NULL, NULL, X509_get_X509_PUBKEY(x509));
   nid = OBJ_obj2nid(algorithm);
-  if( NID_id_GostR3410_2001 == nid )
-    md = EVP_get_digestbyname("md_gost94");
-  else
-    md = EVP_sha1();
+
+  switch ( nid ) {
+  case NID_id_GostR3410_2001:
+      md = EVP_get_digestbyname("md_gost94");
+      break;
+  default:
+#ifdef USE_HASH_SHA1
+      DBG("hashing with SHA1");
+      md = EVP_sha1();
+#else
+      DBG("hashing with SHA256");
+      md = EVP_sha256();
+
+      if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
+          ECDSA_SIG* ec_sig;
+          int rs_len;
+          unsigned char *p = NULL;
+
+          rs_len = *signature_length / 2;
+          ec_sig = ECDSA_SIG_new();
+          BN_bin2bn(*signature, rs_len, ECDSA_SIG_get0_r(ec_sig));
+          BN_bin2bn(*signature + rs_len, rs_len, ECDSA_SIG_get0_s(ec_sig));
+          *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
+          free(*signature);
+          *signature = malloc(*signature_length);
+          p = *signature;
+          *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
+          ECDSA_SIG_free(ec_sig);
+      }
+  }
+
   if (!md) {
     set_error("unsupported key algorithm, nid: %d", nid);
     return -1;
   }
 
-  md_ctx = EVP_MD_CTX_create();
   /* verify the signature */
+  md_ctx = EVP_MD_CTX_new();
   EVP_VerifyInit(md_ctx, md);
   EVP_VerifyUpdate(md_ctx, data, data_length);
-  rv = EVP_VerifyFinal(md_ctx, signature, signature_length, pubkey);
+  rv = EVP_VerifyFinal(md_ctx, *signature, *signature_length, pubkey);
   EVP_PKEY_free(pubkey);
   EVP_MD_CTX_free(md_ctx);
   if (rv != 1) {

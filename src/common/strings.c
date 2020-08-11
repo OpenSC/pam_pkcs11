@@ -50,8 +50,7 @@ char *clone_str(const char *str) {
 	size_t len= strlen(str);
 	char *dst= malloc(1+len);
 	if (!dst) return NULL;
-	strncpy(dst,str,len);
-	*(dst+len)='\0';
+	memcpy(dst,str,len+1);
 	return dst;
 }
 
@@ -155,7 +154,7 @@ char **split_static(const char *str,char sep, int nelems,char *dst){
         char *pt;
         char **res= calloc(nelems,sizeof(char*));
         if ( (!res) || (!dst) ) return NULL;
-        strncpy(dst,str,1+strlen(str));
+        strcpy(dst,str);
         for (pt=dst,n=0;n<nelems-1;n++) {
                 res[n]=pt;
                 pt=strchr(pt,sep);

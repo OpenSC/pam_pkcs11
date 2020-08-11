@@ -252,7 +252,7 @@ int crypto_init(cert_policy *policy) {
 }
 
 
-static SECMODModule *find_module_by_library(char *pkcs11_module)
+static SECMODModule *find_module_by_library(const char *pkcs11_module)
 {
   SECMODModule *module = NULL;
   SECMODModuleList *modList = SECMOD_GetDefaultModuleList();
@@ -262,7 +262,7 @@ static SECMODModule *find_module_by_library(char *pkcs11_module)
   DBG("Looking up module in list");
   for ( ; modList; modList = modList->next) {
     char *dllName = modList->module->dllName;
-    DBG2("modList = 0x%x next = 0x%x\n", modList, modList->next);
+    DBG2("modList = %p next = %p\n", modList, modList->next);
     DBG1("dllName= %s \n", dllName ? dllName : "<null>");
     if (dllName && strcmp(dllName,pkcs11_module) == 0) {
         module = SECMOD_ReferenceModule(modList->module);
@@ -303,7 +303,7 @@ int load_pkcs11_module(const char *pkcs11_module, pkcs11_handle_t **hp)
   /* specified module is not already loaded, load it now */
   moduleSpec = malloc(sizeof(SPEC_TEMPLATE) + strlen(pkcs11_module));
   if (!moduleSpec) {
-    DBG1("Malloc failed when allocating module spec", strerror(errno));
+    DBG1("Malloc failed when allocating module spec: %s", strerror(errno));
     free (h);
     return -1;
   }
@@ -1108,7 +1108,6 @@ refresh_slots(pkcs11_handle_t *h)
   for (i = 0; i < h->slot_count; i++) {
     CK_SLOT_INFO sinfo;
     CK_TOKEN_INFO tinfo;
-    CK_RV rv;
 
     DBG1("slot %ld:", i + 1);
     rv = h->fl->C_GetSlotInfo(h->slots[i].id, &sinfo);
@@ -1146,7 +1145,6 @@ refresh_slots(pkcs11_handle_t *h)
 int init_pkcs11_module(pkcs11_handle_t *h,int flag)
 {
   int rv;
-  CK_ULONG i;
   /* CK_SLOT_ID_PTR slots; */
   CK_INFO info;
   /*
@@ -1685,6 +1683,10 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
     ,
     {CKA_ID, NULL, 0}
   };
+  CK_KEY_TYPE key_type;
+  CK_ATTRIBUTE attr_template[] = {
+    {CKA_KEY_TYPE, &key_type, sizeof(key_type)}
+  };
   CK_OBJECT_HANDLE object;
   CK_ULONG object_count;
   int rv;
@@ -1724,17 +1726,16 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
     return -1;
   }
 
-  cert->private_key = object;
-  attr.type = CKA_KEY_TYPE;
-  attr.ulValueLen = sizeof(cert->key_type);
-  attr.pValue = &(cert->key_type);
-  rv = h->fl->C_GetAttributeValue(h->session, object, &attr,1);
+  /* get private key type */
+  rv = h->fl->C_GetAttributeValue(h->session, object, attr_template, sizeof(attr_template) / sizeof(CK_ATTRIBUTE));
   if (rv != CKR_OK) {
-    set_error("C_GetAttributeValue() failed: 0x%08lX", rv);
+    set_error("C_GetAttributeValue() failed! 0x%08lX", rv);
     return -1;
   }
+  DBG1("private key type: 0x%08lX", key_type);
 
-  DBG1("C_GetAttributeValue keytype: %x",cert->key_type);
+  cert->private_key = object;
+  cert->key_type = key_type;
 
   return 0;
 
@@ -1760,8 +1761,14 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
 	CK_ULONG length, CK_BYTE **signature, CK_ULONG *signature_length)
 {
   int rv;
+  int h_offset = 0;
+#ifdef USE_HASH_SHA1
   CK_BYTE hash[15 + SHA_DIGEST_LENGTH] =
       "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14";
+#else
+  CK_BYTE hash[19 + SHA256_DIGEST_LENGTH] =
+      "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20";
+#endif
   CK_MECHANISM mechanism = { 0, NULL, 0 };
 
 
@@ -1778,16 +1785,33 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
     case CKK_GOSTR3410:
       mechanism.mechanism = CKM_GOSTR3410_WITH_GOSTR3411;
       break;
+    case CKK_ECDSA:
+      mechanism.mechanism = CKM_ECDSA;
+#ifdef USE_HASH_SHA1
+      h_offset = 15;
+#else
+      h_offset = 19;
+#endif
+      break;
     default:
-      set_error("unsupported key type %d", cert->type);
+      set_error("unsupported private key type 0x%08X", cert->key_type);
       return -1;
   }
-  /* compute hash-value */
-  if( CKK_RSA == cert->key_type ) {
-    SHA1(data, length, &hash[15]);
-    DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
-        hash[15], hash[16], hash[17], hash[sizeof(hash) - 1]);
+
+  if( CKK_GOSTR3410 != cert->key_type ) {
+      /* compute hash-value */
+#ifdef USE_HASH_SHA1
+      DBG("hashing with SHA1");
+      SHA1(data, length, &hash[15]);
+      DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
+           hash[15], hash[16], hash[17], hash[sizeof(hash) - 1]);
+#else
+      SHA256(data, length, &hash[19]);
+      DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
+           hash[19], hash[20], hash[21], hash[sizeof(hash) - 1]);
+#endif
   }
+
   /* sign the token */
   DBG2("C_SignInit: mech: %x, keytype: %x", mechanism.mechanism, cert->key_type);
   rv = h->fl->C_SignInit(h->session, &mechanism, cert->private_key);
@@ -1803,15 +1827,14 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       set_error("not enough free memory available");
       return -1;
     }
-    if( CKK_RSA == cert->key_type )
-      rv = h->fl->C_Sign(h->session, hash, sizeof(hash), *signature, signature_length);
+    if( CKK_GOSTR3410 != cert->key_type )
+      rv = h->fl->C_Sign(h->session, hash + h_offset, sizeof(hash) - h_offset, *signature, signature_length);
     else
       rv = h->fl->C_Sign(h->session, data, length, *signature, signature_length);
     if (rv == CKR_BUFFER_TOO_SMALL) {
       /* increase signature length as long as it it to short */
       free(*signature);
       *signature = NULL;
-      *signature_length *= 2;
       DBG1("increased signature buffer-length to %ld", *signature_length);
     } else if (rv != CKR_OK) {
       free(*signature);

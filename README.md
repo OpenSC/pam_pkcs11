@@ -62,7 +62,7 @@ contents to a login name.
 Download
 --------
 
-* [pam\_pkcs11-0.6.9.tar.gz](http://sourceforge.net/projects/opensc/files/pam_pkcs11/)
+* [pam\_pkcs11-x.y.z.tar.gz](http://sourceforge.net/projects/opensc/files/pam_pkcs11/)
 
 Packages for [various Linux
 distributions](https://repology.org/metapackage/pam-pkcs11) are
