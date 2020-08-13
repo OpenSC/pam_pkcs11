@@ -440,7 +440,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2314: Slot login failed"));
 		sleep(configuration->err_display_time);
 	}
-    goto auth_failed_nopw;
+    goto auth_failed;
   } else if (rv) {
     /* get password */
 	pam_prompt(pamh, PAM_TEXT_INFO, NULL,
@@ -468,7 +468,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			}
 			pam_syslog(pamh, LOG_ERR,
 					"pam_get_pwd() failed: %s", pam_strerror(pamh, rv));
-			goto auth_failed_nopw;
+			goto auth_failed;
 		}
 #ifdef DEBUG_SHOW_PASSWORD
 		DBG1("password = [%s]", password);
@@ -482,7 +482,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 				pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2318: Empty smartcard PIN not allowed."));
 				sleep(configuration->err_display_time);
 			}
-			goto auth_failed_wrongpw;
+			pkcs11_pam_fail = PAM_AUTH_ERR;
+			goto auth_failed;
 		}
 	}
 	else
@@ -505,7 +506,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2320: Wrong smartcard PIN"));
 			sleep(configuration->err_display_time);
 		}
-      goto auth_failed_wrongpw;
+      pkcs11_pam_fail = PAM_AUTH_ERR;
+      goto auth_failed;
     }
   }
 
@@ -517,7 +519,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2322: No certificate found"));
 		sleep(configuration->err_display_time);
 	}
-    goto auth_failed_nopw;
+    goto auth_failed;
   }
 
   /* load mapper modules */
@@ -592,7 +594,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 				pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2332: setting PAM userentry failed"));
 				sleep(configuration->err_display_time);
 			}
-	    goto auth_failed_nopw;
+	    goto auth_failed;
 	}
           chosen_cert = cert_list[i];
           break; /* end loop, as find user success */
@@ -608,7 +610,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 				pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2334: No matching user"));
 				sleep(configuration->err_display_time);
 			}
-	  goto auth_failed_nopw;
+	  goto auth_failed;
         } else if (rv == 0) { /* match didn't success */
           DBG("certificate is valid but does not match the user");
 	  continue; /* try next certificate */
@@ -629,7 +631,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2336: No matching certificate found"));
 		sleep(configuration->err_display_time);
 	}
-    goto auth_failed_nopw;
+    goto auth_failed;
   }
 
 
@@ -645,7 +647,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       if (!configuration->quiet)
         pam_syslog(pamh, LOG_ERR,
                  "get_private_key() failed: %s", get_error());
-      goto auth_failed_nopw;
+      goto auth_failed;
     }
 #endif
 
@@ -658,7 +660,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2338: Getting random value failed"));
 			sleep(configuration->err_display_time);
 		}
-      goto auth_failed_nopw;
+      goto auth_failed;
     }
 
     /* sign random value */
@@ -672,7 +674,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2340: Signing failed"));
 			sleep(configuration->err_display_time);
 		}
-      goto auth_failed_nopw;
+      goto auth_failed;
     }
 
     /* verify the signature */
@@ -689,7 +691,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2342: Verifying signature failed"));
 			sleep(configuration->err_display_time);
 		}
-      goto auth_failed_wrongpw;
+      pkcs11_pam_fail = PAM_AUTH_ERR;
+      goto auth_failed;
     }
 
   } else {
@@ -769,7 +772,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, ("Error 2344: Closing PKCS#11 session failed"));
 			sleep(configuration->err_display_time);
 		}
-	goto auth_failed_wrongpw;
+		pkcs11_pam_fail = PAM_AUTH_ERR;
+		goto auth_failed;
   }
 
   if ( password ) {
@@ -785,7 +789,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   DBG("authentication succeeded");
   return PAM_SUCCESS;
 
-auth_failed_nopw:
+auth_failed:
     unload_mappers();
     close_pkcs11_session(ph);
     release_pkcs11_module(ph);
@@ -798,16 +802,6 @@ auth_failed_nopw:
 		goto exit_ignore;
 	else
 		return pkcs11_pam_fail;
-
-auth_failed_wrongpw:
-    unload_mappers();
-    close_pkcs11_session(ph);
-    release_pkcs11_module(ph);
-    if ( password ) {
-        cleanse( password, strlen(password) );
-        free( password );
-    }
-    return PAM_AUTH_ERR;
 
  exit_ignore:
 	pam_prompt( pamh, PAM_TEXT_INFO, NULL,
