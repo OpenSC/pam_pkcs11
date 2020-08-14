@@ -1060,7 +1060,7 @@ refresh_slots(pkcs11_handle_t *h)
   slots = NULL;
   rv = h->fl->C_GetSlotList(FALSE, NULL, &slot_count);
   if (rv != CKR_OK) {
-    set_error("C_GetSlotList() failed: %i", rv);
+    set_error("C_GetSlotList() failed: 0x%08lX", rv);
     return -1;
   }
 
@@ -1072,7 +1072,7 @@ refresh_slots(pkcs11_handle_t *h)
     /* get a list of all slots */
 	rv = h->fl->C_GetSlotList(FALSE, NULL, &h->slot_count);
 	if (rv != CKR_OK) {
-	  set_error("C_GetSlotList() failed: %i", rv);
+	  set_error("C_GetSlotList() failed: 0x%08lX", rv);
 	  return -1;
 	}
 	DBG1("number of slots (a): %ld", h->slot_count);
@@ -1095,7 +1095,7 @@ refresh_slots(pkcs11_handle_t *h)
 	rv = h->fl->C_GetSlotList(FALSE, slots, &h->slot_count);
 	if (rv != CKR_OK) {
 	  free(slots);
-	  set_error("C_GetSlotList() failed: %i", rv);
+	  set_error("C_GetSlotList() failed: 0x%08lX", rv);
 	  return -1;
 	}
 	DBG1("number of slots (b): %ld", h->slot_count);
