@@ -166,7 +166,7 @@ static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, in
   /* use stored password if variable oitem is set */
   if ((oitem == PAM_AUTHTOK) || (oitem == PAM_OLDAUTHTOK)) {
     /* try to get stored item */
-    rv = pam_get_item(pamh, oitem, &old_pwd);
+    rv = pam_get_item(pamh, oitem, (const void **) &old_pwd);
     if (rv != PAM_SUCCESS)
       return rv;
     if (old_pwd != NULL) {
@@ -179,7 +179,7 @@ static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, in
   if (text != NULL) {
     msg.msg_style = PAM_PROMPT_ECHO_OFF;
     msg.msg = text;
-    rv = pam_get_item(pamh, PAM_CONV, &conv);
+    rv = pam_get_item(pamh, PAM_CONV, (const void **) &conv);
     if (rv != PAM_SUCCESS)
       return rv;
     if ((conv == NULL) || (conv->conv == NULL))
