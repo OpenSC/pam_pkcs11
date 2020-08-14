@@ -317,7 +317,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
   
   /* look to see if username is already set */
-  pam_get_item(pamh, PAM_USER, &user);
+  pam_get_item(pamh, PAM_USER, (const void **) &user);
   if (user) {
       DBG1("explicit username = [%s]", user);
   }
