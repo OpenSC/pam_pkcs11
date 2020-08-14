@@ -150,22 +150,23 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
   X509_OBJECT obj;
   rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), &obj);
+  if (rv > 0) {
+    issuer_cert = X509_OBJECT_get0_X509((&obj));
+    X509_OBJECT_free_contents(&obj);
 #else
   X509_OBJECT *obj = X509_OBJECT_new();
   rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), obj);
+  if (rv > 0) {
+    issuer_cert = X509_OBJECT_get0_X509(obj);
+    X509_OBJECT_free(obj);
 #endif
-  if (rv <= 0) {
+  } else {
     set_error("getting the certificate of the crl-issuer failed");
     return -1;
   }
   /* extract public key and verify signature */
-  issuer_cert = X509_OBJECT_get0_X509((&obj));
   pkey = X509_get_pubkey(issuer_cert);
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
-  X509_OBJECT_free_contents(&obj);
-#else
-  X509_OBJECT_free(obj);
-#endif
+
   if (pkey == NULL) {
     set_error("getting the issuer's public key failed");
     return -1;
@@ -241,37 +242,42 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
     DBG("looking for an dedicated local crl");
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
     rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), &obj);
+    if (rv > 0) {
+      crl = X509_OBJECT_get0_X509_CRL((&obj));
+      X509_OBJECT_free_contents(&obj);
 #else
     rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), obj);
+    if (rv > 0) {
+      crl = X509_OBJECT_get0_X509_CRL(obj);
+      X509_OBJECT_free(obj);
 #endif
-    if (rv <= 0) {
+    } else {
       set_error("no dedicated crl available");
       return -1;
     }
-    crl = X509_OBJECT_get0_X509_CRL((&obj));
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
-    X509_OBJECT_free_contents(&obj);
-#else
-    X509_OBJECT_free(obj);
-#endif
   } else if (policy == CRLP_ONLINE) {
     /* ONLINE */
     DBG("extracting crl distribution points");
     dist_points = X509_get_ext_d2i(x509, NID_crl_distribution_points, NULL, NULL);
     if (dist_points == NULL) {
       /* if there is not crl distribution point in the certificate hava a look at the ca certificate */
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
       rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), &obj);
-      if (rv <= 0) {
+      if (rv > 0) {
+        x509_ca = X509_OBJECT_get0_X509((&obj));
+        X509_OBJECT_free_contents(&obj);
+#else
+      rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), obj);
+      if (rv > 0) {
+        x509_ca = X509_OBJECT_get0_X509(obj);
+        X509_OBJECT_free(obj);
+#endif
+      } else {
         set_error("no dedicated ca certificate available");
         return -1;
       }
-      x509_ca = X509_OBJECT_get0_X509((&obj));
+
       dist_points = X509_get_ext_d2i(x509_ca, NID_crl_distribution_points, NULL, NULL);
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
-      X509_OBJECT_free_contents(&obj);
-#else
-      X509_OBJECT_free(obj);
-#endif
       if (dist_points == NULL) {
         set_error("neither the user nor the ca certificate does contain a crl distribution point");
         return -1;
