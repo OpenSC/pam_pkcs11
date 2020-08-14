@@ -532,7 +532,7 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
 #else
       DBG("hashing with SHA256");
       md = EVP_sha256();
-
+#endif
       if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
           ECDSA_SIG* ec_sig;
           int rs_len;
