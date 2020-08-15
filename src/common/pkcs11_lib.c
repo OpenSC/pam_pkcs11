@@ -1113,7 +1113,7 @@ refresh_slots(pkcs11_handle_t *h)
     DBG1("slot %ld:", i + 1);
     rv = h->fl->C_GetSlotInfo(h->slots[i].id, &sinfo);
     if (rv != CKR_OK) {
-      set_error("C_GetSlotInfo() failed: %i", rv);
+      set_error("C_GetSlotInfo() failed: 0x%08lX", rv);
       return -1;
     }
 
@@ -1127,7 +1127,7 @@ refresh_slots(pkcs11_handle_t *h)
       DBG("- token:");
       rv = h->fl->C_GetTokenInfo(h->slots[i].id, &tinfo);
       if (rv != CKR_OK) {
-        set_error("C_GetTokenInfo() failed: %i", rv);
+        set_error("C_GetTokenInfo() failed: 0x%08lX", rv);
         return -1;
       }
       DBG1("  - label: %.32s", tinfo.label);
