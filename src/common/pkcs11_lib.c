@@ -1812,7 +1812,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
   }
 
   /* sign the token */
-  DBG2("C_SignInit: mech: %x, keytype: %x", mechanism.mechanism, cert->key_type);
+  DBG2("C_SignInit: mech: %lx, keytype: %lx", mechanism.mechanism, cert->key_type);
   rv = h->fl->C_SignInit(h->session, &mechanism, cert->private_key);
   if (rv != CKR_OK) {
     set_error("C_SignInit() failed: 0x%08lX", rv);
