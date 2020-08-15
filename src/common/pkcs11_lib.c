@@ -1675,7 +1675,6 @@ getlist_error:
 int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
   CK_OBJECT_CLASS key_class = CKO_PRIVATE_KEY;
   CK_BBOOL key_sign = CK_TRUE;
-  CK_ATTRIBUTE attr;
   CK_ATTRIBUTE key_template[] = {
     {CKA_CLASS, &key_class, sizeof(key_class)}
     ,
