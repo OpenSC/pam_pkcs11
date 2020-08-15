@@ -831,7 +831,7 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
   return 0;
 }
 
-const X509 *get_X509_certificate(cert_object_t *cert)
+X509 *get_X509_certificate(cert_object_t *cert)
 {
   return (CERTCertificate *)cert;
 }
@@ -1752,7 +1752,7 @@ const char *get_slot_tokenlabel(pkcs11_handle_t *h)
   return h->slots[h->current_slot].label;
 }
 
-const X509 *get_X509_certificate(cert_object_t *cert)
+X509 *get_X509_certificate(cert_object_t *cert)
 {
   return cert->x509;
 }
