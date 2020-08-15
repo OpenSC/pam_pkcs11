@@ -268,7 +268,9 @@ static pid_t read_pidfile(char *filename)
 	return 0;
     }
 
-    fscanf(fd, "%ld", &temp);
+    if (fscanf(fd, "%ld", &temp) != 1)
+        DBG2("Can't parse pidfile %s: %s", filename, strerror(errno));
+
     pid = temp;
 
     fclose(fd);
@@ -297,7 +299,8 @@ static void create_pidfile(char *filename)
     snprintf(tmp, sizeof(tmp)-1, "%d\n", getpid());
     tmp[sizeof(tmp)-1] = '\0';
 
-    write(fd, tmp, strlen(tmp));
+    if (write(fd, tmp, strlen(tmp)) != strlen(tmp))
+        DBG2("Can't write pidfile %s: %s", filename, strerror(errno));
 
     close(fd);
 }
