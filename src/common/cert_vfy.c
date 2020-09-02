@@ -505,13 +505,9 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   EVP_PKEY *pubkey;
   EVP_MD_CTX *md_ctx = NULL;
   const EVP_MD* md = NULL;
-  int nid;
-
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
-  ASN1_OBJECT **algorithm;
-#else
+  const char* md_name = NULL;
   ASN1_OBJECT *algorithm;
-#endif
+  int nid;
 
   /* get the public-key */
   pubkey = X509_get_pubkey(x509);
@@ -528,9 +524,24 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
 
   switch ( nid ) {
   case NID_id_GostR3410_2001:
-      md = EVP_get_digestbyname("md_gost94");
+      md_name = SN_id_GostR3411_94;
       break;
-  default:
+  case NID_id_GostR3410_2012_256:
+      md_name = SN_id_GostR3411_2012_256;
+      break;
+  case NID_id_GostR3410_2012_512:
+      md_name = SN_id_GostR3411_2012_512;
+      break;
+  }
+
+  if (md_name) {
+      md = EVP_get_digestbyname(md_name);
+      if (!md) {
+          set_error("unsupported digest %s", md_name);
+          return -1;
+      }
+      DBG1("hashing with %s", md_name);
+  } else {
 #ifdef USE_HASH_SHA1
       DBG("hashing with SHA1");
       md = EVP_sha1();
@@ -538,27 +549,28 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
       DBG("hashing with SHA256");
       md = EVP_sha256();
 #endif
-      if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
-          ECDSA_SIG* ec_sig;
-          int rs_len;
-          unsigned char *p = NULL;
-
-          rs_len = *signature_length / 2;
-          ec_sig = ECDSA_SIG_new();
-          BN_bin2bn(*signature, rs_len, ECDSA_SIG_get0_r(ec_sig));
-          BN_bin2bn(*signature + rs_len, rs_len, ECDSA_SIG_get0_s(ec_sig));
-          *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
-          free(*signature);
-          *signature = malloc(*signature_length);
-          p = *signature;
-          *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
-          ECDSA_SIG_free(ec_sig);
-      }
   }
 
   if (!md) {
     set_error("unsupported key algorithm, nid: %d", nid);
     return -1;
+  }
+
+  if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
+      ECDSA_SIG* ec_sig;
+      int rs_len;
+      unsigned char *p = NULL;
+
+      rs_len = *signature_length / 2;
+      ec_sig = ECDSA_SIG_new();
+      BN_bin2bn(*signature, rs_len, ECDSA_SIG_get0_r(ec_sig));
+      BN_bin2bn(*signature + rs_len, rs_len, ECDSA_SIG_get0_s(ec_sig));
+      *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
+      free(*signature);
+      *signature = malloc(*signature_length);
+      p = *signature;
+      *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
+      ECDSA_SIG_free(ec_sig);
   }
 
   /* verify the signature */
