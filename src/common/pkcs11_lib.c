@@ -1890,7 +1890,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
   if (h_prefix)
       memcpy(hash, h_prefix, h_offset);
 
-  DBG5("hash[%u] = [...:%02x:%02x:%02x:...:%02x]", md_size,
+  DBG5("hash[%u] = [%02x:%02x:%02x:...:%02x]", md_size,
        hash[h_offset], hash[h_offset+1], hash[h_offset+2],
        hash[h_offset + md_size - 1]);
 
