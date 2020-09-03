@@ -534,10 +534,21 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   DBG1("public key bits: 0x%08x", EVP_PKEY_bits(pubkey));
 
   if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
+    // FIXME: Why not to use d2i_ECDSA_SIG() ???
     rs_len = *signature_length / 2;
     ec_sig = ECDSA_SIG_new();
-    BN_bin2bn(*signature, rs_len, ECDSA_SIG_get0_r(ec_sig));
-    BN_bin2bn(*signature + rs_len, rs_len, ECDSA_SIG_get0_s(ec_sig));
+    BIGNUM *r = BN_bin2bn(*signature, rs_len, NULL);
+    BIGNUM *s = BN_bin2bn(*signature + rs_len, rs_len, NULL);
+    if (!r || !s) {
+        set_error("Unable to parse r+s EC signature numbers: %s",
+                  ERR_error_string(ERR_get_error(), NULL));
+        return -1;
+    }
+    if (1 != ECDSA_SIG_set0(ec_sig, r, s)) {
+        set_error("Unable to write r+s numbers to the signature structure: %s",
+                  ERR_error_string(ERR_get_error(), NULL));
+        return -1;
+    }
     *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
     free(*signature);
     *signature = malloc(*signature_length);
