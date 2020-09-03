@@ -1908,7 +1908,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
         set_error("not enough free memory available");
         goto error;
     }
-    rv = h->fl->C_Sign(h->session, hash + h_offset, md_size, *signature, signature_length);
+    rv = h->fl->C_Sign(h->session, hash, h_offset + md_size, *signature, signature_length);
     if (rv == CKR_BUFFER_TOO_SMALL) {
       /* FIXME: Is *signature_length already increased by C_Sign()? */
       free(*signature);
