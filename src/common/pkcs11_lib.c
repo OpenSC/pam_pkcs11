@@ -1811,6 +1811,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       break;
     case CKK_GOSTR3410: {
         mechanism.mechanism = CKM_GOSTR3410;
+        *signature_length = 64;
         int nid = get_pubkey_algo(get_X509_certificate(cert));
         if (nid < 0) {
             set_error("unable to get the public key algorithm");
@@ -1830,8 +1831,8 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
     }
         break;
     case CKK_GOSTR3410_512:
-      *signature_length = 512;
       mechanism.mechanism = CKM_GOSTR3410_512;
+      *signature_length = 128;
       md_name = SN_id_GostR3411_2012_512;
       break;
     case CKK_ECDSA:
