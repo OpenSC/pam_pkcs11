@@ -1830,8 +1830,8 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
     }
         break;
     case CKK_GOSTR3410_512:
-      mechanism.mechanism = CKM_GOSTR3410;
       *signature_length = 512;
+      mechanism.mechanism = CKM_GOSTR3410_512;
       md_name = SN_id_GostR3411_2012_512;
       break;
     case CKK_ECDSA:
