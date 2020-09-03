@@ -181,7 +181,16 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
     return 0;
   }
   /* compare update times */
-  rv = X509_cmp_current_time(X509_CRL_get_lastUpdate(crl));
+  const ASN1_TIME *lastUpdate;
+  const ASN1_TIME *nextUpdate;
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
+  lastUpdate = X509_CRL_get_lastUpdate(crl);
+  nextUpdate = X509_CRL_get_nextUpdate(crl);
+#else
+  lastUpdate = X509_CRL_get0_lastUpdate(crl);
+  nextUpdate = X509_CRL_get0_nextUpdate(crl);
+#endif
+  rv = X509_cmp_current_time(lastUpdate);
   if (rv == 0) {
     set_error("crl has an invalid last update field");
     return -1;
@@ -190,7 +199,7 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
     DBG("crl is not yet valid");
     return 0;
   }
-  rv = X509_cmp_current_time(X509_CRL_get_nextUpdate(crl));
+  rv = X509_cmp_current_time(nextUpdate);
   if (rv == 0) {
     set_error("crl has an invalid next update field");
     return -1;
