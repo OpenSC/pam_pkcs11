@@ -522,7 +522,7 @@ find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
 	slot = PK11_ReferenceSlot(module->slots[i]);
 	slot_label = PK11_GetSlotName(slot);
 	if (memcmp_pad_max((void *)slot_label, strlen(slot_label),
-	    (void *)wanted_slot_label, strlen(wanted_slot_label), 64) == 0) {
+	    (void *)wanted_slot_label, strlen(wanted_slot_label), strlen(wanted_slot_label)) == 0) {
 	  h->slot = slot;
 	  *slotID = PK11_GetSlotID(slot);
 	  return 0;
@@ -1304,7 +1304,7 @@ find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
     for (idx = 0; idx < h->slot_count; idx++) {
       if (h->slots[idx].token_present
 	  && memcmp_pad_max(h->slots[idx].slotDescription, 64,
-	  (void *)wanted_slot_label, len, 64) == 0) {
+	  (void *)wanted_slot_label, len, len) == 0) {
 	*slot_num = idx;
 	return (0);
       }
@@ -1348,7 +1348,7 @@ find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
         const char *token_label = h->slots[i].label;
 
 	if ((memcmp_pad_max((void *)slot_label, strlen(slot_label),
-	    (void *)wanted_slot_label, strlen(wanted_slot_label), 64) == 0) &&
+	    (void *)wanted_slot_label, strlen(wanted_slot_label), strlen(wanted_slot_label)) == 0) &&
             (memcmp_pad_max((void *)token_label, strlen(token_label),
             (void *)wanted_token_label, strlen(wanted_token_label), 33) == 0))
         {
