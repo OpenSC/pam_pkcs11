@@ -1078,7 +1078,7 @@ refresh_slots(pkcs11_handle_t *h)
 	DBG1("number of slots (a): %ld", h->slot_count);
 	if (h->slot_count == 0) {
 	  set_error("there are no slots available");
-	  return -1;
+	  return 0; // That's not, strictly, an error.
 	}
 	slots = malloc(h->slot_count * sizeof(CK_SLOT_ID));
 	if (slots == NULL) {

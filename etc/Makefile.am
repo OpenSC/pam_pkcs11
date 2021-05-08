@@ -15,4 +15,5 @@ EXTRA_DIST = $(TO_INSTALL) \
 
 doc_DATA = $(TO_INSTALL) \
 	pam_pkcs11.conf.example \
-	pam.d_login.example
+	pam.d_login.example \
+	pam.d_ignore_no_card.example

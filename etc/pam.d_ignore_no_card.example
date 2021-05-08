@@ -1,0 +1,13 @@
+#%PAM-1.0
+auth		[success=done ignore=ignore default=die]	pam_pkcs11.so
+auth		requisite	pam_succeed_if.so user ingroup wheel
+auth		include		system-auth-local
+
+account		include		system-auth-local
+
+password	[success=done ignore=ignore default=die]	pam_pkcs11.so
+password	requisite	pam_succeed_if.so user ingroup wheel
+password	include		system-auth-local
+
+session		include		system-auth-local
+session		required	pam_mkhomedir.so silent
