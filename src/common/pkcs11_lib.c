@@ -1757,6 +1757,8 @@ X509 *get_X509_certificate(cert_object_t *cert)
   return cert->x509;
 }
 
+#define MAX_SIGNATURE_LENGTH 65536
+
 int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
 	CK_ULONG length, CK_BYTE **signature, CK_ULONG *signature_length)
 {
@@ -1831,6 +1833,10 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
         *signature_length = current_signature_length * 2;
       }
       DBG1("increased signature buffer-length to %ld", *signature_length);
+      if (*signature_length > MAX_SIGNATURE_LENGTH) {
+        set_error("signature too long");
+        return -1;
+      }
     } else if (rv != CKR_OK) {
       free(*signature);
       *signature = NULL;
