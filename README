@@ -5,6 +5,7 @@ Authors:  Mario Strasser <mast@gmx.net>
           Juan Antonio Martinez <jonsito@teleline.es>
           Ludovic Rouseau <ludovic.rousseau@free.fr>
 		  Frank Morgner <frankmorgner@gmail.com>
+          Paul Wolneykien <manowar@altlinux.org>
 
 This Linux-PAM login module allows a X.509 certificate based user
 login. The certificate and its dedicated private key are thereby

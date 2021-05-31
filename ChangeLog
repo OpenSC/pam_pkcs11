@@ -1,3 +1,19 @@
+31- May 2021
+    - Version 0.6.12
+    - Limit signature length to 65536 bytes.
+    - Workaround for buggy PKCS#11 C_Sign() implementation that always
+      returns the same signature length along with
+      CKR_BUFFER_TOO_SMALL.
+    - Don't stuck if wait_for_card=false and ignore the token not found
+      error when the authentication isn't restricted to card only
+      (either by the option `card_only` or by PKCS11_LOGIN_TOKEN_NAME
+      environment variable).
+    - Added the exmple PAM configuration which uses the ignore status
+      result.
+    - Added `screen_savers` to example config.
+    - Fixes to deal with old and new OpenSSL versions.
+    - Various small fixes including type casts and printf() formats.
+
 22- May 2019
     - Version 0.6.11
     - Support OpenSSL 1.1.0
