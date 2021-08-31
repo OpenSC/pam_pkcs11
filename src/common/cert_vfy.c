@@ -150,22 +150,23 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
   X509_OBJECT obj;
   rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), &obj);
+  if (rv > 0) {
+    issuer_cert = X509_OBJECT_get0_X509((&obj));
+    X509_OBJECT_free_contents(&obj);
 #else
   X509_OBJECT *obj = X509_OBJECT_new();
   rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_CRL_get_issuer(crl), obj);
+  if (rv > 0) {
+    issuer_cert = X509_OBJECT_get0_X509(obj);
+    X509_OBJECT_free(obj);
 #endif
-  if (rv <= 0) {
+  } else {
     set_error("getting the certificate of the crl-issuer failed");
     return -1;
   }
   /* extract public key and verify signature */
-  issuer_cert = X509_OBJECT_get0_X509((&obj));
   pkey = X509_get_pubkey(issuer_cert);
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
-  X509_OBJECT_free_contents(&obj);
-#else
-  X509_OBJECT_free(obj);
-#endif
+
   if (pkey == NULL) {
     set_error("getting the issuer's public key failed");
     return -1;
@@ -180,7 +181,16 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
     return 0;
   }
   /* compare update times */
-  rv = X509_cmp_current_time(X509_CRL_get_lastUpdate(crl));
+  const ASN1_TIME *lastUpdate;
+  const ASN1_TIME *nextUpdate;
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
+  lastUpdate = X509_CRL_get_lastUpdate(crl);
+  nextUpdate = X509_CRL_get_nextUpdate(crl);
+#else
+  lastUpdate = X509_CRL_get0_lastUpdate(crl);
+  nextUpdate = X509_CRL_get0_nextUpdate(crl);
+#endif
+  rv = X509_cmp_current_time(lastUpdate);
   if (rv == 0) {
     set_error("crl has an invalid last update field");
     return -1;
@@ -189,7 +199,7 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
     DBG("crl is not yet valid");
     return 0;
   }
-  rv = X509_cmp_current_time(X509_CRL_get_nextUpdate(crl));
+  rv = X509_cmp_current_time(nextUpdate);
   if (rv == 0) {
     set_error("crl has an invalid next update field");
     return -1;
@@ -241,37 +251,42 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
     DBG("looking for an dedicated local crl");
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
     rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), &obj);
+    if (rv > 0) {
+      crl = X509_OBJECT_get0_X509_CRL((&obj));
+      X509_OBJECT_free_contents(&obj);
 #else
     rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), obj);
+    if (rv > 0) {
+      crl = X509_OBJECT_get0_X509_CRL(obj);
+      X509_OBJECT_free(obj);
 #endif
-    if (rv <= 0) {
+    } else {
       set_error("no dedicated crl available");
       return -1;
     }
-    crl = X509_OBJECT_get0_X509_CRL((&obj));
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
-    X509_OBJECT_free_contents(&obj);
-#else
-    X509_OBJECT_free(obj);
-#endif
   } else if (policy == CRLP_ONLINE) {
     /* ONLINE */
     DBG("extracting crl distribution points");
     dist_points = X509_get_ext_d2i(x509, NID_crl_distribution_points, NULL, NULL);
     if (dist_points == NULL) {
       /* if there is not crl distribution point in the certificate hava a look at the ca certificate */
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
       rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), &obj);
-      if (rv <= 0) {
+      if (rv > 0) {
+        x509_ca = X509_OBJECT_get0_X509((&obj));
+        X509_OBJECT_free_contents(&obj);
+#else
+      rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), obj);
+      if (rv > 0) {
+        x509_ca = X509_OBJECT_get0_X509(obj);
+        X509_OBJECT_free(obj);
+#endif
+      } else {
         set_error("no dedicated ca certificate available");
         return -1;
       }
-      x509_ca = X509_OBJECT_get0_X509((&obj));
+
       dist_points = X509_get_ext_d2i(x509_ca, NID_crl_distribution_points, NULL, NULL);
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
-      X509_OBJECT_free_contents(&obj);
-#else
-      X509_OBJECT_free(obj);
-#endif
       if (dist_points == NULL) {
         set_error("neither the user nor the ca certificate does contain a crl distribution point");
         return -1;
@@ -557,14 +572,27 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   }
 
   if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
+      // FIXME: Why not to use d2i_ECDSA_SIG() ???
       ECDSA_SIG* ec_sig;
       int rs_len;
       unsigned char *p = NULL;
 
       rs_len = *signature_length / 2;
       ec_sig = ECDSA_SIG_new();
-      BN_bin2bn(*signature, rs_len, ECDSA_SIG_get0_r(ec_sig));
-      BN_bin2bn(*signature + rs_len, rs_len, ECDSA_SIG_get0_s(ec_sig));
+
+      BIGNUM *r = BN_bin2bn(*signature, rs_len, NULL);
+      BIGNUM *s = BN_bin2bn(*signature + rs_len, rs_len, NULL);
+      if (!r || !s) {
+          set_error("Unable to parse r+s EC signature numbers: %s",
+                    ERR_error_string(ERR_get_error(), NULL));
+          return -1;
+      }
+      if (1 != ECDSA_SIG_set0(ec_sig, r, s)) {
+          set_error("Unable to write r+s numbers to the signature structure: %s",
+                    ERR_error_string(ERR_get_error(), NULL));
+          return -1;
+      }
+
       *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
       free(*signature);
       *signature = malloc(*signature_length);

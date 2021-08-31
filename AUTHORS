@@ -24,5 +24,9 @@ Dominik Fischer <dom_fischer@web.de>
 Ville Skyttä <vskytta@gmail.com>
 	Original pam_pkcs11.spec file
 
+Paul Wolneykien <manowar@altlinux.org>
+	Additional features and fixes (card_only, wait_for_card, openssl
+	versions).
+
 Also Thanks to all the people at the OpenSC project
 

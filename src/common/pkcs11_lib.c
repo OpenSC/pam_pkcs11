@@ -522,7 +522,7 @@ find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
 	slot = PK11_ReferenceSlot(module->slots[i]);
 	slot_label = PK11_GetSlotName(slot);
 	if (memcmp_pad_max((void *)slot_label, strlen(slot_label),
-	    (void *)wanted_slot_label, strlen(wanted_slot_label), 64) == 0) {
+	    (void *)wanted_slot_label, strlen(wanted_slot_label), strlen(wanted_slot_label)) == 0) {
 	  h->slot = slot;
 	  *slotID = PK11_GetSlotID(slot);
 	  return 0;
@@ -831,7 +831,7 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
   return 0;
 }
 
-const X509 *get_X509_certificate(cert_object_t *cert)
+X509 *get_X509_certificate(cert_object_t *cert)
 {
   return (CERTCertificate *)cert;
 }
@@ -1040,7 +1040,7 @@ int load_pkcs11_module(const char *module, pkcs11_handle_t **hp)
   }
   rv = C_GetFunctionList_ptr(&h->fl);
   if (rv != CKR_OK) {
-    set_error("C_GetFunctionList() failed: 0x%08lX", rv);
+    set_error("C_GetFunctionList() failed: %i", rv);
     free(h);
     return -1;
   }
@@ -1067,6 +1067,7 @@ refresh_slots(pkcs11_handle_t *h)
   /* number of slots has changed */
   if (slot_count != h->slot_count) {
     free(h->slots);
+    h->slots = NULL;
 
     /* get a list of all slots */
 	rv = h->fl->C_GetSlotList(FALSE, NULL, &h->slot_count);
@@ -1077,7 +1078,7 @@ refresh_slots(pkcs11_handle_t *h)
 	DBG1("number of slots (a): %ld", h->slot_count);
 	if (h->slot_count == 0) {
 	  set_error("there are no slots available");
-	  return -1;
+	  return 0; // That's not, strictly, an error.
 	}
 	slots = malloc(h->slot_count * sizeof(CK_SLOT_ID));
 	if (slots == NULL) {
@@ -1167,13 +1168,13 @@ int init_pkcs11_module(pkcs11_handle_t *h,int flag)
   if (rv == CKR_OK)
     h->should_finalize = 1;
   else if (rv != CKR_CRYPTOKI_ALREADY_INITIALIZED) {
-    set_error("C_Initialize() failed: 0x%08lX", rv);
+    set_error("C_Initialize() failed: %i", rv);
     return -1;
   }
 
   rv = h->fl->C_GetInfo(&info);
   if (rv != CKR_OK) {
-    set_error("C_GetInfo() failed: 0x%08lX", rv);
+    set_error("C_GetInfo() failed: %i", rv);
     return -1;
   }
   /* show some information about the module */
@@ -1303,7 +1304,7 @@ find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
     for (idx = 0; idx < h->slot_count; idx++) {
       if (h->slots[idx].token_present
 	  && memcmp_pad_max(h->slots[idx].slotDescription, 64,
-	  (void *)wanted_slot_label, len, 64) == 0) {
+	  (void *)wanted_slot_label, len, len) == 0) {
 	*slot_num = idx;
 	return (0);
       }
@@ -1347,7 +1348,7 @@ find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
         const char *token_label = h->slots[i].label;
 
 	if ((memcmp_pad_max((void *)slot_label, strlen(slot_label),
-	    (void *)wanted_slot_label, strlen(wanted_slot_label), 64) == 0) &&
+	    (void *)wanted_slot_label, strlen(wanted_slot_label), strlen(wanted_slot_label)) == 0) &&
             (memcmp_pad_max((void *)token_label, strlen(token_label),
             (void *)wanted_token_label, strlen(wanted_token_label), 33) == 0))
         {
@@ -1416,7 +1417,7 @@ int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot)
   /* open a readonly user-session */
   rv = h->fl->C_OpenSession(h->slots[slot].id, CKF_SERIAL_SESSION, NULL, NULL, &h->session);
   if (rv != CKR_OK) {
-    set_error("C_OpenSession() failed: 0x%08lX", rv);
+    set_error("C_OpenSession() failed: %i", rv);
     return -1;
   }
   h->current_slot = slot;
@@ -1433,7 +1434,7 @@ int pkcs11_login(pkcs11_handle_t *h, char *password)
   else
 	  rv = h->fl->C_Login(h->session, CKU_USER, NULL, 0);
   if ((rv != CKR_OK) && (rv != CKR_USER_ALREADY_LOGGED_IN)) {
-    set_error("C_Login() failed: 0x%08lX", rv);
+    set_error("C_Login() failed: %i", rv);
     return -1;
   }
   return 0;
@@ -1446,7 +1447,7 @@ int get_slot_login_required(pkcs11_handle_t *h)
 
   rv = h->fl->C_GetTokenInfo(h->slots[h->current_slot].id, &tinfo);
   if (rv != CKR_OK) {
-    set_error("C_GetTokenInfo() failed: 0x%08lX", rv);
+    set_error("C_GetTokenInfo() failed: %i", rv);
     return -1;
   }
   return tinfo.flags & CKF_LOGIN_REQUIRED;
@@ -1459,7 +1460,7 @@ int get_slot_protected_authentication_path(pkcs11_handle_t *h)
 
   rv = h->fl->C_GetTokenInfo(h->slots[h->current_slot].id, &tinfo);
   if (rv != CKR_OK) {
-    set_error("C_GetTokenInfo() failed: 0x%08lX", rv);
+    set_error("C_GetTokenInfo() failed: %i", rv);
     return -1;
   }
   return tinfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH;
@@ -1491,13 +1492,13 @@ int close_pkcs11_session(pkcs11_handle_t *h)
   rv = h->fl->C_Logout(h->session);
   if (rv != CKR_OK && rv != CKR_USER_NOT_LOGGED_IN
 	  && rv != CKR_FUNCTION_NOT_SUPPORTED) {
-    set_error("C_Logout() failed: 0x%08lX", rv);
+    set_error("C_Logout() failed: %i", rv);
     return -1;
   }
   DBG("closing the PKCS #11 session");
   rv = h->fl->C_CloseSession(h->session);
   if (rv != CKR_OK && rv != CKR_FUNCTION_NOT_SUPPORTED) {
-    set_error("C_CloseSession() failed: 0x%08lX", rv);
+    set_error("C_CloseSession() failed: %i", rv);
     return -1;
   }
   DBG("releasing keys and certificates");
@@ -1539,14 +1540,14 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
 
   rv = h->fl->C_FindObjectsInit(h->session, cert_template, 2);
   if (rv != CKR_OK) {
-    set_error("C_FindObjectsInit() failed: 0x%08lX", rv);
+    set_error("C_FindObjectsInit() failed: %i", rv);
     return NULL;
   }
   while(1) {
     /* look for certificates */
     rv = h->fl->C_FindObjects(h->session, &object, 1, &object_count);
     if (rv != CKR_OK) {
-      set_error("C_FindObjects() failed: 0x%08lX", rv);
+      set_error("C_FindObjects() failed: %i", rv);
       goto getlist_error;
     }
     if (object_count == 0) break; /* no more certs */
@@ -1560,7 +1561,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     cert_template[2].ulValueLen = 0;
     rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 3);
     if (rv != CKR_OK) {
-        set_error("CertID length: C_GetAttributeValue() failed: 0x%08lX", rv);
+        set_error("CertID length: C_GetAttributeValue() failed: %i", rv);
         goto getlist_error;
     }
     /* allocate enough space */
@@ -1574,7 +1575,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 3);
     if (rv != CKR_OK) {
         free(id_value);
-        set_error("CertID value: C_GetAttributeValue() failed: 0x%08lX", rv);
+        set_error("CertID value: C_GetAttributeValue() failed: %i", rv);
         goto getlist_error;
     }
 
@@ -1584,7 +1585,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
       cert_template[3].pValue = NULL;
       rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
       if (rv != CKR_OK) {
-        set_error("Cert Length: C_GetAttributeValue() failed: 0x%08lX", rv);
+        set_error("Cert Length: C_GetAttributeValue() failed: %i", rv);
         goto getlist_error;
       }
     /* allocate enough space */
@@ -1598,7 +1599,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
       rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
       if (rv != CKR_OK) {
         free(cert_value);
-        set_error("Cert Value: C_GetAttributeValue() failed: 0x%08lX", rv);
+        set_error("Cert Value: C_GetAttributeValue() failed: %i", rv);
         goto getlist_error;
       }
 
@@ -1645,7 +1646,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
   /* release FindObject Sesion */
   rv = h->fl->C_FindObjectsFinal(h->session);
   if (rv != CKR_OK) {
-    set_error("C_FindObjectsFinal() failed: 0x%08lX", rv);
+    set_error("C_FindObjectsFinal() failed: %i", rv);
     free_certs(certs, h->cert_count);
     certs = NULL;
     h->certs = NULL;
@@ -1663,7 +1664,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
 getlist_error:
   rv = h->fl->C_FindObjectsFinal(h->session);
   if (rv != CKR_OK) {
-    set_error("C_FindObjectsFinal() failed: 0x%08lX", rv);
+    set_error("C_FindObjectsFinal() failed: %i", rv);
   }
   free_certs(h->certs, h->cert_count);
   h->certs = NULL;
@@ -1704,31 +1705,31 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
 	  rv = h->fl->C_FindObjectsInit(h->session, key_template, 2);
   }
   if (rv != CKR_OK) {
-    set_error("C_FindObjectsInit() failed: 0x%08lX", rv);
+    set_error("C_FindObjectsInit() failed: %i", rv);
     return -1;
   }
   rv = h->fl->C_FindObjects(h->session, &object, 1, &object_count);
   if (rv != CKR_OK) {
-    set_error("C_FindObjects() failed: 0x%08lX", rv);
+    set_error("C_FindObjects() failed: %i", rv);
     goto get_privkey_failed;
   }
   if (object_count <= 0) {
       /* cert without prk: perhaps CA or CA-chain cert */
-      set_error("No private key found for cert: 0x%08lX", rv);
+      set_error("No private key found for cert: %i", rv);
       goto get_privkey_failed;
   }
 
   /* and finally release Find session */
   rv = h->fl->C_FindObjectsFinal(h->session);
   if (rv != CKR_OK) {
-    set_error("C_FindObjectsFinal() failed: 0x%08lX", rv);
+    set_error("C_FindObjectsFinal() failed: %i", rv);
     return -1;
   }
 
   /* get private key type */
   rv = h->fl->C_GetAttributeValue(h->session, object, attr_template, sizeof(attr_template) / sizeof(CK_ATTRIBUTE));
   if (rv != CKR_OK) {
-    set_error("C_GetAttributeValue() failed! 0x%08lX", rv);
+    set_error("C_GetAttributeValue() failed! %i", rv);
     return -1;
   }
   DBG1("private key type: 0x%08lX", key_type);
@@ -1741,7 +1742,7 @@ int get_private_key(pkcs11_handle_t *h, cert_object_t *cert) {
 get_privkey_failed:
   rv = h->fl->C_FindObjectsFinal(h->session);
   if (rv != CKR_OK) {
-    set_error("C_FindObjectsFinal() failed: 0x%08lX", rv);
+    set_error("C_FindObjectsFinal() failed: %i", rv);
   }
   return -1;
 }
@@ -1751,7 +1752,7 @@ const char *get_slot_tokenlabel(pkcs11_handle_t *h)
   return h->slots[h->current_slot].label;
 }
 
-const X509 *get_X509_certificate(cert_object_t *cert)
+X509 *get_X509_certificate(cert_object_t *cert)
 {
   return cert->x509;
 }
@@ -1777,6 +1778,8 @@ static int get_pubkey_algo(X509 *x509)
 
   return nid;
 }
+
+#define MAX_SIGNATURE_LENGTH 65536
 
 int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
 	CK_ULONG length, CK_BYTE **signature, CK_ULONG *signature_length)
@@ -1898,12 +1901,14 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
   DBG2("C_SignInit: mech: %lx, keytype: %lx", mechanism.mechanism, cert->key_type);
   rv = h->fl->C_SignInit(h->session, &mechanism, cert->private_key);
   if (rv != CKR_OK) {
-    set_error("C_SignInit() failed: 0x%08lX", rv);
+    set_error("C_SignInit() failed: %i", rv);
     goto error;
   }
 
   *signature = NULL;
+  *signature_length = 1024;
   while (*signature == NULL) {
+    CK_ULONG current_signature_length = *signature_length;
     *signature = malloc(*signature_length);
     if (*signature == NULL) {
         set_error("not enough free memory available");
@@ -1914,11 +1919,20 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       /* FIXME: Is *signature_length already increased by C_Sign()? */
       free(*signature);
       *signature = NULL;
+      if (current_signature_length >= *signature_length) {
+        /* workaround for buggy PKCS#11 implementation: it didn't change
+           or even lowered buffer size - forcing using larger (double size) buffer */
+        *signature_length = current_signature_length * 2;
+      }
       DBG1("increased signature buffer-length to %ld", *signature_length);
+      if (*signature_length > MAX_SIGNATURE_LENGTH) {
+        set_error("signature too long");
+        return -1;
+      }
     } else if (rv != CKR_OK) {
       free(*signature);
       *signature = NULL;
-      set_error("C_Sign() failed: 0x%08lX", rv);
+      set_error("C_Sign() failed: %i", rv);
       goto error;
     }
   }

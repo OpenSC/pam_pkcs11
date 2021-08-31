@@ -94,7 +94,7 @@ static int pam_prompt(pam_handle_t *pamh, int style, char **response, char *fmt,
 
   msg.msg_style = style;
   msg.msg = text;
-  rv = pam_get_item(pamh, PAM_CONV, &conv);
+  rv = pam_get_item(pamh, PAM_CONV, (const void **) &conv);
   if (rv != PAM_SUCCESS)
     return rv;
   if ((conv == NULL) || (conv->conv == NULL))
@@ -166,7 +166,7 @@ static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, in
   /* use stored password if variable oitem is set */
   if ((oitem == PAM_AUTHTOK) || (oitem == PAM_OLDAUTHTOK)) {
     /* try to get stored item */
-    rv = pam_get_item(pamh, oitem, &old_pwd);
+    rv = pam_get_item(pamh, oitem, (const void **) &old_pwd);
     if (rv != PAM_SUCCESS)
       return rv;
     if (old_pwd != NULL) {
@@ -179,7 +179,7 @@ static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, in
   if (text != NULL) {
     msg.msg_style = PAM_PROMPT_ECHO_OFF;
     msg.msg = text;
-    rv = pam_get_item(pamh, PAM_CONV, &conv);
+    rv = pam_get_item(pamh, PAM_CONV, (const void **) &conv);
     if (rv != PAM_SUCCESS)
       return rv;
     if ((conv == NULL) || (conv->conv == NULL))
@@ -232,8 +232,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   textdomain(PACKAGE);
 #endif
 
-  pam_prompt(pamh, PAM_TEXT_INFO , NULL, _("Smartcard authentication starts"));
-
   /* first of all check whether debugging should be enabled */
   for (i = 0; i < argc; i++)
     if (strcmp("debug", argv[i]) == 0) {
@@ -253,39 +251,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	return PAM_AUTHINFO_UNAVAIL;
   }
 
-  /* fail if we are using a remote server
-   * local login: DISPLAY=:0
-   * XDMCP login: DISPLAY=host:0 */
-  {
-	  char *display = getenv("DISPLAY");
-
-	  if (display)
-	  {
-		  if (strncmp(display, "localhost:", 10) != 0 && (display[0] != ':')
-			  && (display[0] != '\0')) {
-			  ERR1("Remote login (from %s) is not (yet) supported", display);
-			  pam_syslog(pamh, LOG_ERR,
-				  "Remote login (from %s) is not (yet) supported", display);
-			  return PAM_AUTHINFO_UNAVAIL;
-		  }
-	  }
-  }
-
-  /* init openssl */
-  rv = crypto_init(&configuration->policy);
-  if (rv != 0) {
-    ERR("Failed to initialize crypto");
-    if (!configuration->quiet)
-      pam_syslog(pamh,LOG_ERR, "Failed to initialize crypto");
-    return PAM_AUTHINFO_UNAVAIL;
-  }
-
+  login_token_name = getenv("PKCS11_LOGIN_TOKEN_NAME");
 
   /*
-   * card_only means:
-   *  1) always get the userid from the certificate.
-   *  2) don't prompt for the user name if the card is present.
-   *  3) if the token is present, then we must use the cardAuth mechanism.
+   * card_only means: restrict the authentication to token only if
+   * the user has already authenticated by the token.
    *
    * wait_for_card means:
    *  1) nothing if card_only isn't set
@@ -301,7 +271,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	char *service;
 	if (configuration->screen_savers) {
 	    DBG("Is it a screen saver?");
-		pam_get_item(pamh, PAM_SERVICE, &service);
+		pam_get_item(pamh, PAM_SERVICE, (const void **) &service);
 	    for (i=0; configuration->screen_savers[i]; i++) {
 		if (strcmp(configuration->screen_savers[i], service) == 0) {
 		    is_a_screen_saver = 1;
@@ -309,37 +279,53 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		}
 	    }
 	}
-
-	pkcs11_pam_fail = PAM_CRED_INSUFFICIENT;
-
-	/* look to see if username is already set */
-	pam_get_item(pamh, PAM_USER, &user);
-	if (user) {
-	    DBG1("explicit username = [%s]", user);
-	}
-  } else {
-	rv = pam_get_item(pamh, PAM_USER, &user);
-	if (rv != PAM_SUCCESS || user == NULL || user[0] == '\0') {
-	  pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-		  _("Please insert your %s or enter your username."),
-		  _(configuration->token_type));
-	  /* get user name */
-	  rv = pam_get_user(pamh, &user, NULL);
-
-	  if (rv != PAM_SUCCESS) {
-		pam_syslog(pamh, LOG_ERR,
-			"pam_get_user() failed %s", pam_strerror(pamh, rv));
-		return PAM_USER_UNKNOWN;
-	  }
-	}
-	DBG1("username = [%s]", user);
   }
-  login_token_name = getenv("PKCS11_LOGIN_TOKEN_NAME");
 
+  if (!configuration->card_only || !login_token_name) {
+	  /* Allow to pass to the next module if the auth isn't
+         restricted to card only. */
+      pkcs11_pam_fail = PAM_IGNORE;
+  } else {
+	pkcs11_pam_fail = PAM_CRED_INSUFFICIENT;
+  }
+
+  /* fail if we are using a remote server
+   * local login: DISPLAY=:0
+   * XDMCP login: DISPLAY=host:0 */
+  {
+	  char *display = getenv("DISPLAY");
+
+	  if (display)
+	  {
+		  if (strncmp(display, "localhost:", 10) != 0 && (display[0] != ':')
+			  && (display[0] != '\0')) {
+			  ERR1("Remote login (from %s) is not (yet) supported", display);
+			  pam_syslog(pamh, LOG_ERR,
+				  "Remote login (from %s) is not (yet) supported", display);
+			  return pkcs11_pam_fail;
+		  }
+	  }
+  }
+
+  /* init openssl */
+  rv = crypto_init(&configuration->policy);
+  if (rv != 0) {
+    ERR("Failed to initialize crypto");
+    if (!configuration->quiet)
+      pam_syslog(pamh,LOG_ERR, "Failed to initialize crypto");
+    return pkcs11_pam_fail;
+  }
+  
+  /* look to see if username is already set */
+  pam_get_item(pamh, PAM_USER, (const void **) &user);
+  if (user) {
+      DBG1("explicit username = [%s]", user);
+  }
+  
   /* if we are using a screen saver, and we didn't log in using the smart card
    * drop to the next pam module.  */
   if (is_a_screen_saver && !login_token_name) {
-    return PAM_IGNORE;
+	  goto exit_ignore;
   }
 
   /* load pkcs #11 module */
@@ -354,7 +340,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2302: PKCS#11 module failed loading"));
 		sleep(configuration->err_display_time);
 	}
-    return PAM_AUTHINFO_UNAVAIL;
+    return pkcs11_pam_fail;
   }
 
   /* initialise pkcs #11 module */
@@ -368,10 +354,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2304: PKCS#11 module could not be initialized"));
 		sleep(configuration->err_display_time);
 	}
-    return PAM_AUTHINFO_UNAVAIL;
+    return pkcs11_pam_fail;
   }
 
-  /* open pkcs #11 session */
   if (configuration->slot_description != NULL) {
     rv = find_slot_by_slotlabel_and_tokenlabel(ph,
       configuration->slot_description, login_token_name, &slot_num);
@@ -381,83 +366,60 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
 
   if (rv != 0) {
+      /* No token found */
+    if (!configuration->card_only) {
+        /* If the login isn't restricted to card-only, then proceed
+           to the next auth. module quietly. */
+        release_pkcs11_module(ph);
+        goto exit_ignore;
+    }
+
     ERR("no suitable token available");
     if (!configuration->quiet) {
-		pam_syslog(pamh, LOG_ERR, "no suitable token available");
-		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2306: No suitable token available"));
-		sleep(configuration->err_display_time);
-	}
-
-    if (!configuration->card_only) {
-      release_pkcs11_module(ph);
-      return PAM_AUTHINFO_UNAVAIL;
+        pam_syslog(pamh, LOG_ERR, "no suitable token available");
     }
 
-    /* we must have a smart card, either because we've configured it as such,
-     * or because we used one to log in */
-    if (login_token_name || configuration->wait_for_card) {
-      if (login_token_name) {
-        pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-			_("Please insert your smart card called \"%.32s\"."),
-			login_token_name);
-      } else {
-        pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-                 _("Please insert your smart card."));
-      }
+    if (configuration->wait_for_card) {
+        if (login_token_name) {
+            pam_prompt(pamh, PAM_TEXT_INFO, NULL,
+                       _("Please insert your smart card called \"%.32s\"."),
+                       login_token_name);
+        } else {
+            pam_prompt(pamh, PAM_TEXT_INFO, NULL,
+                       _("Please insert your smart card."));
+        }
 
-      if (configuration->slot_description != NULL) {
-	rv = wait_for_token_by_slotlabel(ph, configuration->slot_description,
-          login_token_name, &slot_num);
-      } else if (configuration->slot_num != -1) {
-        rv = wait_for_token(ph, configuration->slot_num,
-                          login_token_name, &slot_num);
-      }
-
-      if (rv != 0) {
-        release_pkcs11_module(ph);
-        return pkcs11_pam_fail;
-      }
-    } else if (user) {
-		if (!configuration->quiet) {
-			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2308: No smartcard found"));
-			sleep(configuration->err_display_time);
-		}
-
-      /* we have a user and no smart card, go to the next pam module */
-      release_pkcs11_module(ph);
-      return PAM_AUTHINFO_UNAVAIL;
-    } else {
-      /* we haven't prompted for the user yet, get the user and see if
-       * the smart card has been inserted in the mean time */
-      pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-	    _("Please insert your %s or enter your username."),
-		_(configuration->token_type));
-      rv = pam_get_user(pamh, &user, NULL);
-
-      /* check one last time for the smart card before bouncing to the next
-       * module */
-      if (configuration->slot_description != NULL) {
-	rv = find_slot_by_slotlabel(ph, configuration->slot_description,
-	  &slot_num);
-      } else if (configuration->slot_num != -1) {
-        rv = find_slot_by_number(ph, configuration->slot_num, &slot_num);
-      }
-
-      if (rv != 0) {
-        /* user gave us a user id and no smart card go to next module */
-		if (!configuration->quiet) {
-			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2310: No smartcard found"));
-			sleep(configuration->err_display_time);
-		}
-
-        release_pkcs11_module(ph);
-        return PAM_AUTHINFO_UNAVAIL;
-      }
+        if (configuration->slot_description != NULL) {
+            rv = wait_for_token_by_slotlabel(ph, configuration->slot_description,
+                                           login_token_name, &slot_num);
+        } else if (configuration->slot_num != -1) {
+            rv = wait_for_token(ph, configuration->slot_num,
+                                login_token_name, &slot_num);
+        }
     }
-  } else {
-      pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-		  _("%s found."), _(configuration->token_type));
   }
+
+  if (rv != 0) {
+      release_pkcs11_module(ph);
+      /* Still no card */
+      if (pkcs11_pam_fail != PAM_IGNORE) {
+          if (!configuration->quiet) {
+              pam_prompt(pamh, PAM_ERROR_MSG,
+                         NULL, _("Error 2308: No smartcard found"));
+              sleep(configuration->err_display_time);
+          }
+      } else {
+          pam_prompt(pamh, PAM_TEXT_INFO,
+                     NULL, _("No smartcard found"));
+          goto exit_ignore;
+      }
+      return pkcs11_pam_fail;
+  }
+
+  pam_prompt(pamh, PAM_TEXT_INFO, NULL,
+             _("%s found."), _(configuration->token_type));
+
+  /* open pkcs #11 session */
   rv = open_pkcs11_session(ph, slot_num);
   if (rv != 0) {
     ERR1("open_pkcs11_session() failed: %s", get_error());
@@ -478,8 +440,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2314: Slot login failed"));
 		sleep(configuration->err_display_time);
 	}
-    release_pkcs11_module(ph);
-    return pkcs11_pam_fail;
+    goto auth_failed;
   } else if (rv) {
     /* get password */
 	pam_prompt(pamh, PAM_TEXT_INFO, NULL,
@@ -505,10 +466,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 				pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2316: password could not be read"));
 				sleep(configuration->err_display_time);
 			}
-			release_pkcs11_module(ph);
 			pam_syslog(pamh, LOG_ERR,
 					"pam_get_pwd() failed: %s", pam_strerror(pamh, rv));
-			return pkcs11_pam_fail;
+			goto auth_failed;
 		}
 #ifdef DEBUG_SHOW_PASSWORD
 		DBG1("password = [%s]", password);
@@ -516,16 +476,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
 		/* check password length */
 		if (!configuration->nullok && strlen(password) == 0) {
-			release_pkcs11_module(ph);
-			cleanse(password, strlen(password));
-			free(password);
 			pam_syslog(pamh, LOG_ERR,
 					"password length is zero but the 'nullok' argument was not defined.");
 			if (!configuration->quiet) {
 				pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2318: Empty smartcard PIN not allowed."));
 				sleep(configuration->err_display_time);
 			}
-			return PAM_AUTH_ERR;
+			pkcs11_pam_fail = PAM_AUTH_ERR;
+			goto auth_failed;
 		}
 	}
 	else
@@ -540,12 +498,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
      * we need to do thise before get_certificate_list because some tokens
      * can not read their certificates until the token is authenticated */
     rv = pkcs11_login(ph, password);
-    /* erase and free in-memory password data asap */
-	if (password)
-	{
-		cleanse(password, strlen(password));
-		free(password);
-	}
+
     if (rv != 0) {
       ERR1("open_pkcs11_login() failed: %s", get_error());
 		if (!configuration->quiet) {
@@ -553,7 +506,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2320: Wrong smartcard PIN"));
 			sleep(configuration->err_display_time);
 		}
-      goto auth_failed_nopw;
+      pkcs11_pam_fail = PAM_AUTH_ERR;
+      goto auth_failed;
     }
   }
 
@@ -565,7 +519,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2322: No certificate found"));
 		sleep(configuration->err_display_time);
 	}
-    goto auth_failed_nopw;
+    goto auth_failed;
   }
 
   /* load mapper modules */
@@ -645,7 +599,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 				pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2332: setting PAM userentry failed"));
 				sleep(configuration->err_display_time);
 			}
-	    goto auth_failed_nopw;
+	    goto auth_failed;
 	}
           chosen_cert = cert_list[i];
           break; /* end loop, as find user success */
@@ -661,7 +615,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 				pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2334: No matching user"));
 				sleep(configuration->err_display_time);
 			}
-	  goto auth_failed_nopw;
+	  goto auth_failed;
         } else if (rv == 0) { /* match didn't success */
           DBG("certificate is valid but does not match the user");
 	  continue; /* try next certificate */
@@ -682,7 +636,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2336: No matching certificate found"));
 		sleep(configuration->err_display_time);
 	}
-    goto auth_failed_nopw;
+    goto auth_failed;
   }
 
 
@@ -698,7 +652,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       if (!configuration->quiet)
         pam_syslog(pamh, LOG_ERR,
                  "get_private_key() failed: %s", get_error());
-      goto auth_failed_nopw;
+      goto auth_failed;
     }
 #endif
 
@@ -711,7 +665,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2338: Getting random value failed"));
 			sleep(configuration->err_display_time);
 		}
-      goto auth_failed_nopw;
+      goto auth_failed;
     }
 
     /* sign random value */
@@ -725,7 +679,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2340: Signing failed"));
 			sleep(configuration->err_display_time);
 		}
-      goto auth_failed_nopw;
+      goto auth_failed;
     }
 
     /* verify the signature */
@@ -736,15 +690,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       free(signature);
     }
     if (rv != 0) {
-      close_pkcs11_session(ph);
-      release_pkcs11_module(ph);
       ERR1("verify_signature() failed: %s", get_error());
 		if (!configuration->quiet) {
 			pam_syslog(pamh, LOG_ERR, "verify_signature() failed: %s", get_error());
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2342: Verifying signature failed"));
 			sleep(configuration->err_display_time);
 		}
-      return PAM_AUTH_ERR;
+      pkcs11_pam_fail = PAM_AUTH_ERR;
+      goto auth_failed;
     }
 
   } else {
@@ -818,14 +771,20 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   /* close pkcs #11 session */
   rv = close_pkcs11_session(ph);
   if (rv != 0) {
-    release_pkcs11_module(ph);
     ERR1("close_pkcs11_session() failed: %s", get_error());
 		if (!configuration->quiet) {
 			pam_syslog(pamh, LOG_ERR, "close_pkcs11_module() failed: %s", get_error());
 			pam_prompt(pamh, PAM_ERROR_MSG , NULL, ("Error 2344: Closing PKCS#11 session failed"));
 			sleep(configuration->err_display_time);
 		}
-    return pkcs11_pam_fail;
+		pkcs11_pam_fail = PAM_AUTH_ERR;
+		goto auth_failed;
+  }
+
+  if ( password ) {
+      cleanse( password, strlen(password) );
+      free( password );
+      password = NULL;
   }
 
   /* release pkcs #11 module */
@@ -835,15 +794,24 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   DBG("authentication succeeded");
   return PAM_SUCCESS;
 
-    /* quick and dirty fail exit point */
-    cleanse(password, strlen(password));
-    free(password); /* erase and free in-memory password data */
-
-auth_failed_nopw:
+auth_failed:
     unload_mappers();
     close_pkcs11_session(ph);
     release_pkcs11_module(ph);
-    return pkcs11_pam_fail;
+    if ( password ) {
+        cleanse( password, strlen(password) );
+        free( password );
+    }
+
+	if (PAM_IGNORE == pkcs11_pam_fail)
+		goto exit_ignore;
+	else
+		return pkcs11_pam_fail;
+
+ exit_ignore:
+	pam_prompt( pamh, PAM_TEXT_INFO, NULL,
+				_("Smartcard authentication cancelled") );
+	return PAM_IGNORE;
 }
 
 PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv)

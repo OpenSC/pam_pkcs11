@@ -4,7 +4,7 @@
 AC_PREREQ([2.69])
 
 # Process this file with autoconf to produce a configure script.
-AC_INIT([pam_pkcs11],[0.6.11])
+AC_INIT([pam_pkcs11],[0.6.12])
 AC_CONFIG_SRCDIR([src/pam_pkcs11/pam_pkcs11.c])
 AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE
@@ -32,6 +32,9 @@ AC_PROG_MAKE_SET
 
 # check enable_dependency_tracking configure option
 AM_CONDITIONAL([AMDEP], [test "x$enable_dependency_tracking" != xno])
+
+# Disable pointer-sign warnings for a while...
+CFLAGS="$CFLAGS -Wno-pointer-sign"
 
 # Special check for pthread support
 AX_PTHREAD(, [ AC_MSG_ERROR([POSIX thread support required]) ])
