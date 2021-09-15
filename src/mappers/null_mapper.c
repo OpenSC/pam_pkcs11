@@ -36,7 +36,7 @@
 
 /*
 * A blind mapper: just read from config default value
-* and return it withouth further checking
+* and return it without further checking
 */
 
 static const char *default_user = "nobody";

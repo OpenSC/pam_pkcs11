@@ -87,7 +87,7 @@ M_EXTERN unsigned char *hex2bin(const char *hexstr);
  * store result into a previously allocated space
  *@param hexstr String to be parsed
  *@param res Pointer to pre-allocated user space
- *@param size Pointer to store lenght of data parsed
+ *@param size Pointer to store length of data parsed
  *@return Pointer to resulting byte array, or null on parse error
  */
 M_EXTERN unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size);

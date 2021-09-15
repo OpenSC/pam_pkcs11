@@ -269,7 +269,7 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
     DBG("extracting crl distribution points");
     dist_points = X509_get_ext_d2i(x509, NID_crl_distribution_points, NULL, NULL);
     if (dist_points == NULL) {
-      /* if there is not crl distribution point in the certificate hava a look at the ca certificate */
+      /* if there is not crl distribution point in the certificate have a look at the ca certificate */
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
       rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), &obj);
       if (rv > 0) {
@@ -441,7 +441,7 @@ add_store_error:
 }
 
 /*
-* @return -1 on error, 0 on verify failed, 1 on verify sucess
+* @return -1 on error, 0 on verify failed, 1 on verify success
 */
 int verify_certificate(X509 * x509, cert_policy *policy)
 {

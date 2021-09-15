@@ -251,7 +251,7 @@ rpm -v -i /usr/src/redhat/RPMS/i386/pam_pkcs11-tools-X.Y-Z.i386.rpm</userinput>
 	allow an easy editing </listitem>
 
 	<listitem> Edit and configure <filename>/etc/pam.d/xxx</filename>
-	entries. See instructions bellow</listitem>
+	entries. See instructions below</listitem>
 
 	<listitem>Use <application>pkcs11_inspect</application> and
 	<application>pklogin_finder</application> provided tools to see if
@@ -468,7 +468,7 @@ Certificate2 data -> login3
 and returns on the first match.</para>
 
 <para>
-As you can see bellow, mapfile specification doesn't need to be
+As you can see below, mapfile specification doesn't need to be
 a regular file: you can retrieve data from any legal URL. Anyway, data 
 format must be preserved. See <xref linkend="mapfiles">mapfile</xref>
 for additional info.
@@ -1637,7 +1637,7 @@ Starting <application>pam-pkcs11-0.5.3</application> this module is now statical
 </para>
 <para>
 	Note: newer implementations of <function>getpwent()</function> libraries, use an
-	additional Name Service Swicth (NSS) infrastructure, that
+	additional Name Service Switch (NSS) infrastructure, that
 	allows administrators to specify how to obtain requested data.
 	This means you can setup <filename>/etc/nsswitch.conf</filename> password entries
 	to lookup in to <filename>/etc/passwd</filename>, or LDAP/Kerberos/NIS+/YP services
@@ -1701,7 +1701,7 @@ The following options are recognized by
 
 <varlistentry>
 <term><token>ldaphost</token></term>
-<listitem>The FQDN (hostname) oder IP-address of the ldap server.</listitem>
+<listitem>The FQDN (hostname) or IP-address of the ldap server.</listitem>
 </varlistentry>
 
 <varlistentry>
@@ -1804,7 +1804,7 @@ the attribute named by the <![CDATA[attribute]]> setting.
 
 <varlistentry>
 <term><token>filter</token></term>
-<listitem>LDAP filter string. You can use ist to restrict
+<listitem>LDAP filter string. You can use it to restrict
 the entries returned by the LDAP server, e.g. by checking
 other attributes of the user entry.
 %s is substituted by the user name.
@@ -1815,8 +1815,8 @@ LDAP entry is returned which has an objectClass
 "posixAccount" and the uid with the user name.
 
 <lineannotation>IMPORTANT NOTE:</lineannotation> The filter string
-must be choosen in such a way that only one entry for the user is 
-returned. If an user has more certifactes than these should be 
+must be chosen in such a way that only one entry for the user is 
+returned. If an user has more certificates than these should be 
 collected under the attribute.
 </listitem>
 </varlistentry>
@@ -2085,7 +2085,7 @@ Starting <application>pam-pkcs11-0.5.3</application> this module is now statical
 <para>
      Configuration file should provide the digest algorithm. Depending
 	 on <application>OpenSSL</application> configuration all of listed
-	 bellow may or not be present in your system.
+	 below may or not be present in your system.
 </para>
 <para>
 Configuration entry:

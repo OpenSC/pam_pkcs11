@@ -200,7 +200,7 @@ no_upn:
 * request info on certificate
 * @param x509 	Certificate to parse
 * @param type 	Information to retrieve
-* @param algorithm Digest algoritm to use
+* @param algorithm Digest algorithm to use
 * @return utf-8 string array with provided information
 */
 char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm ) {
@@ -898,7 +898,7 @@ static char **cert_info_serial_number(X509 *x509) {
 * request info on certificate
 * @param x509 	Certificate to parse
 * @param type 	Information to retrieve
-* @param algorithm Digest algoritm to use
+* @param algorithm Digest algorithm to use
 * @return utf-8 string array with provided information
 */
 char **cert_info(X509 *x509, int type, const char *algorithm ) {
