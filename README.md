@@ -48,7 +48,7 @@ Laboratories.
 To map the ownership of a certificate into a user login, pam-pkcs11 uses
 the concept of *mapper* that is, a list of configurable, stackable
 list of dynamic modules, each one trying to do a specific cert-to-login
-maping. Several mappers are provided:
+mapping. Several mappers are provided:
 
 * the common name of the subject matches the login name
 * the unique identifier of the subject matches the login name

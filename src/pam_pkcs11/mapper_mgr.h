@@ -89,7 +89,7 @@ char * find_user(X509 *x509);
 int match_user(X509 *x509, const char *login);
 
 /*
-* This funcions goest throught the mapper list
+* This functions goes through the mapper list
 * and trying to get the certificate strings to be used on each
 * module to perform find/match functions.
 * No map / match are done: just print found strings on stdout.

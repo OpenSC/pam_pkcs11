@@ -51,7 +51,7 @@ URI_EXTERN int is_symlink(const char *path);
 *@param uri_str URL string where to retrieve data
 *@param data Pointer to a String buffer where data is retrieved
 *@param length Length of retrieved data
-*@return -1 on error, 0 on sucess
+*@return -1 on error, 0 on success
 */
 URI_EXTERN int get_from_uri(const char *uri_str, unsigned char **data, size_t *length);
 

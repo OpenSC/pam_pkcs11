@@ -274,7 +274,7 @@ static SECMODModule *find_module_by_library(const char *pkcs11_module)
 
 /*
  * NSS allows you to load a specific module. If the user specified a module
- * to load, load it, otherwize select on of the standard modules from the
+ * to load, load it, otherwise select on of the standard modules from the
  * secmod.db list.
  */
 int load_pkcs11_module(const char *pkcs11_module, pkcs11_handle_t **hp)
@@ -308,7 +308,7 @@ int load_pkcs11_module(const char *pkcs11_module, pkcs11_handle_t **hp)
     return -1;
   }
   sprintf(moduleSpec,SPEC_TEMPLATE, pkcs11_module);
-  DBG2("loading Module explictly, moduleSpec=<%s> module=%s",
+  DBG2("loading Module explicitly, moduleSpec=<%s> module=%s",
                                                 moduleSpec, pkcs11_module);
   module = SECMOD_LoadUserModule(moduleSpec, NULL, 0);
   free(moduleSpec);
@@ -885,7 +885,7 @@ typedef struct tuple_str tuple_str;
 #include "sslerr.h"
 
 const tuple_str errStrings[] = {
-/* keep this list in asceding order of error numbers */
+/* keep this list in ascending order of error numbers */
 #include "SSLerrs.h"
 #include "SECerrs.h"
 #include "NSPRerrs.h"
@@ -1218,7 +1218,7 @@ int find_slot_by_number(pkcs11_handle_t *h, unsigned int slot_num, unsigned int 
 	for (slot_num = 0; slot_num < h->slot_count &&
 				!h->slots[slot_num].token_present; slot_num++);
    } else {
-	/* otherwize it's an index into the slot table  (it is *NOT* the slot
+	/* otherwise it's an index into the slot table  (it is *NOT* the slot
 	 * id!).... */
 	slot_num--;
    }
