@@ -332,6 +332,7 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
     set_error("verify_crl() failed: %s", get_error());
     return -1;
   } else if (rv == 0) {
+    X509_CRL_free(crl);
     return 0;
   }
   DBG("checking revocation");
