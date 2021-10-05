@@ -70,7 +70,7 @@ char AraKiri = FALSE;
 
 static void thats_all_folks(void) {
     int rv;
-    DBG("Exitting");
+    DBG("Exiting");
     /* We try to leave things as clean as possible */
     rv = SCardReleaseContext(hContext);
     if (rv != SCARD_S_SUCCESS) {
@@ -139,7 +139,7 @@ static int execute_event (const char *action) {
 	while (actionlist) {
 		int res;
 		char *action_cmd= actionlist->data;
-		DBG1("Executiong action: '%s'",action_cmd);
+		DBG1("Executing action: '%s'",action_cmd);
 		/*
 		there are some security issues on using system() in
 		setuid/setgid programs. so we will use an alternate function

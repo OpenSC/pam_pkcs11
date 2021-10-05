@@ -495,7 +495,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	}
 
     /* call pkcs#11 login to ensure that the user is the real owner of the card
-     * we need to do thise before get_certificate_list because some tokens
+     * we need to do this before get_certificate_list because some tokens
      * can not read their certificates until the token is authenticated */
     rv = pkcs11_login(ph, password);
 

@@ -28,8 +28,8 @@ An alternate way of working is by mean of not providing user name:
     - Map certificate into an user (*)
     - open session for deduced login
 
-Last way needs an aditional pam-mkhomedir.so PAM module, that can
-dinamically create an account.
+Last way needs an additional pam-mkhomedir.so PAM module, that can
+dynamically create an account.
 
 Operations (*) and (**) are the reason for cert-mappers to exist.
 
@@ -97,7 +97,7 @@ pw     - Compare CN against getpwent() "login" or "gecos" fields to match
         This means you can setup /etc/nsswitch.conf password entries
         to lookup in to /etc/passwd, or ldap/kerberos/NIS+/YP services
 
-ldap   - Uses an ldap server to retrieve user name. An aditional file tells
+ldap   - Uses an ldap server to retrieve user name. An additional file tells
          module the mapping between Cert fields and LDAP entries
 
         This mapper is still under development. Provided one just search
@@ -117,13 +117,13 @@ mail   - Try to extract an e-mail from the certificate. If found,
         tries to map the email field from the certificate to a user 
         (or alternate email).
 
-        if use_alias is not set, just use email addres from certificate
+        if use_alias is not set, just use email address from certificate
         to perform find/match.
 
         * When used as finder, just return email or mapped email/user
           (see above)
 		* When used as matcher, compare found email/user against
-		  provided by pam. Additionaly you can set "ignorecase" or
+		  provided by pam. Additionally you can set "ignorecase" or
 		  "ignoredomain" flags
 
         domain check (if set) is done by testing if provided email domain
@@ -165,13 +165,13 @@ edit skeleton sample files and follow instructions on how to compile
 and link
 
 Mapper.h provides default implementation for required some functions. 
-They should be overriden by user code, but can be used for testing purposes
+They should be overridden by user code, but can be used for testing purposes
 
 Wish list
 ---------
 
 - Implement PKINIT draft protocol for talking to a kerberos server
-- Use MS Universal Principal Name to autenticate against an MS Active
+- Use MS Universal Principal Name to authenticate against an MS Active
   directory server
 - Implement mail_aliases parsing for mail mapper module
 

@@ -151,7 +151,7 @@ pam_pkcs11 {
   # openssh - Search certificate public key in ${HOME}/.ssh/authorized_keys
   # mail    - Compare email fields from certificate
   # ms      - Use Microsoft Universal Principal Name extension
-  # krb     - Compare againts Kerberos Principal Name
+  # krb     - Compare against Kerberos Principal Name
   # cn      - Compare Common Name (CN)
   # uid     - Compare Unique Identifier
   # digest  - Certificate digest to login (mapfile based) mapper
@@ -216,7 +216,7 @@ pam_pkcs11 {
 	# module = @libdir@/pam_pkcs11/pwent_mapper.so;
   }
 
-  # Null ( no map ) mapper. when user as finder matchs to NULL or "nobody"
+  # Null ( no map ) mapper. when user as finder matches to NULL or "nobody"
   mapper null {
 	debug = false;
 	# module = @libdir@/pam_pkcs11/null_mapper.so;
@@ -237,7 +237,7 @@ pam_pkcs11 {
 	#   if no port is given in URI below
 	#   if empty, then 389 for TLS and 636 for SSL is used
 	ldapport = ;
-	# space separted list of LDAP URIs (URIs are used by given order)
+	# space separated list of LDAP URIs (URIs are used by given order)
 	URI = "";
 	# Scope of search: 0-2
 	#   Default is 1 = "one", meaning the set of records one
@@ -310,7 +310,7 @@ pam_pkcs11 {
 	domainname = "domain.com";
   }
 
-  # krb  - Compare againts Kerberos Principal Name
+  # krb  - Compare against Kerberos Principal Name
   mapper krb {
 	debug = false;
 	module = internal;

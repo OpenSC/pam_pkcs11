@@ -65,9 +65,9 @@ struct mapfile {
 	const char *uri;
 	/** buffer to content of mapfile */
 	char *buffer;
-	/** lenght of buffer */
+	/** length of buffer */
 	size_t length;
-	/** pointer to last readed entry in buffer */
+	/** pointer to last read entry in buffer */
 	char *pt;
 	/** key entry in current buffer */
 	char *key;
@@ -110,7 +110,7 @@ MAPPER_EXTERN struct mapfile *set_mapent(const char *uri);
 /**
 * Retrieve next entry of given map file
 *@param mfile Map file entry pointer
-*@return 1 on sucess, 0 on no more entries, -1 on error
+*@return 1 on success, 0 on no more entries, -1 on error
 */
 MAPPER_EXTERN int    get_mapent(struct mapfile *mfile);
 
@@ -145,7 +145,7 @@ MAPPER_EXTERN int mapfile_match(const char *file,char *key,const char *value,int
 /**
 * find the user login that matches pw_name or pw_gecos with provided item
 *@param item Data to be searched from password database
-*@param ignorecase Flag to check upper/lowercase in string comparisions
+*@param ignorecase Flag to check upper/lowercase in string comparisons
 *@return userlogin if match found, else NULL
 */
 MAPPER_EXTERN char *search_pw_entry(const char *item, int ignorecase);
@@ -154,7 +154,7 @@ MAPPER_EXTERN char *search_pw_entry(const char *item, int ignorecase);
 * Test if provided item matches pw_name or pw_gecos of provided password structure
 *@param item String to be compared
 *@param pw password entry to search into
-*@param ignorecase Flag to check upper/lowercase in string comparisions
+*@param ignorecase Flag to check upper/lowercase in string comparisons
 *@return 1 on match, 0 on no match, -1 on error
 */
 MAPPER_EXTERN int compare_pw_entry(const char *item, struct passwd *pw,int ignorecase);

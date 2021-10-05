@@ -66,7 +66,7 @@ static const int LDAP_CONFIG_URI_MAX = 10;
  * TODO:
  * - Support for SASL-AUTH not included yet, I can't test it
  *
- * - ldap_unbind (*ld) crash if you connect to a SSL port but have set TLS intead SSL
+ * - ldap_unbind (*ld) crash if you connect to a SSL port but have set TLS instead SSL
  *   - no idea why!?
  *   - you got no error-massage from your application
  *   - believe skip ldap_unbind (*ld) for a bind handle isn't a good solution
@@ -278,7 +278,7 @@ static int do_ssl_options (LDAP *ldap_connection)
 		}
 	}
 
-	/* where is the requiered cert */
+	/* where is the required cert */
 	if (strncmp(tls_cert,"",1))
     {
 	    rc = ldap_set_option (NULL, LDAP_OPT_X_TLS_CERTFILE,
@@ -548,7 +548,7 @@ static int do_open (LDAP **ld, const char* uri, int defport, ldap_ssl_options_t 
 }
 
 /*
- * add singe URI to array of uris
+ * add single URI to array of uris
  */
 static int ldap_add_uri (char **uris, const char *a_uri, char **buffer, size_t *buflen)
 {
@@ -1073,7 +1073,7 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 		}
 
 		/* Only first entry is used. "filter" and "attribute"
-		 *  should be choosen, so that only one entry with
+		 *  should be chosen, so that only one entry with
 		 * one attribute is returned */
 		if ( NULL == (entry = ldap_first_entry(ldap_connection, res))){
 			DBG("ldap_first_entry() failed");

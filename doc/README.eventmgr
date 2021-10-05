@@ -15,14 +15,14 @@ To invoke the program, just type "card_eventmgr".
 Several command lines are recognized:
 
 - debug   - to enable debugging. Defaults to unset
-- daemon  - to run as daemon. If debug is unset, also dettach from tty.
+- daemon  - to run as daemon. If debug is unset, also detach from tty.
             Default to unset
 - timeout=<msecs>    - time in msec between two consecutive status poll.
                        Defaults to 1000 (1 second)
 - config_file=<file> - configuration file to use. Defaults to
                        /etc/pam_pkcs11/card_eventmgr.conf
 
-Structure of configuration file is described bellow:
+Structure of configuration file is described below:
 
 card_eventmgr {
 
