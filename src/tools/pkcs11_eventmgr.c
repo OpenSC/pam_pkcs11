@@ -96,7 +96,7 @@ struct pkcs11_handle_str
 static void thats_all_folks(void)
 {
 	int rv;
-	DBG("Exitting");
+	DBG("Exiting");
 #ifdef HAVE_NSS
 	if (module)
 	{
@@ -203,7 +203,7 @@ static int execute_event(const char *action)
 	{
 		int res;
 		char *action_cmd = actionlist->data;
-		DBG1("Executiong action: '%s'", action_cmd);
+		DBG1("Executing action: '%s'", action_cmd);
 		/*
 		   there are some security issues on using system() in
 		   setuid/setgid programs. so we will use an alternate function
@@ -484,7 +484,7 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 		sprintf(moduleSpec, SPEC_TEMPLATE, pkcs11_module);
-		DBG2("loading Module explictly, moduleSpec=<%s> module=%s\n",
+		DBG2("loading Module explicitly, moduleSpec=<%s> module=%s\n",
 			moduleSpec, pkcs11_module);
 		module = SECMOD_LoadUserModule(moduleSpec, NULL, 0);
 		free(moduleSpec);

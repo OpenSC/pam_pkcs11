@@ -60,7 +60,7 @@ provided for logging processes running as root.
 
 Improper mapper chain configurations with unauthorized certificates can
 lead in the creation of fake accounts in the system if pam_mkhomedir.so
-module is used. So be really carefull when authenticating users directly
+module is used. So be really careful when authenticating users directly
 from certificates.
 
 Enjoy!

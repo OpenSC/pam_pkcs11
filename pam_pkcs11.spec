@@ -28,7 +28,7 @@ Adittional included pam_pkcs11 related tools
 - pkcs11_eventmgr: Generate actions on card insert/removal/timeout events
 - pklogin_finder: Get the loginname that maps to a certificate
 - pkcs11_inspect: Inspect the contents of a certificate
-- make_hash_links: create hash link directories for storeing CA's and CRL's
+- make_hash_links: create hash link directories for storing CA's and CRL's
 
 %package pcsc
 Group:          System Environment/Utilities

@@ -29,7 +29,7 @@ extern "C" {
 #include <openssl/opensslv.h>
 #include <openssl/opensslconf.h>
 /*
- * Provide backward compatability to older versions of OpenSSL
+ * Provide backward compatibility to older versions of OpenSSL
  * while using most of OpenSSL 1.1  API
  */
 
@@ -43,7 +43,7 @@ extern "C" {
  *
  * EVP_CIPHER_CTX_new	    does a EVP_CIPHER_CTX_init
  * EVP_CIPHER_CTX_free	    does a EVP_CIPHER_CTX_cleanup
- * EVP_CIPHER_CTX_cleanup   does equivelent of a EVP_CIPHER_CTX_init
+ * EVP_CIPHER_CTX_cleanup   does equivalent of a EVP_CIPHER_CTX_init
  * Use EVP_CIPHER_CTX_new, EVP_CIPHER_CTX_free, and  EVP_CIPHER_CTX_cleanup between operations
  */
 

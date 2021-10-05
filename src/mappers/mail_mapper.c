@@ -44,7 +44,7 @@
 /* where to retrieve aliases file ( email -> login pairs ) */
 static const char *mapfile = "none";
 
-/* ignore upper/lowercase in email comparisions */
+/* ignore upper/lowercase in email comparisons */
 static int ignorecase = 1;
 
 /* also check the domain part on email field */
@@ -185,7 +185,7 @@ mapper_module * mail_mapper_module_init(scconf_block *blk,const char *mapper_nam
 	/* obtain and store hostname */
 	/* Note: in some systems without nis/yp, getdomainname() call
 	   returns NULL. So instead we use gethostname() an match
-	   mail domain by mean strstr() funtion */
+	   mail domain by mean strstr() function */
         if (!ignoredomain) {
 		hostname= calloc(256,sizeof(char));
 		if (!hostname) {

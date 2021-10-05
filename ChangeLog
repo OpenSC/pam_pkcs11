@@ -8,7 +8,7 @@
       error when the authentication isn't restricted to card only
       (either by the option `card_only` or by PKCS11_LOGIN_TOKEN_NAME
       environment variable).
-    - Added the exmple PAM configuration which uses the ignore status
+    - Added the example PAM configuration which uses the ignore status
       result.
     - Added `screen_savers` to example config.
     - Fixes to deal with old and new OpenSSL versions.
@@ -52,7 +52,7 @@
 01- Sep 2005
 	- Finished OpenSC mapper. Thanks to Andreas for their pam_opensc module
 	- New .spec file
-	- Cleanning tasks to prepare next release
+	- Cleaning tasks to prepare next release
 
 31- Aug 2005
 	- Include HOWTO in Pam-pkcs11 manual
@@ -123,12 +123,12 @@
 
 31- Mar 2005
 	- Added CA & CRL mgmnt doc to manual
-	- Chaged  ocurrences of "if (!x) free(x)" to "free(x)" as glibc 
-	  already does propper null check
+	- Changed  occurrences of "if (!x) free(x)" to "free(x)" as glibc 
+	  already does proper null check
 	- Finished krb_mapper ( no pkinit, just kpn -> login map ).
 	  NOTE: I assume that KPN is stored as ASN1_STRING, but cannot
 	  deduce it from RFC's
-	- MS mapper rewriten to use cert_info lib
+	- MS mapper rewritten to use cert_info lib
 
 29- Mar 2005
 	- Manual rewritten in xml format
@@ -176,7 +176,7 @@
 
 4- Mar 2005
 	- Added mapfiles to UID mapper
-	- ms_mapper now works properly ( sorry, no ADS conection yet :-( )
+	- ms_mapper now works properly ( sorry, no ADS connection yet :-( )
 	- Updated doc and sample files
 
 3- Mar 2005

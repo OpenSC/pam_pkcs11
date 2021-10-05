@@ -21,7 +21,7 @@ Standard (PKCS #11) is available at [4].
 
 PKCS #11 Module Requirements
 ----------------------------------------------------------------------
-The PKCS #11 modules must fullfill the requirements given by the RSA
+The PKCS #11 modules must fulfill the requirements given by the RSA
 Asymmetric Client Signing Profile, which has been specified in the
 PKCS #11 Conformance Profile Specification [5] by RSA Laboratories.
 

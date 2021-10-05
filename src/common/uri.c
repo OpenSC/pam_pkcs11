@@ -30,7 +30,7 @@ static const char *valid_urls[]=
 		{"file:///","http://","https://","ftp://","ldap://",NULL};
 /*
 comodity functions
-Analize provided pathname and check type
+Analyze provided pathname and check type
 Returns 1 on true, 0 on false, -1 on error
 */
 
@@ -481,7 +481,7 @@ static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_le
       set_error("redirection uri is invalid that is not of the scheme http");
       return -1;
     }
-    /* downlaod recursively */
+    /* download recursively */
     rv = get_http(ruri, data, length, ++rec_level);
     free_uri(ruri);
     free(buf);
