@@ -1567,7 +1567,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     /* allocate enough space */
     id_value = malloc(cert_template[2].ulValueLen);
     if (id_value == NULL) {
-        set_error("CertID malloc(%d): not enough free memory available", cert_template[2].ulValueLen);
+        set_error("CertID malloc(%ul): not enough free memory available", cert_template[2].ulValueLen);
         goto getlist_error;
     }
     /* read cert id into allocated space */
@@ -1591,7 +1591,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     /* allocate enough space */
       cert_value = malloc(cert_template[3].ulValueLen);
       if (cert_value == NULL) {
-        set_error("Cert Length malloc(%d): not enough free memory available", cert_template[3].ulValueLen);
+        set_error("Cert Length malloc(%ul): not enough free memory available", cert_template[3].ulValueLen);
         goto getlist_error;
       }
     /* read certificate into allocated space */
@@ -1793,7 +1793,7 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
 #endif
       break;
     default:
-      set_error("unsupported private key type 0x%08X", cert->key_type);
+      set_error("unsupported private key type 0x%08lX", cert->key_type);
       return -1;
   }
   /* compute hash-value */
