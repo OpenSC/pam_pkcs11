@@ -50,6 +50,11 @@ then
 	exit -1
 fi
 # process all files
+
+#change IFS to be able to loop through files with whitespaces in file names
+OLD_IFS=$IFS
+IFS=$'\n'
+
 for file in *; do
   hash=`$OPENSSL x509 -inform pem -in $file -noout -hash 2> /dev/null`
   if [ ! -z "$hash" ]; then
@@ -85,5 +90,8 @@ for file in *; do
   # nothing can be done with the file
   echo "we got a problem with: $file"
 done
+
+#restore previous IFS value
+IFS=$OLD_IFS
 
 exit 0
