@@ -84,6 +84,7 @@ try_again:
 	from = mfile->pt;
 	/* set up pointer */
 	while( *from && isspace(*from) ) from++;
+	if(!*from) return 0;
 	to = strchr(from,'\n');
 	/* if no newline, assume string ends at end of buffer */
 	if (!to) to=mfile->buffer+mfile->length;
