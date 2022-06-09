@@ -189,7 +189,7 @@ char *mapfile_find(const char *file, char *key, int icase, int *match) {
                 char *res=clone_str(mfile->value);
                 DBG2("Found mapfile match '%s' -> '%s'",key,mfile->value);
                 end_mapent(mfile);
-				*match = 1;
+                *match = 1;
                 return res;
             }
 	}

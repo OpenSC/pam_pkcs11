@@ -1631,7 +1631,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     DBG1("- id:   %02x", id_value[0]);
     h->certs[h->cert_count] = (cert_object_t *)calloc(sizeof(cert_object_t),1);
     if (h->certs[h->cert_count] == NULL) {
-	      free(id_value);
+        free(id_value);
         X509_free(x509);
 	set_error("malloc() not space to allocate cert object");
         goto getlist_error;
