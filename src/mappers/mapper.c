@@ -83,8 +83,12 @@ try_again:
 	/* get a line from buffer */
 	from = mfile->pt;
 	/* set up pointer */
-	while( *from && isspace(*from) ) from++;
-	if(!*from) return 0;
+	while( *from && isspace(*from)){
+		if(from - mfile->buffer + 1 >= mfile->length){
+			return 0;
+		}
+		from++;
+	}
 	to = strchr(from,'\n');
 	/* if no newline, assume string ends at end of buffer */
 	if (!to) to=mfile->buffer+mfile->length;
@@ -185,7 +189,7 @@ char *mapfile_find(const char *file, char *key, int icase, int *match) {
                 char *res=clone_str(mfile->value);
                 DBG2("Found mapfile match '%s' -> '%s'",key,mfile->value);
                 end_mapent(mfile);
-		*match = 1;
+				*match = 1;
                 return res;
             }
 	}

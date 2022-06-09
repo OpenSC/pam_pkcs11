@@ -33,7 +33,6 @@
 #ifdef OPENPAM
 #include <security/openpam.h>
 #endif
-#include <stdbool.h>
 #include <syslog.h>
 #include <ctype.h>
 #include <string.h>
@@ -219,7 +218,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 {
   int i, rv;
   char *user = NULL;
-  char *password;
+  char *password = NULL;
   unsigned int slot_num = 0;
   int is_a_screen_saver = 0;
   struct configuration_st *configuration;
@@ -328,13 +327,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     return pkcs11_pam_fail;
   }
   
-  bool user_set_pam = false;
   /* look to see if username is already set */
   pam_get_item(pamh, PAM_USER, (const void **) &user);
   if (user) {
-      if ( !is_spaced_str(user) ) {
-        user_set_pam = true;
-      }
       DBG1("explicit username = [%s]", user);
   }
   
@@ -606,6 +601,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	  /* try to set up PAM user entry with evaluated value */
 	  rv = pam_set_item(pamh, PAM_USER,(const void *)user);
     free( user );
+    user = NULL;
 	  if (rv != PAM_SUCCESS) {
 	    ERR1("pam_set_item() failed %s", pam_strerror(pamh, rv));
             if (!configuration->quiet) {
@@ -808,12 +804,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
   DBG("authentication succeeded");
   configure_free(configuration);
+  configuration = NULL;    
   return PAM_SUCCESS;
 
 auth_failed:
-    if( !user_set_pam && user ) {
-      free( user );
-    } 
+
     unload_mappers();
     close_pkcs11_session(ph);
     release_pkcs11_module(ph);
@@ -822,6 +817,7 @@ auth_failed:
         free( password );
     }
     configure_free(configuration);
+    configuration = NULL;
 	if (PAM_IGNORE == pkcs11_pam_fail)
 		goto exit_ignore;
 	else
@@ -831,6 +827,7 @@ auth_failed:
 	pam_prompt( pamh, PAM_TEXT_INFO, NULL,
 				_("Smartcard authentication cancelled") );
   configure_free(configuration);
+  configuration = NULL;
 	return PAM_IGNORE;
 }
 

@@ -375,5 +375,6 @@ void configure_free(struct configuration_st *pk_configure){
 	
 	if(pk_configure->ctx) {
 		scconf_free(pk_configure->ctx);
+		pk_configure->ctx = NULL;
 	}
 }
