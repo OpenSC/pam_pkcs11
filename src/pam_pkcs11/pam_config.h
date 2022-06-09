@@ -49,5 +49,6 @@ struct configuration_st {
 };
 
 struct configuration_st *pk_configure( int argc, const char **argv );
+void configure_free(struct configuration_st *pk_configure);
 
 #endif

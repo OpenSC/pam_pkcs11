@@ -33,6 +33,7 @@
 #ifdef OPENPAM
 #include <security/openpam.h>
 #endif
+#include <stdbool.h>
 #include <syslog.h>
 #include <ctype.h>
 #include <string.h>
@@ -185,13 +186,15 @@ static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, in
     if ((conv == NULL) || (conv->conv == NULL))
       return PAM_CRED_INSUFFICIENT;
     rv = conv->conv(1, msgp, &resp, conv->appdata_ptr);
-    if (rv != PAM_SUCCESS)
-      return rv;
-    if ((resp == NULL) || (resp[0].resp == NULL))
-      return PAM_CRED_INSUFFICIENT;
+    if (rv != PAM_SUCCESS) goto pwd_exit;
+    if ((resp == NULL) || (resp[0].resp == NULL)) {
+      rv = PAM_CRED_INSUFFICIENT;
+      goto pwd_exit;
+    }
     *pwd = strdup(resp[0].resp);
     /* overwrite memory and release it */
     cleanse(resp[0].resp, strlen(resp[0].resp));
+    free(resp[0].resp);
     free(&resp[0]);
     /* save password if variable nitem is set */
     if ((nitem == PAM_AUTHTOK) || (nitem == PAM_OLDAUTHTOK)) {
@@ -201,13 +204,21 @@ static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, in
     }
     return PAM_SUCCESS;
   }
-  return PAM_CRED_INSUFFICIENT;
+pwd_exit:
+  if(NULL != resp[0].resp) {
+    cleanse(resp[0].resp, strlen(resp[0].resp));
+    free(resp[0].resp);
+  }
+  if(NULL != &resp[0]) {
+    free(&resp[0]);
+  }
+  return rv;
 }
 
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
   int i, rv;
-  const char *user = NULL;
+  char *user = NULL;
   char *password;
   unsigned int slot_num = 0;
   int is_a_screen_saver = 0;
@@ -248,11 +259,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   /* Either slot_description or slot_num, but not both, needs to be used */
   if ((configuration->slot_description != NULL && configuration->slot_num != -1) || (configuration->slot_description == NULL && configuration->slot_num == -1)) {
 	ERR("Error setting configuration parameters");
+  configure_free(configuration);
 	return PAM_AUTHINFO_UNAVAIL;
   }
 
   login_token_name = getenv("PKCS11_LOGIN_TOKEN_NAME");
-
   /*
    * card_only means: restrict the authentication to token only if
    * the user has already authenticated by the token.
@@ -302,23 +313,28 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			  ERR1("Remote login (from %s) is not (yet) supported", display);
 			  pam_syslog(pamh, LOG_ERR,
 				  "Remote login (from %s) is not (yet) supported", display);
+        configure_free(configuration);
 			  return pkcs11_pam_fail;
 		  }
 	  }
   }
-
   /* init openssl */
   rv = crypto_init(&configuration->policy);
   if (rv != 0) {
     ERR("Failed to initialize crypto");
     if (!configuration->quiet)
       pam_syslog(pamh,LOG_ERR, "Failed to initialize crypto");
+    configure_free(configuration);
     return pkcs11_pam_fail;
   }
   
+  bool user_set_pam = false;
   /* look to see if username is already set */
   pam_get_item(pamh, PAM_USER, (const void **) &user);
   if (user) {
+      if ( !is_spaced_str(user) ) {
+        user_set_pam = true;
+      }
       DBG1("explicit username = [%s]", user);
   }
   
@@ -340,8 +356,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2302: PKCS#11 module failed loading"));
 		sleep(configuration->err_display_time);
 	}
+    configure_free(configuration);
     return pkcs11_pam_fail;
-  }
+  }  
 
   /* initialise pkcs #11 module */
   DBG("initialising pkcs #11 module...");
@@ -354,6 +371,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		pam_prompt(pamh, PAM_ERROR_MSG , NULL, _("Error 2304: PKCS#11 module could not be initialized"));
 		sleep(configuration->err_display_time);
 	}
+    configure_free(configuration);
     return pkcs11_pam_fail;
   }
 
@@ -429,6 +447,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		sleep(configuration->err_display_time);
 	}
     release_pkcs11_module(ph);
+    configure_free(configuration);
     return pkcs11_pam_fail;
   }
 
@@ -586,6 +605,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
           DBG1("certificate is valid and matches user %s",user);
 	  /* try to set up PAM user entry with evaluated value */
 	  rv = pam_set_item(pamh, PAM_USER,(const void *)user);
+    free( user );
 	  if (rv != PAM_SUCCESS) {
 	    ERR1("pam_set_item() failed %s", pam_strerror(pamh, rv));
             if (!configuration->quiet) {
@@ -787,9 +807,13 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   release_pkcs11_module(ph);
 
   DBG("authentication succeeded");
+  configure_free(configuration);
   return PAM_SUCCESS;
 
 auth_failed:
+    if( !user_set_pam && user ) {
+      free( user );
+    } 
     unload_mappers();
     close_pkcs11_session(ph);
     release_pkcs11_module(ph);
@@ -797,7 +821,7 @@ auth_failed:
         cleanse( password, strlen(password) );
         free( password );
     }
-
+    configure_free(configuration);
 	if (PAM_IGNORE == pkcs11_pam_fail)
 		goto exit_ignore;
 	else
@@ -806,6 +830,7 @@ auth_failed:
  exit_ignore:
 	pam_prompt( pamh, PAM_TEXT_INFO, NULL,
 				_("Smartcard authentication cancelled") );
+  configure_free(configuration);
 	return PAM_IGNORE;
 }
 

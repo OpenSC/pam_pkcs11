@@ -1585,6 +1585,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
       cert_template[3].pValue = NULL;
       rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
       if (rv != CKR_OK) {
+        free(id_value);
         set_error("Cert Length: C_GetAttributeValue() failed: %i", rv);
         goto getlist_error;
       }
@@ -1598,6 +1599,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
       cert_template[3].pValue = cert_value;
       rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
       if (rv != CKR_OK) {
+        free(id_value);
         free(cert_value);
         set_error("Cert Value: C_GetAttributeValue() failed: %i", rv);
         goto getlist_error;
@@ -1613,6 +1615,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
         set_error("d2i_x509() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto getlist_error;
       }
+      free(cert_value);
     /* finally add certificate to chain */
     certs= realloc(h->certs,(h->cert_count+1) * sizeof(cert_object_t *));
     if (!certs) {
@@ -1628,7 +1631,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     DBG1("- id:   %02x", id_value[0]);
     h->certs[h->cert_count] = (cert_object_t *)calloc(sizeof(cert_object_t),1);
     if (h->certs[h->cert_count] == NULL) {
-	free(id_value);
+	      free(id_value);
         X509_free(x509);
 	set_error("malloc() not space to allocate cert object");
         goto getlist_error;
@@ -1648,6 +1651,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
   if (rv != CKR_OK) {
     set_error("C_FindObjectsFinal() failed: %i", rv);
     free_certs(certs, h->cert_count);
+    free(id_value);
     certs = NULL;
     h->certs = NULL;
     h->cert_count = 0;

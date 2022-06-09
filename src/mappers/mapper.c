@@ -84,6 +84,7 @@ try_again:
 	from = mfile->pt;
 	/* set up pointer */
 	while( *from && isspace(*from) ) from++;
+	if(!*from) return 0;
 	to = strchr(from,'\n');
 	/* if no newline, assume string ends at end of buffer */
 	if (!to) to=mfile->buffer+mfile->length;
@@ -128,9 +129,12 @@ void end_mapent(struct mapfile *mfile) {
 	if (!mfile) return;
 	/* don't free uri: is a scconf provided "const char *" */;
 	/* free (mfile->uri); */
-	/* don't free key/value: they are pointers to somewhere in buffer */
+	/* don't free value: they are pointers to somewhere in buffer */
 	/* free (mfile->value); */
-	/* free (mfile->key); */
+	if(mfile->key) {
+		free (mfile->key);
+		mfile->key = NULL;
+	}
 	free (mfile->buffer);
 	free(mfile);
 	return;
