@@ -129,9 +129,12 @@ void end_mapent(struct mapfile *mfile) {
 	if (!mfile) return;
 	/* don't free uri: is a scconf provided "const char *" */;
 	/* free (mfile->uri); */
-	/* don't free key/value: they are pointers to somewhere in buffer */
+	/* don't free value: they are pointers to somewhere in buffer */
 	/* free (mfile->value); */
-	/* free (mfile->key); */
+	if(mfile->key) {
+		free (mfile->key);
+		mfile->key = NULL;
+	}
 	free (mfile->buffer);
 	free(mfile);
 	return;
@@ -182,7 +185,7 @@ char *mapfile_find(const char *file, char *key, int icase, int *match) {
                 char *res=clone_str(mfile->value);
                 DBG2("Found mapfile match '%s' -> '%s'",key,mfile->value);
                 end_mapent(mfile);
-		*match = 1;
+				*match = 1;
                 return res;
             }
 	}

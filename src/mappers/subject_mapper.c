@@ -62,11 +62,15 @@ static char * subject_mapper_find_user(X509 *x509, void *context, int *match) {
 		DBG("X509_get_subject_name failed");
 		return NULL;
 	}
-	return mapfile_find(filename,entries[0],ignorecase,match);
+	char* val = mapfile_find(filename,entries[0],ignorecase,match);
+	if(entries[0]) {
+		free(entries[0]);
+	}
+	return val;
 }
 
 /*
-* parses the certificate and try to macth Subject in the certificate
+* parses the certificate and try to match Subject in the certificate
 * with provided user
 */
 static int subject_mapper_match_user(X509 *x509, const char *login, void *context) {

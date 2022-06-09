@@ -147,6 +147,9 @@ void unload_module( struct mapper_instance *module ) {
 	} else {/* static mapper module */
 		DBG1("Module %s is static: don't remove",module->module_name);
 	}
+	if(module->module_data) {
+		free(module->module_data);
+	}
 	module->module_data=NULL;
 	/* don't free name and libname: they are elements of
 	scconf tree */
