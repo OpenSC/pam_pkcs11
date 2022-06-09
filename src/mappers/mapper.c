@@ -83,8 +83,12 @@ try_again:
 	/* get a line from buffer */
 	from = mfile->pt;
 	/* set up pointer */
-	while( *from && isspace(*from) ) from++;
-	if(!*from) return 0;
+	while( *from && isspace(*from)){
+		if(from - mfile->buffer + 1 >= mfile->length){
+			return 0;
+		}
+		from++;
+	}
 	to = strchr(from,'\n');
 	/* if no newline, assume string ends at end of buffer */
 	if (!to) to=mfile->buffer+mfile->length;
