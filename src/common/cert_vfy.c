@@ -237,6 +237,7 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
   if (policy == CRLP_NONE) {
     /* NONE */
     DBG("no revocation-check performed");
+    X509_OBJECT_free(obj);
     return 1;
   } else if (policy == CRLP_AUTO) {
     /* AUTO -> first try it ONLINE then OFFLINE */
@@ -245,6 +246,7 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
       DBG1("check_for_revocation() failed: %s", get_error());
       rv = check_for_revocation(x509, ctx, CRLP_OFFLINE);
     }
+    X509_OBJECT_free(obj);
     return rv;
   } else if (policy == CRLP_OFFLINE) {
     /* OFFLINE */
@@ -262,6 +264,7 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
 #endif
     } else {
       set_error("no dedicated crl available");
+      X509_OBJECT_free(obj);
       return -1;
     }
   } else if (policy == CRLP_ONLINE) {
@@ -283,6 +286,7 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
 #endif
       } else {
         set_error("no dedicated ca certificate available");
+        X509_OBJECT_free(obj);
         return -1;
       }
 

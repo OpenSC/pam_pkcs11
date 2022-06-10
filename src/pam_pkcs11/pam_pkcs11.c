@@ -258,7 +258,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   /* Either slot_description or slot_num, but not both, needs to be used */
   if ((configuration->slot_description != NULL && configuration->slot_num != -1) || (configuration->slot_description == NULL && configuration->slot_num == -1)) {
 	ERR("Error setting configuration parameters");
-       configure_free(configuration);
+	configure_free(configuration);
 	return PAM_AUTHINFO_UNAVAIL;
   }
 
@@ -312,7 +312,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 			  ERR1("Remote login (from %s) is not (yet) supported", display);
 			  pam_syslog(pamh, LOG_ERR,
 				  "Remote login (from %s) is not (yet) supported", display);
-                         configure_free(configuration);
+			  configure_free(configuration);
 			  return pkcs11_pam_fail;
 		  }
 	  }
@@ -353,7 +353,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	}
     configure_free(configuration);
     return pkcs11_pam_fail;
-  }  
+  }
 
   /* initialise pkcs #11 module */
   DBG("initialising pkcs #11 module...");
@@ -600,8 +600,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
           DBG1("certificate is valid and matches user %s",user);
 	  /* try to set up PAM user entry with evaluated value */
 	  rv = pam_set_item(pamh, PAM_USER,(const void *)user);
-         free( user );
-         user = NULL;
+	  free( user );
+	  user = NULL;
 	  if (rv != PAM_SUCCESS) {
 	    ERR1("pam_set_item() failed %s", pam_strerror(pamh, rv));
             if (!configuration->quiet) {
@@ -828,8 +828,8 @@ auth_failed:
  exit_ignore:
 	pam_prompt( pamh, PAM_TEXT_INFO, NULL,
 				_("Smartcard authentication cancelled") );
-       configure_free(configuration);
-       configuration = NULL;
+	configure_free(configuration);
+	configuration = NULL;
 	return PAM_IGNORE;
 }
 
