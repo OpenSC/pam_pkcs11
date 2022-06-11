@@ -60,7 +60,7 @@ const ALGDIGEST *Alg_get_digest_by_name(ALGORITHM_TYPE hash)
 
 ALGORITHM_TYPE Alg_get_alg_from_string(const char *hashString)
 {
-    const EVP_MD *digest;
+    const EVP_MD *digest = NULL;
 
     digest = EVP_get_digestbyname(hashString);
     if (!digest) {

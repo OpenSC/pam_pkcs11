@@ -133,8 +133,8 @@ cert_info_upn (X509 *x509)
     SECItem alt_name;
     SECStatus status;
     PRArenaPool *arena = NULL;
-    CERTGeneralName *nameList;
-    CERTGeneralName *current;
+    CERTGeneralName *nameList = NULL;
+    CERTGeneralName *current = NULL;
     SECOidTag tag;
     static char *results[CERT_INFO_SIZE] = { NULL };
     int result = 0;
@@ -205,7 +205,7 @@ no_upn:
 */
 char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm ) {
   static char *results[CERT_INFO_SIZE];
-  SECOidData *oid;
+  SECOidData *oid = NULL;
   int i;
 
   if (!x509) {
@@ -304,7 +304,7 @@ char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm ) {
 * Generate and compose a certificate chain
 */
 void add_cert(X509 *cert, X509 ***certs, int *ncerts) {
-        X509 **certs2;
+        X509 **certs2 = NULL;
         /* sanity checks */
         if (!cert) return;
         if (!certs) return;
@@ -334,7 +334,7 @@ void add_cert(X509 *cert, X509 ***certs, int *ncerts) {
 */
 static char **cert_info_cn(X509 *x509) {
 	static char *results[CERT_INFO_SIZE];
-	int lastpos,position;
+	int lastpos = 0,position = 0;
         X509_NAME *name = X509_get_subject_name(x509);
         if (!name) {
 		DBG("Certificate has no subject");
@@ -376,7 +376,7 @@ static char **cert_info_cn(X509 *x509) {
 * Extract Certificate's Subject
 */
 static char **cert_info_subject(X509 *x509) {
-	X509_NAME *subject;
+	X509_NAME *subject= NULL;
 	static char *entries[2] = { NULL, NULL };
 	entries[0] = malloc(256);
 	if (!entries[0]) return NULL;
@@ -393,7 +393,7 @@ static char **cert_info_subject(X509 *x509) {
 * Extract Certificate's Issuer
 */
 static char **cert_info_issuer(X509 *x509) {
-	X509_NAME *issuer;
+	X509_NAME *issuer = NULL;
 	static char *entries[2] = { NULL, NULL };
 	entries[0] = malloc(256);
 	if (!entries[0]) return NULL;
@@ -410,7 +410,7 @@ static char **cert_info_issuer(X509 *x509) {
 * Extract Certificate's Kerberos Principal Name
 */
 static char **cert_info_kpn(X509 *x509) {
-        int i,j;
+        int i = 0,j = 0;
 	static char *entries[CERT_INFO_SIZE];
         STACK_OF(GENERAL_NAME) *gens;
         GENERAL_NAME *name;
@@ -437,7 +437,7 @@ static char **cert_info_kpn(X509 *x509) {
 		    Principal Name is ASN1_STRING, but not sure at 100%
 		    Any help will be granted
 		    */
-		    unsigned char *txt;
+		    unsigned char *txt = NULL;
 		    ASN1_TYPE *val = name->d.otherName->value;
 		    ASN1_STRING *str= val->value.asn1_string;
                     DBG("Found Kerberos Principal Name ");
@@ -463,9 +463,9 @@ static char **cert_info_kpn(X509 *x509) {
 * Extract Certificate's email
 */
 static char **cert_info_email(X509 *x509) {
-        int i,j;
+        int i = 0,j = 0;
 	static char *entries[CERT_INFO_SIZE];
-	STACK_OF(GENERAL_NAME) *gens;
+	STACK_OF(GENERAL_NAME) *gens = NULL;
         GENERAL_NAME *name;
         DBG("Trying to find an email in certificate");
         gens = X509_get_ext_d2i(x509, NID_subject_alt_name, NULL, NULL);
@@ -492,10 +492,10 @@ static char **cert_info_email(X509 *x509) {
 * Extract Certificate's Microsoft Universal Principal Name
 */
 static char **cert_info_upn(X509 *x509) {
-        int i,j;
+        int i = 0,j = 0;
 	static char *entries[CERT_INFO_SIZE];
-        STACK_OF(GENERAL_NAME) *gens;
-        GENERAL_NAME *name;
+        STACK_OF(GENERAL_NAME) *gens = NULL;
+        GENERAL_NAME *name = NULL;
         DBG("Trying to find an Universal Principal Name in certificate");
         gens = X509_get_ext_d2i(x509, NID_subject_alt_name, NULL, NULL);
         if (!gens) {
@@ -533,7 +533,7 @@ static char **cert_info_upn(X509 *x509) {
 */
 static char **cert_info_uid(X509 *x509) {
 	static char *results[CERT_INFO_SIZE];
-	int lastpos,position;
+	int lastpos = 0,position = 0;
 	int uid_type = UID_TYPE;
         X509_NAME *name = X509_get_subject_name(x509);
         if (!name) {
@@ -552,9 +552,9 @@ static char **cert_info_uid(X509 *x509) {
 		}
 	}
 	while( ( lastpos != -1 ) && (position<CERT_INFO_MAX_ENTRIES) ) {
-	    X509_NAME_ENTRY *entry;
-	    ASN1_STRING *str;
-	    unsigned char *txt;
+	    X509_NAME_ENTRY *entry = NULL;
+	    ASN1_STRING *str = NULL;
+	    unsigned char *txt = NULL;
 	    if ( !(entry = X509_NAME_get_entry(name,lastpos)) ) {
                 DBG1("X509_get_name_entry() failed: %s", ERR_error_string(ERR_get_error(),NULL));
                 return results;
@@ -578,8 +578,8 @@ static char **cert_info_uid(X509 *x509) {
 
 /* convert publickey into PEM format */
 static char *key2pem(EVP_PKEY *key) {
-	int len;
-	char *pt,*res;
+	int len = 0;
+	char *pt = NULL,*res = NULL;
 	BIO *buf= BIO_new(BIO_s_mem());
 	if (!buf) {
 	    DBG("BIO_new() failed");
@@ -606,7 +606,7 @@ static char *key2pem(EVP_PKEY *key) {
 * Extract Certificate's Public Key
 */
 static char **cert_info_puk(X509 *x509) {
-	char *pt;
+	char *pt = NULL;
 	static char *entries[2] = { NULL,NULL };
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
@@ -646,7 +646,7 @@ static int BN_append(unsigned char *pt, const BIGNUM *bn) {
 	int res=0;
 	int extrabyte=0;
 	int size= 1 + BN_num_bytes(bn);
-	unsigned char *buff;
+	unsigned char *buff = NULL;
 	if(BN_is_zero(bn)) {
 		res= int_append(pt,0);
 		return res;
@@ -666,17 +666,17 @@ static int BN_append(unsigned char *pt, const BIGNUM *bn) {
 * Extract Certificate's Public Key in OpenSSH format
 */
 static char **cert_info_sshpuk(X509 *x509) {
-	char **maillist;
-	const char *type;
-	char *buf;
-	unsigned char *blob,*pt,*data = NULL;
-	size_t data_len;
-	int res;
+	char **maillist = NULL;
+	const char *type = NULL;
+	char *buf = NULL;
+	unsigned char *blob = NULL,*pt = NULL,*data = NULL;
+	size_t data_len = 0;
+	int res = 0;
 	static char *entries[2] = { NULL,NULL };
-	const BIGNUM *dsa_p, *dsa_q, *dsa_g, *dsa_pub_key;
-	const BIGNUM *rsa_e, *rsa_n;
-	DSA *dsa;
-	RSA *rsa;
+	const BIGNUM *dsa_p = NULL, *dsa_q = NULL, *dsa_g = NULL, *dsa_pub_key = NULL;
+	const BIGNUM *rsa_e = NULL, *rsa_n = NULL;
+	DSA *dsa = NULL;
+	RSA *rsa = NULL;
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
 	    DBG("Cannot extract public key");
@@ -767,7 +767,8 @@ sshpuk_fail:
 
 static char* get_fingerprint(X509 *cert,const EVP_MD *type) {
     unsigned char    md[EVP_MAX_MD_SIZE];
-    unsigned int     len;
+    unsigned int     len = 0;
+	memset(md, 0, EVP_MAX_MD_SIZE);
     X509_digest(cert,type,md,&len);
     if (!len) {
 	DBG("X509_digest() failed");
@@ -794,8 +795,8 @@ static char **cert_info_digest(X509 *x509, const char *algorithm) {
 * Return certificate in PEM format
 */
 static char **cert_info_pem(X509 *x509) {
-	int len;
-	char *pt,*res;
+	int len = 0;
+	char *pt = NULL,*res = NULL;
 	static char *entries[2] = { NULL,NULL };
 	BIO *buf= BIO_new(BIO_s_mem());
 	if (!buf) {
@@ -827,7 +828,7 @@ static char **cert_key_alg(X509 *x509) {
 	static char *entries[2] = { NULL,NULL };
 	X509_PUBKEY *pubkey = NULL;
 	X509_ALGOR * pa= NULL;
-	const char *alg;
+	const char *alg = NULL;
 
 	pubkey  = X509_get_X509_PUBKEY(x509);
 	X509_PUBKEY_get0_param(NULL, NULL, NULL, &pa, pubkey);
@@ -843,7 +844,7 @@ static char **cert_key_alg(X509 *x509) {
 static char **cert_info_serial_number(X509 *x509) {
 	static char *entries[2] = { NULL,NULL };
 	ASN1_INTEGER *serial = X509_get_serialNumber(x509);
-	int len;
+	int len = 0;
 	unsigned char *buffer = NULL, *tmp_ptr;
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L

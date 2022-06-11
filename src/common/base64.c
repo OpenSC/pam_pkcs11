@@ -1,7 +1,7 @@
 /*
  * base64.c: Base64 converting functions
  *
- * Copyright (C) 2001, 2002  Juha Yrjölä <juha.yrjola@iki.fi>
+ * Copyright (C) 2001, 2002  Juha Yrjï¿½lï¿½ <juha.yrjola@iki.fi>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -52,7 +52,7 @@ static const unsigned char bin_table[128] = {
 };
 
 static int from_base64(const char *in, unsigned int *out, int *skip) {
-	unsigned int res = 0, c, s = 18;
+	unsigned int res = 0, c = 0, s = 18;
 	const char *in0 = in;
 
 	for (c = 0; c < 4; c++, in++) {
@@ -79,8 +79,8 @@ static int from_base64(const char *in, unsigned int *out, int *skip) {
 }
 
 int base64_encode(const unsigned char *in,  size_t len, unsigned char *out, size_t *outlen) {
-   size_t i, len2, leven;
-   unsigned char *p;
+   size_t i = 0, len2 = 0, leven = 0;
+   unsigned char *p = NULL;
 
    if (!in) return -1;
    if (!out) return -1;
@@ -120,8 +120,8 @@ int base64_encode(const unsigned char *in,  size_t len, unsigned char *out, size
 }
 
 int base64_decode(const char *in, unsigned char *out, size_t outlen) {
-	int len = 0, r, skip;
-	unsigned int i;
+	int len = 0, r = 0, skip = 0;
+	unsigned int i = 0;
 
 	while ((r = from_base64(in, &i, &skip)) > 0) {
 		int finished = 0, s = 16;

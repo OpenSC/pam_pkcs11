@@ -45,7 +45,7 @@ int is_uri(const char *path) {
 
 static struct stat * stat_file(const char *path) {
 	static struct stat buf;
-	int res;
+	int res = 0;
 	const char *pt=path;
 	if(is_empty_str(path)) return NULL;
 	if (is_uri(path)) {
@@ -92,7 +92,7 @@ struct curl_data_s {
 /* curl call-back function */
 static size_t curl_get(void *ptr, size_t size, size_t nmemb, void *stream) {
     struct curl_data_s *cd = (struct curl_data_s*)stream;
-    unsigned char *p;
+    unsigned char *p = NULL;
 
     size *= nmemb;
     p = realloc(cd->data, cd->length + size);
@@ -109,8 +109,8 @@ static size_t curl_get(void *ptr, size_t size, size_t nmemb, void *stream) {
 }
 
 int get_from_uri(const char *uri_str, unsigned char **data, size_t *length) {
-  int rv;
-  CURL *curl;
+  int rv = 0;
+  CURL *curl = NULL;
   char curl_error[CURL_ERROR_SIZE] = "0";
   struct curl_data_s curl_data =  { NULL, 0};
   /* init curl */
@@ -188,7 +188,7 @@ static void free_uri(uri_t *uri) {
 
 static int parse_generic_uri(const char *in, generic_uri_t **out)
 {
-  char *p;
+  char *p = NULL;
 
   *out = malloc(sizeof(generic_uri_t));
   if (*out == NULL) {
@@ -280,7 +280,7 @@ static int parse_ldap_uri(const char *in, LDAPURLDesc ** out)
 
 static int parse_uri(const char *str, uri_t **uri)
 {
-  int rv;
+  int rv = 0;
 
   *uri = malloc(sizeof(uri_t));
   if (*uri == NULL) {
@@ -323,8 +323,8 @@ static int parse_uri(const char *str, uri_t **uri)
 
 static int get_file(uri_t *uri, unsigned char **data, ssize_t * length)
 {
-  int fd;
-  ssize_t len, rv;
+  int fd = -1;
+  ssize_t len = 0, rv = 0;
 
   *length = 0;
   *data = NULL;
@@ -369,12 +369,12 @@ static int get_file(uri_t *uri, unsigned char **data, ssize_t * length)
 
 static int get_http(uri_t *uri, unsigned char **data, size_t *length, int rec_level)
 {
-  int rv, sock, i, j;
+  int rv = 0, sock = 0, i = 0, j = 0;
   struct addrinfo hint = { 0, PF_UNSPEC, SOCK_STREAM, 0, 0, NULL, NULL, NULL };
-  struct addrinfo *info;
-  char *request;
-  unsigned char *buf;
-  ssize_t len, bufsize;
+  struct addrinfo *info = NULL;
+  char *request = NULL;
+  unsigned char *buf = NULL;
+  ssize_t len = 0, bufsize = 0;
 
   *length = 0;
   *data = NULL;
@@ -586,8 +586,8 @@ static int get_ldap(uri_t *uri, unsigned char **data, size_t *length)
 
 int get_from_uri(const char *str, unsigned char **data, size_t *length)
 {
-  int rv;
-  uri_t *uri;
+  int rv = 0;
+  uri_t *uri = NULL;
 
   /* parse uri */
   DBG("parsing uri:");

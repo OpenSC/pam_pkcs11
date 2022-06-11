@@ -38,7 +38,7 @@
 check for null or blank string
 */
 int is_empty_str(const char *str) {
-	const char *pt;
+	const char *pt = NULL;
 	if (!str) return 1;
 	for (pt=str; *pt;pt++) if (!isspace(*pt)) return 0;
 	/* arriving here means no non-blank char found */
@@ -56,8 +56,8 @@ char *clone_str(const char *str) {
 
 /* returns a uppercased clone of provided string */
 char *toupper_str(const char *str) {
-	const char *from;
-	char *to;
+	const char *from = NULL;
+	char *to = NULL;
 	char *dst= malloc(1+strlen(str));
 	if(!dst) return (char *) str; /* should I advise?? */
 	for (from=str,to=dst;*from; from++,to++) *to=toupper(*from);
@@ -67,8 +67,8 @@ char *toupper_str(const char *str) {
 
 /* returns a lowercased clone of provided string */
 char *tolower_str(const char *str) {
-	const char *from;
-	char *to;
+	const char *from = NULL;
+	char *to = NULL;
 	char *dst= malloc(1+strlen(str));
 	if(!dst) return (char *)str /* should I advise?? */;
 	for (from=str,to=dst;*from; from++,to++) *to=tolower(*from);
@@ -78,8 +78,8 @@ char *tolower_str(const char *str) {
 
 /* print a binary array in xx:xx:.... format */
 char *bin2hex(const unsigned char *binstr,const int len) {
-	int i;
-	char *pt;
+	int i = 0;
+	char *pt = NULL;
 	char *res= malloc(1+3*len);
 	if (!res) return NULL;
 	if (len == 0) {
@@ -95,7 +95,7 @@ char *bin2hex(const unsigned char *binstr,const int len) {
 
 /* convert xx:xx:xx to binary array */
 unsigned char *hex2bin(const char *hexstr) {
-        char *to;
+        char *to = NULL;
         char *from      =    (char* )hexstr;
         int nelems      =    (1+strlen(hexstr))/3;
         unsigned char *res = calloc(nelems,sizeof(unsigned char));
@@ -111,7 +111,7 @@ unsigned char *hex2bin(const char *hexstr) {
 
 /* same as above, but no malloc needed if res is not null */
 unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size) {
-        char *to;
+        char *to = NULL;
         char *from      =    (char* )hexstr;
         *size   =    (1+strlen(hexstr))/3;
         if(!*res) *res = calloc(*size,sizeof(unsigned char));
@@ -129,8 +129,8 @@ unsigned char *hex2bin_static(const char *hexstr,unsigned char **res,int *size) 
 * splits a string into a nelems string array by using sep as char separator
 */
 char **split(const char *str,char sep, int nelems){
-        int n;
-        char *pt;
+        int n = 0;
+        char *pt = NULL;
         char *copy= clone_str(str);
         char **res= calloc(nelems,sizeof(char*));
         if ( (!res) || (!copy) ) return NULL;
@@ -150,8 +150,8 @@ char **split(const char *str,char sep, int nelems){
 * Note that result must be still free()'d
 */
 char **split_static(const char *str,char sep, int nelems,char *dst){
-        int n;
-        char *pt;
+        int n = 0;
+        char *pt = NULL;
         char **res= calloc(nelems,sizeof(char*));
         if ( (!res) || (!dst) ) return NULL;
         strcpy(dst,str);
@@ -167,7 +167,7 @@ char **split_static(const char *str,char sep, int nelems,char *dst){
 
 /* remove redundant spaces from string */
 char *trim(const char *str){
-        char *from,*to;
+        char *from = NULL,*to = NULL;
         int space=1;
         char *res=malloc(strlen(str));
         if (!res) return NULL;

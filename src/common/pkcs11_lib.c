@@ -39,8 +39,8 @@
  */
 int pkcs11_pass_login(pkcs11_handle_t *h, int nullok)
 {
-  int rv;
-  char *pin;
+  int rv = 0;
+  char *pin = NULL;
 
   /* get password */
   pin =getpass("PIN for token: ");
@@ -98,8 +98,8 @@ static int
 memcmp_pad_max(void *d1, size_t d1_len, void *d2, size_t d2_len,
     size_t max_sz)
 {
-	size_t		len, extra_len;
-	char		*marker;
+	size_t		len = 0, extra_len = 0;
+	char		*marker = NULL;
 
 	/* No point in comparing anything beyond max_sz */
 	if (d1_len > max_sz)
@@ -134,7 +134,7 @@ memcmp_pad_max(void *d1, size_t d1_len, void *d2, size_t d2_len,
 int get_random_value(unsigned char *data, int length)
 {
   static const char *random_device = "/dev/urandom";
-  int rv, fh, l;
+  int rv = 0, fh = 0, l = 0;
 
   DBG2("reading %d random bytes from %s", length, random_device);
   fh = open(random_device, O_RDONLY);
@@ -992,10 +992,10 @@ int crypto_init(cert_policy *policy)
 
 int load_pkcs11_module(const char *module, pkcs11_handle_t **hp)
 {
-  int rv;
+  int rv = 0;
   struct stat module_stat;
   CK_C_GetFunctionList C_GetFunctionList_ptr;
-  pkcs11_handle_t *h;
+  pkcs11_handle_t *h = NULL;
 
   DBG1("PKCS #11 module = [%s]", module);
   /* reset pkcs #11 handle */
@@ -1051,13 +1051,11 @@ int load_pkcs11_module(const char *module, pkcs11_handle_t **hp)
 static int
 refresh_slots(pkcs11_handle_t *h)
 {
-  CK_ULONG i, slot_count;
-  CK_SLOT_ID_PTR slots;
-  CK_RV rv;
-  int j;
+  CK_ULONG i = 0UL, slot_count = -1;
+  CK_SLOT_ID_PTR slots = NULL;
+  CK_RV rv = 0;
+  int j = 0;
 
-  slot_count = -1;
-  slots = NULL;
   rv = h->fl->C_GetSlotList(FALSE, NULL, &slot_count);
   if (rv != CKR_OK) {
     set_error("C_GetSlotList() failed: 0x%08lX", rv);
@@ -1145,7 +1143,7 @@ refresh_slots(pkcs11_handle_t *h)
 
 int init_pkcs11_module(pkcs11_handle_t *h,int flag)
 {
-  int rv;
+  int rv = 0;
   /* CK_SLOT_ID_PTR slots; */
   CK_INFO info;
   /*
@@ -1284,8 +1282,8 @@ int
 find_slot_by_slotlabel(pkcs11_handle_t *h, const char *wanted_slot_label,
     unsigned int *slot_num)
 {
-  unsigned long idx;
-  size_t len;
+  unsigned long idx = 0;
+  size_t len = 0;
 
   if (slot_num == NULL || wanted_slot_label == NULL ||
       strlen(wanted_slot_label) == 0)
@@ -1320,8 +1318,8 @@ find_slot_by_slotlabel_and_tokenlabel(pkcs11_handle_t *h,
     const char *wanted_slot_label, const char *wanted_token_label,
     unsigned int *slot_num)
 {
-  unsigned long i;
-  int rv;
+  unsigned long i = 0;
+  int rv = 0;
 
   if (slot_num == NULL)
     return (-1);
@@ -1366,7 +1364,7 @@ int wait_for_token_by_slotlabel(pkcs11_handle_t *h,
                    const char *wanted_token_label,
                    unsigned int *slot_num)
 {
-  int rv;
+  int rv = 0;
 
   do {
     /* see if the card we're looking for is inserted */
@@ -1388,7 +1386,7 @@ int wait_for_token(pkcs11_handle_t *h,
                    const char *wanted_token_label,
                    unsigned int *slot_num)
 {
-  int rv;
+  int rv = 0;
 
   do {
     /* see if the card we're looking for is inserted */
@@ -1407,7 +1405,7 @@ int wait_for_token(pkcs11_handle_t *h,
 
 int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot)
 {
-  int rv;
+  int rv = 0;
 
   DBG1("opening a new PKCS #11 session for slot %d", slot + 1);
   if (slot >= h->slot_count) {
@@ -1426,7 +1424,7 @@ int open_pkcs11_session(pkcs11_handle_t *h, unsigned int slot)
 
 int pkcs11_login(pkcs11_handle_t *h, char *password)
 {
-  int rv;
+  int rv = 0;
 
   DBG("login as user CKU_USER");
   if (password)
@@ -1442,7 +1440,7 @@ int pkcs11_login(pkcs11_handle_t *h, char *password)
 
 int get_slot_login_required(pkcs11_handle_t *h)
 {
-  int rv;
+  int rv = 0;
   CK_TOKEN_INFO tinfo;
 
   rv = h->fl->C_GetTokenInfo(h->slots[h->current_slot].id, &tinfo);
@@ -1455,7 +1453,7 @@ int get_slot_login_required(pkcs11_handle_t *h)
 
 int get_slot_protected_authentication_path(pkcs11_handle_t *h)
 {
-  int rv;
+  int rv = 0;
   CK_TOKEN_INFO tinfo;
 
   rv = h->fl->C_GetTokenInfo(h->slots[h->current_slot].id, &tinfo);
@@ -1468,7 +1466,7 @@ int get_slot_protected_authentication_path(pkcs11_handle_t *h)
 
 static void free_certs(cert_object_t **certs, int cert_count)
 {
-  int i;
+  int i = 0;
 
   for (i = 0; i < cert_count; i++) {
     if (!certs[i]) {
@@ -1485,7 +1483,7 @@ static void free_certs(cert_object_t **certs, int cert_count)
 
 int close_pkcs11_session(pkcs11_handle_t *h)
 {
-  int rv;
+  int rv = 0;
 
   /* close user-session */
   DBG("logout user");
@@ -1513,13 +1511,14 @@ int close_pkcs11_session(pkcs11_handle_t *h)
 /* get a list of certificates */
 cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
 {
-  CK_BYTE *id_value;
-  CK_BYTE *cert_value;
-  CK_OBJECT_HANDLE object;
-  CK_ULONG object_count;
-  X509 *x509;
+  CK_BYTE *id_value = NULL;
+  CK_BYTE *cert_value = NULL;
+  CK_OBJECT_HANDLE object = 0L;
+  CK_ULONG object_count = 0L;
+  X509 *x509 = NULL;
   cert_object_t **certs = NULL;
-  int rv;
+  cert_object_t **ret = NULL;
+  int rv = 0;
 
   CK_OBJECT_CLASS cert_class = CKO_CERTIFICATE;
   CK_CERTIFICATE_TYPE cert_type = CKC_X_509;
@@ -1574,7 +1573,6 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     cert_template[2].pValue = id_value;
     rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 3);
     if (rv != CKR_OK) {
-        free(id_value);
         set_error("CertID value: C_GetAttributeValue() failed: %i", rv);
         goto getlist_error;
     }
@@ -1585,7 +1583,6 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
       cert_template[3].pValue = NULL;
       rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
       if (rv != CKR_OK) {
-        free(id_value);
         set_error("Cert Length: C_GetAttributeValue() failed: %i", rv);
         goto getlist_error;
       }
@@ -1599,27 +1596,22 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
       cert_template[3].pValue = cert_value;
       rv = h->fl->C_GetAttributeValue(h->session, object, cert_template, 4);
       if (rv != CKR_OK) {
-        free(id_value);
-        free(cert_value);
         set_error("Cert Value: C_GetAttributeValue() failed: %i", rv);
         goto getlist_error;
       }
-
     /* Pass 3: store certificate */
 
     /* convert to X509 data structure */
       x509 = d2i_X509(NULL, (const unsigned char **)&cert_template[3].pValue, cert_template[3].ulValueLen);
       if (x509 == NULL) {
-        free(id_value);
-        free(cert_value);
         set_error("d2i_x509() failed: %s", ERR_error_string(ERR_get_error(), NULL));
         goto getlist_error;
       }
       free(cert_value);
+      cert_value = NULL;
     /* finally add certificate to chain */
     certs= realloc(h->certs,(h->cert_count+1) * sizeof(cert_object_t *));
     if (!certs) {
-        free(id_value);
         X509_free(x509);
 	set_error("realloc() not space to re-size cert table");
         goto getlist_error;
@@ -1631,7 +1623,6 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
     DBG1("- id:   %02x", id_value[0]);
     h->certs[h->cert_count] = (cert_object_t *)calloc(sizeof(cert_object_t),1);
     if (h->certs[h->cert_count] == NULL) {
-        free(id_value);
         X509_free(x509);
 	set_error("malloc() not space to allocate cert object");
         goto getlist_error;
@@ -1651,18 +1642,21 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
   if (rv != CKR_OK) {
     set_error("C_FindObjectsFinal() failed: %i", rv);
     free_certs(certs, h->cert_count);
-    free(id_value);
     certs = NULL;
     h->certs = NULL;
     h->cert_count = 0;
-    return NULL;
+    ret = NULL;
+    goto exit;
   }
 
   *ncerts = h->cert_count;
 
   /* arriving here means that's all right */
   DBG1("Found %d certificates in token",h->cert_count);
-  return h->certs;
+  ret = h->certs;
+
+exit:
+  return ret;
 
   /* some error arrived: clean as possible, and return fail */
 getlist_error:
@@ -1673,7 +1667,14 @@ getlist_error:
   free_certs(h->certs, h->cert_count);
   h->certs = NULL;
   h->cert_count = 0;
-  return NULL;
+  ret = NULL;
+  if(id_value) {
+    free(id_value);
+  }
+  if(cert_value) {
+    free(cert_value);
+  }
+  goto exit;
 }
 
 /* retrieve the private key associated with a given certificate */
@@ -1766,7 +1767,7 @@ X509 *get_X509_certificate(cert_object_t *cert)
 int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
 	CK_ULONG length, CK_BYTE **signature, CK_ULONG *signature_length)
 {
-  int rv;
+  int rv = 0;
   int h_offset = 0;
 #ifdef USE_HASH_SHA1
   CK_BYTE hash[15 + SHA_DIGEST_LENGTH] =

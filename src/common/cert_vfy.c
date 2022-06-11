@@ -87,12 +87,12 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
 
 static X509_CRL *download_crl(const char *uri)
 {
-  int rv;
-  unsigned int i, j;
-  unsigned char *data, *der;
-  const unsigned char *p;
-  size_t data_len, der_len;
-  X509_CRL *crl;
+  int rv = 0;
+  unsigned int i = 0, j = 0;
+  unsigned char *data = NULL, *der = NULL;
+  const unsigned char *p = NULL;
+  size_t data_len = 0, der_len = 0;
+  X509_CRL *crl = NULL;
 
   rv = get_from_uri(uri, &data, &data_len);
   if (rv != 0) {
@@ -142,9 +142,9 @@ static X509_CRL *download_crl(const char *uri)
 
 static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 {
-  int rv;
+  int rv = 0;
   EVP_PKEY *pkey = NULL;
-  X509 *issuer_cert;
+  X509 *issuer_cert = NULL;
 
   /* get issuer certificate */
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
@@ -220,25 +220,25 @@ static int verify_crl(X509_CRL * crl, X509_STORE_CTX * ctx)
 
 static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t policy)
 {
-  int rv, i, j;
+  int rv = 0, i = 0, j = 0;
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
   X509_OBJECT obj;
 #else
   X509_OBJECT *obj = X509_OBJECT_new();
 #endif
   X509_REVOKED *rev = NULL;
-  STACK_OF(DIST_POINT) * dist_points;
-  DIST_POINT *point;
-  GENERAL_NAME *name;
-  X509_CRL *crl;
+  STACK_OF(DIST_POINT) * dist_points = NULL;
+  DIST_POINT *point = NULL;
+  GENERAL_NAME *name = NULL;
+  X509_CRL *crl = NULL;
   X509 *x509_ca = NULL;
-
+  int ret = 0;
   DBG1("crl policy: %d", policy);
   if (policy == CRLP_NONE) {
     /* NONE */
     DBG("no revocation-check performed");
-    X509_OBJECT_free(obj);
-    return 1;
+    ret = 1;
+    goto exit;
   } else if (policy == CRLP_AUTO) {
     /* AUTO -> first try it ONLINE then OFFLINE */
     rv = check_for_revocation(x509, ctx, CRLP_ONLINE);
@@ -246,8 +246,8 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
       DBG1("check_for_revocation() failed: %s", get_error());
       rv = check_for_revocation(x509, ctx, CRLP_OFFLINE);
     }
-    X509_OBJECT_free(obj);
-    return rv;
+    ret = rv;
+    goto exit;
   } else if (policy == CRLP_OFFLINE) {
     /* OFFLINE */
     DBG("looking for an dedicated local crl");
@@ -255,17 +255,15 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
     rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), &obj);
     if (rv > 0) {
       crl = X509_OBJECT_get0_X509_CRL((&obj));
-      X509_OBJECT_free_contents(&obj);
 #else
     rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), obj);
     if (rv > 0) {
       crl = X509_OBJECT_get0_X509_CRL(obj);
-      X509_OBJECT_free(obj);
 #endif
     } else {
       set_error("no dedicated crl available");
-      X509_OBJECT_free(obj);
-      return -1;
+      ret = -1;
+      goto exit;
     }
   } else if (policy == CRLP_ONLINE) {
     /* ONLINE */
@@ -277,23 +275,22 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
       rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), &obj);
       if (rv > 0) {
         x509_ca = X509_OBJECT_get0_X509((&obj));
-        X509_OBJECT_free_contents(&obj);
 #else
       rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), obj);
       if (rv > 0) {
         x509_ca = X509_OBJECT_get0_X509(obj);
-        X509_OBJECT_free(obj);
 #endif
       } else {
         set_error("no dedicated ca certificate available");
-        X509_OBJECT_free(obj);
-        return -1;
+        ret = -1;
+        goto exit;
       }
 
       dist_points = X509_get_ext_d2i(x509_ca, NID_crl_distribution_points, NULL, NULL);
       if (dist_points == NULL) {
         set_error("neither the user nor the ca certificate does contain a crl distribution point");
-        return -1;
+        ret = -1;
+        goto exit;
       }
     }
     crl = NULL;
@@ -322,27 +319,38 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
     sk_DIST_POINT_pop_free(dist_points, DIST_POINT_free);
     if (crl == NULL) {
       set_error("downloading the crl failed for all distribution points");
-      return -1;
+      ret = -1;
+      goto exit;
     }
   } else {
     set_error("policy %d is not supported", policy);
-    return -1;
+    ret = -1;
+    goto exit;
   }
   /* verify the crl and check whether the certificate is revoked or not */
   DBG("verifying crl");
   rv = verify_crl(crl, ctx);
   if (rv < 0) {
-    X509_CRL_free(crl);
     set_error("verify_crl() failed: %s", get_error());
-    return -1;
+    ret = -1;
+    goto exit;
   } else if (rv == 0) {
-    X509_CRL_free(crl);
-    return 0;
+    ret = 0;
+    goto exit;
   }
   DBG("checking revocation");
   rv = X509_CRL_get0_by_cert(crl, &rev, x509);
-  X509_CRL_free(crl);
-  return (rv == 0);
+  ret = (rv == 0);
+
+exit:
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L) /* is this correct for older openssl? */
+  X509_OBJECT_free_contents(&obj);
+#else
+  X509_OBJECT_free(obj);
+#endif
+  /* crl is being freed by caller X509_STORE_free */
+  return ret;
+
 }
 
 static int add_hash( X509_LOOKUP *lookup, const char *dir) {
@@ -374,7 +382,7 @@ static int add_file( X509_LOOKUP *lookup, const char *file) {
 }
 
 static X509_STORE * setup_store(cert_policy *policy) {
-  int rv;
+  int rv = 0;
   X509_STORE *store = NULL;
   X509_LOOKUP *lookup = NULL;
 
@@ -450,9 +458,9 @@ add_store_error:
 */
 int verify_certificate(X509 * x509, cert_policy *policy)
 {
-  int rv;
-  X509_STORE *store;
-  X509_STORE_CTX *ctx;
+  int rv = 0;
+  X509_STORE *store = NULL;
+  X509_STORE_CTX *ctx = NULL;
 
   /* if neither ca nor crl check are requested skip */
   if ( (policy->ca_policy==0) && (policy->crl_policy==CRLP_NONE) ) {
@@ -521,11 +529,11 @@ int verify_certificate(X509 * x509, cert_policy *policy)
 int verify_signature(X509 * x509, unsigned char *data, int data_length,
                      unsigned char **signature, unsigned long *signature_length)
 {
-  int rv;
-  EVP_PKEY *pubkey;
+  int rv = 0;
+  EVP_PKEY *pubkey = NULL;
   EVP_MD_CTX *md_ctx = NULL;
-  ECDSA_SIG* ec_sig;
-  int rs_len;
+  ECDSA_SIG* ec_sig = NULL;
+  int rs_len = 0;
   unsigned char *p = NULL;
 
   /* get the public-key */
