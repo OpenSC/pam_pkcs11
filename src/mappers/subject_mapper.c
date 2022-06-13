@@ -77,7 +77,7 @@ static int subject_mapper_match_user(X509 *x509, const char *login, void *contex
 		DBG("X509_get_subject_name failed");
 		return -1;
 	}
-	char* val =  mapfile_match(filename,entries[0],login,ignorecase);
+	int val =  mapfile_match(filename,entries[0],login,ignorecase);
 	free_entries(entries, DEFUALT_ENTRIES_SIZE);
 	return val;
 }
