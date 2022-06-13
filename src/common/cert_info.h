@@ -59,6 +59,8 @@
 #define CERTINFO_EXTERN
 #endif
 
+#define DEFUALT_ENTRIES_SIZE 2
+
 /**
 * Generate and compose a certificate chain
 * @param cert Certificate to add
@@ -75,6 +77,15 @@ void add_cert(X509 *cert, X509 ***certs, int *ncerts);
 * @return utf-8 string array with provided information
 */
 CERTINFO_EXTERN char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm);
+
+/**
+ * @brief free allocated
+ * 
+ * @param entries 
+ * @param count 
+ * @return CERTINFO_EXTERN 
+ */
+CERTINFO_EXTERN void free_entries(char **entries, int count);
 
 #undef CERTINFO_EXTERN
 

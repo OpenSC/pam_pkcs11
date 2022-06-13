@@ -114,7 +114,7 @@ done:
 * Evaluate Certificate Signature Digest
 */
 static char **cert_info_digest(X509 *x509, ALGORITHM_TYPE algorithm) {
-  static char *entries[2] = { NULL,NULL };
+  static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
   HASH_HashType  type = HASH_GetHashTypeByOidTag(algorithm);
   unsigned char data[HASH_LENGTH_MAX];
 
@@ -377,7 +377,7 @@ static char **cert_info_cn(X509 *x509) {
 */
 static char **cert_info_subject(X509 *x509) {
 	X509_NAME *subject= NULL;
-	static char *entries[2] = { NULL, NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL, NULL };
 	entries[0] = malloc(256);
 	if (!entries[0]) return NULL;
         subject = X509_get_subject_name(x509);
@@ -394,7 +394,7 @@ static char **cert_info_subject(X509 *x509) {
 */
 static char **cert_info_issuer(X509 *x509) {
 	X509_NAME *issuer = NULL;
-	static char *entries[2] = { NULL, NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL, NULL };
 	entries[0] = malloc(256);
 	if (!entries[0]) return NULL;
         issuer = X509_get_issuer_name(x509);
@@ -607,7 +607,7 @@ static char *key2pem(EVP_PKEY *key) {
 */
 static char **cert_info_puk(X509 *x509) {
 	char *pt = NULL;
-	static char *entries[2] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
 	    DBG("Cannot extract public key");
@@ -666,17 +666,19 @@ static int BN_append(unsigned char *pt, const BIGNUM *bn) {
 * Extract Certificate's Public Key in OpenSSH format
 */
 static char **cert_info_sshpuk(X509 *x509) {
+	char **ret = NULL;
 	char **maillist = NULL;
 	const char *type = NULL;
 	char *buf = NULL;
 	unsigned char *blob = NULL,*pt = NULL,*data = NULL;
 	size_t data_len = 0;
 	int res = 0;
-	static char *entries[2] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
 	const BIGNUM *dsa_p = NULL, *dsa_q = NULL, *dsa_g = NULL, *dsa_pub_key = NULL;
 	const BIGNUM *rsa_e = NULL, *rsa_n = NULL;
 	DSA *dsa = NULL;
 	RSA *rsa = NULL;
+
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
 	    DBG("Cannot extract public key");
@@ -685,7 +687,7 @@ static char **cert_info_sshpuk(X509 *x509) {
 	blob=calloc(8192,sizeof(unsigned char));
 	if (!blob ) {
 	    DBG("Cannot allocate space to compose pkey string");
-	    goto sshpuk_fail;
+	    goto sshpuk_exit;
 	}
 	pt=blob;
 	switch (EVP_PKEY_base_id(pubk)) {
@@ -693,7 +695,7 @@ static char **cert_info_sshpuk(X509 *x509) {
 			dsa = EVP_PKEY_get1_DSA(pubk);
 			if (dsa == NULL) {
 				DBG("No data for public DSA key");
-				goto sshpuk_fail;
+				goto sshpuk_exit;
 			}
 			type="ssh-dss";
 		        /* dump key into a byte array */
@@ -712,7 +714,7 @@ static char **cert_info_sshpuk(X509 *x509) {
 			rsa = EVP_PKEY_get1_RSA(pubk);
 			if (rsa == NULL) {
 				DBG("No data for public RSA key");
-				goto sshpuk_fail;
+				goto sshpuk_exit;
 			}
 		        /* dump key into a byte array */
 			type="ssh-rsa";
@@ -724,7 +726,7 @@ static char **cert_info_sshpuk(X509 *x509) {
 			RSA_free(rsa);
 			break;
 		default: DBG("Unknown public key type");
-			goto sshpuk_fail;
+			goto sshpuk_exit;
 	}
 	/* encode data in base64 format */
 	data_len= 1+ 4*((2+pt-blob)/3);
@@ -732,12 +734,12 @@ static char **cert_info_sshpuk(X509 *x509) {
 	data=calloc(data_len,sizeof(unsigned char));
 	if(!data) {
 		DBG1("calloc() to uuencode buffer '%ld'",data_len);
-		goto sshpuk_fail;
+		goto sshpuk_exit;
 	}
 	res= base64_encode(blob,pt-blob,data, &data_len);
 	if (res<0) {
 		DBG("BASE64 Encode failed");
-		goto sshpuk_fail;
+		goto sshpuk_exit;
 	}
 	/* retrieve email from certificate and compose ssh-key string */
 	maillist= cert_info_email(x509);
@@ -746,23 +748,23 @@ static char **cert_info_sshpuk(X509 *x509) {
 	buf=malloc(3+res+strlen(type)+data_len);
 	if (!buf) {
 		DBG("No memory to store public key dump");
-		goto sshpuk_fail;
+		goto sshpuk_exit;
 	}
 	if (maillist && maillist[0]) sprintf(buf,"%s %s %s",type,data,maillist[0]);
 	else sprintf(buf,"%s %s",type,data);
 	DBG1("Public key is '%s'\n",buf);
-	EVP_PKEY_free(pubk);
-	free(blob);
-	free(data);
 	entries[0]=buf;
-	return entries;
+	ret = entries;
 
-sshpuk_fail:
+sshpuk_exit:
+	if(maillist)
+		free_entries(maillist, CERT_INFO_SIZE);
 	EVP_PKEY_free(pubk);
-	free(blob);
+	if(blob)
+		free(blob);
 	if (data)
 		free(data);
-	return NULL;
+	return ret;
 }
 
 static char* get_fingerprint(X509 *cert,const EVP_MD *type) {
@@ -781,7 +783,7 @@ static char* get_fingerprint(X509 *cert,const EVP_MD *type) {
 * Evaluate Certificate Signature Digest
 */
 static char **cert_info_digest(X509 *x509, const char *algorithm) {
-	static char *entries[2] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
 	const EVP_MD *digest = EVP_get_digestbyname(algorithm);
         if(!digest) {
                 digest= EVP_sha1();
@@ -797,7 +799,7 @@ static char **cert_info_digest(X509 *x509, const char *algorithm) {
 static char **cert_info_pem(X509 *x509) {
 	int len = 0;
 	char *pt = NULL,*res = NULL;
-	static char *entries[2] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
 	BIO *buf= BIO_new(BIO_s_mem());
 	if (!buf) {
 	    DBG("BIO_new() failed");
@@ -825,7 +827,7 @@ static char **cert_info_pem(X509 *x509) {
 * Return certificate in PEM format
 */
 static char **cert_key_alg(X509 *x509) {
-	static char *entries[2] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
 	X509_PUBKEY *pubkey = NULL;
 	X509_ALGOR * pa= NULL;
 	const char *alg = NULL;
@@ -842,7 +844,7 @@ static char **cert_key_alg(X509 *x509) {
 * Return certificate serial number as a hex string
 */
 static char **cert_info_serial_number(X509 *x509) {
-	static char *entries[2] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
 	ASN1_INTEGER *serial = X509_get_serialNumber(x509);
 	int len = 0;
 	unsigned char *buffer = NULL, *tmp_ptr;
@@ -948,3 +950,11 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 }
 #endif /* HAVE_NSS */
 #endif /* _CERT_INFO_C */
+
+void free_entries(char **entries, int count) {
+	for(int idx = 0; idx < count; idx++) {
+		if(entries[idx]) {
+			free(entries[idx]);
+		}
+	}
+}
