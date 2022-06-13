@@ -63,9 +63,7 @@ static char * subject_mapper_find_user(X509 *x509, void *context, int *match) {
 		return NULL;
 	}
 	char* val = mapfile_find(filename,entries[0],ignorecase,match);
-	if(entries[0]) {
-		free(entries[0]);
-	}
+	free_entries(entries, DEFUALT_ENTRIES_SIZE);
 	return val;
 }
 
@@ -79,7 +77,9 @@ static int subject_mapper_match_user(X509 *x509, const char *login, void *contex
 		DBG("X509_get_subject_name failed");
 		return -1;
 	}
-	return mapfile_match(filename,entries[0],login,ignorecase);
+	char* val =  mapfile_match(filename,entries[0],login,ignorecase);
+	free_entries(entries, DEFUALT_ENTRIES_SIZE);
+	return val;
 }
 
 _DEFAULT_MAPPER_END
