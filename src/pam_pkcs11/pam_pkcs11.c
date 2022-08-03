@@ -208,9 +208,7 @@ pwd_exit:
     cleanse(resp[0].resp, strlen(resp[0].resp));
     free(resp[0].resp);
   }
-  if(NULL != &resp[0]) {
-    free(&resp[0]);
-  }
+  free(&resp[0]);
   return rv;
 }
 

@@ -767,13 +767,10 @@ static char **cert_info_sshpuk(X509 *x509) {
 	ret = entries;
 
 sshpuk_exit:
-	if(maillist)
-		free_entries(maillist, CERT_INFO_SIZE);
+    free_entries(maillist, CERT_INFO_SIZE);
 	EVP_PKEY_free(pubk);
-	if(blob)
-		free(blob);
-	if (data)
-		free(data);
+    free(blob);
+    free(data);
 	return ret;
 }
 
@@ -967,9 +964,7 @@ char **cert_info(X509 *x509, int type, const char *algorithm ) {
 
 void free_entries(char **entries, int count) {
 	for(int idx = 0; idx < count; idx++) {
-		if(entries[idx]) {
-			free(entries[idx]);
-		}
+		free(entries[idx]);
 	}
 }
 
