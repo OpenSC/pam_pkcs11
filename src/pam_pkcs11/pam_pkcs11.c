@@ -737,7 +737,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	   "PKCS11_LOGIN_CERT_ISSUER=%.*s",
 	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_ISSUER=") -1),
 	   issuer[0]);
-	   free(*issuer);
+    free_entries(issuer, DEFUALT_ENTRIES_SIZE);
     rv = pam_putenv(pamh, env_temp);
   } else {
     ERR("couldn't get certificate issuer.");
@@ -760,7 +760,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	   "PKCS11_LOGIN_CERT_SERIAL=%.*s",
 	   (int)((sizeof(env_temp) - 1) - strlen("PKCS11_LOGIN_CERT_SERIAL=") -1),
 	   serial[0]);
-	   free(*serial);
+    free_entries(serial, DEFUALT_ENTRIES_SIZE);
     rv = pam_putenv(pamh, env_temp);
   } else {
     ERR("couldn't get certificate serial number.");
