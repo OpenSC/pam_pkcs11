@@ -114,7 +114,8 @@ done:
 * Evaluate Certificate Signature Digest
 */
 static char **cert_info_digest(X509 *x509, ALGORITHM_TYPE algorithm) {
-  static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
+  static char *entries[DEFUALT_ENTRIES_SIZE];
+  init_entries(entries, DEFUALT_ENTRIES_SIZE);
   HASH_HashType  type = HASH_GetHashTypeByOidTag(algorithm);
   unsigned char data[HASH_LENGTH_MAX];
 
@@ -136,7 +137,8 @@ cert_info_upn (X509 *x509)
     CERTGeneralName *nameList = NULL;
     CERTGeneralName *current = NULL;
     SECOidTag tag;
-    static char *results[CERT_INFO_SIZE] = { NULL };
+    static char *results[CERT_INFO_SIZE];
+    init_entries(results, CERT_INFO_SIZE);
     int result = 0;
     SECItem decoded;
 
@@ -334,6 +336,7 @@ void add_cert(X509 *cert, X509 ***certs, int *ncerts) {
 */
 static char **cert_info_cn(X509 *x509) {
 	static char *results[CERT_INFO_SIZE];
+    init_entries(results, CERT_INFO_SIZE);
 	int lastpos = 0,position = 0;
         X509_NAME *name = X509_get_subject_name(x509);
         if (!name) {
@@ -377,7 +380,8 @@ static char **cert_info_cn(X509 *x509) {
 */
 static char **cert_info_subject(X509 *x509) {
 	X509_NAME *subject= NULL;
-	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL, NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE];
+    init_entries(entries, DEFUALT_ENTRIES_SIZE);
 	entries[0] = malloc(256);
 	if (!entries[0]) return NULL;
         subject = X509_get_subject_name(x509);
@@ -394,7 +398,8 @@ static char **cert_info_subject(X509 *x509) {
 */
 static char **cert_info_issuer(X509 *x509) {
 	X509_NAME *issuer = NULL;
-	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL, NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE];
+    init_entries(entries, DEFUALT_ENTRIES_SIZE);
 	entries[0] = malloc(256);
 	if (!entries[0]) return NULL;
         issuer = X509_get_issuer_name(x509);
@@ -412,6 +417,7 @@ static char **cert_info_issuer(X509 *x509) {
 static char **cert_info_kpn(X509 *x509) {
         int i = 0,j = 0;
 	static char *entries[CERT_INFO_SIZE];
+    init_entries(entries, CERT_INFO_SIZE);
         STACK_OF(GENERAL_NAME) *gens;
         GENERAL_NAME *name;
         ASN1_OBJECT *krb5PrincipalName;
@@ -465,6 +471,7 @@ static char **cert_info_kpn(X509 *x509) {
 static char **cert_info_email(X509 *x509) {
         int i = 0,j = 0;
 	static char *entries[CERT_INFO_SIZE];
+    init_entries(entries, CERT_INFO_SIZE);
 	STACK_OF(GENERAL_NAME) *gens = NULL;
         GENERAL_NAME *name;
         DBG("Trying to find an email in certificate");
@@ -533,6 +540,7 @@ static char **cert_info_upn(X509 *x509) {
 */
 static char **cert_info_uid(X509 *x509) {
 	static char *results[CERT_INFO_SIZE];
+    init_entries(results, CERT_INFO_SIZE);
 	int lastpos = 0,position = 0;
 	int uid_type = UID_TYPE;
         X509_NAME *name = X509_get_subject_name(x509);
@@ -607,7 +615,8 @@ static char *key2pem(EVP_PKEY *key) {
 */
 static char **cert_info_puk(X509 *x509) {
 	char *pt = NULL;
-	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE];
+    init_entries(entries, DEFUALT_ENTRIES_SIZE);
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
 	    DBG("Cannot extract public key");
@@ -673,7 +682,8 @@ static char **cert_info_sshpuk(X509 *x509) {
 	unsigned char *blob = NULL,*pt = NULL,*data = NULL;
 	size_t data_len = 0;
 	int res = 0;
-	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE];
+    init_entries(entries, DEFUALT_ENTRIES_SIZE);
 	const BIGNUM *dsa_p = NULL, *dsa_q = NULL, *dsa_g = NULL, *dsa_pub_key = NULL;
 	const BIGNUM *rsa_e = NULL, *rsa_n = NULL;
 	DSA *dsa = NULL;
@@ -783,7 +793,8 @@ static char* get_fingerprint(X509 *cert,const EVP_MD *type) {
 * Evaluate Certificate Signature Digest
 */
 static char **cert_info_digest(X509 *x509, const char *algorithm) {
-	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE];
+    init_entries(entries, DEFUALT_ENTRIES_SIZE);
 	const EVP_MD *digest = EVP_get_digestbyname(algorithm);
         if(!digest) {
                 digest= EVP_sha1();
@@ -799,7 +810,8 @@ static char **cert_info_digest(X509 *x509, const char *algorithm) {
 static char **cert_info_pem(X509 *x509) {
 	int len = 0;
 	char *pt = NULL,*res = NULL;
-	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE];
+    init_entries(entries, DEFUALT_ENTRIES_SIZE);
 	BIO *buf= BIO_new(BIO_s_mem());
 	if (!buf) {
 	    DBG("BIO_new() failed");
@@ -827,7 +839,8 @@ static char **cert_info_pem(X509 *x509) {
 * Return certificate in PEM format
 */
 static char **cert_key_alg(X509 *x509) {
-	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE];
+    init_entries(entries, DEFUALT_ENTRIES_SIZE);
 	X509_PUBKEY *pubkey = NULL;
 	X509_ALGOR * pa= NULL;
 	const char *alg = NULL;
@@ -844,7 +857,8 @@ static char **cert_key_alg(X509 *x509) {
 * Return certificate serial number as a hex string
 */
 static char **cert_info_serial_number(X509 *x509) {
-	static char *entries[DEFUALT_ENTRIES_SIZE] = { NULL,NULL };
+	static char *entries[DEFUALT_ENTRIES_SIZE];
+    init_entries(entries, DEFUALT_ENTRIES_SIZE);
 	ASN1_INTEGER *serial = X509_get_serialNumber(x509);
 	int len = 0;
 	unsigned char *buffer = NULL, *tmp_ptr;
@@ -956,5 +970,11 @@ void free_entries(char **entries, int count) {
 		if(entries[idx]) {
 			free(entries[idx]);
 		}
+	}
+}
+
+static void init_entries(char **entries, int count) {
+	for(int idx = 0; idx < count; idx++) {
+        entries[idx] = NULL;
 	}
 }
