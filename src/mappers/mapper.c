@@ -133,7 +133,7 @@ void end_mapent(struct mapfile *mfile) {
 	if (!mfile) return;
 	/* don't free uri: is a scconf provided "const char *" */;
 	/* free (mfile->uri); */
-	/* don't free value: they are pointers to somewhere in buffer */
+	/* don't free value: it's a pointer to somewhere in buffer */
 	/* free (mfile->value); */
 	if(mfile->key) {
 		free (mfile->key);
