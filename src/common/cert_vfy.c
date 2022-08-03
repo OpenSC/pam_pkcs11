@@ -349,6 +349,7 @@ exit:
   X509_OBJECT_free(obj);
 #endif
   /* crl is being freed by caller X509_STORE_free */
+  /* FIXME: Isn't it still okay to free the CRL here? */
   return ret;
 
 }

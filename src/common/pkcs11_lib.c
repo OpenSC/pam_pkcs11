@@ -1668,12 +1668,9 @@ getlist_error:
   h->certs = NULL;
   h->cert_count = 0;
   ret = NULL;
-  if(id_value) {
-    free(id_value);
-  }
-  if(cert_value) {
-    free(cert_value);
-  }
+  free(id_value);
+  free(cert_value);
+
   goto exit;
 }
 
