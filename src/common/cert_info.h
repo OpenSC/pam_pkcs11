@@ -87,6 +87,15 @@ CERTINFO_EXTERN char **cert_info(X509 *x509, int type, ALGORITHM_TYPE algorithm)
  */
 CERTINFO_EXTERN void free_entries(char **entries, int count);
 
+/**
+ * @brief initialize entries
+ * 
+ * @param entries 
+ * @param count 
+ * @return CERTINFO_EXTERN 
+ */
+CERTINFO_EXTERN void init_entries(char **entries, int count);
+
 #undef CERTINFO_EXTERN
 
 #endif /* __CERT_INFO_H_ */

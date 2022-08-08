@@ -968,7 +968,7 @@ void free_entries(char **entries, int count) {
 	}
 }
 
-static void init_entries(char **entries, int count) {
+void init_entries(char **entries, int count) {
 	for(int idx = 0; idx < count; idx++) {
         entries[idx] = NULL;
 	}
