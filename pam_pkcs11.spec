@@ -1,5 +1,5 @@
 Name:           pam_pkcs11
-Version:        0.6.0
+Version:        0.6.12
 Release:        0
 Epoch:          0
 Summary:        PKCS #11 PAM module
@@ -7,7 +7,7 @@ Summary:        PKCS #11 PAM module
 Group:          System Environment/Base
 License:        LGPL
 URL:            http://www.opensc-project.org/pam_pkcs11/
-Source0: 	http://www.opensc-project.org/files/pam_pkcs11-0.6.0.tar.gz
+Source0: 	      http://www.opensc-project.org/files/pam_pkcs11-0.6.12.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  pam-devel, openssl-devel
@@ -33,7 +33,7 @@ Adittional included pam_pkcs11 related tools
 %package pcsc
 Group:          System Environment/Utilities
 Summary:	PCSC-Lite extra tools for pam_pkcs11
-BuildRequires:	pcsc-lite-devel 
+BuildRequires:	pcsc-lite-devel
 Requires:	pcsc-lite
 Requires:	pam_pkcs11
 Provides:	pam_pkcs11-pcsc
@@ -51,14 +51,14 @@ Requires:	pam_pkcs11
 Provides:	pam_pkcs11-ldap
 
 %description ldap
-This package contains a Certificate-To-Login mapper based on queries 
+This package contains a Certificate-To-Login mapper based on queries
 to a LDAP server. As it depends on extra libraries, is distributed
 as a separate package
 
 - ldap_mapper.so: ldap based mapper library
 %prep
 %setup -q -n %{name}-%{version}
-#./bootstrap
+./bootstrap
 
 %build
 %configure --disable-dependency-tracking %{?_with_curl} %{?_with_ldap}
@@ -68,7 +68,7 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
-rm -f $RPM_BUILD_ROOT/%{_lib}/security/*.*a
+rm -f $RPM_BUILD_ROOT/%{_libdir}/security/*.*a
 rm -f $RPM_BUILD_ROOT/%{_libdir}/%{name}/*.*a
 
 # Hardcoded defaults... no sysconfdir
@@ -92,7 +92,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/%{name}/crls
 %config(noreplace) %{_sysconfdir}/%{name}/pam_pkcs11.conf
 %config(noreplace) %{_sysconfdir}/%{name}/pkcs11_eventmgr.conf
-%{_bindir}/make_hash_link.sh
+%{_bindir}/pkcs11_make_hash_link
 %{_bindir}/pkcs11_eventmgr
 %{_bindir}/pklogin_finder
 %{_bindir}/pkcs11_inspect
@@ -105,19 +105,23 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/pkcs11_eventmgr.1.gz
 %{_mandir}/man1/pkcs11_inspect.1.gz
 %{_mandir}/man1/pklogin_finder.1.gz
-%{_datadir}/%{name}/%{name}.conf.example
-%{_datadir}/%{name}/pam.d_login.example
-%{_datadir}/%{name}/subject_mapping.example
-%{_datadir}/%{name}/mail_mapping.example
-%{_datadir}/%{name}/digest_mapping.example
-%{_datadir}/%{name}/pkcs11_eventmgr.conf.example
+%{_mandir}/man1/pkcs11_listcerts.1.gz
+%{_mandir}/man1/pkcs11_make_hash_link.1.gz
+%{_mandir}/man1/pkcs11_setup.1.gz
+%{_docdir}/%{name}/%{name}.conf.example
+%{_docdir}/%{name}/pam.d_login.example
+%{_docdir}/%{name}/subject_mapping.example
+%{_docdir}/%{name}/mail_mapping.example
+%{_docdir}/%{name}/digest_mapping.example
+%{_docdir}/%{name}/pkcs11_eventmgr.conf.example
+%{_docdir}/%{name}/pam.d_ignore_no_card.example
 %{_datadir}/locale/*/LC_MESSAGES/*
 
 %files pcsc
 %config(noreplace) %{_sysconfdir}/%{name}/card_eventmgr.conf
 %{_bindir}/card_eventmgr
 %{_mandir}/man1/card_eventmgr.1.gz
-%{_datadir}/%{name}/card_eventmgr.conf.example
+%{_docdir}/%{name}/card_eventmgr.conf.example
 %doc doc/README.eventmgr
 
 %files ldap
@@ -125,18 +129,21 @@ rm -rf $RPM_BUILD_ROOT
 %doc doc/README.ldap_mapper
 
 %changelog
+* Thu Dec 1 2022 Etienne Barbier <etienne.barbier@atos.net> 0:0.6.12-0
+- Update to 0.6.12
+
 * Wed Jun 6 2007 Ludovic Rousseau <ludovic.rousseau@free.fr> 0:0.6.0-1
 - Update to 0.6.0
 
-* Thu Sep 7 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.3-2
+* Wed Sep 7 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.3-2
 - Add ldap_mapper.so as separate package, as it depends on external library
-- Changes from FC4 team 
+- Changes from FC4 team
 
 * Thu Sep 1 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.3-0
 - Update to 0.5.3
 - Remove tools package, and create pcsc one with pcsc-lite dependent files
 
-* Fri Apr 11 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.2-1
+* Mon Apr 11 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.2-1
 - Changed package name to pam_pkcs11
 
 * Fri Apr 8 2005 Juan Antonio Martinez <jonsito at teleline.es 0:0.5.2-0
