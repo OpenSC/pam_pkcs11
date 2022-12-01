@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.6.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-23 16:55+0200\n"
+"POT-Creation-Date: 2022-12-01 15:13+0800\n"
 "PO-Revision-Date: 2015-08-26 10:42-0300\n"
 "Last-Translator: Alexandre Souza Aguiar <alexandre.aguiar@serpro.gov.br>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,143 +16,167 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/pam_pkcs11/pam_pkcs11.c:235
-msgid "Smartcard authentication starts"
-msgstr "Autenticação com smartcard iniciou"
-
-#: src/pam_pkcs11/pam_pkcs11.c:324 src/pam_pkcs11/pam_pkcs11.c:433
-#, c-format
-msgid "Please insert your %s or enter your username."
-msgstr "Favor inserir seu %s ou entre com um nome de usuário."
-
-#: src/pam_pkcs11/pam_pkcs11.c:354
-msgid "Error 2302: PKCS#11 module failed loading"
+#: src/pam_pkcs11/pam_pkcs11.c:340
+#, fuzzy
+msgid "Error 2302: PKCS#11 module failed loading."
 msgstr "Erro 2302: Modulo PKCS#11 falhou carregando"
 
-#: src/pam_pkcs11/pam_pkcs11.c:368
-msgid "Error 2304: PKCS#11 module could not be initialized"
+#: src/pam_pkcs11/pam_pkcs11.c:354
+#, fuzzy
+msgid "Error 2304: PKCS#11 module could not be initialized."
 msgstr "Error 2304: Modulo PKCS#11 não pôde ser inicializado"
 
-#: src/pam_pkcs11/pam_pkcs11.c:387
-msgid "Error 2306: No suitable token available"
-msgstr "Error 2306: Sem token disponíveis"
-
-#: src/pam_pkcs11/pam_pkcs11.c:401
+#: src/pam_pkcs11/pam_pkcs11.c:385
 #, c-format
 msgid "Please insert your smart card called \"%.32s\"."
 msgstr "Favor inserir seu smartcard chamado \"%.32s\"."
 
-#: src/pam_pkcs11/pam_pkcs11.c:405
+#: src/pam_pkcs11/pam_pkcs11.c:389
 msgid "Please insert your smart card."
 msgstr "Favor inserir seu smartcard."
 
-#: src/pam_pkcs11/pam_pkcs11.c:422
-msgid "Error 2308: No smartcard found"
+#: src/pam_pkcs11/pam_pkcs11.c:408
+#, fuzzy
+msgid "Error 2308: No smart card found."
 msgstr "Error 2308: Não foram achados smartcards"
 
-#: src/pam_pkcs11/pam_pkcs11.c:449
-msgid "Error 2310: No smartcard found"
-msgstr "Error 2310: Não foram achados smartcards"
+#: src/pam_pkcs11/pam_pkcs11.c:413
+#, fuzzy
+msgid "No smart card found."
+msgstr "Error 2308: Não foram achados smartcards"
 
-#: src/pam_pkcs11/pam_pkcs11.c:459
+#: src/pam_pkcs11/pam_pkcs11.c:420
 #, c-format
 msgid "%s found."
 msgstr "%s achado."
 
-#: src/pam_pkcs11/pam_pkcs11.c:466
-msgid "Error 2312: open PKCS#11 session failed"
+#: src/pam_pkcs11/pam_pkcs11.c:428
+#, fuzzy
+msgid "Error 2312: Open PKCS#11 session failed."
 msgstr "Error 2312: abertura da sessão PKCS#11 falhou"
 
-#: src/pam_pkcs11/pam_pkcs11.c:478
-msgid "Error 2314: Slot login failed"
+#: src/pam_pkcs11/pam_pkcs11.c:440
+#, fuzzy
+msgid "Error 2314: Slot login failed."
 msgstr "Error 2314: Slot de login falhou"
 
-#: src/pam_pkcs11/pam_pkcs11.c:486
+#: src/pam_pkcs11/pam_pkcs11.c:447
 #, c-format
 msgid "Welcome %.32s!"
 msgstr "Bem vindo %.32s!"
 
-#: src/pam_pkcs11/pam_pkcs11.c:494
+#: src/pam_pkcs11/pam_pkcs11.c:455
 #, c-format
 msgid "%s PIN: "
 msgstr "%s PIN: "
 
-#: src/pam_pkcs11/pam_pkcs11.c:505
-msgid "Error 2316: password could not be read"
+#: src/pam_pkcs11/pam_pkcs11.c:466
+#, fuzzy
+msgid "Error 2316: Password could not be read."
 msgstr "Error 2316: senha não pôde ser lida"
 
-#: src/pam_pkcs11/pam_pkcs11.c:525
-msgid "Error 2318: Empty smartcard PIN not allowed."
+#: src/pam_pkcs11/pam_pkcs11.c:482
+#, fuzzy
+msgid "Error 2318: Empty smart card PIN not allowed."
 msgstr "Error 2318: Senha de PIN vazia não permitida."
 
-#: src/pam_pkcs11/pam_pkcs11.c:534
-#, c-format
-msgid "Enter your %s PIN on the pinpad"
+#: src/pam_pkcs11/pam_pkcs11.c:492
+#, fuzzy, c-format
+msgid "Enter your %s PIN on the pinpad."
 msgstr "Digite seu PIN %s no pinpad"
 
-#: src/pam_pkcs11/pam_pkcs11.c:553
-msgid "Error 2320: Wrong smartcard PIN"
+#: src/pam_pkcs11/pam_pkcs11.c:506
+#, fuzzy
+msgid "Error 2320: Wrong smart card PIN."
 msgstr "Error 2320: PIN do smartcard errado"
 
-#: src/pam_pkcs11/pam_pkcs11.c:565
-msgid "Error 2322: No certificate found"
+#: src/pam_pkcs11/pam_pkcs11.c:519
+#, fuzzy
+msgid "Error 2322: No certificate found."
 msgstr "Error 2322: Não foram encontrados certificados"
 
-#: src/pam_pkcs11/pam_pkcs11.c:580
-msgid "verifying certificate"
+#: src/pam_pkcs11/pam_pkcs11.c:534
+#, fuzzy
+msgid "Verifying certificate..."
 msgstr "verificando certificado"
 
-#: src/pam_pkcs11/pam_pkcs11.c:593
-msgid "Error 2324: Certificate has expired"
+#: src/pam_pkcs11/pam_pkcs11.c:547
+#, fuzzy
+msgid "Error 2324: Certificate has expired."
 msgstr "Error 2324: Certificado expirou"
 
-#: src/pam_pkcs11/pam_pkcs11.c:597
-msgid "Error 2326: Certificate not yet valid"
+#: src/pam_pkcs11/pam_pkcs11.c:551
+#, fuzzy
+msgid "Error 2326: Certificate not yet valid."
 msgstr "Error 2326: Certificado ainda não é válido"
 
-#: src/pam_pkcs11/pam_pkcs11.c:601
-msgid "Error 2328: Certificate signature invalid"
+#: src/pam_pkcs11/pam_pkcs11.c:555
+#, fuzzy
+msgid "Error 2328: Certificate signature invalid."
 msgstr "Error 2328: Assinatura do certificado inválida"
 
-#: src/pam_pkcs11/pam_pkcs11.c:605
-msgid "Error 2330: Certificate invalid"
+#: src/pam_pkcs11/pam_pkcs11.c:559
+#, fuzzy
+msgid "Error 2330: Certificate invalid."
 msgstr "Error 2330: Certificado inválido"
 
-#: src/pam_pkcs11/pam_pkcs11.c:640
-msgid "Error 2332: setting PAM userentry failed"
+#: src/pam_pkcs11/pam_pkcs11.c:594
+#, fuzzy
+msgid "Error 2332: Setting PAM user entry failed."
 msgstr "Error 2332: falha ao setando PAM userentry"
 
-#: src/pam_pkcs11/pam_pkcs11.c:656
-msgid "Error 2334: No matching user"
+#: src/pam_pkcs11/pam_pkcs11.c:610
+#, fuzzy
+msgid "Error 2334: No matching user."
 msgstr "Error 2334: Nenhum usuário correspondente"
 
-#: src/pam_pkcs11/pam_pkcs11.c:677
-msgid "Error 2336: No matching certificate found"
+#: src/pam_pkcs11/pam_pkcs11.c:631
+#, fuzzy
+msgid "Error 2336: No matching certificate found."
 msgstr "Error 2336: Nenhum certificado correspondente encontrado"
 
-#: src/pam_pkcs11/pam_pkcs11.c:686
-msgid "Checking signature"
+#: src/pam_pkcs11/pam_pkcs11.c:640
+#, fuzzy
+msgid "Checking signature..."
 msgstr "Verificando a assinatura"
 
-#: src/pam_pkcs11/pam_pkcs11.c:706
-msgid "Error 2338: Getting random value failed"
+#: src/pam_pkcs11/pam_pkcs11.c:660
+#, fuzzy
+msgid "Error 2338: Getting random value failed."
 msgstr "Error 2338: Falha ao obter valor aleatório"
 
-#: src/pam_pkcs11/pam_pkcs11.c:720
-msgid "Error 2340: Signing failed"
+#: src/pam_pkcs11/pam_pkcs11.c:674
+#, fuzzy
+msgid "Error 2340: Signing failed."
 msgstr "Error 2340: Assinatura falhou"
 
-#: src/pam_pkcs11/pam_pkcs11.c:739
-msgid "Error 2342: Verifying signature failed"
+#: src/pam_pkcs11/pam_pkcs11.c:691
+#, fuzzy
+msgid "Error 2342: Verifying signature failed."
 msgstr "Error 2342: Falha ao verificar assinatura"
 
-#: src/pam_pkcs11/pam_pkcs11.c:886
+#: src/pam_pkcs11/pam_pkcs11.c:808
+#, fuzzy
+msgid "Smart card authentication cancelled."
+msgstr "Autenticação com smartcard iniciou"
+
+#: src/pam_pkcs11/pam_pkcs11.c:854
 msgid "Cannot change the password on your smart card."
 msgstr "Não foi possível alterar a senha no seu smart card."
 
 #: src/pam_pkcs11/pam_config.c:65
 msgid "Smart card"
 msgstr "Smartcard"
+
+#, c-format
+#~ msgid "Please insert your %s or enter your username."
+#~ msgstr "Favor inserir seu %s ou entre com um nome de usuário."
+
+#~ msgid "Error 2306: No suitable token available"
+#~ msgstr "Error 2306: Sem token disponíveis"
+
+#~ msgid "Error 2310: No smartcard found"
+#~ msgstr "Error 2310: Não foram achados smartcards"
 
 #~ msgid "Found the %s."
 #~ msgstr "%s encontrado."
