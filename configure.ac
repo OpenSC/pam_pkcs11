@@ -18,7 +18,7 @@ AM_MAINTAINER_MODE
 AM_GNU_GETTEXT([external])
 
 dnl Add the languages which your application supports here.
-ALL_LINGUAS="de fr it nl pl pt_BR ru tr"
+ALL_LINGUAS="de fr it nl pl pt_BR ru tr zh_CN"
 
 # Checks for programs.
 AC_PROG_CC

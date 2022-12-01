@@ -1,0 +1,145 @@
+# Chinese translations for pam_pkcs11 package.
+# This file is put in the public domain.
+# Alynx Zhou <alynx.zhou@gmail.com>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pam_pkcs11 0.6.12\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-12-01 14:31+0800\n"
+"PO-Revision-Date: 2022-12-01 14:53+0800\n"
+"Last-Translator: Alynx Zhou <alynx.zhou@gmail.com>\n"
+"Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/pam_pkcs11/pam_pkcs11.c:340
+msgid "Error 2302: PKCS#11 module failed loading."
+msgstr "错误 2302：PKCS#11 模块加载失败。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:354
+msgid "Error 2304: PKCS#11 module could not be initialized."
+msgstr "错误 2304：PKCS#11 模块无法初始化。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:385
+#, c-format
+msgid "Please insert your smart card called \"%.32s\"."
+msgstr "请插入名为 \"%.32s\" 的智能卡。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:389
+msgid "Please insert your smart card."
+msgstr "请插入您的智能卡。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:408
+msgid "Error 2308: No smart card found."
+msgstr "错误 2308：未检测到智能卡。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:413
+msgid "No smart card found."
+msgstr "未检测到智能卡。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:420
+#, c-format
+msgid "%s found."
+msgstr "检测到 %s。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:428
+msgid "Error 2312: Open PKCS#11 session failed."
+msgstr "错误 2312：开启 PKCS#11 会话失败。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:440
+msgid "Error 2314: Slot login failed."
+msgstr "错误 2314：卡槽登录失败。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:447
+#, c-format
+msgid "Welcome %.32s!"
+msgstr "欢迎 %.32s！"
+
+#: src/pam_pkcs11/pam_pkcs11.c:455
+#, c-format
+msgid "%s PIN: "
+msgstr "%s PIN: "
+
+#: src/pam_pkcs11/pam_pkcs11.c:466
+msgid "Error 2316: Password could not be read."
+msgstr "错误 2316：无法读取密码。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:482
+msgid "Error 2318: Empty smart card PIN not allowed."
+msgstr "错误 2318：不允许使用空白的智能卡 PIN。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:492
+#, c-format
+msgid "Enter your %s PIN on the pinpad."
+msgstr "请在密码键盘上输入您的 %s PIN。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:506
+msgid "Error 2320: Wrong smart card PIN."
+msgstr "错误 2320：智能卡 PIN 不正确。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:519
+msgid "Error 2322: No certificate found."
+msgstr "错误 2322：未检测到证书。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:534
+msgid "Verifying certificate..."
+msgstr "正在验证证书……"
+
+#: src/pam_pkcs11/pam_pkcs11.c:547
+msgid "Error 2324: Certificate has expired."
+msgstr "错误 2324：证书已过期。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:551
+msgid "Error 2326: Certificate not yet valid."
+msgstr "错误 2326：证书还未生效。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:555
+msgid "Error 2328: Certificate signature invalid."
+msgstr "错误 2328：证书签名无效。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:559
+msgid "Error 2330: Certificate invalid."
+msgstr "错误 2330：证书无效。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:594
+msgid "Error 2332: Setting PAM user entry failed."
+msgstr "错误 2332：设置 PAM 用户条目失败。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:610
+msgid "Error 2334: No matching user."
+msgstr "错误 2334：没有匹配到用户。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:631
+msgid "Error 2336: No matching certificate found."
+msgstr "错误 2336：没有匹配到证书。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:640
+msgid "Checking signature..."
+msgstr "正在检查签名……"
+
+#: src/pam_pkcs11/pam_pkcs11.c:660
+msgid "Error 2338: Getting random value failed."
+msgstr "错误 2338：获取随机值失败。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:674
+msgid "Error 2340: Signing failed."
+msgstr "错误 2340：签名失败。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:691
+msgid "Error 2342: Verifying signature failed."
+msgstr "错误 2342：验证签名失败。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:808
+msgid "Smart card authentication cancelled."
+msgstr "智能卡认证取消。"
+
+#: src/pam_pkcs11/pam_pkcs11.c:854
+msgid "Cannot change the password on your smart card."
+msgstr "无法修改智能卡上的密码。"
+
+#: src/pam_pkcs11/pam_config.c:65
+msgid "Smart card"
+msgstr "智能卡"
