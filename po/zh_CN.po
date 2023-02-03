@@ -1,69 +1,62 @@
-# Brazilian Portuguese Translation
+# Chinese translations for pam_pkcs11 package.
 # This file is put in the public domain.
-# Anderson Goulart <global@codekab.com>, 2010.
-# Alexandre Souza Aguiar <alexandre.aguiar@serpro.gov.br>, 2015.
+# Alynx Zhou <alynx.zhou@gmail.com>, 2022.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.6.3\n"
+"Project-Id-Version: pam_pkcs11 0.6.12\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-01 15:13+0800\n"
-"PO-Revision-Date: 2015-08-26 10:42-0300\n"
-"Last-Translator: Alexandre Souza Aguiar <alexandre.aguiar@serpro.gov.br>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: pt_BR\n"
+"POT-Creation-Date: 2022-12-01 14:31+0800\n"
+"PO-Revision-Date: 2022-12-01 14:53+0800\n"
+"Last-Translator: Alynx Zhou <alynx.zhou@gmail.com>\n"
+"Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/pam_pkcs11/pam_pkcs11.c:340
-#, fuzzy
 msgid "Error 2302: PKCS#11 module failed loading."
-msgstr "Erro 2302: Modulo PKCS#11 falhou carregando"
+msgstr "错误 2302：PKCS#11 模块加载失败。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:354
-#, fuzzy
 msgid "Error 2304: PKCS#11 module could not be initialized."
-msgstr "Error 2304: Modulo PKCS#11 não pôde ser inicializado"
+msgstr "错误 2304：PKCS#11 模块无法初始化。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:385
 #, c-format
 msgid "Please insert your smart card called \"%.32s\"."
-msgstr "Favor inserir seu smartcard chamado \"%.32s\"."
+msgstr "请插入名为 \"%.32s\" 的智能卡。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:389
 msgid "Please insert your smart card."
-msgstr "Favor inserir seu smartcard."
+msgstr "请插入您的智能卡。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:408
-#, fuzzy
 msgid "Error 2308: No smart card found."
-msgstr "Error 2308: Não foram achados smartcards"
+msgstr "错误 2308：未检测到智能卡。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:413
-#, fuzzy
 msgid "No smart card found."
-msgstr "Error 2308: Não foram achados smartcards"
+msgstr "未检测到智能卡。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:420
 #, c-format
 msgid "%s found."
-msgstr "%s achado."
+msgstr "检测到 %s。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:428
-#, fuzzy
 msgid "Error 2312: Open PKCS#11 session failed."
-msgstr "Error 2312: abertura da sessão PKCS#11 falhou"
+msgstr "错误 2312：开启 PKCS#11 会话失败。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:440
-#, fuzzy
 msgid "Error 2314: Slot login failed."
-msgstr "Error 2314: Slot de login falhou"
+msgstr "错误 2314：卡槽登录失败。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:447
 #, c-format
 msgid "Welcome %.32s!"
-msgstr "Bem vindo %.32s!"
+msgstr "欢迎 %.32s！"
 
 #: src/pam_pkcs11/pam_pkcs11.c:455
 #, c-format
@@ -71,112 +64,82 @@ msgid "%s PIN: "
 msgstr "%s PIN: "
 
 #: src/pam_pkcs11/pam_pkcs11.c:466
-#, fuzzy
 msgid "Error 2316: Password could not be read."
-msgstr "Error 2316: senha não pôde ser lida"
+msgstr "错误 2316：无法读取密码。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:482
-#, fuzzy
 msgid "Error 2318: Empty smart card PIN not allowed."
-msgstr "Error 2318: Senha de PIN vazia não permitida."
+msgstr "错误 2318：不允许使用空白的智能卡 PIN。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:492
-#, fuzzy, c-format
+#, c-format
 msgid "Enter your %s PIN on the pinpad."
-msgstr "Digite seu PIN %s no pinpad"
+msgstr "请在密码键盘上输入您的 %s PIN。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:506
-#, fuzzy
 msgid "Error 2320: Wrong smart card PIN."
-msgstr "Error 2320: PIN do smartcard errado"
+msgstr "错误 2320：智能卡 PIN 不正确。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:519
-#, fuzzy
 msgid "Error 2322: No certificate found."
-msgstr "Error 2322: Não foram encontrados certificados"
+msgstr "错误 2322：未检测到证书。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:534
-#, fuzzy
 msgid "Verifying certificate..."
-msgstr "verificando certificado"
+msgstr "正在验证证书……"
 
 #: src/pam_pkcs11/pam_pkcs11.c:547
-#, fuzzy
 msgid "Error 2324: Certificate has expired."
-msgstr "Error 2324: Certificado expirou"
+msgstr "错误 2324：证书已过期。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:551
-#, fuzzy
 msgid "Error 2326: Certificate not yet valid."
-msgstr "Error 2326: Certificado ainda não é válido"
+msgstr "错误 2326：证书还未生效。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:555
-#, fuzzy
 msgid "Error 2328: Certificate signature invalid."
-msgstr "Error 2328: Assinatura do certificado inválida"
+msgstr "错误 2328：证书签名无效。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:559
-#, fuzzy
 msgid "Error 2330: Certificate invalid."
-msgstr "Error 2330: Certificado inválido"
+msgstr "错误 2330：证书无效。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:594
-#, fuzzy
 msgid "Error 2332: Setting PAM user entry failed."
-msgstr "Error 2332: falha ao setando PAM userentry"
+msgstr "错误 2332：设置 PAM 用户条目失败。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:610
-#, fuzzy
 msgid "Error 2334: No matching user."
-msgstr "Error 2334: Nenhum usuário correspondente"
+msgstr "错误 2334：没有匹配到用户。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:631
-#, fuzzy
 msgid "Error 2336: No matching certificate found."
-msgstr "Error 2336: Nenhum certificado correspondente encontrado"
+msgstr "错误 2336：没有匹配到证书。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:640
-#, fuzzy
 msgid "Checking signature..."
-msgstr "Verificando a assinatura"
+msgstr "正在检查签名……"
 
 #: src/pam_pkcs11/pam_pkcs11.c:660
-#, fuzzy
 msgid "Error 2338: Getting random value failed."
-msgstr "Error 2338: Falha ao obter valor aleatório"
+msgstr "错误 2338：获取随机值失败。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:674
-#, fuzzy
 msgid "Error 2340: Signing failed."
-msgstr "Error 2340: Assinatura falhou"
+msgstr "错误 2340：签名失败。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:691
-#, fuzzy
 msgid "Error 2342: Verifying signature failed."
-msgstr "Error 2342: Falha ao verificar assinatura"
+msgstr "错误 2342：验证签名失败。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:808
-#, fuzzy
 msgid "Smart card authentication cancelled."
-msgstr "Autenticação com smartcard iniciou"
+msgstr "智能卡认证取消。"
 
 #: src/pam_pkcs11/pam_pkcs11.c:854
 msgid "Cannot change the password on your smart card."
-msgstr "Não foi possível alterar a senha no seu smart card."
+msgstr "无法修改智能卡上的密码。"
 
 #: src/pam_pkcs11/pam_config.c:65
 msgid "Smart card"
-msgstr "Smartcard"
-
-#, c-format
-#~ msgid "Please insert your %s or enter your username."
-#~ msgstr "Favor inserir seu %s ou entre com um nome de usuário."
-
-#~ msgid "Error 2306: No suitable token available"
-#~ msgstr "Error 2306: Sem token disponíveis"
-
-#~ msgid "Error 2310: No smartcard found"
-#~ msgstr "Error 2310: Não foram achados smartcards"
-
-#~ msgid "Found the %s."
-#~ msgstr "%s encontrado."
+msgstr "智能卡"
