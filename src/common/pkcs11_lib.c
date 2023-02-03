@@ -32,7 +32,7 @@
 #include "error.h"
 #include "cert_info.h"
 #include "pkcs11_lib.h"
-
+#include <openssl/conf.h>
 
 /*
  * this functions is completely common between both implementation.
@@ -1757,74 +1757,166 @@ X509 *get_X509_certificate(cert_object_t *cert)
   return cert->x509;
 }
 
+static int get_pubkey_algo(X509 *x509)
+{
+  ASN1_OBJECT *algorithm = NULL;
+  int nid;
+
+  /* get the public-key */
+  EVP_PKEY *pubkey = X509_get_pubkey(x509);
+  if (pubkey == NULL) {
+      set_error("X509_get_pubkey() failed: %s", ERR_error_string(ERR_get_error(), NULL));
+      return -1;
+  }
+
+  DBG1("public key type: 0x%08x", EVP_PKEY_base_id(pubkey));
+  DBG1("public key bits: 0x%08x", EVP_PKEY_bits(pubkey));
+
+  X509_PUBKEY_get0_param(&algorithm, NULL, NULL, NULL, X509_get_X509_PUBKEY(x509));
+  nid = OBJ_obj2nid(algorithm);
+  EVP_PKEY_free(pubkey);
+
+  return nid;
+}
+
 #define MAX_SIGNATURE_LENGTH 65536
 
 int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
 	CK_ULONG length, CK_BYTE **signature, CK_ULONG *signature_length)
 {
-  int rv;
-  int h_offset = 0;
-#ifdef USE_HASH_SHA1
-  CK_BYTE hash[15 + SHA_DIGEST_LENGTH] =
-      "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14";
-#else
-  CK_BYTE hash[19 + SHA256_DIGEST_LENGTH] =
-      "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20";
-#endif
+  int rv = -1;
+  unsigned char *h_prefix = NULL;
+  unsigned long h_offset = 0;
   CK_MECHANISM mechanism = { 0, NULL, 0 };
-
+  const EVP_MD* md = NULL;
+  const char *md_name = NULL;
+  EVP_MD_CTX *md_ctx = NULL;
+  unsigned char* hash = NULL;
 
   if (get_private_key(h, cert) == -1) {
     set_error("Couldn't find private key for certificate");
     return -1;
   }
 
+  *signature_length = 256;
+
   /* set mechanism */
   switch (cert->key_type) {
     case CKK_RSA:
       mechanism.mechanism = CKM_RSA_PKCS;
+#ifdef USE_HASH_SHA1
+      h_prefix = "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14";
+      h_offset = 15;
+#else
+      h_prefix = "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20";
+      h_offset = 19;
+#endif
+      break;
+    case CKK_GOSTR3410: {
+        mechanism.mechanism = CKM_GOSTR3410;
+        *signature_length = 64;
+        int nid = get_pubkey_algo(get_X509_certificate(cert));
+        if (nid < 0) {
+            set_error("unable to get the public key algorithm");
+            return -1;
+        }
+        switch (nid) {
+        case NID_id_GostR3410_2001:
+            md_name = SN_id_GostR3411_94;
+            break;
+        case NID_id_GostR3410_2012_256:
+            md_name = SN_id_GostR3411_2012_256;
+            break;
+        default:
+            set_error("unexpected public key algorithm: 0x%08X", nid);
+            return -1;
+        }
+    }
+        break;
+    case CKK_GOSTR3410_512:
+      mechanism.mechanism = CKM_GOSTR3410_512;
+      *signature_length = 128;
+      md_name = SN_id_GostR3411_2012_512;
       break;
     case CKK_ECDSA:
       mechanism.mechanism = CKM_ECDSA;
-#ifdef USE_HASH_SHA1
-      h_offset = 15;
-#else
-      h_offset = 19;
-#endif
       break;
     default:
       set_error("unsupported private key type 0x%08lX", cert->key_type);
       return -1;
   }
-  /* compute hash-value */
+
+  if (!md_name) {
 #ifdef USE_HASH_SHA1
-  DBG("hashing with SHA1");
-  SHA1(data, length, &hash[15]);
-  DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
-      hash[15], hash[16], hash[17], hash[sizeof(hash) - 1]);
+      DBG("hashing with SHA1");
+      md = EVP_sha1();
 #else
-  SHA256(data, length, &hash[19]);
-  DBG5("hash[%ld] = [...:%02x:%02x:%02x:...:%02x]", sizeof(hash),
-      hash[19], hash[20], hash[21], hash[sizeof(hash) - 1]);
+      DBG("hashing with SHA256");
+      md = EVP_sha256();
 #endif
-  /* sign the token */
+  } else {
+      md = EVP_get_digestbyname(md_name);
+      if (!md) {
+          set_error("unsupported digest %s", md_name);
+          return -1;
+      }
+      DBG1("hashing with %s", md_name);
+  }
+
+  /* compute hash-value */
+  md_ctx = EVP_MD_CTX_new();
+  if (!md_ctx) {
+      set_error("unable to create a digest context");
+      goto error;
+  }
+  if (1 != EVP_DigestInit (md_ctx, md)) {
+      set_error("unable to initialize the digest context");
+      goto error;
+  }
+  if (1 != EVP_DigestUpdate (md_ctx, data, length)) {
+      set_error("unable to update the digest context");
+      goto error;
+  }
+
+  unsigned int md_size = EVP_MD_size(md);
+  hash = malloc(h_offset + md_size);
+
+  if (!hash) {
+      set_error("unable to allocate the digest buffer");
+      goto error;
+  }
+  if (1 != EVP_DigestFinal_ex(md_ctx, hash + h_offset, &md_size)) {
+      set_error("unable to calculate the digest");
+      goto error;
+  }
+
+  if (h_prefix)
+      memcpy(hash, h_prefix, h_offset);
+
+  DBG5("hash[%u] = [%02x:%02x:%02x:...:%02x]", md_size,
+       hash[h_offset], hash[h_offset+1], hash[h_offset+2],
+       hash[h_offset + md_size - 1]);
+
+  /* sign the hash */
+  DBG2("C_SignInit: mech: %lx, keytype: %lx", mechanism.mechanism, cert->key_type);
   rv = h->fl->C_SignInit(h->session, &mechanism, cert->private_key);
   if (rv != CKR_OK) {
     set_error("C_SignInit() failed: %i", rv);
-    return -1;
+    goto error;
   }
+
   *signature = NULL;
   *signature_length = 1024;
   while (*signature == NULL) {
     CK_ULONG current_signature_length = *signature_length;
     *signature = malloc(*signature_length);
     if (*signature == NULL) {
-      set_error("not enough free memory available");
-      return -1;
+        set_error("not enough free memory available");
+        goto error;
     }
-    rv = h->fl->C_Sign(h->session, hash + h_offset, sizeof(hash) - h_offset, *signature, signature_length);
+    rv = h->fl->C_Sign(h->session, hash, h_offset + md_size, *signature, signature_length);
     if (rv == CKR_BUFFER_TOO_SMALL) {
-      /* increase signature length as long as it it to short */
+      /* FIXME: Is *signature_length already increased by C_Sign()? */
       free(*signature);
       *signature = NULL;
       if (current_signature_length >= *signature_length) {
@@ -1841,11 +1933,18 @@ int sign_value(pkcs11_handle_t *h, cert_object_t *cert, CK_BYTE *data,
       free(*signature);
       *signature = NULL;
       set_error("C_Sign() failed: %i", rv);
-      return -1;
+      goto error;
     }
   }
   DBG5("signature[%ld] = [%02x:%02x:%02x:...:%02x]", *signature_length,
       (*signature)[0], (*signature)[1], (*signature)[2], (*signature)[*signature_length - 1]);
-  return 0;
+
+  rv = 0;
+
+ error:
+  EVP_MD_CTX_free(md_ctx);
+  free(hash);
+
+  return rv;
 }
 #endif /* HAVE_NSS */

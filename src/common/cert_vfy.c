@@ -520,9 +520,10 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   int rv;
   EVP_PKEY *pubkey;
   EVP_MD_CTX *md_ctx = NULL;
-  ECDSA_SIG* ec_sig;
-  int rs_len;
-  unsigned char *p = NULL;
+  const EVP_MD* md = NULL;
+  const char* md_name = NULL;
+  ASN1_OBJECT *algorithm;
+  int nid;
 
   /* get the public-key */
   pubkey = X509_get_pubkey(x509);
@@ -534,39 +535,76 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   DBG1("public key type: 0x%08x", EVP_PKEY_base_id(pubkey));
   DBG1("public key bits: 0x%08x", EVP_PKEY_bits(pubkey));
 
-  if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
-    // FIXME: Why not to use d2i_ECDSA_SIG() ???
-    rs_len = *signature_length / 2;
-    ec_sig = ECDSA_SIG_new();
-    BIGNUM *r = BN_bin2bn(*signature, rs_len, NULL);
-    BIGNUM *s = BN_bin2bn(*signature + rs_len, rs_len, NULL);
-    if (!r || !s) {
-        set_error("Unable to parse r+s EC signature numbers: %s",
-                  ERR_error_string(ERR_get_error(), NULL));
-        return -1;
-    }
-    if (1 != ECDSA_SIG_set0(ec_sig, r, s)) {
-        set_error("Unable to write r+s numbers to the signature structure: %s",
-                  ERR_error_string(ERR_get_error(), NULL));
-        return -1;
-    }
-    *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
-    free(*signature);
-    *signature = malloc(*signature_length);
-    p = *signature;
-    *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
-    ECDSA_SIG_free(ec_sig);
+  X509_PUBKEY_get0_param(&algorithm, NULL, NULL, NULL, X509_get_X509_PUBKEY(x509));
+  nid = OBJ_obj2nid(algorithm);
+
+  switch ( nid ) {
+  case NID_id_GostR3410_2001:
+      md_name = SN_id_GostR3411_94;
+      break;
+  case NID_id_GostR3410_2012_256:
+      md_name = SN_id_GostR3411_2012_256;
+      break;
+  case NID_id_GostR3410_2012_512:
+      md_name = SN_id_GostR3411_2012_512;
+      break;
   }
 
-  md_ctx = EVP_MD_CTX_new();
-  /* verify the signature */
+  if (md_name) {
+      md = EVP_get_digestbyname(md_name);
+      if (!md) {
+          set_error("unsupported digest %s", md_name);
+          return -1;
+      }
+      DBG1("hashing with %s", md_name);
+  } else {
 #ifdef USE_HASH_SHA1
-  DBG("hashing with SHA1");
-  EVP_VerifyInit(md_ctx, EVP_sha1());
+      DBG("hashing with SHA1");
+      md = EVP_sha1();
 #else
-  DBG("hashing with SHA256");
-  EVP_VerifyInit(md_ctx, EVP_sha256());
+      DBG("hashing with SHA256");
+      md = EVP_sha256();
 #endif
+  }
+
+  if (!md) {
+    set_error("unsupported key algorithm, nid: %d", nid);
+    return -1;
+  }
+
+  if (EVP_PKEY_base_id(pubkey) == EVP_PKEY_EC) {
+      // FIXME: Why not to use d2i_ECDSA_SIG() ???
+      ECDSA_SIG* ec_sig;
+      int rs_len;
+      unsigned char *p = NULL;
+
+      rs_len = *signature_length / 2;
+      ec_sig = ECDSA_SIG_new();
+
+      BIGNUM *r = BN_bin2bn(*signature, rs_len, NULL);
+      BIGNUM *s = BN_bin2bn(*signature + rs_len, rs_len, NULL);
+      if (!r || !s) {
+          set_error("Unable to parse r+s EC signature numbers: %s",
+                    ERR_error_string(ERR_get_error(), NULL));
+          return -1;
+      }
+      if (1 != ECDSA_SIG_set0(ec_sig, r, s)) {
+          set_error("Unable to write r+s numbers to the signature structure: %s",
+                    ERR_error_string(ERR_get_error(), NULL));
+          return -1;
+      }
+
+      *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
+      free(*signature);
+      *signature = malloc(*signature_length);
+      p = *signature;
+      *signature_length = i2d_ECDSA_SIG(ec_sig, &p);
+      ECDSA_SIG_free(ec_sig);
+  }
+
+  /* verify the signature */
+  md_ctx = EVP_MD_CTX_new();
+  EVP_VerifyInit(md_ctx, md);
   EVP_VerifyUpdate(md_ctx, data, data_length);
   rv = EVP_VerifyFinal(md_ctx, *signature, *signature_length, pubkey);
   EVP_PKEY_free(pubkey);
@@ -578,4 +616,30 @@ int verify_signature(X509 * x509, unsigned char *data, int data_length,
   DBG("signature is valid");
   return 0;
 }
+
+int verify_eku_sc_logon(X509 * x509)
+{
+  static unsigned char id_kp_sc_logon[] = {0x2b, 6, 1, 4, 1, 0x82, 0x37, 20, 2, 2}; // 1.3.6.1.4.1.311.20.2.2
+  int rv = 0;
+  EXTENDED_KEY_USAGE* eku = X509_get_ext_d2i(x509, NID_ext_key_usage, NULL, NULL);
+  if( NULL != eku )
+  {
+    int i = 0, n = sk_ASN1_OBJECT_num(eku);
+    for( ; i < n; ++i )
+    {
+      ASN1_OBJECT* extobj = sk_ASN1_OBJECT_value( eku, i );
+      if( NULL == extobj )
+        continue;
+      if( sizeof(id_kp_sc_logon) == OBJ_length(extobj)
+          && 0 == memcmp(OBJ_get0_data(extobj), id_kp_sc_logon, sizeof(id_kp_sc_logon)) )
+      {
+        rv = 1;
+        break;
+      }
+    }
+    EXTENDED_KEY_USAGE_free(eku);
+  }
+  return rv;
+}
+
 #endif
