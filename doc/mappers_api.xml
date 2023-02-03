@@ -859,7 +859,7 @@ Additionally, when requesting <option>CERT_DIGEST</option> you must provide a va
 <function>cert_info()</function> returns an array of up to 15 string entries, corresponding to as many entry founds in the provided certificate. Last entry in the returned array is set to NULL;
 </para>
 <para>
-If some error ocurrs, or the certificate does not contain any entry, return NULL
+If some error occurs, or the certificate does not contain any entry, return NULL
 </para>
 <para>
 There are two additional methods to check certificate/signatures:
