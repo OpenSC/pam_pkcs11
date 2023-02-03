@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-	/* open pkcs11 sesion */
+	/* open pkcs11 session */
 	DBG("initialising pkcs #11 module...");
 	rv = ph->fl->C_Initialize(NULL);
 	if (rv != 0)
