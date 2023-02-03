@@ -1,5 +1,5 @@
 /*
- * BASE64 Encoding funtions
+ * BASE64 Encoding functions
  * Copyright (C) 2001, 2002  Juha Yrj\uffffl\uffff <juha.yrjola@iki.fi>
  * Copyright (C) 2003-2004 Mario Strasser <mast@gmx.net>
  * Copyright (C) 2005 Juan Antonio Martinez <jonsito@teleline.es>
@@ -29,10 +29,10 @@
 /**
 * Encode byte array into a base64 string
 *@param in Pointer to byte array
-*@param len lenght of input data
+*@param len length of input data
 *@param out Pointer to preallocated buffer space
 *@param outlen Size of buffer
-*@return 0 on sucess, -1 on error
+*@return 0 on success, -1 on error
 */
 BASE64_EXTERN int base64_encode(const unsigned char *in, size_t len, unsigned char *out, size_t *outlen);
 
