@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: codespell-project/actions-codespell@master
+      - uses: codespell-project/actions-codespell@v1
         with:
-          skip: *.po,base64.*,SSLerrs.h
+          skip: ./po/de.po,./po/fr.po,./po/nl.po,./po/pt_BR.po
           ignore_words_file: codespell_ignore_words.txt

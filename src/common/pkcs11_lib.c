@@ -1637,7 +1637,7 @@ cert_object_t **get_certificate_list(pkcs11_handle_t *h, int *ncerts)
 
   } /* end of while(1) */
 
-  /* release FindObject Sesion */
+  /* release FindObject Session */
   rv = h->fl->C_FindObjectsFinal(h->session);
   if (rv != CKR_OK) {
     set_error("C_FindObjectsFinal() failed: %i", rv);

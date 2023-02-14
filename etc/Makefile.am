@@ -10,6 +10,7 @@ TO_INSTALL = \
 	card_eventmgr.conf.example
 
 EXTRA_DIST = $(TO_INSTALL) \
+	pam.d_ignore_no_card.example \
 	pam.d_login.example.in \
 	pam_pkcs11.conf.example.in
 

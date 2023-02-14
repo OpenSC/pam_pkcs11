@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pam_pkcs11 0.6.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-23 16:55+0200\n"
+"POT-Creation-Date: 2022-12-01 15:13+0800\n"
 "PO-Revision-Date: 2011-07-05 11:17:+0300\n"
 "Last-Translator: Ozan Çağlayan <ozan@pardus.org.tr>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -14,140 +14,136 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/pam_pkcs11/pam_pkcs11.c:235
-msgid "Smartcard authentication starts"
+#: src/pam_pkcs11/pam_pkcs11.c:340
+msgid "Error 2302: PKCS#11 module failed loading."
 msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:324 src/pam_pkcs11/pam_pkcs11.c:433
-#, c-format
-msgid "Please insert your %s or enter your username."
-msgstr "Lütfen size ait bir %s yerleştirin veya kullanıcı adınızı girin."
 
 #: src/pam_pkcs11/pam_pkcs11.c:354
-msgid "Error 2302: PKCS#11 module failed loading"
+msgid "Error 2304: PKCS#11 module could not be initialized."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:368
-msgid "Error 2304: PKCS#11 module could not be initialized"
-msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:387
-msgid "Error 2306: No suitable token available"
-msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:401
+#: src/pam_pkcs11/pam_pkcs11.c:385
 #, c-format
 msgid "Please insert your smart card called \"%.32s\"."
 msgstr "Lütfen \"%.32s\" isimli akıllı kartı yerleştirin."
 
-#: src/pam_pkcs11/pam_pkcs11.c:405
+#: src/pam_pkcs11/pam_pkcs11.c:389
 msgid "Please insert your smart card."
 msgstr "Lütfen akıllı kartı yerleştirin."
 
-#: src/pam_pkcs11/pam_pkcs11.c:422
-msgid "Error 2308: No smartcard found"
+#: src/pam_pkcs11/pam_pkcs11.c:408
+msgid "Error 2308: No smart card found."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:449
-msgid "Error 2310: No smartcard found"
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:413
+#, fuzzy
+msgid "No smart card found."
+msgstr "Akıllı kart"
 
-#: src/pam_pkcs11/pam_pkcs11.c:459
+#: src/pam_pkcs11/pam_pkcs11.c:420
 #, c-format
 msgid "%s found."
 msgstr "%s bulundu."
 
-#: src/pam_pkcs11/pam_pkcs11.c:466
-msgid "Error 2312: open PKCS#11 session failed"
+#: src/pam_pkcs11/pam_pkcs11.c:428
+msgid "Error 2312: Open PKCS#11 session failed."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:478
-msgid "Error 2314: Slot login failed"
+#: src/pam_pkcs11/pam_pkcs11.c:440
+msgid "Error 2314: Slot login failed."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:486
+#: src/pam_pkcs11/pam_pkcs11.c:447
 #, c-format
 msgid "Welcome %.32s!"
 msgstr "Hoş geldiniz %.32s"
 
-#: src/pam_pkcs11/pam_pkcs11.c:494
+#: src/pam_pkcs11/pam_pkcs11.c:455
 #, c-format
 msgid "%s PIN: "
 msgstr "%s PIN: "
 
-#: src/pam_pkcs11/pam_pkcs11.c:505
-msgid "Error 2316: password could not be read"
+#: src/pam_pkcs11/pam_pkcs11.c:466
+msgid "Error 2316: Password could not be read."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:525
-msgid "Error 2318: Empty smartcard PIN not allowed."
+#: src/pam_pkcs11/pam_pkcs11.c:482
+msgid "Error 2318: Empty smart card PIN not allowed."
+msgstr ""
+
+#: src/pam_pkcs11/pam_pkcs11.c:492
+#, fuzzy, c-format
+msgid "Enter your %s PIN on the pinpad."
+msgstr "PIN klavyesini kullanarak %s PIN kodunu giriniz."
+
+#: src/pam_pkcs11/pam_pkcs11.c:506
+msgid "Error 2320: Wrong smart card PIN."
+msgstr ""
+
+#: src/pam_pkcs11/pam_pkcs11.c:519
+msgid "Error 2322: No certificate found."
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:534
-#, c-format
-msgid "Enter your %s PIN on the pinpad"
-msgstr "PIN klavyesini kullanarak %s PIN kodunu giriniz."
-
-#: src/pam_pkcs11/pam_pkcs11.c:553
-msgid "Error 2320: Wrong smartcard PIN"
+msgid "Verifying certificate..."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:565
-msgid "Error 2322: No certificate found"
+#: src/pam_pkcs11/pam_pkcs11.c:547
+msgid "Error 2324: Certificate has expired."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:580
-msgid "verifying certificate"
+#: src/pam_pkcs11/pam_pkcs11.c:551
+msgid "Error 2326: Certificate not yet valid."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:593
-msgid "Error 2324: Certificate has expired"
+#: src/pam_pkcs11/pam_pkcs11.c:555
+msgid "Error 2328: Certificate signature invalid."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:597
-msgid "Error 2326: Certificate not yet valid"
+#: src/pam_pkcs11/pam_pkcs11.c:559
+msgid "Error 2330: Certificate invalid."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:601
-msgid "Error 2328: Certificate signature invalid"
+#: src/pam_pkcs11/pam_pkcs11.c:594
+msgid "Error 2332: Setting PAM user entry failed."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:605
-msgid "Error 2330: Certificate invalid"
+#: src/pam_pkcs11/pam_pkcs11.c:610
+msgid "Error 2334: No matching user."
+msgstr ""
+
+#: src/pam_pkcs11/pam_pkcs11.c:631
+msgid "Error 2336: No matching certificate found."
 msgstr ""
 
 #: src/pam_pkcs11/pam_pkcs11.c:640
-msgid "Error 2332: setting PAM userentry failed"
+msgid "Checking signature..."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:656
-msgid "Error 2334: No matching user"
+#: src/pam_pkcs11/pam_pkcs11.c:660
+msgid "Error 2338: Getting random value failed."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:677
-msgid "Error 2336: No matching certificate found"
+#: src/pam_pkcs11/pam_pkcs11.c:674
+msgid "Error 2340: Signing failed."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:686
-msgid "Checking signature"
+#: src/pam_pkcs11/pam_pkcs11.c:691
+msgid "Error 2342: Verifying signature failed."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:706
-msgid "Error 2338: Getting random value failed"
+#: src/pam_pkcs11/pam_pkcs11.c:808
+msgid "Smart card authentication cancelled."
 msgstr ""
 
-#: src/pam_pkcs11/pam_pkcs11.c:720
-msgid "Error 2340: Signing failed"
-msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:739
-msgid "Error 2342: Verifying signature failed"
-msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:886
+#: src/pam_pkcs11/pam_pkcs11.c:854
 msgid "Cannot change the password on your smart card."
 msgstr "Akıllı kart parolası değiştirilemiyor."
 
 #: src/pam_pkcs11/pam_config.c:65
 msgid "Smart card"
 msgstr "Akıllı kart"
+
+#, c-format
+#~ msgid "Please insert your %s or enter your username."
+#~ msgstr "Lütfen size ait bir %s yerleştirin veya kullanıcı adınızı girin."
