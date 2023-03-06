@@ -83,7 +83,12 @@ try_again:
 	/* get a line from buffer */
 	from = mfile->pt;
 	/* set up pointer */
-	while( *from && isspace(*from) ) from++;
+	while( *from && isspace(*from)){
+		if(from - mfile->buffer + 1 >= mfile->length){
+			return 0;
+		}
+		from++;
+	}
 	to = strchr(from,'\n');
 	/* if no newline, assume string ends at end of buffer */
 	if (!to) to=mfile->buffer+mfile->length;
@@ -128,9 +133,12 @@ void end_mapent(struct mapfile *mfile) {
 	if (!mfile) return;
 	/* don't free uri: is a scconf provided "const char *" */;
 	/* free (mfile->uri); */
-	/* don't free key/value: they are pointers to somewhere in buffer */
+	/* don't free value: it's a pointer to somewhere in buffer */
 	/* free (mfile->value); */
-	/* free (mfile->key); */
+	if(mfile->key) {
+		free (mfile->key);
+		mfile->key = NULL;
+	}
 	free (mfile->buffer);
 	free(mfile);
 	return;
@@ -181,7 +189,7 @@ char *mapfile_find(const char *file, char *key, int icase, int *match) {
                 char *res=clone_str(mfile->value);
                 DBG2("Found mapfile match '%s' -> '%s'",key,mfile->value);
                 end_mapent(mfile);
-		*match = 1;
+                *match = 1;
                 return res;
             }
 	}

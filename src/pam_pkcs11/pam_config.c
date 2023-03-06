@@ -369,3 +369,10 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 
 	return &configuration;
 }
+
+void configure_free(struct configuration_st *pk_configure){
+	if(!pk_configure) return;
+
+    scconf_free(pk_configure->ctx);
+    pk_configure->ctx = NULL;
+}

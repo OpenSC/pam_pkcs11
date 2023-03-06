@@ -62,11 +62,13 @@ static char * subject_mapper_find_user(X509 *x509, void *context, int *match) {
 		DBG("X509_get_subject_name failed");
 		return NULL;
 	}
-	return mapfile_find(filename,entries[0],ignorecase,match);
+	char* val = mapfile_find(filename,entries[0],ignorecase,match);
+	free_entries(entries, DEFUALT_ENTRIES_SIZE);
+	return val;
 }
 
 /*
-* parses the certificate and try to macth Subject in the certificate
+* parses the certificate and try to match Subject in the certificate
 * with provided user
 */
 static int subject_mapper_match_user(X509 *x509, const char *login, void *context) {
@@ -75,7 +77,9 @@ static int subject_mapper_match_user(X509 *x509, const char *login, void *contex
 		DBG("X509_get_subject_name failed");
 		return -1;
 	}
-	return mapfile_match(filename,entries[0],login,ignorecase);
+	int val =  mapfile_match(filename,entries[0],login,ignorecase);
+	free_entries(entries, DEFUALT_ENTRIES_SIZE);
+	return val;
 }
 
 _DEFAULT_MAPPER_END

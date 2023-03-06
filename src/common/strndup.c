@@ -17,7 +17,7 @@
 #ifndef HAVE_STRNDUP
 char * strndup (const char *s, size_t size)
 {
-	char *r;
+	char *r = NULL;
 	char *end = memchr(s, 0, size);
 
 	if (NULL == end)
