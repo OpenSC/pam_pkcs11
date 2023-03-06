@@ -255,10 +255,12 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
     rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), &obj);
     if (rv > 0) {
       crl = X509_OBJECT_get0_X509_CRL((&obj));
+      X509_OBJECT_free_contents(&obj);
 #else
     rv = X509_STORE_get_by_subject(ctx, X509_LU_CRL, X509_get_issuer_name(x509), obj);
     if (rv > 0) {
       crl = X509_OBJECT_get0_X509_CRL(obj);
+      X509_OBJECT_free(obj);
 #endif
     } else {
       set_error("no dedicated crl available");
@@ -275,10 +277,12 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
       rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), &obj);
       if (rv > 0) {
         x509_ca = X509_OBJECT_get0_X509((&obj));
+        X509_OBJECT_free_contents(&obj);
 #else
       rv = X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_issuer_name(x509), obj);
       if (rv > 0) {
         x509_ca = X509_OBJECT_get0_X509(obj);
+        X509_OBJECT_free(obj);
 #endif
       } else {
         set_error("no dedicated ca certificate available");
@@ -351,7 +355,6 @@ exit:
   /* crl is being freed by caller X509_STORE_free */
   /* FIXME: Isn't it still okay to free the CRL here? */
   return ret;
-
 }
 
 static int add_hash( X509_LOOKUP *lookup, const char *dir) {

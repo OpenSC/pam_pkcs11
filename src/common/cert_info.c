@@ -683,12 +683,11 @@ static char **cert_info_sshpuk(X509 *x509) {
 	size_t data_len = 0;
 	int res = 0;
 	static char *entries[DEFUALT_ENTRIES_SIZE];
-    init_entries(entries, DEFUALT_ENTRIES_SIZE);
+  init_entries(entries, DEFUALT_ENTRIES_SIZE);
 	const BIGNUM *dsa_p = NULL, *dsa_q = NULL, *dsa_g = NULL, *dsa_pub_key = NULL;
 	const BIGNUM *rsa_e = NULL, *rsa_n = NULL;
 	DSA *dsa = NULL;
 	RSA *rsa = NULL;
-
 	EVP_PKEY *pubk = X509_get_pubkey(x509);
 	if(!pubk) {
 	    DBG("Cannot extract public key");

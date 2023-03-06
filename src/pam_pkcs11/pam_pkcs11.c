@@ -315,6 +315,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 		  }
 	  }
   }
+
+
   /* init openssl */
   rv = crypto_init(&configuration->policy);
   if (rv != 0) {
@@ -808,7 +810,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   return PAM_SUCCESS;
 
 auth_failed:
-
     unload_mappers();
     close_pkcs11_session(ph);
     release_pkcs11_module(ph);
