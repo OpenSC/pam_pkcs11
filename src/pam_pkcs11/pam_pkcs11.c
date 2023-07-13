@@ -429,8 +429,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       return pkcs11_pam_fail;
   }
 
-  pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-             _("%s found."), _(configuration->token_type));
+  if (!configuration->quiet) {
+    pam_prompt(pamh, PAM_TEXT_INFO, NULL,
+              _("%s found."), _(configuration->token_type));
+  }
 
   /* open pkcs #11 session */
   rv = open_pkcs11_session(ph, slot_num);
@@ -457,8 +459,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     goto auth_failed;
   } else if (rv) {
     /* get password */
-	pam_prompt(pamh, PAM_TEXT_INFO, NULL,
-		_("Welcome %.32s!"), get_slot_tokenlabel(ph));
 
 	/* no CKF_PROTECTED_AUTHENTICATION_PATH */
 	rv = get_slot_protected_authentication_path(ph);
@@ -466,7 +466,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	{
 		char password_prompt[128];
 
-		snprintf(password_prompt,  sizeof(password_prompt), _("%s PIN: "), _(configuration->token_type));
+		snprintf(password_prompt,  sizeof(password_prompt), _("%s PIN: "), get_slot_tokenlabel(ph));
 		if (configuration->use_first_pass) {
 			rv = pam_get_pwd(pamh, &password, NULL, PAM_AUTHTOK, 0);
 		} else if (configuration->try_first_pass) {
@@ -653,7 +653,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
   /* if signature check is enforced, generate random data, sign and verify */
   if (configuration->policy.signature_policy) {
-		pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("Checking signature..."));
+    if (!configuration->quiet) {
+      pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("Checking signature..."));
+    }
 
 
 #ifdef notdef
