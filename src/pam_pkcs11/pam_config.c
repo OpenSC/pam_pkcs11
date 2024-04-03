@@ -172,9 +172,16 @@ static void parse_config_file(void) {
 	            return;
 	    }
 
-	    if (configuration.slot_description == NULL && configuration.slot_num == -1) {
-		DBG1("Neither slot_description nor slot_num found in file %s",configuration.config_file);
-	            return;
+	    /*
+	     * If the configuration isn't providing either a valid
+	     * slot_description or a valid slot_num, set the slot_num to the
+	     * default 0 value
+	     */
+	    if (configuration.slot_description == NULL &&
+			    configuration.slot_num == -1) {
+		DBG1("Neither slot_description nor slot_num found in file %s,"
+				"setting slot_num to default 0",configuration.config_file);
+		configuration.slot_num = 0;
 	    }
 
 	    configuration.support_threads =
