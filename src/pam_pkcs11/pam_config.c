@@ -111,7 +111,7 @@ static void parse_config_file(void) {
 	}
 	ctx = configuration.ctx;
 	if ( scconf_parse(ctx) <=0 ) {
-           DBG1("Error parsing file %s",configuration.config_file);
+           DBG2("Error parsing file %s. Parse error: %s",configuration.config_file,ctx->errmsg);
 	   return;
 	}
 	/* now parse options */
