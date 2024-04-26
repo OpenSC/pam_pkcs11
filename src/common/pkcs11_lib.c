@@ -232,7 +232,7 @@ int crypto_init(cert_policy *policy) {
     DBG1("Initializing NSS ... database=%s", policy->nss_dir);
     rv = NSS_Init(policy->nss_dir);
   } else {
-    /* not database secified */
+    /* not database specified */
     DBG("Initializing NSS ... with no db");
     rv = NSS_NoDB_Init(NULL);
   }

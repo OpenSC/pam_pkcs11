@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		/* not database secified */
+		/* not database specified */
 		rv = NSS_NoDB_Init(NULL);
 	}
 

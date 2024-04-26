@@ -747,7 +747,7 @@ The API defines following functions:
 </para>
 
 <para>
-An important note is that mapfiles names can be provided as standard UNIX path names, or Universal Resource Locators. For instance, you can use either <filename>/etc/pam_pkcs11/subject_mapping</filename> or <filename>file:///etc/pam_pkcs11/subject_mapping</filename>. Our recommentation is to use second format as is not restricted to local files
+An important note is that mapfiles names can be provided as standard UNIX path names, or Universal Resource Locators. For instance, you can use either <filename>/etc/pam_pkcs11/subject_mapping</filename> or <filename>file:///etc/pam_pkcs11/subject_mapping</filename>. Our recommendation is to use second format as is not restricted to local files
 </para>
 <para>
 <lineannotation>NOTE:</lineannotation>

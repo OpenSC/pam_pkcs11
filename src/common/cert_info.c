@@ -47,7 +47,7 @@ SECOidTag CERT_KerberosPN_OID = SEC_OID_UNKNOWN;
 static const unsigned char kerberosOID[] =  { 0x2b, 0x6, 0x1, 0x5, 0x2, 0x2 };
 static const SECOidData kerberosPN_Entry =
        { TO_ITEM(kerberosOID), SEC_OID_UNKNOWN,
-       "Kerberos Priniciple", CKM_INVALID_MECHANISM, INVALID_CERT_EXTENSION };
+       "Kerberos Principle", CKM_INVALID_MECHANISM, INVALID_CERT_EXTENSION };
 
 SECOidTag CERT_MicrosoftUPN_OID = SEC_OID_UNKNOWN;
 /* { 1.3.6.1.4.1.311 } */
@@ -55,7 +55,7 @@ static const unsigned char microsoftUPNOID[] =
         { 0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x14, 0x2, 0x3 };
 static const SECOidData microsoftUPN_Entry =
         { TO_ITEM(microsoftUPNOID), SEC_OID_UNKNOWN,
-        "Microsoft Universal Priniciple", CKM_INVALID_MECHANISM,
+        "Microsoft Universal Principle", CKM_INVALID_MECHANISM,
         INVALID_CERT_EXTENSION };
 
 /* register the oid if we haven't already */

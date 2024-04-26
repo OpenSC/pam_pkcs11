@@ -69,7 +69,7 @@ static char * digest_mapper_find_user(X509 *x509, void *context, int *match) {
 }
 
 /*
-* parses the certificate and try to macth certificate digest
+* parses the certificate and try to match certificate digest
 * with provided user
 */
 static int digest_mapper_match_user(X509 *x509,const char *login, void *context) {
