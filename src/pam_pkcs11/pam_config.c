@@ -50,7 +50,7 @@ struct configuration_st configuration = {
         CONFDIR "/pkcs11_module.so",/* const char *pkcs11_module_path; */
         NULL,                           /* screen savers */
         NULL,			/* slot_description */
-        -1,				/* int slot_num; */
+        0,				/* int slot_num; */
 	0,				/* support threads */
 	/* cert policy; */
         {
@@ -167,13 +167,8 @@ static void parse_config_file(void) {
 	    configuration.slot_num =
 	        scconf_get_int(pkcs11_mblk,"slot_num",configuration.slot_num);
 
-	    if (configuration.slot_description != NULL && configuration.slot_num != -1) {
-		DBG1("Can not specify both slot_description and slot_num in file %s",configuration.config_file);
-	            return;
-	    }
-
-	    if (configuration.slot_description == NULL && configuration.slot_num == -1) {
-		DBG1("Neither slot_description nor slot_num found in file %s",configuration.config_file);
+	    if (configuration.slot_description != NULL && configuration.slot_num != 0) {
+		DBG1("Can not specify both slot_description and slot_num != 0 in file %s",configuration.config_file);
 	            return;
 	    }
 
