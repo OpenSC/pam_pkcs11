@@ -289,13 +289,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	}
   }
 
-  if (!configuration->card_only || !login_token_name) {
-	  /* Allow to pass to the next module if the auth isn't
-         restricted to card only. */
-      pkcs11_pam_fail = PAM_IGNORE;
-  } else {
-	pkcs11_pam_fail = PAM_CRED_INSUFFICIENT;
-  }
+  pkcs11_pam_fail = PAM_CRED_INSUFFICIENT;
 
   /* fail if we are using a remote server
    * local login: DISPLAY=:0
@@ -379,13 +373,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
 
   if (rv != 0) {
-      /* No token found */
-    if (!configuration->card_only) {
-        /* If the login isn't restricted to card-only, then proceed
-           to the next auth. module quietly. */
-        release_pkcs11_module(ph);
-        goto exit_ignore;
-    }
+    /* No token found */
 
     ERR("no suitable token available");
     if (!configuration->quiet) {
@@ -415,16 +403,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   if (rv != 0) {
       release_pkcs11_module(ph);
       /* Still no card */
-      if (pkcs11_pam_fail != PAM_IGNORE) {
-          if (!configuration->quiet) {
-              pam_prompt(pamh, PAM_ERROR_MSG,
-                         NULL, _("Error 2308: No smart card found."));
-              sleep(configuration->err_display_time);
-          }
-      } else {
-          pam_prompt(pamh, PAM_TEXT_INFO,
-                     NULL, _("No smart card found."));
-          goto exit_ignore;
+      if (!configuration->quiet) {
+          pam_prompt(pamh, PAM_ERROR_MSG,
+                     NULL, _("Error 2308: No smart card found."));
+          sleep(configuration->err_display_time);
       }
       return pkcs11_pam_fail;
   }
@@ -819,10 +801,7 @@ auth_failed:
     }
     configure_free(configuration);
     configuration = NULL;
-	if (PAM_IGNORE == pkcs11_pam_fail)
-		goto exit_ignore;
-	else
-		return pkcs11_pam_fail;
+    return pkcs11_pam_fail;
 
  exit_ignore:
 	pam_prompt( pamh, PAM_TEXT_INFO, NULL,
