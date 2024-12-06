@@ -1143,9 +1143,13 @@ static int read_config(scconf_block *blk) {
 	ssltls =  scconf_get_str(blk,"ssl","off");
 	if (! strncasecmp (ssltls, "tls", 3))
 		ssl_on = SSL_START_TLS;
+	else if( ! strncasecmp (ssltls, "starttls", 3))
+		ssl_on = SSL_START_TLS;
 	else if( ! strncasecmp (ssltls, "on", 2))
 		ssl_on = SSL_LDAPS;
 	else if( ! strncasecmp (ssltls, "ssl", 3))
+		ssl_on = SSL_LDAPS;
+	else if( ! strncasecmp (ssltls, "ldaps", 3))
 		ssl_on = SSL_LDAPS;
 
 #if defined HAVE_LDAP_START_TLS_S || (defined(HAVE_LDAP_SET_OPTION) && defined(LDAP_OPT_X_TLS))
