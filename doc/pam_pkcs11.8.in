@@ -29,6 +29,8 @@ other applications on your system is also a good source for examples
 on how to configure a PAM service.
 .SH "FILES"
 \fI@confdir@/pam_pkcs11.conf\fP
+.br
+\fI@docdir@/pam_pkcs11.conf.example\fP
 .br 
 \fI/usr/lib/pam_pkcs11/*_mapper.so\fP
 .SH "AUTHOR"
@@ -40,7 +42,6 @@ Report bugs ideas, comments, bug\-fixes and so to:
 .I Juan Antonio Martinez <jonsito@teleline.es>
 .SH "SEE ALSO"
 .BR pam (8),
-.BR pam_pkcs11.conf (5),
 PAM Systems Administrator Guide,
 .I README.mappers
 file, PAM\-PKCS#11 User Manual.
