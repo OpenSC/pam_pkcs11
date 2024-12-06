@@ -87,7 +87,7 @@ static void display_config (void) {
         DBG1("support_threads %d",configuration.support_threads);
         DBG1("ca_policy %d",configuration.policy.ca_policy);
         DBG1("crl_policy %d",configuration.policy.crl_policy);
-        DBG1("signature_policy %d",configuration.policy.signature_policy);
+        DBG1("no_signature_policy %d",configuration.policy.no_signature_policy);
         DBG1("ocsp_policy %d",configuration.policy.ocsp_policy);
 		DBG1("err_display_time %d", configuration.err_display_time);
 }
@@ -180,7 +180,7 @@ static void parse_config_file(void) {
 			configuration.policy.crl_policy=CRLP_NONE;
 			configuration.policy.ocsp_policy=OCSP_NONE;
 			configuration.policy.ca_policy=0;
-			configuration.policy.signature_policy=0;
+			configuration.policy.no_signature_policy=0;
 			break;
 		} else if ( !strcmp(policy_list->data,"crl_auto") ) {
 			configuration.policy.crl_policy=CRLP_AUTO;
@@ -193,7 +193,10 @@ static void parse_config_file(void) {
 		} else if ( !strcmp(policy_list->data,"ca") ) {
 			configuration.policy.ca_policy=1;
 		} else if ( !strcmp(policy_list->data,"signature") ) {
-			configuration.policy.signature_policy=1;
+			// ignore this setting for legacy reasons
+		} else if ( !strcmp(policy_list->data,"no_signature") ) {
+			// ignore this setting for legacy reasons
+			configuration.policy.no_signature_policy=1;
 		} else {
                    DBG1("Invalid CRL policy: %s",policy_list->data);
 	        }
@@ -321,7 +324,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		if (strstr(argv[i],"none")) {
 			configuration.policy.crl_policy=CRLP_NONE;
 			configuration.policy.ca_policy=0;
-			configuration.policy.signature_policy=0;
+			configuration.policy.no_signature_policy=0;
 			configuration.policy.ocsp_policy=OCSP_NONE;
 		}
 		if (strstr(argv[i],"crl_online")) {
@@ -340,7 +343,10 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 			configuration.policy.ca_policy=1;
 		}
 		if (strstr(argv[i],"signature")) {
-			configuration.policy.signature_policy=1;
+			// ignore this setting for legacy reasons
+		}
+		if (strstr(argv[i],"no_signature")) {
+			configuration.policy.no_signature_policy=1;
 		}
 		continue;
 	   }

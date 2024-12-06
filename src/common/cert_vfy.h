@@ -48,7 +48,7 @@ typedef enum {
 struct cert_policy_st {
 	int ca_policy;
 	int crl_policy;
-	int signature_policy;
+	int no_signature_policy;
 	const char *ca_dir;
 	const char *crl_dir;
 	const char *nss_dir;

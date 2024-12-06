@@ -644,7 +644,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
 
   /* if signature check is enforced, generate random data, sign and verify */
-  if (configuration->policy.signature_policy) {
+  if (!configuration->policy.no_signature_policy) {
 		pam_prompt(pamh, PAM_TEXT_INFO, NULL, _("Checking signature..."));
 
 
