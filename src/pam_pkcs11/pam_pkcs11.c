@@ -262,18 +262,20 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 
   login_token_name = getenv("PKCS11_LOGIN_TOKEN_NAME");
   /*
-   * card_only means: restrict the authentication to token only if
-   * the user has already authenticated by the token.
+   * For historical reasons "card_only" means: if we are using
+   * a screen saver, and we didn't log in using a smart card
+   * drop to the next pam module (PAM_IGNORE is returned).
    *
-   * wait_for_card means:
-   *  1) nothing if card_only isn't set
-   *  2) if logged in, block in pam conversation until the token used for login
-   *     is inserted
-   *  3) if not logged in, block until a token that could be used for logging in
-   *     is inserted
-   * right now, logged in means PKC11_LOGIN_TOKEN_NAME is set,
-   * but we could something else later (like set some per-user state in
-   * a pam session module keyed off uid)
+   * "wait_for_card" means:
+   *  1) nothing if card_only isn't set;
+   *  2) if logged in, block in pam conversation until the token
+   *     used for login is inserted;
+   *  3) if not logged in, block until a token that could be used
+   *     for logging in is inserted.
+   *
+   * Right now, logged in means PKC11_LOGIN_TOKEN_NAME is set,
+   * but we could something else later (like set some per-user
+   * state in a PAM session module keyed off UID).
    */
   if (configuration->card_only) {
 	char *service;
@@ -288,8 +290,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
 	    }
 	}
   }
-
-  pkcs11_pam_fail = PAM_CRED_INSUFFICIENT;
 
   /* fail if we are using a remote server
    * local login: DISPLAY=:0
@@ -327,8 +327,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       DBG1("explicit username = [%s]", user);
   }
   
-  /* if we are using a screen saver, and we didn't log in using the smart card
-   * drop to the next pam module.  */
+  /* if we are using a screen saver, and we didn't log in using
+   * a smart card drop to the next pam module.  */
   if (is_a_screen_saver && !login_token_name) {
 	  goto exit_ignore;
   }
@@ -380,7 +380,13 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
         pam_syslog(pamh, LOG_ERR, "no suitable token available");
     }
 
-    if (configuration->wait_for_card) {
+    if (!configuration->card_only) {
+      goto auth_failed;
+    }
+
+    /* we must have a smart card, either because we've configured
+     * it as such, or because we used one to log in */
+    if (login_token_name || configuration->wait_for_card) {
         if (login_token_name) {
             pam_prompt(pamh, PAM_TEXT_INFO, NULL,
                        _("Please insert your smart card called \"%.32s\"."),
@@ -441,6 +447,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
     /* get password */
 	pam_prompt(pamh, PAM_TEXT_INFO, NULL,
 		_("Welcome %.32s!"), get_slot_tokenlabel(ph));
+
+	/* The token has been found and opened successfully.
+	 * From now on return PAM_CRED_INSUFFICIENT on error. */
+	pkcs11_pam_fail = PAM_CRED_INSUFFICIENT;
 
 	/* no CKF_PROTECTED_AUTHENTICATION_PATH */
 	rv = get_slot_protected_authentication_path(ph);

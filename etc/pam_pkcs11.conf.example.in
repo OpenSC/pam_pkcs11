@@ -23,21 +23,21 @@ pam_pkcs11 {
   # previously set (intended for stacking password modules only).
   use_authtok = false;
 
-  # card_only means:
-  #  1) always get the userid from the certificate.
-  #  2) don't prompt for the user name if the card is present.
-  #  3) if the token is present, then we must use the cardAuth mechanism.
+  # For historical reasons card_only means: if we are using
+  # a screen saver, and we didn't log in using a smart card
+  # drop to the next pam module (PAM_IGNORE is returned).
   card_only = false;
 
   # wait_for_card means:
-  #  1) nothing if card_only isn't set
-  #  2) if logged in, block in pam conversation until the token used for login
-  #     is inserted
-  #  3) if not logged in, block until a token that could be used for logging in
-  #     is inserted
-  # right now, logged in means PKC11_LOGIN_TOKEN_NAME is set,
-  # but we could something else later (like set some per-user state in
-  # a pam session module keyed off uid)
+  #  1) nothing if card_only isn't set;
+  #  2) if logged in, block in pam conversation until the token
+  #     used for login is inserted;
+  #  3) if not logged in, block until a token that could be used
+  #     for logging in is inserted.
+  #
+  # Right now, logged in means PKC11_LOGIN_TOKEN_NAME is set,
+  # but we could something else later (like set some per-user
+  # state in a PAM session module keyed off UID).
   wait_for_card = false;
 
   # List of screen saver services.
