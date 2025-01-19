@@ -1,0 +1,9 @@
+[Unit]
+Description=PKCS11 event manager service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/pkcs11_eventmgr nodaemon
+
+[Install]
+WantedBy=multi-user.target
