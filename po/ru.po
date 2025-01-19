@@ -1,157 +1,160 @@
-# LANGUAGE translation of PACKAGE.
+# Translation of pam_pkcs11 into Russian
 # This file is put in the public domain.
+#
 # sergio <mailbox@sergio.spb.ru>, 2007.
-# , fuzzy
-#
-#
+# Max Kosmach <max@elvis.ru>, 2017
+# Andrey Cherepanov <cas@altlinux.org.ru>, 2017.
+
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: pam_pkcs11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-01 15:13+0800\n"
-"PO-Revision-Date: 2019-01-11 16:55+0300\n"
-"Last-Translator: Paul Wolneykien <manowar@altlinux.org>\n"
-"Language-Team: Russian\n"
+"POT-Creation-Date: 2016-09-23 16:55+0200\n"
+"PO-Revision-Date: 2017-04-12 12:09+0300\n"
+"Last-Translator: Andrey Cherepanov <cas@altlinux.org>\n"
+"Language-Team: Russian <kde-russian@lists.kde.ru>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<"
+"=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Lokalize 1.5\n"
 
-#: src/pam_pkcs11/pam_pkcs11.c:340
-msgid "Error 2302: PKCS#11 module failed loading."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:235
+msgid "Smartcard authentication starts"
+msgstr "Начата аутентификация по токену"
+
+#: src/pam_pkcs11/pam_pkcs11.c:324 src/pam_pkcs11/pam_pkcs11.c:433
+#, c-format
+msgid "Please insert your %s or enter your username."
+msgstr "Пожалуйста, вставьте %s или введите имя пользователя."
 
 #: src/pam_pkcs11/pam_pkcs11.c:354
-msgid "Error 2304: PKCS#11 module could not be initialized."
-msgstr ""
+msgid "Error 2302: PKCS#11 module failed loading"
+msgstr "Ошибка 2302: невозможно загрузить модуль PKCS#11"
 
-#: src/pam_pkcs11/pam_pkcs11.c:385
+#: src/pam_pkcs11/pam_pkcs11.c:368
+msgid "Error 2304: PKCS#11 module could not be initialized"
+msgstr "Ошибка 2302: невозможно инициализировать модуль PKCS#11"
+
+#: src/pam_pkcs11/pam_pkcs11.c:387
+msgid "Error 2306: No suitable token available"
+msgstr "Ошибка 2306: нет подходящего токена"
+
+#: src/pam_pkcs11/pam_pkcs11.c:401
 #, c-format
 msgid "Please insert your smart card called \"%.32s\"."
-msgstr "Пожалуйста, вставьте смарткарту, которая называется \"%.32s\"."
+msgstr "Пожалуйста, вставьте токен с пометкой \"%.32s\"."
 
-#: src/pam_pkcs11/pam_pkcs11.c:389
+#: src/pam_pkcs11/pam_pkcs11.c:405
 msgid "Please insert your smart card."
-msgstr "Пожалуйста, вставьте смарткарту."
+msgstr "Пожалуйста, вставьте токен."
 
-#: src/pam_pkcs11/pam_pkcs11.c:408
-msgid "Error 2308: No smart card found."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:422
+msgid "Error 2308: No smartcard found"
+msgstr "Ошибка 2308: не найден токен"
 
-#: src/pam_pkcs11/pam_pkcs11.c:413
-#, fuzzy
-msgid "No smart card found."
-msgstr "Смарткарта вставлена. "
+#: src/pam_pkcs11/pam_pkcs11.c:449
+msgid "Error 2310: No smartcard found"
+msgstr "Ошибка 2310: не найден токен"
 
-#: src/pam_pkcs11/pam_pkcs11.c:420
+#: src/pam_pkcs11/pam_pkcs11.c:459
 #, c-format
 msgid "%s found."
-msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:428
-msgid "Error 2312: Open PKCS#11 session failed."
-msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:440
-msgid "Error 2314: Slot login failed."
-msgstr ""
-
-#: src/pam_pkcs11/pam_pkcs11.c:447
-#, c-format
-msgid "Welcome %.32s!"
-msgstr "Добро пожаловать %.32s!"
-
-#: src/pam_pkcs11/pam_pkcs11.c:455
-#, c-format
-msgid "%s PIN: "
-msgstr ""
+msgstr "Найден %s."
 
 #: src/pam_pkcs11/pam_pkcs11.c:466
-msgid "Error 2316: Password could not be read."
-msgstr ""
+msgid "Error 2312: open PKCS#11 session failed"
+msgstr "Ошибка 2312: невозможно начать сеанс PKCS#11"
 
-#: src/pam_pkcs11/pam_pkcs11.c:482
-msgid "Error 2318: Empty smart card PIN not allowed."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:478
+msgid "Error 2314: Slot login failed"
+msgstr "Ошибка 2314: невозможно получить доступ к слоту"
 
-#: src/pam_pkcs11/pam_pkcs11.c:492
+#: src/pam_pkcs11/pam_pkcs11.c:486
 #, c-format
-msgid "Enter your %s PIN on the pinpad."
-msgstr ""
+msgid "Welcome %.32s!"
+msgstr "Добро пожаловать, %.32s!"
 
-#: src/pam_pkcs11/pam_pkcs11.c:506
-msgid "Error 2320: Wrong smart card PIN."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:494
+#, c-format
+msgid "%s PIN: "
+msgstr "Введите PIN-код токена %s: "
 
-#: src/pam_pkcs11/pam_pkcs11.c:519
-msgid "Error 2322: No certificate found."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:505
+msgid "Error 2316: password could not be read"
+msgstr "Ошибка 2316: не удалось получить пароль"
+
+#: src/pam_pkcs11/pam_pkcs11.c:525
+msgid "Error 2318: Empty smartcard PIN not allowed."
+msgstr "Ошибка 2318: пустой PIN-код у токена не допускается"
 
 #: src/pam_pkcs11/pam_pkcs11.c:534
-msgid "Verifying certificate..."
-msgstr ""
+#, c-format
+msgid "Enter your %s PIN on the pinpad"
+msgstr "Введите PIN-код токена %s на панели ввода"
 
-#: src/pam_pkcs11/pam_pkcs11.c:547
-msgid "Error 2324: Certificate has expired."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:553
+msgid "Error 2320: Wrong smartcard PIN"
+msgstr "Ошибка 2320: Неверный PIN-код"
 
-#: src/pam_pkcs11/pam_pkcs11.c:551
-msgid "Error 2326: Certificate not yet valid."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:565
+msgid "Error 2322: No certificate found"
+msgstr "Ошибка 2322: не обнаружен сертификат"
 
-#: src/pam_pkcs11/pam_pkcs11.c:555
-msgid "Error 2328: Certificate signature invalid."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:580
+msgid "verifying certificate"
+msgstr "Проверка сертификата"
 
-#: src/pam_pkcs11/pam_pkcs11.c:559
-msgid "Error 2330: Certificate invalid."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:593
+msgid "Error 2324: Certificate has expired"
+msgstr "Ошибка 2324: истёк срок действия сертификата"
 
-#: src/pam_pkcs11/pam_pkcs11.c:594
-msgid "Error 2332: Setting PAM user entry failed."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:597
+msgid "Error 2326: Certificate not yet valid"
+msgstr "Ошибка 2326: срок действия сертификата еще не наступил"
 
-#: src/pam_pkcs11/pam_pkcs11.c:610
-msgid "Error 2334: No matching user."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:601
+msgid "Error 2328: Certificate signature invalid"
+msgstr "Ошибка 2328: неверная подпись сертификата"
 
-#: src/pam_pkcs11/pam_pkcs11.c:631
-msgid "Error 2336: No matching certificate found."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:605
+msgid "Error 2330: Certificate invalid"
+msgstr "Ошибка 2330: неверный сертификат"
 
 #: src/pam_pkcs11/pam_pkcs11.c:640
-msgid "Checking signature..."
-msgstr ""
+msgid "Error 2332: setting PAM userentry failed"
+msgstr "Ошибка 2332: невозможно определить имя пользователя для токена"
 
-#: src/pam_pkcs11/pam_pkcs11.c:660
-msgid "Error 2338: Getting random value failed."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:656
+msgid "Error 2334: No matching user"
+msgstr "Ошибка 2334: нет подходящего пользователя"
 
-#: src/pam_pkcs11/pam_pkcs11.c:674
-msgid "Error 2340: Signing failed."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:677
+msgid "Error 2336: No matching certificate found"
+msgstr "Ошибка 2336: нет подходящего сертификата"
 
-#: src/pam_pkcs11/pam_pkcs11.c:691
-msgid "Error 2342: Verifying signature failed."
-msgstr ""
+#: src/pam_pkcs11/pam_pkcs11.c:686
+msgid "Checking signature"
+msgstr "Проверка подписи"
 
-#: src/pam_pkcs11/pam_pkcs11.c:808
-#, fuzzy
-msgid "Smart card authentication cancelled."
-msgstr "Аутентификация по токену отменена"
+#: src/pam_pkcs11/pam_pkcs11.c:706
+msgid "Error 2338: Getting random value failed"
+msgstr "Ошибка 2338: не удалось получить псевдо-случайное число"
 
-#: src/pam_pkcs11/pam_pkcs11.c:854
+#: src/pam_pkcs11/pam_pkcs11.c:720
+msgid "Error 2340: Signing failed"
+msgstr "Ошибка 2340: не удалось сформировать подпись"
+
+#: src/pam_pkcs11/pam_pkcs11.c:739
+msgid "Error 2342: Verifying signature failed"
+msgstr "Ошибка 2342: не удалось проверить подпись"
+
+#: src/pam_pkcs11/pam_pkcs11.c:886
 msgid "Cannot change the password on your smart card."
-msgstr "Не могу поменять пароль смарткарты."
+msgstr "Невозможно поменять пароль на токене."
 
 #: src/pam_pkcs11/pam_config.c:65
-#, fuzzy
 msgid "Smart card"
-msgstr "Смарткарта вставлена. "
-
-#, fuzzy, c-format
-#~ msgid "Please insert your %s or enter your username."
-#~ msgstr "Пожалуйста, вставьте смарткарту или введите имя пользователя."
-
-#~ msgid "Smart card password: "
-#~ msgstr "Пароль смарткарты: "
+msgstr "Токен"
