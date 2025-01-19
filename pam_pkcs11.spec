@@ -113,6 +113,7 @@ install -m 644 etc/pkcs11_eventmgr.conf.example $RPM_BUILD_ROOT/etc/%{name}/pkcs
 %{_docdir}/%{name}/pkcs11_eventmgr.conf.example
 %{_docdir}/%{name}/pam.d_ignore_no_card.example
 %{_datadir}/locale/*/LC_MESSAGES/*
+%{_libdir}/systemd/system/pkcs11-eventmgr.service
 
 %files pcsc
 %config(noreplace) %{_sysconfdir}/%{name}/card_eventmgr.conf
