@@ -1,5 +1,8 @@
 17- Jan 2024
     - Version 0.6.13.
+    - Added pkcs11-eventmgr systemd service unit.
+    - Updated Russian translations for pam_pkcs11 (thx Max Kosmach
+      and Andrey Cherepanov).
     - Fixed possible authentication bypass: Use signatures to verify
       authentication by default (thx Frank Morgner).
     - Restoring the original card_only / wait_for_card behavior
