@@ -1,3 +1,23 @@
+17- Jan 2024
+    - Version 0.6.13.
+    - Fixed possible authentication bypass: Use signatures to verify
+      authentication by default (thx Frank Morgner).
+    - Restoring the original card_only / wait_for_card behavior
+      (thx Frank Morgner).
+    - Move pam_securetty.so upward in the example PAM config.
+    - Set 'slot_num' configuration parameter to 0 by default.
+    - Print details about configuration parse errors (thx Jpereyra316).
+    - Updated RPM spec file (thx Etienne Barbier).
+    - Add Chinese (Simplified) translation.
+    - Updated Russian translations.
+    - Capitalize all PAM messages (thx Alynx Zhou).
+    - Cleaned up (some?) memory leaks.
+    - Made pkcs11_make_hash_link support whitespaces in file names
+      (thx Ivan Skorikov).
+    - Fixed LGTM.com errors (thx Dimitri Papadopoulos).
+    - Fix typos found by codespell (thx Dimitri Papadopoulos).
+    - Fixed missing X509_CRL_free() in check_for_revocation.
+
 31- May 2021
     - Version 0.6.12
     - Limit signature length to 65536 bytes.
