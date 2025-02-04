@@ -195,7 +195,6 @@ static void parse_config_file(void) {
 		} else if ( !strcmp(policy_list->data,"signature") ) {
 			// ignore this setting for legacy reasons
 		} else if ( !strcmp(policy_list->data,"no_signature") ) {
-			// ignore this setting for legacy reasons
 			configuration.policy.no_signature_policy=1;
 		} else {
                    DBG1("Invalid CRL policy: %s",policy_list->data);
