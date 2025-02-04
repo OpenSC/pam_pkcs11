@@ -254,8 +254,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   }
 
   /* Either slot_description or slot_num, but not both, needs to be used */
-  if ((configuration->slot_description != NULL && configuration->slot_num != -1) || (configuration->slot_description == NULL && configuration->slot_num == -1)) {
-	ERR("Error setting configuration parameters");
+  if (configuration->slot_description != NULL && configuration->slot_num != 0) {
+	ERR("Controversial configuration parameters: specify either slot_description or slot_num, but not both");
 	configure_free(configuration);
 	return PAM_AUTHINFO_UNAVAIL;
   }
@@ -367,7 +367,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
   if (configuration->slot_description != NULL) {
     rv = find_slot_by_slotlabel_and_tokenlabel(ph,
       configuration->slot_description, login_token_name, &slot_num);
-  } else if (configuration->slot_num != -1) {
+  } else {
     rv = find_slot_by_number_and_label(ph, configuration->slot_num,
                                      login_token_name, &slot_num);
   }
@@ -399,7 +399,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
         if (configuration->slot_description != NULL) {
             rv = wait_for_token_by_slotlabel(ph, configuration->slot_description,
                                            login_token_name, &slot_num);
-        } else if (configuration->slot_num != -1) {
+        } else {
             rv = wait_for_token(ph, configuration->slot_num,
                                 login_token_name, &slot_num);
         }
