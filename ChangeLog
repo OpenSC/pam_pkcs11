@@ -1,18 +1,20 @@
-17- Jan 2024
+04- Feb 2025
     - Version 0.6.13.
     - Added pkcs11-eventmgr systemd service unit.
     - Updated Russian translations for pam_pkcs11 (thx Max Kosmach
       and Andrey Cherepanov).
-    - Fixed possible authentication bypass: Use signatures to verify
-      authentication by default (thx Frank Morgner).
-    - Restoring the original card_only / wait_for_card behavior
+    - Fixed possible authentication bypass (CVE-2025-24032):
+      Use signatures to verify authentication by default
       (thx Frank Morgner).
+    - Fixed possible authentication bypass (CVE-2025-24531):
+      Restoring the original card_only / wait_for_card behavior
+      (thx Matthias Gerstner, Frank Morgner).
     - Move pam_securetty.so upward in the example PAM config.
-    - Set 'slot_num' configuration parameter to 0 by default.
+    - Set 'slot_num' configuration parameter to 0 by default
+      (thx Jpereyra316).
     - Print details about configuration parse errors (thx Jpereyra316).
     - Updated RPM spec file (thx Etienne Barbier).
     - Add Chinese (Simplified) translation.
-    - Updated Russian translations.
     - Capitalize all PAM messages (thx Alynx Zhou).
     - Cleaned up (some?) memory leaks.
     - Made pkcs11_make_hash_link support whitespaces in file names
