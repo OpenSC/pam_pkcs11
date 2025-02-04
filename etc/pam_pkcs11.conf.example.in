@@ -51,7 +51,7 @@ pam_pkcs11 {
   use_pkcs11_module = opensc;
 
   pkcs11_module opensc {
-    module = /usr/lib/opensc-pkcs11.so;
+    module = @libdir@/opensc-pkcs11.so;
     description = "OpenSC PKCS#11 module";
 
     # Which slot to use?
