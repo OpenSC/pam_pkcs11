@@ -92,21 +92,22 @@ pam_pkcs11 {
     support_threads = false;
 
     # Sets the Certificate verification policy. 
-    # "none"        Performs no verification, except (!) the signature
-    # "ca"          Does CA check
-    # "crl_online"  Downloads the CRL form the location given by the
-    #               CRL distribution point extension of the certificate
-    # "crl_offline" Uses the locally stored CRLs
-    # "crl_auto"    Is a combination of online and offline; it first 
-    #               tries to download the CRL from a possibly given CRL 
-    #               distribution point and if this fails, uses the local
-    #               CRLs
-    # "signature"   Does a signature check to ensure that private
-    #               and public key matches
-    # "no_signature" The only value that disables signature check.
+    # "none"         Performs only (!) CA and signature checks
+    # "ca"           Does CA check
+    # "no_ca"        The only value that disables CA check
+    # "crl_online"   Downloads the CRL form the location given by the
+    #                CRL distribution point extension of the certificate
+    # "crl_offline"  Uses the locally stored CRLs
+    # "crl_auto"     Is a combination of online and offline; it first 
+    #                tries to download the CRL from a possibly given CRL 
+    #                distribution point and if this fails, uses the local
+    #                CRLs
+    # "signature"    Does a signature check to ensure that private
+    #                and public key matches
+    # "no_signature" The only value that disables signature check
     #
     # You can use a combination of ca,crl, and signature flags, or just
-    # use "none".
+    # use "none". Use "none,no_ca,no_signature" to disable all checks.
     cert_policy = ca,signature;
 
     # What kind of token?
@@ -140,7 +141,7 @@ pam_pkcs11 {
     support_threads = false;
     ca_dir = /etc/pam_pkcs11/cacerts;
     crl_dir = /etc/pam_pkcs11/crls;
-    cert_policy = signature;
+    cert_policy = ca,signature;
   }
 
   # Which mappers ( Cert to login ) to use?
