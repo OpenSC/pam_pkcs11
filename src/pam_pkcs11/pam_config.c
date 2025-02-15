@@ -85,7 +85,7 @@ static void display_config (void) {
         DBG1("crl_dir %s",configuration.policy.crl_dir);
         DBG1("nss_dir %s",configuration.policy.nss_dir);
         DBG1("support_threads %d",configuration.support_threads);
-        DBG1("ca_policy %d",configuration.policy.ca_policy);
+        DBG1("no_ca_policy %d",configuration.policy.no_ca_policy);
         DBG1("crl_policy %d",configuration.policy.crl_policy);
         DBG1("no_signature_policy %d",configuration.policy.no_signature_policy);
         DBG1("ocsp_policy %d",configuration.policy.ocsp_policy);
@@ -179,7 +179,7 @@ static void parse_config_file(void) {
 	        if ( !strcmp(policy_list->data,"none") ) {
 			configuration.policy.crl_policy=CRLP_NONE;
 			configuration.policy.ocsp_policy=OCSP_NONE;
-			configuration.policy.ca_policy=0;
+			configuration.policy.no_ca_policy=0;
 			configuration.policy.no_signature_policy=0;
 			break;
 		} else if ( !strcmp(policy_list->data,"crl_auto") ) {
@@ -191,7 +191,9 @@ static void parse_config_file(void) {
 		} else if ( !strcmp(policy_list->data,"ocsp_on") ) {
 			configuration.policy.ocsp_policy=OCSP_ON;
 		} else if ( !strcmp(policy_list->data,"ca") ) {
-			configuration.policy.ca_policy=1;
+			// ignore this setting for legacy reasons
+		} else if ( !strcmp(policy_list->data,"no_ca") ) {
+			configuration.policy.no_ca_policy=1;
 		} else if ( !strcmp(policy_list->data,"signature") ) {
 			// ignore this setting for legacy reasons
 		} else if ( !strcmp(policy_list->data,"no_signature") ) {
@@ -322,7 +324,7 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 	   if (strstr(argv[i],"cert_policy=") ) {
 		if (strstr(argv[i],"none")) {
 			configuration.policy.crl_policy=CRLP_NONE;
-			configuration.policy.ca_policy=0;
+			configuration.policy.no_ca_policy=0;
 			configuration.policy.no_signature_policy=0;
 			configuration.policy.ocsp_policy=OCSP_NONE;
 		}
@@ -339,7 +341,10 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 			configuration.policy.ocsp_policy=OCSP_ON;
 		}
 		if (strstr(argv[i],"ca")) {
-			configuration.policy.ca_policy=1;
+			// ignore this setting for legacy reasons
+		}
+		if (strstr(argv[i],"no_ca")) {
+			configuration.policy.no_ca_policy=1;
 		}
 		if (strstr(argv[i],"signature")) {
 			// ignore this setting for legacy reasons
