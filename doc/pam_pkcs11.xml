@@ -627,10 +627,10 @@ Sets the Certificate verification policy:
 	<listitem><token>no_ca</token>: Does not check that Certificate is signed by a recognized CA. Only this value disables the CA check.
 	</listitem>
 
-	<listitem><token>signature></token>: Does a signature check to ensure that private and public key matches.
+	<listitem><token>signature</token>: Does a signature check to ensure that private and public key matches.
 	</listitem>
 
-	<listitem><token>no_signature></token>: Does not check the signature to ensure that private and public key matches. Only this value disables the signature check.
+	<listitem><token>no_signature</token>: Does not check the signature to ensure that private and public key matches. Only this value disables the signature check.
 	</listitem>
 
 	<listitem><token>crl_online</token>: Downloads the CRL from the location
