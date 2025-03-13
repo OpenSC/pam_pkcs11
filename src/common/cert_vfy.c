@@ -408,7 +408,7 @@ static X509_STORE * setup_store(cert_policy *policy) {
     }
   }
   /* add needed hash dir pathname entries */
-  if ( (!policy->no_ca_policy==0) && (is_dir(policy->ca_dir)>0) ) {
+  if ( (policy->no_ca_policy==0) && (is_dir(policy->ca_dir)>0) ) {
     const char *pt=policy->ca_dir;
     if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
     DBG1("Adding hash dir '%s' to CACERT checks",policy->ca_dir);
