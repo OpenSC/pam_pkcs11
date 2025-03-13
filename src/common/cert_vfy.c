@@ -408,7 +408,7 @@ static X509_STORE * setup_store(cert_policy *policy) {
     }
   }
   /* add needed hash dir pathname entries */
-  if ( (policy->ca_policy) && (is_dir(policy->ca_dir)>0) ) {
+  if ( (policy->no_ca_policy==0) && (is_dir(policy->ca_dir)>0) ) {
     const char *pt=policy->ca_dir;
     if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
     DBG1("Adding hash dir '%s' to CACERT checks",policy->ca_dir);
@@ -434,7 +434,7 @@ static X509_STORE * setup_store(cert_policy *policy) {
     }
   }
   /* and add file entries to lookup */
-  if ( (policy->ca_policy) && (is_file(policy->ca_dir)>0) ) {
+  if ( (policy->no_ca_policy==0) && (is_file(policy->ca_dir)>0) ) {
     const char *pt=policy->ca_dir;
     if ( strstr(pt,"file:///")) pt+=8; /* strip url if needed */
     DBG1("Adding file '%s' to CACERT checks",policy->ca_dir);
@@ -467,7 +467,7 @@ int verify_certificate(X509 * x509, cert_policy *policy)
   X509_STORE_CTX *ctx = NULL;
 
   /* if neither ca nor crl check are requested skip */
-  if ( (policy->ca_policy==0) && (policy->crl_policy==CRLP_NONE) ) {
+  if ( (policy->no_ca_policy==1) && (policy->crl_policy==CRLP_NONE) ) {
 	DBG("Neither CA nor CRL check requested. CertVrfy() skipped");
 	return 1;
   }
@@ -489,7 +489,7 @@ int verify_certificate(X509 * x509, cert_policy *policy)
 #if 0
   X509_STORE_CTX_set_purpose(ctx, purpose);
 #endif
-  if (policy->ca_policy) {
+  if (!policy->no_ca_policy) {
   rv = X509_verify_cert(ctx);
   if (rv != 1) {
     X509_STORE_CTX_free(ctx);
