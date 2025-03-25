@@ -1,0 +1,147 @@
+# Georgian translation for pam_pkcs11
+# Copyright (C) 2025 pam_pkcs11's authors.
+# This file is distributed under the same license as the pam_pkcs11 package.
+# Ekaterine Papava <papava.e@gtu.ge>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pam_pkcs11 0.6.12\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-12-01 15:13+0800\n"
+"PO-Revision-Date: 2025-02-26 14:09+0100\n"
+"Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
+"Language-Team: Georgian <(nothing)>\n"
+"Language: ka\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.5\n"
+
+#: src/pam_pkcs11/pam_pkcs11.c:340
+msgid "Error 2302: PKCS#11 module failed loading."
+msgstr "შეცდომა 2302: PKCS#11 მოდულის ჩატვირთვა ჩავარდა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:354
+msgid "Error 2304: PKCS#11 module could not be initialized."
+msgstr "შეცდომა 2304: PKCS#11 მოდულის ინიციალიზაცია შეუძლებელია."
+
+#: src/pam_pkcs11/pam_pkcs11.c:385
+#, c-format
+msgid "Please insert your smart card called \"%.32s\"."
+msgstr "ჩადეთ თქვენი სმარტ ბარათი სახელად \"%.32s\"."
+
+#: src/pam_pkcs11/pam_pkcs11.c:389
+msgid "Please insert your smart card."
+msgstr "ჩადეთ თქვენი სმართ ბარათი."
+
+#: src/pam_pkcs11/pam_pkcs11.c:408
+msgid "Error 2308: No smart card found."
+msgstr "შეცდომა 2308: სმარტ ბარათი აღმოჩენილი არაა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:413
+msgid "No smart card found."
+msgstr "სმარტ ბარათები აღმოჩენილი არაა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:420
+#, c-format
+msgid "%s found."
+msgstr "%s აღმოჩენილია."
+
+#: src/pam_pkcs11/pam_pkcs11.c:428
+msgid "Error 2312: Open PKCS#11 session failed."
+msgstr "შეცდომა 2312: PKCS#11 სესიის გახსნა ჩავარდა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:440
+msgid "Error 2314: Slot login failed."
+msgstr "შეცდომა 2314: სლოტის შესვლა ჩავარდა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:447
+#, c-format
+msgid "Welcome %.32s!"
+msgstr "მოგესალმებით %.32s!"
+
+#: src/pam_pkcs11/pam_pkcs11.c:455
+#, c-format
+msgid "%s PIN: "
+msgstr "%s-ის PIN-კოდი: "
+
+#: src/pam_pkcs11/pam_pkcs11.c:466
+msgid "Error 2316: Password could not be read."
+msgstr "პაროლი 2316: პაროლის წაკითხვა შეუძლებელია."
+
+#: src/pam_pkcs11/pam_pkcs11.c:482
+msgid "Error 2318: Empty smart card PIN not allowed."
+msgstr "შეცდომა 2318: სმარტ ბარათის ცარიელი PIN-კოდი დაშვებული არაა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:492
+#, c-format
+msgid "Enter your %s PIN on the pinpad."
+msgstr "შეიყვანეთ თქვენი %s-ის PIN-კოდი pinpad-ზე."
+
+#: src/pam_pkcs11/pam_pkcs11.c:506
+msgid "Error 2320: Wrong smart card PIN."
+msgstr "შეცდომა 2320: არასწორი სმარტ ბარათის PIN-კოდი."
+
+#: src/pam_pkcs11/pam_pkcs11.c:519
+msgid "Error 2322: No certificate found."
+msgstr "შეცდომა 2322: სერტიფიკატი აღმოჩენილი არაა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:534
+msgid "Verifying certificate..."
+msgstr "სერტიფიკატის გადამოწმება..."
+
+#: src/pam_pkcs11/pam_pkcs11.c:547
+msgid "Error 2324: Certificate has expired."
+msgstr "შეცდომა 2324: სერტიფიკატის ვადა ამოიწურა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:551
+msgid "Error 2326: Certificate not yet valid."
+msgstr "შეცდომა 2326: სერტიფიკატი ჯერ ვარგისი არაა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:555
+msgid "Error 2328: Certificate signature invalid."
+msgstr "შეცდომა 2328: სერტიფიკატის ხელმოწერა არასწორია."
+
+#: src/pam_pkcs11/pam_pkcs11.c:559
+msgid "Error 2330: Certificate invalid."
+msgstr "შეცდომა 2330: სერტიფიკატი არასწორია."
+
+#: src/pam_pkcs11/pam_pkcs11.c:594
+msgid "Error 2332: Setting PAM user entry failed."
+msgstr "შეცდომა 2332: PAM-ის მომხმარებლის ჩანაწერის დაყენება ჩავარდა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:610
+msgid "Error 2334: No matching user."
+msgstr "შეცდომა 2334: შესაბამისი მომხმარებლის გარეშე."
+
+#: src/pam_pkcs11/pam_pkcs11.c:631
+msgid "Error 2336: No matching certificate found."
+msgstr "შეცდომა 2336: შესაბამისი სერტიფიკატი აღმოჩენილი არაა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:640
+msgid "Checking signature..."
+msgstr "მიმდინარეობს ხელმოწერის შემოწმება..."
+
+#: src/pam_pkcs11/pam_pkcs11.c:660
+msgid "Error 2338: Getting random value failed."
+msgstr "შეცდომა 2338: შემთხვევითი მნიშვნელობის მიღება ჩავარდა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:674
+msgid "Error 2340: Signing failed."
+msgstr "შეცდომა 2340: ხელმოწერა ჩავარდა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:691
+msgid "Error 2342: Verifying signature failed."
+msgstr "შეცდომა 2342: ხელმოწერის გადამოწმება ჩავარდა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:808
+msgid "Smart card authentication cancelled."
+msgstr "სმარტ ბარათის ავთენტიკაცია გაუქმდა."
+
+#: src/pam_pkcs11/pam_pkcs11.c:854
+msgid "Cannot change the password on your smart card."
+msgstr "თქვენს სმარტ ბარათზე პაროლის შეცვლა შეუძლებელია."
+
+#: src/pam_pkcs11/pam_config.c:65
+msgid "Smart card"
+msgstr "სმარტ ბარათი"
