@@ -652,15 +652,16 @@ int main(int argc, char *argv[])
 	 * We only stop in case of an error
 	 *
 	 * COMMENT:
-	 * There are no way in pkcs11 API to detect if a card is present or no
-	 * so the way we proced is to look for an slot whit available token
+	 * There are no way in pkcs11 API to detect if a card is present or
+	 * no so the way we proceed is to look for a slot whith available
+	 * token.
 	 * Any ideas will be wellcomed
 	 *
 	 * REVIEW:
-	 * Errrh, well, above note is not exactly true: pkcs11v2.1 API defines
-	 * C_WaitForSlotEvent(). But it's known that is not supported in all
-	 * pkcs11 implementations, and seems to be buggy in multithreaded
-	 * environments....
+	 * Errrh, well, above note is not exactly true: pkcs11v2.1 API
+	 * defines C_WaitForSlotEvent(). But it's known that is not
+	 * supported in all PKCS11 implementations, and seems to be buggy
+	 * in multithreaded environments....
 	 */
 	do
 	{

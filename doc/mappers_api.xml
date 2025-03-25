@@ -762,7 +762,7 @@ The returned "<option>key</option>" and "<option>value</option>" entries should 
 <application>PAM-PKCS#11</application> configuration files are based in the SCConf library of the <application>OpenSC</application> Project. See the file <filename>src/scconf/README.scconf</filename> for a detailed description of the <application>scconf</application>
 </para>
 <para>
-As a resume, below are shown the most relevants scconf API functions for the mapper programmer:
+As a resume, below are shown the most relevant scconf API functions for the mapper programmer:
 <itemizedlist>
 <listitem><function>const char *scconf_get_str(const scconf_block * block, const char *option, const char *default); </function> To retrieve the string value assigned to keyword <option>option</option> or return <option>default</option> if keyword not found</listitem>
 <listitem><function>int scconf_get_int(const scconf_block * block, const char *option, int default); </function> To retrieve the integer value assigned to keyword <option>option</option> or return <option>default</option> if keyword not found</listitem>

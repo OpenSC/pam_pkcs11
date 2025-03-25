@@ -170,7 +170,7 @@ struct mapper_listitem *load_mappers( scconf_context *ctx ) {
 		DBG("No pam_pkcs11 block in config file");
 		return NULL;
 	}
-	DBG("Retrieveing mapper module list");
+	DBG("Retrieving mapper module list...");
 	root = scconf_find_block(ctx, NULL, "pam_pkcs11");
         if (!root) {
 	   /* should not occurs, but Murphy says.. */

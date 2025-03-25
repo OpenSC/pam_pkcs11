@@ -81,7 +81,7 @@
 	pkcs11_login-0.4 released:
 	- Now pam_pkcs11 can take arguments from command line 
 	or via configuration file
-	- Certificate to User mappin has been modularized
+	- Certificate to User mapping has been modularized
 	- Preliminary works on entering session without userlogin prompt:
 	just insert certificate and enter PIN
 

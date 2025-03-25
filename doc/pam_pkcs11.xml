@@ -145,7 +145,7 @@ Cryptographic Token Interface Standard</ulink>.
 
 <para>
 <application>Pam-pkcs11</application> is a PAM (Pluggable Authentication
-Module) pluggin to allow logging into a UNIX/Linux System that supports
+Module) plugin to allow logging into a UNIX/Linux System that supports
 PAM by mean of use Digital Certificates stored in a smart card.
 </para>
 
