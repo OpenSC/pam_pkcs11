@@ -653,7 +653,7 @@ int main(int argc, char *argv[])
 	 *
 	 * COMMENT:
 	 * There are no way in pkcs11 API to detect if a card is present or
-	 * no so the way we proceed is to look for a slot whith available
+	 * no so the way we proceed is to look for a slot with available
 	 * token.
 	 * Any ideas will be wellcomed
 	 *
