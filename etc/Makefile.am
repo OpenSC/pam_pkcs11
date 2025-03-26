@@ -12,11 +12,12 @@ TO_INSTALL = \
 EXTRA_DIST = $(TO_INSTALL) \
 	pam.d_ignore_no_card.example \
 	pam.d_login.example.in \
-	pam_pkcs11.conf.example.in
+	pam_pkcs11.conf.example.in \
+	pkcs11-eventmgr.service
 
 doc_DATA = $(TO_INSTALL) \
 	pam_pkcs11.conf.example \
 	pam.d_login.example
 
-unitdir = /usr/lib/systemd/system
+unitdir = $(prefix)/lib/systemd/system
 unit_DATA = pkcs11-eventmgr.service
