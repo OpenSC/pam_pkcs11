@@ -618,9 +618,6 @@ is <filename class='directory'>/etc/pam_pkcs11/crls/</filename>.
 <para>
 Sets the Certificate verification policy:
     <itemizedlist> 
-	<listitem><token>none</token>: Performs only CA and signature checks, does not do CRL checks.
-	</listitem>
-
 	<listitem><token>ca</token>: Checks that Certificate has a recognized CA from ca_dir.
 	</listitem>
 
@@ -643,6 +640,9 @@ Sets the Certificate verification policy:
 	<listitem><token>crl_auto</token>: Is a combination of online and
 	offline: it first tries to download the CRL from a possibly given
 	CRL distribution point and if this fails it uses the local CRLs.
+	</listitem>
+
+	<listitem><token>none</token>: Included for legacy reasons, is equivalent to "ca,signature".
 	</listitem>
 
     </itemizedlist>

@@ -92,7 +92,6 @@ pam_pkcs11 {
     support_threads = false;
 
     # Sets the Certificate verification policy. 
-    # "none"         Performs only (!) CA and signature checks
     # "ca"           Does CA check
     # "no_ca"        The only value that disables CA check
     # "crl_online"   Downloads the CRL form the location given by the
@@ -105,6 +104,7 @@ pam_pkcs11 {
     # "signature"    Does a signature check to ensure that private
     #                and public key matches
     # "no_signature" The only value that disables signature check
+    # "none"         Included for legacy reasons, is equivalent to "ca,signature"
     #
     # You can use a combination of ca,crl, and signature flags, or just
     # use "none". Use "none,no_ca,no_signature" to disable all checks.
