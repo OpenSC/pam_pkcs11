@@ -642,7 +642,13 @@ Sets the Certificate verification policy:
 	CRL distribution point and if this fails it uses the local CRLs.
 	</listitem>
 
-	<listitem><token>none</token>: Included for legacy reasons, is equivalent to "ca,signature".
+	<listitem><token>no_crl</token>: Does not use any CRL.
+	</listitem>
+
+	<listitem><token>no_ocsp</token>: Disables OCSP checks.
+	</listitem>
+
+	<listitem><token>none</token>: Included for legacy reasons, translates to <option>no_crl,no_ocsp</option>.
 	</listitem>
 
     </itemizedlist>

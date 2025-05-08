@@ -101,13 +101,16 @@ pam_pkcs11 {
     #                tries to download the CRL from a possibly given CRL 
     #                distribution point and if this fails, uses the local
     #                CRLs
+    # "no_crl"       Does not use any CRL
+    # "no_ocsp"      Disables OCSP checks
     # "signature"    Does a signature check to ensure that private
     #                and public key matches
     # "no_signature" The only value that disables signature check
-    # "none"         Included for legacy reasons, is equivalent to "ca,signature"
+    # "none"         Included for legacy reasons, translates to
+    #                "no_crl,no_ocsp"
     #
     # You can use a combination of ca,crl, and signature flags, or just
-    # use "none". Use "none,no_ca,no_signature" to disable all checks.
+    # use "none". Use "no_ca,no_signature,none" to disable all checks.
     cert_policy = ca,signature;
 
     # What kind of token?

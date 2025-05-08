@@ -188,8 +188,12 @@ static void parse_config_file(void) {
 			configuration.policy.crl_policy=CRLP_ONLINE;
 		} else if ( !strcmp(policy_list->data,"crl_offline") ) {
 			configuration.policy.crl_policy=CRLP_OFFLINE;
+		} else if ( !strcmp(policy_list->data,"no_crl") ) {
+			configuration.policy.crl_policy=CRLP_NONE;
 		} else if ( !strcmp(policy_list->data,"ocsp_on") ) {
 			configuration.policy.ocsp_policy=OCSP_ON;
+		} else if ( !strcmp(policy_list->data,"no_ocsp") ) {
+			configuration.policy.ocsp_policy=OCSP_NONE;
 		} else if ( !strcmp(policy_list->data,"ca") ) {
 			// ignore this setting for legacy reasons
 		} else if ( !strcmp(policy_list->data,"no_ca") ) {
@@ -337,8 +341,14 @@ struct configuration_st *pk_configure( int argc, const char **argv ) {
 		if (strstr(argv[i],"crl_auto")) {
 			configuration.policy.crl_policy=CRLP_AUTO;
 		}
+		if (strstr(argv[i],"no_crl")) {
+			configuration.policy.crl_policy=CRLP_NONE;
+		}
 		if ( strstr(argv[i],"ocsp_on") ) {
 			configuration.policy.ocsp_policy=OCSP_ON;
+		}
+		if ( strstr(argv[i],"no_ocsp") ) {
+			configuration.policy.ocsp_policy=OCSP_NONE;
 		}
 		if (strstr(argv[i],"ca")) {
 			// ignore this setting for legacy reasons
