@@ -39,6 +39,7 @@
 #include <ldap.h>
 #include <pwd.h>
 #include <openssl/x509.h>
+#include <openssl/x509v3.h>
 
 #include "../common/cert_st.h"
 #include "../common/debug.h"
@@ -107,6 +108,7 @@ static const scconf_list *attribute_map;
 static const char *filter="(&(objectClass=posixAccount)(uid=%s)";
 static int searchtimeout=20;
 static int ignorecase=0;
+static int use_alt_security_identities=0;
 static char *uid_attribute_value;
 static int certcnt=0;
 
@@ -776,6 +778,104 @@ ldap_build_partial_cert_filter(const char *map, X509 *x509)
 	return buf;
 }
 
+/* Build a subfilter for matching the passed-in certificate using the
+ * altSecurityIdentities mapping for Active Directory. */
+static char *
+ldap_build_alt_security_identities_filter(X509 *x509)
+{
+	char *buf = NULL;
+	char *issuer_dn_str = NULL;
+	char **serial_hex_p = NULL;
+    char *serial_hex = NULL;
+	char *alt_sec_id = NULL;
+	size_t buf_len;
+    int bio_len;
+	BIO *bio = NULL;
+	X509_NAME *issuer = NULL;
+
+	DBG("ldap_build_alt_security_identities_filter(): building altSecurityIdentities filter");
+
+	/* 1. Get Serial Number */
+	serial_hex_p = cert_info(x509, CERT_SERIAL, NULL);
+	if (serial_hex_p == NULL || serial_hex_p[0] == NULL) {
+		DBG("Failed to get certificate serial number");
+		goto cleanup;
+	}
+    serial_hex = strdup(serial_hex_p[0]);
+    if (serial_hex == NULL) {
+        DBG("Failed to copy serial number");
+        goto cleanup;
+    }
+
+
+	/* 2. Get Issuer DN in RFC4514 format, reversed. */
+	issuer = X509_get_issuer_name(x509);
+	if (issuer == NULL) {
+		DBG("Failed to get issuer name");
+		goto cleanup;
+	}
+
+    bio = BIO_new(BIO_s_mem());
+    if (bio == NULL) {
+        DBG("Failed to allocate BIO for issuer DN");
+        goto cleanup;
+    }
+
+	/* XN_FLAG_RFC2253 is an alias for a set of flags that provide RFC 4514 compliance.
+	 * XN_FLAG_DN_REV reverses the order of RDNs to match the typical AD representation.
+     */
+	if (X509_NAME_print_ex(bio, issuer, 0, XN_FLAG_DN_REV | XN_FLAG_RFC2253) <= 0) {
+		DBG("Failed to print issuer DN");
+		goto cleanup;
+	}
+
+    bio_len = BIO_pending(bio);
+    issuer_dn_str = malloc(bio_len + 1);
+    if (issuer_dn_str == NULL) {
+        DBG("Failed to allocate memory for issuer DN");
+        goto cleanup;
+    }
+
+    if (BIO_read(bio, issuer_dn_str, bio_len) != bio_len) {
+        DBG("Failed to read issuer DN from BIO");
+        free(issuer_dn_str);
+        issuer_dn_str = NULL;
+        goto cleanup;
+    }
+    issuer_dn_str[bio_len] = '\0';
+
+
+	/* 3. Construct the altSecurityIdentities string
+	 * Format: X509:<I>IssuerDN<SR>SerialNumber
+     */
+	buf_len = strlen("X509:<I>") + strlen(issuer_dn_str) + strlen("<SR>") + strlen(serial_hex) + 1;
+	alt_sec_id = malloc(buf_len);
+	if (alt_sec_id == NULL) {
+		DBG("out of memory for alt_sec_id");
+		goto cleanup;
+	}
+	snprintf(alt_sec_id, buf_len, "X509:<I>%s<SR>%s", issuer_dn_str, serial_hex);
+
+	DBG1("Constructed altSecurityIdentities string: %s", alt_sec_id);
+
+	/* 4. Construct the final LDAP filter */
+	buf_len = 1 + strlen(attribute) + 1 + strlen(alt_sec_id) + 2;
+	buf = malloc(buf_len);
+	if (buf == NULL) {
+		DBG("out of memory for filter buffer");
+		goto cleanup;
+	}
+	snprintf(buf, buf_len, "(%s=%s)", attribute, alt_sec_id);
+
+cleanup:
+	if (bio != NULL) BIO_free(bio);
+    if (issuer_dn_str != NULL) free(issuer_dn_str);
+    if (serial_hex != NULL) free(serial_hex);
+	if (alt_sec_id != NULL) free(alt_sec_id);
+
+	return buf;
+}
+
 /* Build a filter for matching the passed-in certificate using the mapping
  * information, or against the configured attribute. */
 static char *
@@ -784,6 +884,10 @@ ldap_build_cert_filter(const char *map, X509 *x509)
 	char *buf = NULL, *tmp, *sub;
 	const char *p;
 	size_t length, n;
+
+	if (use_alt_security_identities) {
+		return ldap_build_alt_security_identities_filter(x509);
+	}
 
 	if (map == NULL) {
 		DBG("ldap_build_cert_filter(): building default filter");
@@ -1139,6 +1243,7 @@ static int read_config(scconf_block *blk) {
 	filter = scconf_get_str(blk,"filter",filter);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	searchtimeout = scconf_get_int(blk,"searchtimeout",searchtimeout);
+	use_alt_security_identities = scconf_get_bool(blk, "use_alt_security_identities", 0);
 
 	ssltls =  scconf_get_str(blk,"ssl","off");
 	if (! strncasecmp (ssltls, "tls", 3))
@@ -1181,6 +1286,7 @@ DBG1("test ssltls = %s", ssltls);
 	DBG1("filter        = %s", filter);
 	DBG1("searchtimeout = %d", searchtimeout);
 	DBG1("ssl_on        = %d", ssl_on);
+	DBG1("use_alt_security_identities = %d", use_alt_security_identities);
 #if defined HAVE_LDAP_START_TLS_S || (defined(HAVE_LDAP_SET_OPTION) && defined(LDAP_OPT_X_TLS))
 	DBG1("tls_randfile  = %s", tls_randfile);
 	DBG1("tls_cacertfile= %s", tls_cacertfile);
