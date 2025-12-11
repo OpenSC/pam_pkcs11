@@ -28,6 +28,11 @@
  *  multi-value certificate entries
  */
 
+/*
+ * Kyle Francis <guitarman_usa@yahoo.com> added support for AD style X.509
+ * altSecurityIdentities certificate mapping.
+*/
+
 #define __LDAP_MAPPER_C_
 
 #ifdef HAVE_CONFIG_H
@@ -40,6 +45,10 @@
 #include <pwd.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+#include <openssl/asn1.h>
+#include <openssl/bio.h>
+#include <openssl/objects.h>
+#include <openssl/obj_mac.h>
 
 #include "../common/cert_st.h"
 #include "../common/debug.h"
@@ -108,7 +117,7 @@ static const scconf_list *attribute_map;
 static const char *filter="(&(objectClass=posixAccount)(uid=%s)";
 static int searchtimeout=20;
 static int ignorecase=0;
-static int use_alt_security_identities=0;
+static int ADaltSecurityIdentities=0;
 static char *uid_attribute_value;
 static int certcnt=0;
 
@@ -781,73 +790,186 @@ ldap_build_partial_cert_filter(const char *map, X509 *x509)
 /* Build a subfilter for matching the passed-in certificate using the
  * altSecurityIdentities mapping for Active Directory. */
 static char *
-ldap_build_alt_security_identities_filter(X509 *x509)
+ldap_build_AD_alt_security_identities_filter(X509 *x509)
 {
 	char *buf = NULL;
 	char *issuer_dn_str = NULL;
-	char **serial_hex_p = NULL;
-    char *serial_hex = NULL;
+	char *serial_hex = NULL;
 	char *alt_sec_id = NULL;
 	size_t buf_len;
-    int bio_len;
 	BIO *bio = NULL;
 	X509_NAME *issuer = NULL;
+	ASN1_INTEGER *serial_number = NULL;
+	int i, len;
 
-	DBG("ldap_build_alt_security_identities_filter(): building altSecurityIdentities filter");
+	DBG("ldap_build_AD_alt_security_identities_filter(): building AD styled altSecurityIdentities filter");
 
-	/* 1. Get Serial Number */
-	serial_hex_p = cert_info(x509, CERT_SERIAL, NULL);
-	if (serial_hex_p == NULL || serial_hex_p[0] == NULL) {
+	/* Get Serial Number and format as a hex string. */
+	serial_number = X509_get_serialNumber(x509);
+	if (serial_number == NULL) {
 		DBG("Failed to get certificate serial number");
 		goto cleanup;
 	}
-    serial_hex = strdup(serial_hex_p[0]);
-    if (serial_hex == NULL) {
-        DBG("Failed to copy serial number");
-        goto cleanup;
-    }
+
+	len = serial_number->length;
+	serial_hex = malloc(2 * len + 1);
+	if (serial_hex == NULL) {
+		DBG("Failed to allocate memory for serial hex string");
+		goto cleanup;
+	}
+
+	/* AD certificate serial numbers use little endian order
+         * not network order (big endian) */
+	for (i = 0; i < len; i++) {
+		sprintf(serial_hex + 2 * i, "%02x", serial_number->data[len - 1 - i]);
+	}
+	serial_hex[2 * len] = '\0';
 
 
-	/* 2. Get Issuer DN in RFC4514 format, reversed. */
+	/* Get Issuer DN in forward order. */
 	issuer = X509_get_issuer_name(x509);
 	if (issuer == NULL) {
 		DBG("Failed to get issuer name");
 		goto cleanup;
 	}
 
-    bio = BIO_new(BIO_s_mem());
-    if (bio == NULL) {
-        DBG("Failed to allocate BIO for issuer DN");
-        goto cleanup;
-    }
-
-	/* XN_FLAG_RFC2253 is an alias for a set of flags that provide RFC 4514 compliance.
-	 * XN_FLAG_DN_REV reverses the order of RDNs to match the typical AD representation.
-     */
-	if (X509_NAME_print_ex(bio, issuer, 0, XN_FLAG_DN_REV | XN_FLAG_RFC2253) <= 0) {
-		DBG("Failed to print issuer DN");
-		goto cleanup;
+	bio = BIO_new(BIO_s_mem());
+	if (bio == NULL) {
+	    DBG("Failed to allocate BIO for issuer DN");
+	    goto cleanup;
 	}
 
-    bio_len = BIO_pending(bio);
-    issuer_dn_str = malloc(bio_len + 1);
-    if (issuer_dn_str == NULL) {
-        DBG("Failed to allocate memory for issuer DN");
-        goto cleanup;
-    }
+	/* Manually construct the DN in specified order C, O, OU, CN. */
+	typedef struct {
+		char *name;
+		char *value;
+		int order; // Used for sorting: C=0, O=1, OU=2, CN=3, others=4
+	} dn_component_t;
 
-    if (BIO_read(bio, issuer_dn_str, bio_len) != bio_len) {
-        DBG("Failed to read issuer DN from BIO");
-        free(issuer_dn_str);
-        issuer_dn_str = NULL;
-        goto cleanup;
-    }
-    issuer_dn_str[bio_len] = '\0';
+	int max_components = X509_NAME_entry_count(issuer);
+	dn_component_t *components = NULL;
+	if (max_components > 0) {
+		components = malloc(sizeof(dn_component_t) * max_components);
+		if (components == NULL) {
+			DBG("Failed to allocate memory for DN components");
+			goto cleanup;
+		}
+	}
+	int component_count = 0;
+	
+	/* In AD the IssuerDN is in forward order, not RFC4514 order. */
+	for (i = 0; i < max_components; i++) {
+		X509_NAME_ENTRY *entry = X509_NAME_get_entry(issuer, i);
+		ASN1_STRING *d = X509_NAME_ENTRY_get_data(entry);
+		ASN1_OBJECT *o = X509_NAME_ENTRY_get_object(entry);
 
+		char oid_buf[256];
+		int nid = OBJ_obj2nid(o);
+		char *short_name = NULL;
+		int order = 4; // Default order for unknown components
 
-	/* 3. Construct the altSecurityIdentities string
-	 * Format: X509:<I>IssuerDN<SR>SerialNumber
-     */
+		switch (nid) {
+			case NID_countryName:
+				short_name = strdup("C");
+				order = 0;
+				break;
+			case NID_organizationName:
+				short_name = strdup("O");
+				order = 1;
+				break;
+			case NID_organizationalUnitName:
+				short_name = strdup("OU");
+				order = 2;
+				break;
+			case NID_commonName:
+				short_name = strdup("CN");
+				order = 3;
+				break;
+			default:
+				// For other components, use the short OID name if available
+				OBJ_obj2txt(oid_buf, sizeof(oid_buf), o, 1);
+				short_name = strdup(oid_buf);
+				break;
+		}
+
+		if (short_name == NULL) {
+			DBG("Failed to allocate memory for short_name");
+			// Need to free previously allocated components if any
+			for (int k = 0; k < component_count; k++) {
+				free(components[k].name);
+				free(components[k].value);
+			}
+			free(components);
+			components = NULL; // Indicate failure
+			goto cleanup;
+		}
+
+		unsigned char *utf8_str = NULL;
+		int utf8_len = ASN1_STRING_to_UTF8(&utf8_str, d);
+		
+		if (utf8_len >= 0) {
+			components[component_count].name = short_name;
+			components[component_count].value = strdup((char *)utf8_str);
+			components[component_count].order = order;
+			
+			if (components[component_count].value == NULL) {
+				DBG("Failed to allocate memory for component value");
+				free(short_name);
+				// Need to free previously allocated components
+				for (int k = 0; k < component_count; k++) {
+					free(components[k].name);
+					free(components[k].value);
+				}
+				free(components);
+				components = NULL; // Indicate failure
+				goto cleanup;
+			}
+			component_count++;
+			OPENSSL_free(utf8_str);
+		} else {
+			DBG("Failed to convert ASN1_STRING to UTF8");
+			free(short_name);
+			// Need to free previously allocated components
+			for (int k = 0; k < component_count; k++) {
+				free(components[k].name);
+				free(components[k].value);
+			}
+			free(components);
+			components = NULL; // Indicate failure
+			goto cleanup;
+		}
+	}
+
+	// Sort components based on the desired order (C, O, OU, CN, others)
+	// Simple bubble sort for a small number of components
+	for (i = 0; i < component_count - 1; i++) {
+		for (int j = 0; j < component_count - i - 1; j++) {
+			if (components[j].order > components[j+1].order) {
+				dn_component_t temp = components[j];
+				components[j] = components[j+1];
+				components[j+1] = temp;
+			}
+		}
+	}
+
+	for (i = 0; i < component_count; i++) {
+		if (i > 0) {
+			BIO_puts(bio, ",");
+		}
+		BIO_printf(bio, "%s=%s", components[i].name, components[i].value);
+	}
+	
+	len = BIO_pending(bio);
+	issuer_dn_str = malloc(len + 1);
+	if (issuer_dn_str == NULL) {
+		DBG("Failed to allocate memory for issuer DN string");
+		goto cleanup;
+	}
+	BIO_read(bio, issuer_dn_str, len);
+	issuer_dn_str[len] = '\0';
+
+	/* Construct the AD styled altSecurityIdentities string
+	 * Format: X509:<I>IssuerDN<SR>SerialNumber */
 	buf_len = strlen("X509:<I>") + strlen(issuer_dn_str) + strlen("<SR>") + strlen(serial_hex) + 1;
 	alt_sec_id = malloc(buf_len);
 	if (alt_sec_id == NULL) {
@@ -856,9 +978,9 @@ ldap_build_alt_security_identities_filter(X509 *x509)
 	}
 	snprintf(alt_sec_id, buf_len, "X509:<I>%s<SR>%s", issuer_dn_str, serial_hex);
 
-	DBG1("Constructed altSecurityIdentities string: %s", alt_sec_id);
+	DBG1("Constructed AD styled altSecurityIdentities string: %s", alt_sec_id);
 
-	/* 4. Construct the final LDAP filter */
+	/* Construct the final LDAP filter */
 	buf_len = 1 + strlen(attribute) + 1 + strlen(alt_sec_id) + 2;
 	buf = malloc(buf_len);
 	if (buf == NULL) {
@@ -868,9 +990,18 @@ ldap_build_alt_security_identities_filter(X509 *x509)
 	snprintf(buf, buf_len, "(%s=%s)", attribute, alt_sec_id);
 
 cleanup:
-	if (bio != NULL) BIO_free(bio);
-    if (issuer_dn_str != NULL) free(issuer_dn_str);
-    if (serial_hex != NULL) free(serial_hex);
+	// Free dynamically allocated component names and values
+	if (components != NULL) {
+		for (i = 0; i < component_count; i++) {
+			free(components[i].name);
+			free(components[i].value);
+		}
+		free(components);
+	}
+	
+	if (bio != NULL) BIO_free_all(bio);
+        if (issuer_dn_str != NULL) free(issuer_dn_str);
+        if (serial_hex != NULL) free(serial_hex);
 	if (alt_sec_id != NULL) free(alt_sec_id);
 
 	return buf;
@@ -884,10 +1015,6 @@ ldap_build_cert_filter(const char *map, X509 *x509)
 	char *buf = NULL, *tmp, *sub;
 	const char *p;
 	size_t length, n;
-
-	if (use_alt_security_identities) {
-		return ldap_build_alt_security_identities_filter(x509);
-	}
 
 	if (map == NULL) {
 		DBG("ldap_build_cert_filter(): building default filter");
@@ -966,8 +1093,12 @@ ldap_build_filter(const char *filter_param, const char *login, const char *map,
 	snprintf(user_filter, user_filter_len, filter_param, escaped);
 	free(escaped);
 
-	/* Build the part of the filter that's specific to the certificate. */
-	cert_filter = ldap_build_cert_filter(map, x509);
+	/* If using AD styled altSecurityIdentities, build that specific search filter.
+         * Else build the part of the filter that's specific to the certificate. */
+	cert_filter = ADaltSecurityIdentities 
+	    ? ldap_build_AD_alt_security_identities_filter(x509) 
+	    : ldap_build_cert_filter(map, x509);
+
 	if (cert_filter == NULL) {
 		DBG("ldap_build_filter(): error building certificate filter");
 		free(user_filter);
@@ -1135,6 +1266,26 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 		}
 		DBG1("ldap_get_certificate(): searching with filter_str = %s",
 		     filter_str);
+
+		/* --- DEBUG LDAP connection ---- */
+		DBG("=== LDAP SEARCH DEBUG ===");
+		DBG1("LDAP Handle: %p", (void*)ldap_connection);
+		DBG1("Base DN:     '%s'", base ? base : "NULL");
+		DBG1("Scope:       %d (0=Base, 1=One, 2=Sub)", sscope[scope]);
+		DBG1("Filter:      '%s'", filter_str ? filter_str : "NULL");
+
+		/* Print requested attributes */
+		if (attrs) {
+		    int i = 0;
+		    DBG("Attrs:       ");
+		    while (attrs[i] != NULL) {
+		        DBG1("%s, ", attrs[i]);
+		        i++;
+		    }
+		} else {
+		    DBG("Attrs:       NULL (All)");
+		}
+
 		rv = ldap_search_s(ldap_connection,
 				   base,
 				   sscope[scope],
@@ -1143,6 +1294,12 @@ static int ldap_get_certificate(const char *login, X509 *x509) {
 				   0,
 				   &res);
 		free(filter_str);
+
+		/* --- DEBUG LDAP connection (cont.) ---- */
+		DBG1("Return Code: %d", rv);
+		DBG1("Error String: %s", ldap_err2string(rv));
+		DBG("=========================");
+
 		/* The first successful search means we're done. */
 		if ((rv == LDAP_SUCCESS) &&
 		    (ldap_count_entries(ldap_connection, res) > 0)) {
@@ -1243,7 +1400,8 @@ static int read_config(scconf_block *blk) {
 	filter = scconf_get_str(blk,"filter",filter);
 	ignorecase = scconf_get_bool(blk,"ignorecase",ignorecase);
 	searchtimeout = scconf_get_int(blk,"searchtimeout",searchtimeout);
-	use_alt_security_identities = scconf_get_bool(blk, "use_alt_security_identities", 0);
+	ADaltSecurityIdentities = scconf_get_bool(blk, "AD_altSecIden", 0);
+        if ( ADaltSecurityIdentities ) { attribute = "altSecurityIdentities"; }
 
 	ssltls =  scconf_get_str(blk,"ssl","off");
 	if (! strncasecmp (ssltls, "tls", 3))
@@ -1286,7 +1444,7 @@ DBG1("test ssltls = %s", ssltls);
 	DBG1("filter        = %s", filter);
 	DBG1("searchtimeout = %d", searchtimeout);
 	DBG1("ssl_on        = %d", ssl_on);
-	DBG1("use_alt_security_identities = %d", use_alt_security_identities);
+	DBG1("AD_altSecIden = %d", ADaltSecurityIdentities);
 #if defined HAVE_LDAP_START_TLS_S || (defined(HAVE_LDAP_SET_OPTION) && defined(LDAP_OPT_X_TLS))
 	DBG1("tls_randfile  = %s", tls_randfile);
 	DBG1("tls_cacertfile= %s", tls_cacertfile);
