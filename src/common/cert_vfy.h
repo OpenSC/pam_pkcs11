@@ -46,7 +46,7 @@ typedef enum {
 	} ocsp_policy_t;
 
 struct cert_policy_st {
-	int ca_policy;
+	int no_ca_policy;
 	int crl_policy;
 	int no_signature_policy;
 	const char *ca_dir;

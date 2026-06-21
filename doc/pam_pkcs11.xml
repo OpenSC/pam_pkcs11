@@ -613,18 +613,21 @@ is <filename class='directory'>/etc/pam_pkcs11/crls/</filename>.
 </varlistentry>
 
 <varlistentry>
-<term><token>cert_policy={none, ca, signature, crl_online, crl_offline, crl_auto}</token></term>
+<term><token>cert_policy={none, ca, no_ca, signature, no_signature, crl_online, crl_offline, crl_auto}</token></term>
 <listitem>
 <para>
 Sets the Certificate verification policy:
     <itemizedlist> 
-	<listitem><token>none</token>: Performs no verification at all
+	<listitem><token>ca</token>: Checks that Certificate has a recognized CA from ca_dir.
 	</listitem>
 
-	<listitem><token>ca</token>: Checks that Certificate has a recognized CA from ca_dir
+	<listitem><token>no_ca</token>: Does not check that Certificate is signed by a recognized CA. Only this value disables the CA check.
 	</listitem>
 
-	<listitem><token>signature></token>: Does a signature check to ensure that private and public key matches
+	<listitem><token>signature</token>: Does a signature check to ensure that private and public key matches.
+	</listitem>
+
+	<listitem><token>no_signature</token>: Does not check the signature to ensure that private and public key matches. Only this value disables the signature check.
 	</listitem>
 
 	<listitem><token>crl_online</token>: Downloads the CRL from the location
@@ -637,6 +640,15 @@ Sets the Certificate verification policy:
 	<listitem><token>crl_auto</token>: Is a combination of online and
 	offline: it first tries to download the CRL from a possibly given
 	CRL distribution point and if this fails it uses the local CRLs.
+	</listitem>
+
+	<listitem><token>no_crl</token>: Does not use any CRL.
+	</listitem>
+
+	<listitem><token>no_ocsp</token>: Disables OCSP checks.
+	</listitem>
+
+	<listitem><token>none</token>: Included for legacy reasons, translates to <option>no_crl,no_ocsp</option>.
 	</listitem>
 
     </itemizedlist>
