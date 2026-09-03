@@ -154,11 +154,11 @@ static int pam_pkcs11_prompt(const pam_handle_t *pamh, int style, char **resp, c
  */
 static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, int nitem)
 {
-  int rv;
+  int rv = PAM_CRED_INSUFFICIENT;
   const char *old_pwd;
   struct pam_conv *conv;
   struct pam_message msg;
-  struct pam_response *resp;
+  struct pam_response *resp = NULL;
   /* struct pam_message *(msgp[1]) = { &msg}; */
   const struct pam_message *(msgp[1]);
   msgp[0] = &msg;
@@ -168,10 +168,11 @@ static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, in
     /* try to get stored item */
     rv = pam_get_item(pamh, oitem, (const void **) &old_pwd);
     if (rv != PAM_SUCCESS)
-      return rv;
+      goto pwd_exit;
     if (old_pwd != NULL) {
       *pwd = strdup(old_pwd);
-      return PAM_SUCCESS;
+      rv = PAM_SUCCESS;
+      goto pwd_exit;
     }
   }
 
@@ -181,34 +182,34 @@ static int pam_get_pwd(pam_handle_t *pamh, char **pwd, char *text, int oitem, in
     msg.msg = text;
     rv = pam_get_item(pamh, PAM_CONV, (const void **) &conv);
     if (rv != PAM_SUCCESS)
-      return rv;
-    if ((conv == NULL) || (conv->conv == NULL))
-      return PAM_CRED_INSUFFICIENT;
+      goto pwd_exit;
+    if ((conv == NULL) || (conv->conv == NULL)) {
+      rv = PAM_CRED_INSUFFICIENT;
+      goto pwd_exit;
+    }
     rv = conv->conv(1, msgp, &resp, conv->appdata_ptr);
-    if (rv != PAM_SUCCESS) goto pwd_exit;
+    if (rv != PAM_SUCCESS)
+      goto pwd_exit;
     if ((resp == NULL) || (resp[0].resp == NULL)) {
       rv = PAM_CRED_INSUFFICIENT;
       goto pwd_exit;
     }
     *pwd = strdup(resp[0].resp);
-    /* overwrite memory and release it */
-    cleanse(resp[0].resp, strlen(resp[0].resp));
-    free(resp[0].resp);
-    free(&resp[0]);
     /* save password if variable nitem is set */
     if ((nitem == PAM_AUTHTOK) || (nitem == PAM_OLDAUTHTOK)) {
       rv = pam_set_item(pamh, nitem, *pwd);
-      if (rv != PAM_SUCCESS)
-        return rv;
-    }
-    return PAM_SUCCESS;
+    } else
+      rv = PAM_SUCCESS;
   }
 pwd_exit:
-  if(NULL != resp[0].resp) {
-    cleanse(resp[0].resp, strlen(resp[0].resp));
-    free(resp[0].resp);
+  if (NULL != resp) {
+    if (NULL != resp[0].resp) {
+      /* overwrite memory and release it */
+      cleanse(resp[0].resp, strlen(resp[0].resp));
+      free(resp[0].resp);
+    }
+    free(resp);
   }
-  free(&resp[0]);
   return rv;
 }
 
