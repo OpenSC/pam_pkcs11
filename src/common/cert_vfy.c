@@ -305,8 +305,9 @@ static int check_for_revocation(X509 * x509, X509_STORE_CTX * ctx, crl_policy_t 
         for (j = 0; j < sk_GENERAL_NAME_num(GET_FULLNAME(point->distpoint)); j++) {
           name = sk_GENERAL_NAME_value(GET_FULLNAME(point->distpoint), j);
           if (name != NULL && name->type == GEN_URI) {
-            DBG1("downloading crl from %s", name->d.ia5->data);
-            crl = download_crl((const char *)name->d.ia5->data);
+            const char *uri = (const char *)ASN1_STRING_get0_data(name->d.ia5);
+            DBG1("downloading crl from %s", uri);
+            crl = download_crl(uri);
 
             /*crl = download_crl("file:///home/mario/projects/pkcs11_login/tests/ca_crl_0.pem"); */
             /*crl = download_crl("http://www-t.zhwin.ch/ca/root_ca.crl"); */

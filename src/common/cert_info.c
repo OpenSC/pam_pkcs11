@@ -483,8 +483,9 @@ static char **cert_info_email(X509 *x509) {
         for (i=0,j=0; (i < sk_GENERAL_NAME_num(gens)) && (j<CERT_INFO_MAX_ENTRIES); i++) {
             name = sk_GENERAL_NAME_value(gens, i);
             if ( name && name->type==GEN_EMAIL ) {
-                DBG1("Found E-Mail Entry = '%s'", name->d.ia5->data);
-		entries[j++]=clone_str((const char *)name->d.ia5->data);
+                const char *ia5 = (const char *)ASN1_STRING_get0_data(name->d.ia5);
+                DBG1("Found E-Mail Entry = '%s'", ia5);
+		entries[j++]=clone_str(ia5);
             }
         }
         sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
@@ -519,8 +520,9 @@ static char **cert_info_upn(X509 *x509) {
                 /* try to extract string and return it */
                 if (name->d.otherName->value->type == V_ASN1_UTF8STRING) {
                     ASN1_UTF8STRING *str = name->d.otherName->value->value.utf8string;
-                    DBG1("Adding UPN NAME entry= %s",str->data);
-		    entries[j++] = clone_str((const char *)str->data);
+                    const char *upn = (const char *)ASN1_STRING_get0_data(str);
+                    DBG1("Adding UPN NAME entry= %s",upn);
+		    entries[j++] = clone_str(upn);
                 } else {
 		    DBG("Found UPN entry is not an utf8string");
 		}

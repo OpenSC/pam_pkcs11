@@ -100,6 +100,7 @@ extern "C" {
 #define RSA_get0_n(x) (x->n)
 #define ECDSA_SIG_get0_r(x) (x->r)
 #define ECDSA_SIG_get0_s(x) (x->s)
+#define ASN1_STRING_get0_data(x)	ASN1_STRING_data(x)
 
 #define X509_OBJECT_free(x) ({ \
 	if (x) { \
