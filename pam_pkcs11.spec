@@ -1,5 +1,5 @@
 Name:           pam_pkcs11
-Version:        0.6.13
+Version:        0.6.14
 Release:        1%{?dist}
 Summary:        PKCS #11 PAM module
 

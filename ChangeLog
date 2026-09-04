@@ -1,3 +1,14 @@
+04- Sep 2026
+    - Version 0.6.14.
+    - Fixed SIGSEGV in pam_get_pwd() (when conv() returned NULL value).
+    - Fixed building with OpenSSL 4.0: Use ASN1_STRING_get0_data to
+      access ASN1_STRING contents (thx Finn Rayk Gaertner).
+    - Fixed building with Autoconf 2.73: Add AC_CONFIG_MACRO_DIR([aclocal])
+      (thx Adrian Bunk).
+    - Fixed distcheck.
+    - Fixed some spelling errors.
+    - Added Georgian translation (thx Ekaterine Papava).
+
 04- Feb 2025
     - Version 0.6.13.
     - Added pkcs11-eventmgr systemd service unit.
