@@ -1687,7 +1687,7 @@ ldap_mapper configuration file shows like:
         uid_attribute = "uid";
         attribute_map = "<![CDATA[uid=uid&mail=email]]>", "<![CDATA[krbprincipalname=upn]]>";
         # SSL/TLS-Settings
-        ssl = tls
+        ssl = starttls
         # tls_randfile = ...
         tls_cacertfile = /etc/ssl/cacert.pem
         # tls_cacertdir = ...
@@ -1714,7 +1714,7 @@ If a ldaphost is also submitted, it will be appended to the URI list.
 <varlistentry>
 <term><token>ldapport</token></term>
 <listitem>The LDAP Port on the server (default:
-389 for LDAP and LDAP-TLS and 636 for SSL)
+389 for LDAP and LDAP-TLS (STARTTLS) and 636 for LDAP-SSL (LDAPS))
 </listitem>
 </varlistentry>
 
@@ -1825,13 +1825,13 @@ collected under the attribute.
 <term><token>ssl</token></term>
 <listitem>Enable or disable the usage of TLS or SSL
 	<itemizedlist>
-		<listitem><option> off </option>   TLS/SSL off(default)
+		<listitem><option> off </option>   TLS/SSL off (default)
 		</listitem>
 	
-		<listitem><option> tls </option>   enable TLS 
+		<listitem><option> starttls|tls </option>   enable LDAP-TLS (STARTTLS)
 	    </listitem>
 	
-		<listitem><option> on|ssl </option>   enable SSL
+		<listitem><option> ldaps|on|ssl </option>   enable LDAP-SSL (LDAPS)
 		</listitem>
 	</itemizedlist>
 </listitem>
