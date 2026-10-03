@@ -31,6 +31,9 @@ pam_pkcs11.conf:
         uid_attribute = "uid";
         # List of sets of ldap attribute / cert attribute pairs (optional)
         attribute_map = "uid=uid&mail=email", "krbprincipalname=upn", "userCertificate;binary=cert";
+	# Use AD styled altSecurityIdentities, if set attribute is overriden to "altSecurityIdentities"
+        # Recommend filter = "(&(objectClass=user)(sAMAccountName=%s))"; for AD interoperability
+        AD_altSecIden = false
   }
 (...)
 
